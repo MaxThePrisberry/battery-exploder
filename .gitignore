@@ -1,0 +1,6 @@
+cvibuild.*
+data/
+*.exe
+*.cws
+*.log
+*.csv
