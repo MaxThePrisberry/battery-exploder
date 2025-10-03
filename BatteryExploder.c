@@ -6,7 +6,8 @@
  ******************************************************************************/
 
 #include "common.h"
-#include "BatteryExploder.h"  
+#include "BatteryExploder.h"
+#include "exp_temp_ramp.h"
 #include "biologic_queue.h"
 #include "psb10000_queue.h"
 #include "dtb4848_queue.h"

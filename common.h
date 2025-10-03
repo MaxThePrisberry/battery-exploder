@@ -422,7 +422,7 @@ void DimExperimentControls(int mainPanel, int tabPanel, int dim, int *controls, 
 #define GEIS_FINAL_FREQ        0.1      // 100.000 mHz = 0.1 Hz
 #define GEIS_SWEEP_LINEAR      false    // Logarithmic
 #define GEIS_AMPLITUDE_I       0.5      // 500mA
-#define GEIS_FREQ_NUMBER       31       // 5 decades * 6 points per decade + 1 final
+#define GEIS_FREQ_NUMBER       11       // 5 decades * 6 points per decade + 1 final
 #define GEIS_AVERAGE_N         2        // Average N = 2
 #define GEIS_CORRECTION        false    // No drift correction
 #define GEIS_WAIT_FOR_STEADY   0.1      // 0.10 period before each frequency

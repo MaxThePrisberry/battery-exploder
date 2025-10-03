@@ -72,11 +72,13 @@
 #define  PANEL_LOAD_IMG_LOGO              2       /* control type: picture, callback function: (none) */
 
      /* tab page panel controls */
-#define  RUNAWAY_INITIAL_TEMP             2       /* control type: numeric, callback function: (none) */
-#define  RUNAWAY_RAMP_RATE                3       /* control type: numeric, callback function: (none) */
-#define  RUNAWAY_NUM_EIS_INTERVAL         4       /* control type: numeric, callback function: (none) */
-#define  RUNAWAY_BTN_RUNAWAY              5       /* control type: command, callback function: (none) */
-#define  RUNAWAY_STR_RUNAWAY_STATUS       6       /* control type: string, callback function: (none) */
+#define  RUNAWAY_FINAL_TEMP_RWY           2       /* control type: numeric, callback function: (none) */
+#define  RUNAWAY_INITIAL_TEMP_RWY         3       /* control type: numeric, callback function: (none) */
+#define  RUNAWAY_RAMP_RATE_RWY            4       /* control type: numeric, callback function: (none) */
+#define  RUNAWAY_NUM_EIS_INTERVAL_RWY     5       /* control type: numeric, callback function: (none) */
+#define  RUNAWAY_BTN_RWY                  6       /* control type: command, callback function: StartTempRampExperimentCallback */
+#define  RUNAWAY_STR_RWY_STATUS           7       /* control type: string, callback function: (none) */
+#define  RUNAWAY_TEMP_RAMP_NUM_OUTPUT     8       /* control type: numeric, callback function: (none) */
 
 
      /* Control Arrays: */
@@ -102,6 +104,7 @@ int  CVICALLBACK DTB1RunStopCallback(int panel, int control, int event, void *ca
 int  CVICALLBACK DTB2RunStopCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK PanelCallback(int panel, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK RemoteModeToggle(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
+int  CVICALLBACK StartTempRampExperimentCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK TestBiologicCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK TestDeviceQueueCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK TestPSBCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
