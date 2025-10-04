@@ -24,12 +24,13 @@ static TempRampExperimentContext g_experimentContext = {0};
 static CmtThreadFunctionID g_experimentThreadId = 0;
 
 // Controls to be dimmed during experiment
-static const int numControls = 4;
-static const int controls[4] = {
-    RUNAWAY_INITIAL_TEMP_RWY,           // changed
-    RUNAWAY_FINAL_TEMP_RWY,             // changed
-    RUNAWAY_RAMP_RATE_RWY,              // changed
-    RUNAWAY_NUM_EIS_INTERVAL_RWY        // changed
+static const int numControls = 5;
+static const int controls[5] = {
+    RUNAWAY_INITIAL_TEMP_RWY,
+    RUNAWAY_FINAL_TEMP_RWY,
+    RUNAWAY_RAMP_RATE_RWY,
+    RUNAWAY_NUM_EIS_INTERVAL_RWY,
+    RUNAWAY_CBX_CONT_TRAMP_EIS
 };
 
 /******************************************************************************
@@ -53,6 +54,9 @@ static int LogTemperatureDataPoint(TempRampExperimentContext *ctx, TempRampTempD
 static int PerformEISMeasurement(TempRampExperimentContext *ctx);
 static int RunOCVMeasurement(TempRampExperimentContext *ctx, TempRampEISMeasurement *measurement);
 static int RunGEISMeasurement(TempRampExperimentContext *ctx, TempRampEISMeasurement *measurement);
+static void EISProgressCallback(double progress, void *userData);
+static void EISStatusCallback(const char *status, void *userData);
+static int CVICALLBACK TemperatureMonitorThread(void *functionData);
 static int ProcessGEISData(BIO_TechniqueData *geisData, TempRampEISMeasurement *measurement);
 static int SaveEISMeasurementData(TempRampExperimentContext *ctx, TempRampEISMeasurement *measurement);
 static int RetryEISMeasurement(TempRampExperimentContext *ctx, TempRampEISMeasurement *measurement);
@@ -113,9 +117,10 @@ int CVICALLBACK StartTempRampExperimentCallback(int panel, int control, int even
     
     // Read parameters
     GetCtrlVal(panel, RUNAWAY_INITIAL_TEMP_RWY, &g_experimentContext.params.initialTemp);
-	GetCtrlVal(panel, RUNAWAY_FINAL_TEMP_RWY, &g_experimentContext.params.finalTemp);
-	GetCtrlVal(panel, RUNAWAY_RAMP_RATE_RWY, &g_experimentContext.params.rampRate);
-	GetCtrlVal(panel, RUNAWAY_NUM_EIS_INTERVAL_RWY, &g_experimentContext.params.eisInterval);
+    GetCtrlVal(panel, RUNAWAY_FINAL_TEMP_RWY, &g_experimentContext.params.finalTemp);
+    GetCtrlVal(panel, RUNAWAY_RAMP_RATE_RWY, &g_experimentContext.params.rampRate);
+    GetCtrlVal(panel, RUNAWAY_NUM_EIS_INTERVAL_RWY, &g_experimentContext.params.eisInterval);
+    GetCtrlVal(panel, RUNAWAY_CBX_CONT_TRAMP_EIS, &g_experimentContext.params.continueRampDuringEIS);
     
     // Validate parameters
     if (!ENABLE_DTB) {
@@ -281,11 +286,12 @@ static int TempRampExperimentThread(void *functionData) {
         "• Initial Temperature: %.1f °C\n"
         "• Final Temperature: %.1f °C\n"
         "• Ramp Rate: %.1f °C/min\n"
-        "• EIS Interval: %d minutes\n\n"
+        "• EIS Interval: %.1f minutes\n"
+        "• Ramp Mode: %s during EIS\n\n"
         "EXPERIMENT SEQUENCE:\n"
         "1. Reach %.1f °C and stabilize\n"
         "2. Ramp to %.1f °C at %.1f °C/min\n"
-        "3. EIS measurements every %d min\n"
+        "3. EIS measurements every %.1f min\n"
         "4. Hold at %.1f °C briefly\n\n"
         "ESTIMATED:\n"
         "• Ramp Duration: %.1f minutes\n"
@@ -296,6 +302,7 @@ static int TempRampExperimentThread(void *functionData) {
         ctx->params.finalTemp,
         ctx->params.rampRate,
         ctx->params.eisInterval,
+        ctx->params.continueRampDuringEIS ? "CONTINUE" : "PAUSE",
         ctx->params.initialTemp,
         ctx->params.finalTemp,
         ctx->params.rampRate,
@@ -565,6 +572,7 @@ static int RunTemperatureRampWithEIS(TempRampExperimentContext *ctx) {
     ctx->rampStartTime = Timer() - ctx->experimentStartTime;
     ctx->lastEISTime = ctx->rampStartTime;
     ctx->lastTempLogTime = Timer();
+    ctx->totalEISTime = 0.0;
     
     double rampDuration = (ctx->params.finalTemp - ctx->params.initialTemp) / 
                          ctx->params.rampRate;  // minutes
@@ -574,10 +582,30 @@ static int RunTemperatureRampWithEIS(TempRampExperimentContext *ctx) {
     LogMessage("Ramp rate: %.1f °C/min, Duration: %.1f minutes", 
                ctx->params.rampRate, rampDuration);
     LogMessage("EIS measurements every %.1f minutes", ctx->params.eisInterval);
+    LogMessage("Ramp mode: %s during EIS measurements", 
+               ctx->params.continueRampDuringEIS ? "CONTINUE" : "PAUSE");
     
     // Perform initial EIS measurement
     LogMessage("Taking initial EIS measurement at %.1f °C", ctx->currentTemperature);
+    
+    // Set state for temperature monitor thread to work correctly
+    ctx->state = TEMP_RAMP_STATE_EIS_MEASUREMENT;
+    
+    double eisStartTime = Timer();
     int result = PerformEISMeasurement(ctx);
+    double eisEndTime = Timer();
+    double eisDuration = eisEndTime - eisStartTime;
+    
+    // Return to ramping state
+    ctx->state = TEMP_RAMP_STATE_RAMPING;
+    
+    if (!ctx->params.continueRampDuringEIS) {
+        ctx->totalEISTime += eisDuration;
+        LogMessage("EIS measurement took %.1f seconds (ramp paused)", eisDuration);
+    } else {
+        LogMessage("EIS measurement took %.1f seconds (ramp continued)", eisDuration);
+    }
+    
     if (result != SUCCESS) {
         LogWarning("Initial EIS measurement failed, continuing anyway");
     }
@@ -588,9 +616,19 @@ static int RunTemperatureRampWithEIS(TempRampExperimentContext *ctx) {
         }
         
         double currentTime = Timer();
-        double elapsedRampTime = (currentTime - ctx->experimentStartTime - ctx->rampStartTime) / 60.0;  // minutes
         
-        // Calculate target temperature based on elapsed time
+        // Calculate elapsed ramp time
+        // If pausing during EIS, subtract total EIS time
+        double rawElapsedTime = (currentTime - ctx->experimentStartTime - ctx->rampStartTime);
+        double elapsedRampTime;
+        
+        if (ctx->params.continueRampDuringEIS) {
+            elapsedRampTime = rawElapsedTime / 60.0;  // minutes
+        } else {
+            elapsedRampTime = (rawElapsedTime - ctx->totalEISTime) / 60.0;  // minutes
+        }
+        
+        // Calculate target temperature based on elapsed ramp time
         double targetTemp = ctx->params.initialTemp + (elapsedRampTime * ctx->params.rampRate);
         
         if (targetTemp >= ctx->params.finalTemp) {
@@ -616,8 +654,8 @@ static int RunTemperatureRampWithEIS(TempRampExperimentContext *ctx) {
             
             char statusMsg[MEDIUM_BUFFER_SIZE];
             snprintf(statusMsg, sizeof(statusMsg), 
-                     "Ramping: %.1f °C (target: %.1f °C)", 
-                     tempData.dtbAverageTemperature, targetTemp);
+                     "Ramping: %.1f °C (target: %.1f °C, ramp time: %.1f min)", 
+                     tempData.dtbAverageTemperature, targetTemp, elapsedRampTime);
             SetCtrlVal(ctx->tabPanelHandle, ctx->statusControl, statusMsg);
             SetCtrlVal(ctx->tabPanelHandle, ctx->outputControl, tempData.dtbAverageTemperature);
             
@@ -628,15 +666,28 @@ static int RunTemperatureRampWithEIS(TempRampExperimentContext *ctx) {
         double timeSinceLastEIS = (currentTime - ctx->experimentStartTime - ctx->lastEISTime) / 60.0;  // minutes
         
         if (timeSinceLastEIS >= ctx->params.eisInterval) {
-            LogMessage("Time for EIS measurement (%.1f minutes elapsed)", timeSinceLastEIS);
+            LogMessage("Time for EIS measurement (%.1f minutes elapsed since last)", timeSinceLastEIS);
             
             TempRampTempData tempData;
             ReadAllTemperatures(ctx, &tempData, currentTime - ctx->experimentStartTime);
             
-            LogMessage("Current temperature: %.1f °C", tempData.dtbAverageTemperature);
+            LogMessage("Current temperature: %.1f °C, Target: %.1f °C", 
+                      tempData.dtbAverageTemperature, targetTemp);
             
             ctx->state = TEMP_RAMP_STATE_EIS_MEASUREMENT;
+            
+            eisStartTime = Timer();
             result = PerformEISMeasurement(ctx);
+            eisEndTime = Timer();
+            eisDuration = eisEndTime - eisStartTime;
+            
+            if (!ctx->params.continueRampDuringEIS) {
+                ctx->totalEISTime += eisDuration;
+                LogMessage("EIS measurement took %.1f seconds (ramp paused, total pause: %.1f min)", 
+                          eisDuration, ctx->totalEISTime / 60.0);
+            } else {
+                LogMessage("EIS measurement took %.1f seconds (ramp continued)", eisDuration);
+            }
             
             if (CheckCancellation(ctx)) {
                 return ERR_CANCELLED;
@@ -657,7 +708,18 @@ static int RunTemperatureRampWithEIS(TempRampExperimentContext *ctx) {
             // One final EIS measurement
             LogMessage("Taking final EIS measurement at %.1f °C", ctx->params.finalTemp);
             ctx->state = TEMP_RAMP_STATE_EIS_MEASUREMENT;
+            
+            eisStartTime = Timer();
             result = PerformEISMeasurement(ctx);
+            eisEndTime = Timer();
+            eisDuration = eisEndTime - eisStartTime;
+            
+            if (!ctx->params.continueRampDuringEIS) {
+                ctx->totalEISTime += eisDuration;
+                LogMessage("Final EIS took %.1f seconds (total EIS time: %.1f min)", 
+                          eisDuration, ctx->totalEISTime / 60.0);
+            }
+            
             if (result != SUCCESS) {
                 LogWarning("Final EIS measurement failed");
             }
@@ -790,6 +852,77 @@ static int LogTemperatureDataPoint(TempRampExperimentContext *ctx, TempRampTempD
  * EIS Measurement Functions
  ******************************************************************************/
 
+// Global context pointer for callbacks (needed because callbacks can't pass complex user data)
+static TempRampExperimentContext *g_eisCallbackContext = NULL;
+static volatile int g_temperatureMonitorRunning = 0;
+static CmtThreadFunctionID g_tempMonitorThreadId = 0;
+
+static int CVICALLBACK TemperatureMonitorThread(void *functionData) {
+    TempRampExperimentContext *ctx = (TempRampExperimentContext*)functionData;
+    
+    LogDebug("Temperature monitor thread started");
+    
+    while (g_temperatureMonitorRunning && !CheckCancellation(ctx)) {
+        double currentTime = Timer();
+        
+        // Read and log temperature
+        TempRampTempData tempData;
+        ReadAllTemperatures(ctx, &tempData, currentTime - ctx->experimentStartTime);
+        LogTemperatureDataPoint(ctx, &tempData);
+        UpdateTemperaturePlot(ctx, &tempData);
+        
+        // If continuing ramp during EIS, update the temperature setpoint
+        if (ctx->params.continueRampDuringEIS && ctx->state == TEMP_RAMP_STATE_EIS_MEASUREMENT) {
+            double rawElapsedTime = (currentTime - ctx->experimentStartTime - ctx->rampStartTime);
+            double elapsedRampTime = rawElapsedTime / 60.0;  // minutes
+            
+            double targetTemp = ctx->params.initialTemp + (elapsedRampTime * ctx->params.rampRate);
+            
+            // Don't exceed final temperature
+            if (targetTemp > ctx->params.finalTemp) {
+                targetTemp = ctx->params.finalTemp;
+            }
+            
+            // Update setpoint if it changed significantly
+            if (fabs(targetTemp - ctx->targetTemperature) > 0.1) {
+                UpdateTemperatureSetpoint(ctx, targetTemp);
+                LogDebug("Setpoint updated by monitor: %.1f °C (measured: %.1f °C)", 
+                        targetTemp, tempData.dtbAverageTemperature);
+            }
+        }
+        
+        ProcessSystemEvents();
+        
+        // Update every 5 seconds for smooth temperature control
+        Delay(5.0);
+    }
+    
+    LogDebug("Temperature monitor thread stopped");
+    return 0;
+}
+
+static void EISProgressCallback(double progress, void *userData) {
+    if (!g_eisCallbackContext) return;
+    
+    TempRampExperimentContext *ctx = g_eisCallbackContext;
+    
+    // Just update status with EIS progress
+    // Temperature monitoring is now handled by dedicated thread
+    char statusMsg[MEDIUM_BUFFER_SIZE];
+    snprintf(statusMsg, sizeof(statusMsg), 
+             "EIS in progress");
+    SetCtrlVal(ctx->tabPanelHandle, ctx->statusControl, statusMsg);
+    
+    ProcessSystemEvents();
+}
+
+static void EISStatusCallback(const char *status, void *userData) {
+    if (!g_eisCallbackContext || !status) return;
+    
+    // Optional: Log status messages from BioLogic
+    LogDebug("BioLogic: %s", status);
+}
+
 static int PerformEISMeasurement(TempRampExperimentContext *ctx) {
     if (CheckCancellation(ctx)) {
         return ERR_CANCELLED;
@@ -814,7 +947,29 @@ static int PerformEISMeasurement(TempRampExperimentContext *ctx) {
              "EIS measurement at %.1f °C...", measurement->temperature);
     SetCtrlVal(ctx->tabPanelHandle, ctx->statusControl, statusMsg);
     
+    // Start dedicated temperature monitoring thread for continuous updates during EIS
+    g_temperatureMonitorRunning = 1;
+    int threadError = CmtScheduleThreadPoolFunction(g_threadPool, TemperatureMonitorThread, 
+                                                   ctx, &g_tempMonitorThreadId);
+    if (threadError != 0) {
+        LogWarning("Failed to start temperature monitor thread: %d", threadError);
+        g_temperatureMonitorRunning = 0;
+        // Continue anyway - EIS can still work without the monitor
+    } else {
+        LogDebug("Temperature monitor thread started for EIS measurement");
+    }
+    
     int result = RetryEISMeasurement(ctx, measurement);
+    
+    // Stop temperature monitoring thread
+    g_temperatureMonitorRunning = 0;
+    if (g_tempMonitorThreadId != 0) {
+        CmtWaitForThreadPoolFunctionCompletion(g_threadPool, g_tempMonitorThreadId,
+                                             OPT_TP_PROCESS_EVENTS_WHILE_WAITING);
+        g_tempMonitorThreadId = 0;
+        LogDebug("Temperature monitor thread stopped");
+    }
+    
     if (result != SUCCESS) {
         LogError("EIS measurement failed at %.1f °C", measurement->temperature);
         return result;
@@ -902,6 +1057,9 @@ static int RunOCVMeasurement(TempRampExperimentContext *ctx, TempRampEISMeasurem
     
     measurement->ocvVoltage = 0.0;
     
+    // Set global context for callbacks
+    g_eisCallbackContext = ctx;
+    
     int result = BIO_RunOCVQueued(ctx->biologicID, 0,
                                 OCV_DURATION_S,
                                 OCV_SAMPLE_INTERVAL_S,
@@ -912,7 +1070,12 @@ static int RunOCVMeasurement(TempRampExperimentContext *ctx, TempRampEISMeasurem
                                 &measurement->ocvData,
                                 OCV_TIMEOUT_MS,
                                 DEVICE_PRIORITY_NORMAL,
-                                NULL, NULL, &(ctx->cancelRequested));
+                                EISProgressCallback, 
+                                EISStatusCallback, 
+                                &(ctx->cancelRequested));
+    
+    // Clear global context
+    g_eisCallbackContext = NULL;
     
     if (result != SUCCESS) {
         LogError("OCV measurement failed: %s", BIO_GetErrorString(result));
@@ -937,6 +1100,9 @@ static int RunOCVMeasurement(TempRampExperimentContext *ctx, TempRampEISMeasurem
 static int RunGEISMeasurement(TempRampExperimentContext *ctx, TempRampEISMeasurement *measurement) {
     LogDebug("Starting GEIS measurement...");
     
+    // Set global context for callbacks
+    g_eisCallbackContext = ctx;
+    
     int result = BIO_RunGEISQueued(ctx->biologicID, 0,
                                  GEIS_VS_INITIAL,
                                  GEIS_INITIAL_CURRENT,
@@ -956,7 +1122,12 @@ static int RunGEISMeasurement(TempRampExperimentContext *ctx, TempRampEISMeasure
                                  &measurement->geisData,
                                  GEIS_TIMEOUT_MS,
                                  DEVICE_PRIORITY_NORMAL,
-                                 NULL, NULL, &(ctx->cancelRequested));
+                                 EISProgressCallback, 
+                                 EISStatusCallback, 
+                                 &(ctx->cancelRequested));
+    
+    // Clear global context
+    g_eisCallbackContext = NULL;
     
     if (result != SUCCESS) {
         LogError("GEIS measurement failed: %s", BIO_GetErrorString(result));
@@ -1309,6 +1480,9 @@ static int SaveExperimentSettings(TempRampExperimentContext *ctx) {
     WriteINIDouble(file, "Final_Temperature_C", ctx->params.finalTemp, 1);
     WriteINIDouble(file, "Ramp_Rate_C_per_min", ctx->params.rampRate, 1);
     WriteINIDouble(file, "EIS_Interval_min", ctx->params.eisInterval, 1);
+    WriteINIValue(file, "Continue_Ramp_During_EIS", "%d (%s)", 
+                 ctx->params.continueRampDuringEIS,
+                 ctx->params.continueRampDuringEIS ? "Continue" : "Pause");
     fprintf(file, "\n");
     
     WriteINISection(file, "Device_Enable_Flags");

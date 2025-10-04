@@ -21,17 +21,11 @@
  * Configuration Constants
  ******************************************************************************/
 
-// Temperature Ramp Parameters
-#define INITIAL_TEMP_RWY                25.0    // Starting temperature (°C)
-#define FINAL_TEMP_RWY                  80.0    // Final temperature (°C)
-#define RAMP_RATE_RWY                   2.0     // Heating rate (°C/min)
-#define NUM_EIS_INTERVAL_RWY            5.0     // Time between EIS measurements (minutes)
-
 // Temperature Control Constants
 #define TEMP_RAMP_TOLERANCE             1.0     // °C tolerance for reaching target
 #define TEMP_RAMP_CHECK_INTERVAL        5.0     // Seconds between temperature checks
-#define TEMP_RAMP_STABILIZE_TIME        300     // Seconds to stabilize at initial temp
-#define TEMP_RAMP_HOLD_TIME             300     // Seconds to hold at final temp
+#define TEMP_RAMP_STABILIZE_TIME        60     // Seconds to stabilize at initial temp
+#define TEMP_RAMP_HOLD_TIME             60     // Seconds to hold at final temp
 #define TEMP_RAMP_TIMEOUT_SEC           3600    // Max wait for initial temperature
 
 // EIS Configuration
@@ -72,7 +66,8 @@ typedef struct {
     double initialTemp;          // Starting temperature (°C)
     double finalTemp;            // Final temperature (°C)
     double rampRate;             // Heating rate (°C/min)
-    int eisInterval;          // Time between EIS measurements (minutes)
+    double eisInterval;          // Time between EIS measurements (minutes)
+    int continueRampDuringEIS;   // 1 = continue ramping during EIS, 0 = pause ramp
 } TempRampExperimentParams;
 
 // Temperature data point
@@ -120,6 +115,7 @@ typedef struct {
     double lastEISTime;
     double lastTempLogTime;
     double lastGraphUpdate;
+    double totalEISTime;            // Cumulative time spent in EIS measurements
     
     // Temperature tracking
     double currentTemperature;

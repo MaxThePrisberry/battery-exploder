@@ -79,6 +79,7 @@
 #define  RUNAWAY_BTN_RWY                  6       /* control type: command, callback function: StartTempRampExperimentCallback */
 #define  RUNAWAY_STR_RWY_STATUS           7       /* control type: string, callback function: (none) */
 #define  RUNAWAY_TEMP_RAMP_NUM_OUTPUT     8       /* control type: numeric, callback function: (none) */
+#define  RUNAWAY_CBX_CONT_TRAMP_EIS       9       /* control type: radioButton, callback function: (none) */
 
 
      /* Control Arrays: */
