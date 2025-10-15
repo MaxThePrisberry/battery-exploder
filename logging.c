@@ -54,6 +54,7 @@ static const char* g_deviceNames[] = {
     "PSB",  // LOG_DEVICE_PSB
     "BIO",  // LOG_DEVICE_BIO
 	"DTB",  // LOG_DEVICE_DTB
+	"ALI",  // LOG_DEVICE_ALICAT
 	"TNY",  // LOG_DEVICE_TNY
 	"DAQ"   // LOG_DEVICE_CDAQ
 };

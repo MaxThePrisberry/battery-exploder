@@ -11,6 +11,7 @@
 #include "biologic_queue.h"
 #include "psb10000_queue.h"
 #include "dtb4848_queue.h"
+#include "alicat_queue.h"
 #include "teensy_queue.h"
 #include "cdaq_utils.h"
 #include "logging.h"
@@ -30,6 +31,7 @@ int g_systemBusy = 0;
 PSBQueueManager *g_psbQueueMgr = NULL;
 BioQueueManager *g_bioQueueMgr = NULL;
 DTBQueueManager *g_dtbQueueMgr = NULL;
+ALICAT_QueueManager *g_alicatQueueMgr = NULL;
 TNYQueueManager *g_tnyQueueMgr = NULL;
 
 /******************************************************************************
@@ -180,6 +182,92 @@ int main (int argc, char *argv[]) {
 	    }
 	}
 	
+	// Initialize ALICAT queue manager with multiple devices (only one for now)
+	if (ENABLE_ALICAT)
+	{
+		LogMessage("Initializing ALICAT queue manager on COM%d with %d devices...",
+				   ALICAT_COM_PORT, ALICAT_NUM_DEVICES);
+
+		// Setup Modbus addresses array
+		int alicatModbusAddresses[ALICAT_NUM_DEVICES] = {ALICAT_MODBUS_ADDRESS};
+
+		g_alicatQueueMgr = ALICAT_QueueInit(ALICAT_COM_PORT, ALICAT_BAUD_RATE,
+											alicatModbusAddresses, ALICAT_NUM_DEVICES);
+
+		if (g_alicatQueueMgr)
+		{
+			ALICAT_SetGlobalQueueManager(g_alicatQueueMgr);
+
+			// Check if connected
+			ALICAT_QueueStats stats;
+			ALICAT_QueueGetStats(g_alicatQueueMgr, &stats);
+			if (stats.isConnected)
+			{
+				LogMessage("ALICAT queue manager initialized and connected on COM%d", ALICAT_COM_PORT);
+
+				// Configure all ALICAT devices with default settings
+				LogMessage("Configuring all ALICAT devices with default settings...");
+
+				// Try to configure each device individually to provide better error reporting
+				for (int i = 0; i < ALICAT_NUM_DEVICES; i++)
+				{
+					int modbusAddr = alicatModbusAddresses[i];
+
+					// Configure this device
+					int configResult = ALICAT_ConfigureDefaultQueued(modbusAddr, DEVICE_PRIORITY_NORMAL);
+					if (configResult == ALICAT_SUCCESS)
+					{
+						LogMessage("ALICAT address %d configured successfully", modbusAddr);
+					}
+					else
+					{
+						LogWarning("ALICAT address %d configuration failed: %s",
+								   modbusAddr, ALICAT_GetErrorString(configResult));
+						// Device may still work with existing configuration
+					}
+
+					// Set gas type (if needed - default is Air)
+					int gasResult = ALICAT_SetGasQueued(modbusAddr, GAS_NITROGEN, DEVICE_PRIORITY_NORMAL);
+					if (gasResult == ALICAT_SUCCESS)
+					{
+						LogMessage("ALICAT address %d gas set to Nitrogen", modbusAddr);
+					}
+					else
+					{
+						LogWarning("ALICAT address %d gas selection failed: %s",
+								   modbusAddr, ALICAT_GetErrorString(gasResult));
+					}
+
+					// Tare the flow sensor (important for accuracy)
+					LogMessage("Taring ALICAT address %d...", modbusAddr);
+					int tareResult = ALICAT_TareQueued(modbusAddr, DEVICE_PRIORITY_NORMAL);
+					if (tareResult == ALICAT_SUCCESS)
+					{
+						LogMessage("ALICAT address %d tared successfully", modbusAddr);
+					}
+					else
+					{
+						LogWarning("ALICAT address %d tare failed: %s",
+								   modbusAddr, ALICAT_GetErrorString(tareResult));
+					}
+
+					// Small delay after tare before next operation
+					Delay(0.1);
+				}
+
+				LogMessage("ALICAT initialization complete");
+			}
+			else
+			{
+				LogWarning("ALICAT queue manager initialized but not connected on COM%d", ALICAT_COM_PORT);
+			}
+		}
+		else
+		{
+			LogError("Failed to initialize ALICAT queue manager on COM%d", ALICAT_COM_PORT);
+		}
+	}
+	
 	// Initialize teensy manager
 	if (ENABLE_TNY) {
 	    LogMessage("Initializing Teensy queue manager on COM%d...", TNY_COM_PORT);
@@ -314,6 +402,15 @@ int CVICALLBACK PanelCallback(int panel, int event, void *callbackData,
 			    g_dtbQueueMgr = NULL;  // Clear global pointer FIRST
 			    DTB_SetGlobalQueueManager(NULL);  // Clear global reference
 			    DTB_QueueShutdown(tempMgr);  // Then shutdown
+			}
+			
+			// Shutdown ALICAT queue manager
+			if (g_alicatQueueMgr) {
+			    LogMessage("Shutting down Alicat queue manager...");
+			    ALICAT_QueueManager *tempMgr = g_alicatQueueMgr;
+			    g_alicatQueueMgr = NULL;  // Clear global pointer FIRST
+			    ALICAT_SetGlobalQueueManager(NULL);  // Clear global reference
+			    ALICAT_QueueShutdown(tempMgr);  // Then shutdown
 			}
 			
 			// Shutdown Teensy queue manager

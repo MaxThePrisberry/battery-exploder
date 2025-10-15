@@ -15,6 +15,8 @@
 #include "teensy_queue.h"
 #include "dtb4848_dll.h"
 #include "dtb4848_queue.h"
+#include "alicat_dll.h"
+#include "alicat_queue.h"
 #include "cdaq_utils.h"
 
 /******************************************************************************
@@ -82,6 +84,16 @@ typedef struct {
     char status[128];                        // Status message
 } TempRampTempData;
 
+// Gas flow data point
+typedef struct {
+    double timestamp;                        // Time since experiment start (s)
+    double alicatMassFLow[ALICAT_NUM_DEVICES]; // All ALICAT mass flow rates (check headers for unit)
+    double alicatTemperature[ALICAT_NUM_DEVICES]; // All ALICAT temperature (°C)
+    int alicatDeviceCount;                      // Number of DTB devices
+    double alicatSetpoint[ALICAT_NUM_DEVICES];  // ALICAT setpoint (check headers for unit)
+    char status[128];                        // Status message
+} MFlowData;
+
 // EIS measurement data
 typedef struct {
     int measurementIndex;        // Sequential measurement number
@@ -122,6 +134,10 @@ typedef struct {
     double targetTemperature;
     int initialTempReached;
     int finalTempReached;
+	
+	// Mass flow tracking
+	double currentMassFlow;
+	double targetMassFlow;
     
     // EIS measurements
     TempRampEISMeasurement *eisMeasurements;

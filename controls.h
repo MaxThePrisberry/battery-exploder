@@ -61,6 +61,14 @@ int CVICALLBACK DTB2RunStopCallback(int panel, int control, int event,
                                     void *callbackData, int eventData1, int eventData2);
 
 /**
+ * ALICAT Run/Stop Button Callback
+ * Handles starting/stopping mass flow control for ALICAT mass flow controller
+ */
+int CVICALLBACK ALICATRunStopCallback(int panel, int control, int event,
+                                    void *callbackData, int eventData1, int eventData2);
+
+
+/**
  * Check if remote mode change is pending
  * @return 1 if pending, 0 otherwise
  */
@@ -72,6 +80,13 @@ int Controls_IsRemoteModeChangePending(void);
  * @return 1 if pending, 0 otherwise
  */
 int Controls_IsDTBRunStateChangePending(int deviceIndex);
+
+/**
+ * Check if ALICAT run state change is pending for a specific device
+ * @param deviceIndex - ALICAT device index (0-based)
+ * @return 1 if pending, 0 otherwise
+ */
+int Controls_IsALICATRunStateChangePending(int deviceIndex);
 
 /**
  * Notify controls module of PSB remote mode state
@@ -91,6 +106,18 @@ void Controls_NotifyRemoteModeState(int remoteMode);
  *       setpoint control to avoid overwriting user edits
  */
 void Controls_NotifyDTBRunState(int deviceIndex, int isRunning, double setpoint);
+
+/**
+ * Notify controls module of ALICAT run state for a specific device
+ * Used for state synchronization
+ * @param deviceIndex - ALICAT device index (0-based)
+ * @param isRunning - Current ALICAT output enabled state (0 or 1)
+ * @param setpoint - Current setpoint value (tracked but not displayed)
+ * 
+ * Note: The setpoint value is tracked internally but NOT written to the 
+ *       setpoint control to avoid overwriting user edits
+ */
+void Controls_NotifyALICATRunState(int deviceIndex, int isRunning, double setpoint);
 
 /**
  * Test Teensy Callback

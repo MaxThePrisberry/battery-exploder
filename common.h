@@ -49,6 +49,13 @@
 #define DTB2_SLAVE_ADDRESS      3       // DTB Device 2 Modbus slave address
 #define DTB_NUM_DEVICES         2       // Number of DTB devices to initialize
 
+// ALICAT configuration
+#define ENABLE_ALICAT           1
+#define ALICAT_COM_PORT         7        // ALICAT COM port
+#define ALICAT_BAUD_RATE        38400    // Default for ALICAT
+#define ALICAT_NUM_DEVICES      1		 // Number of DTB devices to initialize
+#define ALICAT_MODBUS_ADDRESS   1		 // ALICAT default Modbus address
+
 #define TNY_COM_PORT            6       // Teensy COM port
 #define TNY_PSB_PIN          0          // Teensy pin for PSB relay
 #define TNY_BIOLOGIC_PIN     1          // Teensy pin for BioLogic relay
@@ -83,6 +90,7 @@
 #define ERR_BASE_THREAD         -7000
 #define ERR_BASE_DTB            -8000
 #define ERR_BASE_TNY            -9000
+#define ERR_BASE_ALICAT			-9500
 
 // System errors (-1000 to -1999)
 #define ERR_INVALID_PARAMETER   (ERR_BASE_SYSTEM - 1)

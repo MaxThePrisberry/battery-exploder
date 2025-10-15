@@ -10,6 +10,7 @@
 #include "BatteryExploder.h"
 #include "psb10000_queue.h"
 #include "dtb4848_queue.h"
+#include "alicat_queue.h"
 #include "teensy_queue.h"
 #include "status.h"
 #include "logging.h"
@@ -17,7 +18,7 @@
 /******************************************************************************
  * Module Data Structures
  ******************************************************************************/
-
+// DTB control
 typedef struct {
     int slaveAddress;
     int runButtonControlID;
@@ -30,9 +31,25 @@ typedef struct {
     double lastKnownSetpoint;
 } DTBDeviceControl;
 
+// ALICAT control
+typedef struct {
+    int slaveAddress;
+    int setpointControlID;
+    
+    // State tracking
+    volatile int runStateChangePending;
+    volatile int pendingRunState;
+    int lastKnownRunState;
+    double lastKnownSetpoint;
+} ALICATDeviceControl;
+
 typedef struct {
     int deviceIndex;  // For passing to callbacks
 } DTBCallbackData;
+
+typedef struct {
+    int deviceIndex;  // For passing to callbacks
+} ALICATCallbackData;
 
 static struct {
     int panelHandle;
@@ -45,6 +62,10 @@ static struct {
     // DTB device array
     DTBDeviceControl dtbDevices[DTB_NUM_DEVICES];
     int numDTBDevices;
+	
+	// ALICAT device array
+    ALICATDeviceControl alicatDevices[ALICAT_NUM_DEVICES];
+    int numALICATDevices;
     
 } g_controls = {0};
 
@@ -63,7 +84,15 @@ static void DTBSetpointCallback(CommandID cmdId, DTBCommandType type,
                                void *result, void *userData);
 static void DTBRunStopQueueCallback(CommandID cmdId, DTBCommandType type,
                                    void *result, void *userData);
+
+static void HandleALICATRunStopAction(int deviceIndex, int panel, int control);
+static void ALICATSetpointCallback(CommandID cmdId, ALICAT_CommandType type,
+                               void *result, void *userData);
+static void ALICATRunStopQueueCallback(CommandID cmdId, ALICAT_CommandType type,
+                                   void *result, void *userData);
+
 static void UpdateDTBButtonState(int deviceIndex, int isRunning);
+
 static void UpdateRemoteToggleState(int remoteMode);
 
 /******************************************************************************
@@ -82,6 +111,9 @@ typedef struct {
 
 static bool IsValidDTBDeviceIndex(int deviceIndex);
 static int FindDTBDeviceByControl(int controlID);
+
+static bool IsValidALICATDeviceIndex(int deviceIndex);
+static int FindALICATDeviceByControl(int controlID);
 
 /******************************************************************************
  * Public Functions Implementation
@@ -132,8 +164,24 @@ int Controls_Initialize(int panelHandle) {
         g_controls.dtbDevices[1].lastKnownSetpoint = 0.0;
     }
     
-    g_initialized = 1;
     LogMessage("Controls module initialized with %d DTB devices", g_controls.numDTBDevices);
+	
+	// Initialize Alicat devices array (only 1 for now)
+    g_controls.numALICATDevices = ALICAT_NUM_DEVICES;
+    
+    if (ALICAT_NUM_DEVICES > 0) {
+        // Setup DTB device 0 (DTB1)
+        g_controls.alicatDevices[0].slaveAddress = ALICAT_MODBUS_ADDRESS;
+        g_controls.alicatDevices[0].setpointControlID = PANEL_NUM_ALICAT_SETPOINT;
+        g_controls.alicatDevices[0].runStateChangePending = 0;
+        g_controls.alicatDevices[0].pendingRunState = 0;
+        g_controls.alicatDevices[0].lastKnownRunState = 0;
+        g_controls.alicatDevices[0].lastKnownSetpoint = 0.0;
+    }
+    
+    LogMessage("Controls module initialized for ALICAT Mass Flow Controller");
+	
+	g_initialized = 1;
     
     return SUCCESS;
 }
@@ -215,6 +263,35 @@ void Controls_UpdateFromDeviceStates(void) {
                             LogMessage("DTB%d state: %s, setpoint: %.1f°C", 
                                      i + 1, status.outputEnabled ? "Running" : "Stopped",
                                      status.setPoint);
+                        }
+                    }
+                }
+            }
+        }
+    }
+	
+	// Check ALICAT device states if no pending changes
+    if (ENABLE_ALICAT) {
+        ALICAT_QueueManager * alicatQueueMgr = ALICAT_GetGlobalQueueManager();
+        if (alicatQueueMgr) {
+            for (int i = 0; i < g_controls.numALICATDevices; i++) {
+                ALICATDeviceControl *device = &g_controls.alicatDevices[i];
+                
+                if (!device->runStateChangePending) {
+                    ALICAT_Status status;
+                    if (ALICAT_GetStatusQueued(device->slaveAddress, &status, DEVICE_PRIORITY_NORMAL) == ALICAT_SUCCESS) {
+						
+                        int setpointChanged = (fabs(status.setpoint - device->lastKnownSetpoint) >= 0.1);
+                        
+                        if (setpointChanged) {
+                            SetCtrlVal(g_controls.panelHandle, device->setpointControlID, status.setpoint);
+                        }
+                        
+                        // Always update internal tracking
+                        device->lastKnownSetpoint = status.setpoint;
+                        
+                        if (setpointChanged && device->lastKnownSetpoint == 0.0) {
+                            LogMessage("ALICAT setpoint: %.1 Mass flow Unit", status.setpoint);
                         }
                     }
                 }
@@ -483,6 +560,162 @@ static void DTBRunStopQueueCallback(CommandID cmdId, DTBCommandType type,
     
     // Clean up
     free(callbackData);
+}
+
+/******************************************************************************
+ * ALICAT Run/Stop Implementation - CVICALLBACK Functions
+ ******************************************************************************/
+
+int CVICALLBACK ALICAT1RunStopCallback(int panel, int control, int event,
+                                       void *callbackData, int eventData1, int eventData2) {
+    if (event == EVENT_COMMIT) {
+        HandleALICATRunStopAction(0, panel, control); // Device 0
+    }
+    return 0;
+}
+
+int CVICALLBACK ALICAT2RunStopCallback(int panel, int control, int event,
+                                       void *callbackData, int eventData1, int eventData2) {
+    if (event == EVENT_COMMIT) {
+        HandleALICATRunStopAction(1, panel, control); // Device 1
+    }
+    return 0;
+}
+
+/******************************************************************************
+ * ALICAT Run/Stop Implementation - Internal Handler
+ ******************************************************************************/
+
+static void HandleALICATRunStopAction(int deviceIndex, int panel, int control) {
+    if (!IsValidALICATDeviceIndex(deviceIndex)) {
+        LogError("Invalid ALICAT device index: %d", deviceIndex);
+        return;
+    }
+    
+    ALICATDeviceControl *device = &g_controls.alicatDevices[deviceIndex];
+    
+    // Check if this device already has a run state change pending
+    if (device->runStateChangePending) {
+        return;
+    }
+    
+    // Get ALICAT queue manager
+    ALICAT_QueueManager *alicatQueueMgr = ALICAT_GetGlobalQueueManager();
+    if (!alicatQueueMgr) {
+        LogWarning("ALICAT queue manager not available");
+        return;
+    }
+    
+    // Check if ALICAT is connected
+    ALICAT_QueueStats stats;
+    ALICAT_QueueGetStats(alicatQueueMgr, &stats);
+    if (!stats.isConnected) {
+        LogWarning("ALICAT not connected");
+        return;
+    }
+    
+    // Allocate callback data
+    ALICATCallbackData *callbackData = malloc(sizeof(ALICATCallbackData));
+    if (!callbackData) {
+        LogError("Failed to allocate callback data");
+        return;
+    }
+    callbackData->deviceIndex = deviceIndex;
+    
+    // Determine action based on current state
+    if (device->lastKnownRunState) {
+        // Currently running - stop it by setting setpoint to 0
+        device->runStateChangePending = 1;
+        device->pendingRunState = 0;
+        
+        LogMessage("Stopping ALICAT%d flow control...", deviceIndex + 1);
+        
+        // Queue setpoint = 0 command to stop
+        CommandID cmdId = ALICAT_SetSetpointAsync(device->slaveAddress, 0.0, 
+                                                   ALICATRunStopQueueCallback, 
+                                                   callbackData, DEVICE_PRIORITY_NORMAL);
+        
+        if (cmdId == 0) {
+            LogError("Failed to queue ALICAT%d stop command", deviceIndex + 1);
+            device->runStateChangePending = 0;
+            free(callbackData);
+        }
+        
+    } else {
+        // Currently stopped - start it by setting desired setpoint
+        double setpoint;
+        GetCtrlVal(panel, device->setpointControlID, &setpoint);
+        
+        // Validate setpoint
+        if (setpoint <= 0.0) {
+            LogWarning("ALICAT%d: Cannot start with zero or negative setpoint", deviceIndex + 1);
+            free(callbackData);
+            return;
+        }
+        
+        device->runStateChangePending = 1;
+        device->pendingRunState = 1;
+        
+        LogMessage("Starting ALICAT%d flow control with setpoint %.3f...", 
+                   deviceIndex + 1, setpoint);
+        
+        // Store the setpoint we're sending
+        device->lastKnownSetpoint = setpoint;
+        
+        // Queue setpoint command to start
+        CommandID cmdId = ALICAT_SetSetpointAsync(device->slaveAddress, setpoint,
+                                                   ALICATRunStopQueueCallback,
+                                                   callbackData, DEVICE_PRIORITY_NORMAL);
+        
+        if (cmdId == 0) {
+            LogError("Failed to queue ALICAT%d start command", deviceIndex + 1);
+            device->runStateChangePending = 0;
+            free(callbackData);
+        }
+    }
+}
+
+static void ALICATRunStopQueueCallback(CommandID cmdId, int commandType,
+                                       void *result, void *userData) {
+    ALICAT_CommandResult *cmdResult = (ALICAT_CommandResult *)result;
+    ALICATCallbackData *callbackData = (ALICATCallbackData *)userData;
+    
+    if (!callbackData || !IsValidALICATDeviceIndex(callbackData->deviceIndex)) {
+        LogError("Invalid callback data in ALICATRunStopQueueCallback");
+        if (callbackData) free(callbackData);
+        return;
+    }
+    
+    int deviceIndex = callbackData->deviceIndex;
+    ALICATDeviceControl *device = &g_controls.alicatDevices[deviceIndex];
+    
+    if (cmdResult && cmdResult->errorCode == ALICAT_SUCCESS) {
+        // Success - update state
+        device->lastKnownRunState = device->pendingRunState;
+        
+        LogMessage("ALICAT%d flow control %s", deviceIndex + 1,
+                  device->pendingRunState ? "started" : "stopped");
+    } else {
+        // Failed - revert to last known state
+        const char *errorStr = cmdResult ? ALICAT_GetErrorString(cmdResult->errorCode) : "Unknown error";
+        LogError("Failed to %s ALICAT%d: %s", 
+                device->pendingRunState ? "start" : "stop", deviceIndex + 1, errorStr);
+        
+    }
+    
+    // Clear pending flags
+    device->runStateChangePending = 0;
+    
+    // Clean up
+    free(callbackData);
+}
+
+/******************************************************************************
+ * Helper Function - Validate Device Index
+ ******************************************************************************/
+
+static int IsValidALICATDeviceIndex(int deviceIndex) {
+    return (deviceIndex >= 0 && deviceIndex < MAX_ALICAT_DEVICES);
 }
 
 /******************************************************************************
