@@ -206,6 +206,27 @@ int DeviceQueue_CancelTransaction(DeviceQueueManager *mgr, DeviceTransactionHand
 bool DeviceQueue_IsInTransaction(DeviceQueueManager *mgr);
 
 /******************************************************************************
+ * Queue Control Functions
+ ******************************************************************************/
+
+/**
+ * Pause the device queue - stops processing commands but keeps queue alive
+ * Useful for exclusive bus access during testing
+ *
+ * @param mgr Queue manager to pause
+ * @return SUCCESS or error code
+ */
+int DeviceQueue_Pause(DeviceQueueManager *mgr);
+
+/**
+ * Resume the device queue - restart command processing
+ *
+ * @param mgr Queue manager to resume
+ * @return SUCCESS or error code
+ */
+int DeviceQueue_Resume(DeviceQueueManager *mgr);
+
+/******************************************************************************
  * Logging Support
  ******************************************************************************/
 

@@ -96,7 +96,8 @@ struct DeviceQueueManager {
     // Processing thread
     CmtThreadFunctionID processingThreadId;
     volatile int shutdownRequested;
-    
+    volatile int paused;  // Pause flag for exclusive bus access during testing
+
     // Current command tracking
     volatile QueuedCommand *currentCommand;
     CmtThreadLockHandle currentCommandLock;
@@ -206,6 +207,7 @@ DeviceQueueManager* DeviceQueue_Create(const DeviceAdapter *adapter,
     mgr->nextTransactionId = 1;
     mgr->isConnected = 0;
     mgr->shutdownRequested = 0;
+    mgr->paused = 0;  // Start unpaused
     mgr->logDevice = LOG_DEVICE_NONE;
     mgr->currentCommand = NULL;
     
@@ -381,13 +383,42 @@ void DeviceQueue_SetLogDevice(DeviceQueueManager *mgr, LogDevice device) {
     }
 }
 
+int DeviceQueue_Pause(DeviceQueueManager *mgr) {
+    if (!mgr) return ERR_INVALID_PARAMETER;
+
+    LogMessageEx(mgr->logDevice, "Pausing device queue...");
+
+    CmtGetLock(mgr->queueManipulationLock);
+    mgr->paused = 1;
+    CmtReleaseLock(mgr->queueManipulationLock);
+
+    // Wait for any in-progress command to complete
+    Delay(1.0);
+
+    LogMessageEx(mgr->logDevice, "Device queue paused - no commands will be processed");
+    return SUCCESS;
+}
+
+int DeviceQueue_Resume(DeviceQueueManager *mgr) {
+    if (!mgr) return ERR_INVALID_PARAMETER;
+
+    LogMessageEx(mgr->logDevice, "Resuming device queue...");
+
+    CmtGetLock(mgr->queueManipulationLock);
+    mgr->paused = 0;
+    CmtReleaseLock(mgr->queueManipulationLock);
+
+    LogMessageEx(mgr->logDevice, "Device queue resumed - command processing active");
+    return SUCCESS;
+}
+
 bool DeviceQueue_IsInTransaction(DeviceQueueManager *mgr) {
     if (!mgr) return false;
-    
+
     CmtGetLock(mgr->currentCommandLock);
     bool inTransaction = (mgr->currentCommand && mgr->currentCommand->transactionId != 0);
     CmtReleaseLock(mgr->currentCommandLock);
-    
+
     return inTransaction;
 }
 
@@ -487,7 +518,7 @@ static int EnqueueCommand(DeviceQueueManager *mgr, QueuedCommand *cmd, DevicePri
         // Calculate backoff delay with jitter
         int delayMs = DEVICE_QUEUE_BASE_RETRY_DELAY_MS << attempt;
         delayMs = MIN(delayMs, DEVICE_QUEUE_MAX_RETRY_DELAY_MS);
-        delayMs += (rand() % (delayMs / 2 + 1)) - (delayMs / 4);  // ±25% jitter
+        delayMs += (rand() % (delayMs / 2 + 1)) - (delayMs / 4);  // ï¿½25% jitter
         delayMs = MAX(delayMs, 1);
         
         // Check if we have time for delay
@@ -1142,18 +1173,28 @@ static int CVICALLBACK ProcessingThreadFunction(void *functionData) {
         // Check if we should exit - but ONLY if all queues are empty
         if (mgr->shutdownRequested) {
             int highCount = 0, normalCount = 0, lowCount = 0, deferredCount = 0;
-            
+
             CmtGetTSQAttribute(mgr->highPriorityQueue, ATTR_TSQ_ITEMS_IN_QUEUE, &highCount);
             CmtGetTSQAttribute(mgr->normalPriorityQueue, ATTR_TSQ_ITEMS_IN_QUEUE, &normalCount);
             CmtGetTSQAttribute(mgr->lowPriorityQueue, ATTR_TSQ_ITEMS_IN_QUEUE, &lowCount);
             CmtGetTSQAttribute(mgr->deferredCommandQueue, ATTR_TSQ_ITEMS_IN_QUEUE, &deferredCount);
-            
+
             if (highCount == 0 && normalCount == 0 && lowCount == 0 && deferredCount == 0) {
                 LogMessageEx(mgr->logDevice, "All queues empty, processing thread exiting");
                 break;
             }
         }
-        
+
+        // Check if paused - skip command processing if paused
+        CmtGetLock(mgr->queueManipulationLock);
+        int isPaused = mgr->paused;
+        CmtReleaseLock(mgr->queueManipulationLock);
+
+        if (isPaused) {
+            Delay(0.1);  // Sleep while paused
+            continue;    // Skip command processing
+        }
+
         // Check connection state (skip reconnection attempts during shutdown)
         if (!mgr->isConnected && !mgr->shutdownRequested) {
             if (Timer() - mgr->lastReconnectTime > (DEVICE_QUEUE_RECONNECT_DELAY_MS / 1000.0)) {
