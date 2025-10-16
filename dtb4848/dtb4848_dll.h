@@ -79,6 +79,8 @@
 #define BIT_DECIMAL_POINT           0x0812
 #define BIT_AUTO_TUNING             0x0813
 #define BIT_RUN_STOP                0x0814
+#define BIT_PROGRAM_STOP            0x0815
+#define BIT_PROGRAM_HOLD            0x0816
 
 // Factory reset registers
 #define REG_FACTORY_RESET_1         0x472A
@@ -133,9 +135,30 @@
 
 // Heating/Cooling modes
 #define HEATING_COOLING_HEATING         0   // Heating only
-#define HEATING_COOLING_COOLING         1   // Cooling only  
+#define HEATING_COOLING_COOLING         1   // Cooling only
 #define HEATING_COOLING_HEAT_COOL       2   // Heating/Cooling
 #define HEATING_COOLING_COOL_HEAT       3   // Cooling/Heating
+
+/******************************************************************************
+ * Ramp-Soak (PID Program Control) Constants
+ ******************************************************************************/
+
+// Pattern and Step Limits
+#define DTB_MAX_PATTERNS            8
+#define DTB_MAX_STEPS_PER_PATTERN   8
+#define DTB_LINK_PATTERN_END        8    // Indicates program end
+#define DTB_MIN_STEP_TIME           0    // minutes
+#define DTB_MAX_STEP_TIME           900  // minutes (15 hours)
+#define DTB_MIN_CYCLE_COUNT         0
+#define DTB_MAX_CYCLE_COUNT         99
+
+// Ramp-Soak Register Addresses
+#define REG_START_PATTERN           0x1030
+#define REG_ACTUAL_STEP_BASE        0x1040  // +pattern number (0-7)
+#define REG_CYCLE_COUNT_BASE        0x1050  // +pattern number (0-7)
+#define REG_LINK_PATTERN_BASE       0x1060  // +pattern number (0-7)
+#define REG_PATTERN_TEMP_BASE       0x2000  // +(pattern*8 + step)
+#define REG_PATTERN_TIME_BASE       0x2080  // +(pattern*8 + step)
 
 /******************************************************************************
  * Data Structures
@@ -194,6 +217,39 @@ typedef struct {
     double alarmLowerLimit;     // Alarm lower threshold
 } DTB_Configuration;
 
+// Ramp-Soak Program Control Structures
+
+// Program execution states
+typedef enum {
+    DTB_PROG_STATE_STOPPED = 0,
+    DTB_PROG_STATE_RUNNING,
+    DTB_PROG_STATE_PAUSED,
+    DTB_PROG_STATE_COMPLETED
+} DTB_ProgramState;
+
+// Step definition (single ramp or soak segment)
+typedef struct {
+    double temperature;     // Target temperature (°C)
+    int timeMinutes;       // Execution time (minutes, 0-900)
+} DTB_Step;
+
+// Pattern definition (sequence of up to 8 steps)
+typedef struct {
+    DTB_Step steps[DTB_MAX_STEPS_PER_PATTERN];
+    int actualStepCount;   // 0-7 (limits which steps execute)
+    int cycleCount;        // 0-99 (additional execution cycles beyond the first)
+    int linkPattern;       // 0-7 (next pattern) or 8 (END)
+} DTB_Pattern;
+
+// Program status information
+typedef struct {
+    int isRunning;         // 1 if program is executing
+    int isPaused;          // 1 if program is held
+    int currentPattern;    // Current executing pattern (0-7, or -1 if not running)
+    int currentStep;       // Current executing step (0-7, or -1 if not running)
+    DTB_ProgramState state;
+} DTB_ProgramStatus;
+
 /******************************************************************************
  * Function Prototypes
  ******************************************************************************/
@@ -251,5 +307,197 @@ int DTB_ReadRegister(DTB_Handle *handle, unsigned short address, unsigned short 
 int DTB_WriteRegister(DTB_Handle *handle, unsigned short address, unsigned short value);
 int DTB_ReadBit(DTB_Handle *handle, unsigned short address, int *value);
 int DTB_WriteBit(DTB_Handle *handle, unsigned short address, int value);
+
+/******************************************************************************
+ * Ramp-Soak (PID Program Control) Functions
+ ******************************************************************************/
+
+// Pattern/Step Configuration Functions
+
+/**
+ * Set a complete pattern with all steps and metadata
+ * @param handle - DTB device handle
+ * @param patternNumber - Pattern number (0-7)
+ * @param pattern - Complete pattern configuration
+ * @return DTB_SUCCESS or error code
+ */
+int DTB_SetPattern(DTB_Handle *handle, int patternNumber, const DTB_Pattern *pattern);
+
+/**
+ * Get a complete pattern configuration
+ * @param handle - DTB device handle
+ * @param patternNumber - Pattern number (0-7)
+ * @param pattern - Pointer to receive pattern configuration
+ * @return DTB_SUCCESS or error code
+ */
+int DTB_GetPattern(DTB_Handle *handle, int patternNumber, DTB_Pattern *pattern);
+
+/**
+ * Set a single step within a pattern
+ * @param handle - DTB device handle
+ * @param patternNumber - Pattern number (0-7)
+ * @param stepNumber - Step number (0-7)
+ * @param temperature - Target temperature (°C)
+ * @param timeMinutes - Execution time (minutes, 0-900)
+ * @return DTB_SUCCESS or error code
+ */
+int DTB_SetStep(DTB_Handle *handle, int patternNumber, int stepNumber,
+                double temperature, int timeMinutes);
+
+/**
+ * Get a single step configuration
+ * @param handle - DTB device handle
+ * @param patternNumber - Pattern number (0-7)
+ * @param stepNumber - Step number (0-7)
+ * @param temperature - Pointer to receive temperature (°C)
+ * @param timeMinutes - Pointer to receive time (minutes)
+ * @return DTB_SUCCESS or error code
+ */
+int DTB_GetStep(DTB_Handle *handle, int patternNumber, int stepNumber,
+                double *temperature, int *timeMinutes);
+
+// Pattern Metadata Functions
+
+/**
+ * Set the actual number of steps to execute in a pattern
+ * @param handle - DTB device handle
+ * @param patternNumber - Pattern number (0-7)
+ * @param stepCount - Number of steps to execute (0-7)
+ * @return DTB_SUCCESS or error code
+ */
+int DTB_SetActualStepCount(DTB_Handle *handle, int patternNumber, int stepCount);
+
+/**
+ * Get the actual number of steps configured for a pattern
+ * @param handle - DTB device handle
+ * @param patternNumber - Pattern number (0-7)
+ * @param stepCount - Pointer to receive step count
+ * @return DTB_SUCCESS or error code
+ */
+int DTB_GetActualStepCount(DTB_Handle *handle, int patternNumber, int *stepCount);
+
+/**
+ * Set the cycle count (number of additional repetitions) for a pattern
+ * @param handle - DTB device handle
+ * @param patternNumber - Pattern number (0-7)
+ * @param cycleCount - Additional cycles (0-99)
+ * @return DTB_SUCCESS or error code
+ */
+int DTB_SetCycleCount(DTB_Handle *handle, int patternNumber, int cycleCount);
+
+/**
+ * Get the cycle count for a pattern
+ * @param handle - DTB device handle
+ * @param patternNumber - Pattern number (0-7)
+ * @param cycleCount - Pointer to receive cycle count
+ * @return DTB_SUCCESS or error code
+ */
+int DTB_GetCycleCount(DTB_Handle *handle, int patternNumber, int *cycleCount);
+
+/**
+ * Set the link pattern (next pattern to execute or END)
+ * @param handle - DTB device handle
+ * @param patternNumber - Pattern number (0-7)
+ * @param linkPattern - Next pattern (0-7) or DTB_LINK_PATTERN_END (8)
+ * @return DTB_SUCCESS or error code
+ */
+int DTB_SetLinkPattern(DTB_Handle *handle, int patternNumber, int linkPattern);
+
+/**
+ * Get the link pattern setting
+ * @param handle - DTB device handle
+ * @param patternNumber - Pattern number (0-7)
+ * @param linkPattern - Pointer to receive link pattern
+ * @return DTB_SUCCESS or error code
+ */
+int DTB_GetLinkPattern(DTB_Handle *handle, int patternNumber, int *linkPattern);
+
+// Program Control Functions
+
+/**
+ * Set the starting pattern for program execution
+ * @param handle - DTB device handle
+ * @param patternNumber - Pattern to start from (0-7)
+ * @return DTB_SUCCESS or error code
+ */
+int DTB_SetStartPattern(DTB_Handle *handle, int patternNumber);
+
+/**
+ * Get the currently configured starting pattern
+ * @param handle - DTB device handle
+ * @param patternNumber - Pointer to receive pattern number
+ * @return DTB_SUCCESS or error code
+ */
+int DTB_GetStartPattern(DTB_Handle *handle, int *patternNumber);
+
+/**
+ * Start program execution from the configured start pattern
+ * Note: Control method must be set to CONTROL_METHOD_PID_PROG (3)
+ * @param handle - DTB device handle
+ * @return DTB_SUCCESS or error code
+ */
+int DTB_StartProgram(DTB_Handle *handle);
+
+/**
+ * Stop program execution and disable output
+ * @param handle - DTB device handle
+ * @return DTB_SUCCESS or error code
+ */
+int DTB_StopProgram(DTB_Handle *handle);
+
+/**
+ * Pause (hold) program execution at current temperature
+ * @param handle - DTB device handle
+ * @return DTB_SUCCESS or error code
+ */
+int DTB_HoldProgram(DTB_Handle *handle);
+
+/**
+ * Resume program execution from paused state
+ * @param handle - DTB device handle
+ * @return DTB_SUCCESS or error code
+ */
+int DTB_ResumeProgram(DTB_Handle *handle);
+
+/**
+ * Get current program execution status
+ * @param handle - DTB device handle
+ * @param status - Pointer to receive program status
+ * @return DTB_SUCCESS or error code
+ */
+int DTB_GetProgramStatus(DTB_Handle *handle, DTB_ProgramStatus *status);
+
+// Convenience Functions
+
+/**
+ * Set up a simple ramp-soak profile with 2 steps
+ * Step 0: Ramp from startTemp to endTemp over rampTimeMinutes
+ * Step 1: Soak at endTemp for soakTimeMinutes
+ * @param handle - DTB device handle
+ * @param patternNumber - Pattern number (0-7)
+ * @param startTemp - Starting temperature (°C)
+ * @param endTemp - Ending temperature (°C)
+ * @param rampTimeMinutes - Time to ramp (0-900 minutes)
+ * @param soakTimeMinutes - Time to soak (0-900 minutes)
+ * @return DTB_SUCCESS or error code
+ */
+int DTB_SetSimpleRamp(DTB_Handle *handle, int patternNumber,
+                      double startTemp, double endTemp,
+                      int rampTimeMinutes, int soakTimeMinutes);
+
+/**
+ * Clear a pattern (set all steps to 0, no link, no cycles)
+ * @param handle - DTB device handle
+ * @param patternNumber - Pattern number (0-7)
+ * @return DTB_SUCCESS or error code
+ */
+int DTB_ClearPattern(DTB_Handle *handle, int patternNumber);
+
+/**
+ * Clear all patterns (reset entire program memory)
+ * @param handle - DTB device handle
+ * @return DTB_SUCCESS or error code
+ */
+int DTB_ClearAllPatterns(DTB_Handle *handle);
 
 #endif // DTB4848_DLL_H

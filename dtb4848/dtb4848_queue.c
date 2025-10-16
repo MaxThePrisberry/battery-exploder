@@ -39,9 +39,29 @@ static const char* g_commandTypeNames[] = {
     "SET_FRONT_PANEL_LOCK",
     "GET_FRONT_PANEL_LOCK",
     "ENABLE_WRITE_ACCESS",
-    "DISABLE_WRITE_ACCESS", 
+    "DISABLE_WRITE_ACCESS",
     "GET_WRITE_ACCESS_STATUS",
-    "RAW_MODBUS"
+    "RAW_MODBUS",
+    "SET_PATTERN",
+    "GET_PATTERN",
+    "SET_STEP",
+    "GET_STEP",
+    "SET_ACTUAL_STEP_COUNT",
+    "GET_ACTUAL_STEP_COUNT",
+    "SET_CYCLE_COUNT",
+    "GET_CYCLE_COUNT",
+    "SET_LINK_PATTERN",
+    "GET_LINK_PATTERN",
+    "SET_START_PATTERN",
+    "GET_START_PATTERN",
+    "START_PROGRAM",
+    "STOP_PROGRAM",
+    "HOLD_PROGRAM",
+    "RESUME_PROGRAM",
+    "GET_PROGRAM_STATUS",
+    "SET_SIMPLE_RAMP",
+    "CLEAR_PATTERN",
+    "CLEAR_ALL_PATTERNS"
 };
 
 // Global queue manager pointer
@@ -381,16 +401,16 @@ static int DTB_AdapterExecuteCommand(void *deviceContext, int commandType, void 
                 cmdResult->errorCode = DTB_ERROR_INVALID_PARAM;
                 break;
             }
-            
+
             // Route based on Modbus function code
             switch (cmdParams->rawModbus.functionCode) {
                 case MODBUS_READ_REGISTERS:  // 0x03
                     {
                         unsigned short value;
-                        cmdResult->errorCode = DTB_ReadRegister(handle, 
-                                                               cmdParams->rawModbus.address, 
+                        cmdResult->errorCode = DTB_ReadRegister(handle,
+                                                               cmdParams->rawModbus.address,
                                                                &value);
-                        
+
                         if (cmdResult->errorCode == DTB_SUCCESS) {
                             // Store the value in the result
                             cmdResult->data.rawResponse.rxLength = 2;  // 2 bytes for register value
@@ -405,13 +425,13 @@ static int DTB_AdapterExecuteCommand(void *deviceContext, int commandType, void 
                         }
                     }
                     break;
-                    
+
                 case MODBUS_WRITE_REGISTER:  // 0x06
                     {
                         cmdResult->errorCode = DTB_WriteRegister(handle,
                                                                cmdParams->rawModbus.address,
                                                                cmdParams->rawModbus.data);
-                        
+
                         if (cmdResult->errorCode == DTB_SUCCESS) {
                             // For write register, response echoes the address and data
                             cmdResult->data.rawResponse.rxLength = 4;  // 2 bytes address + 2 bytes data
@@ -429,14 +449,14 @@ static int DTB_AdapterExecuteCommand(void *deviceContext, int commandType, void 
                         }
                     }
                     break;
-                    
+
                 case MODBUS_READ_BITS:  // 0x02
                     {
                         int bitValue;
                         cmdResult->errorCode = DTB_ReadBit(handle,
                                                          cmdParams->rawModbus.address,
                                                          &bitValue);
-                        
+
                         if (cmdResult->errorCode == DTB_SUCCESS) {
                             // For read bits, response is 1 byte containing the bit value
                             cmdResult->data.rawResponse.rxLength = 1;
@@ -449,16 +469,16 @@ static int DTB_AdapterExecuteCommand(void *deviceContext, int commandType, void 
                         }
                     }
                     break;
-                    
+
                 case MODBUS_WRITE_BIT:  // 0x05
                     {
                         // For write bit, data field should be 0xFF00 for ON, 0x0000 for OFF
                         int bitValue = (cmdParams->rawModbus.data == 0xFF00) ? 1 : 0;
-                        
+
                         cmdResult->errorCode = DTB_WriteBit(handle,
                                                           cmdParams->rawModbus.address,
                                                           bitValue);
-                        
+
                         if (cmdResult->errorCode == DTB_SUCCESS) {
                             // For write bit, response echoes the address and data
                             cmdResult->data.rawResponse.rxLength = 4;  // 2 bytes address + 2 bytes data
@@ -476,31 +496,141 @@ static int DTB_AdapterExecuteCommand(void *deviceContext, int commandType, void 
                         }
                     }
                     break;
-                    
+
                 default:
-                    LogErrorEx(LOG_DEVICE_DTB, "Unsupported Modbus function code: 0x%02X", 
+                    LogErrorEx(LOG_DEVICE_DTB, "Unsupported Modbus function code: 0x%02X",
                              cmdParams->rawModbus.functionCode);
                     cmdResult->errorCode = DTB_ERROR_NOT_SUPPORTED;
                     break;
             }
-            
+
             // If requested, copy data to the provided buffer
-            if (cmdResult->errorCode == DTB_SUCCESS && 
-                cmdParams->rawModbus.rxBuffer && 
+            if (cmdResult->errorCode == DTB_SUCCESS &&
+                cmdParams->rawModbus.rxBuffer &&
                 cmdParams->rawModbus.rxBufferSize > 0 &&
                 cmdResult->data.rawResponse.rxData) {
-                
+
                 int copyLen = cmdResult->data.rawResponse.rxLength;
                 if (copyLen > cmdParams->rawModbus.rxBufferSize) {
                     copyLen = cmdParams->rawModbus.rxBufferSize;
                 }
-                
-                memcpy(cmdParams->rawModbus.rxBuffer, 
-                       cmdResult->data.rawResponse.rxData, 
+
+                memcpy(cmdParams->rawModbus.rxBuffer,
+                       cmdResult->data.rawResponse.rxData,
                        copyLen);
             }
             break;
-            
+
+        // Ramp-soak commands
+        case DTB_CMD_SET_PATTERN:
+            cmdResult->errorCode = DTB_SetPattern(handle,
+                cmdParams->setPattern.patternNumber,
+                &cmdParams->setPattern.pattern);
+            break;
+
+        case DTB_CMD_GET_PATTERN:
+            cmdResult->errorCode = DTB_GetPattern(handle,
+                cmdParams->getPattern.patternNumber,
+                &cmdResult->data.pattern);
+            break;
+
+        case DTB_CMD_SET_STEP:
+            cmdResult->errorCode = DTB_SetStep(handle,
+                cmdParams->setStep.patternNumber,
+                cmdParams->setStep.stepNumber,
+                &cmdParams->setStep.step);
+            break;
+
+        case DTB_CMD_GET_STEP:
+            cmdResult->errorCode = DTB_GetStep(handle,
+                cmdParams->getStep.patternNumber,
+                cmdParams->getStep.stepNumber,
+                &cmdResult->data.step);
+            break;
+
+        case DTB_CMD_SET_ACTUAL_STEP_COUNT:
+            cmdResult->errorCode = DTB_SetActualStepCount(handle,
+                cmdParams->setActualStepCount.patternNumber,
+                cmdParams->setActualStepCount.stepCount);
+            break;
+
+        case DTB_CMD_GET_ACTUAL_STEP_COUNT:
+            cmdResult->errorCode = DTB_GetActualStepCount(handle,
+                cmdParams->getActualStepCount.patternNumber,
+                &cmdResult->data.stepCount);
+            break;
+
+        case DTB_CMD_SET_CYCLE_COUNT:
+            cmdResult->errorCode = DTB_SetCycleCount(handle,
+                cmdParams->setCycleCount.patternNumber,
+                cmdParams->setCycleCount.cycleCount);
+            break;
+
+        case DTB_CMD_GET_CYCLE_COUNT:
+            cmdResult->errorCode = DTB_GetCycleCount(handle,
+                cmdParams->getCycleCount.patternNumber,
+                &cmdResult->data.cycleCount);
+            break;
+
+        case DTB_CMD_SET_LINK_PATTERN:
+            cmdResult->errorCode = DTB_SetLinkPattern(handle,
+                cmdParams->setLinkPattern.patternNumber,
+                cmdParams->setLinkPattern.linkPattern);
+            break;
+
+        case DTB_CMD_GET_LINK_PATTERN:
+            cmdResult->errorCode = DTB_GetLinkPattern(handle,
+                cmdParams->getLinkPattern.patternNumber,
+                &cmdResult->data.linkPattern);
+            break;
+
+        case DTB_CMD_SET_START_PATTERN:
+            cmdResult->errorCode = DTB_SetStartPattern(handle,
+                cmdParams->setStartPattern.patternNumber);
+            break;
+
+        case DTB_CMD_GET_START_PATTERN:
+            cmdResult->errorCode = DTB_GetStartPattern(handle,
+                &cmdResult->data.startPattern);
+            break;
+
+        case DTB_CMD_START_PROGRAM:
+            cmdResult->errorCode = DTB_StartProgram(handle);
+            break;
+
+        case DTB_CMD_STOP_PROGRAM:
+            cmdResult->errorCode = DTB_StopProgram(handle);
+            break;
+
+        case DTB_CMD_HOLD_PROGRAM:
+            cmdResult->errorCode = DTB_HoldProgram(handle);
+            break;
+
+        case DTB_CMD_RESUME_PROGRAM:
+            cmdResult->errorCode = DTB_ResumeProgram(handle);
+            break;
+
+        case DTB_CMD_GET_PROGRAM_STATUS:
+            cmdResult->errorCode = DTB_GetProgramStatus(handle,
+                &cmdResult->data.programStatus);
+            break;
+
+        case DTB_CMD_SET_SIMPLE_RAMP:
+            cmdResult->errorCode = DTB_SetSimpleRamp(handle,
+                cmdParams->setSimpleRamp.startTemp,
+                cmdParams->setSimpleRamp.endTemp,
+                cmdParams->setSimpleRamp.durationMinutes);
+            break;
+
+        case DTB_CMD_CLEAR_PATTERN:
+            cmdResult->errorCode = DTB_ClearPattern(handle,
+                cmdParams->clearPattern.patternNumber);
+            break;
+
+        case DTB_CMD_CLEAR_ALL_PATTERNS:
+            cmdResult->errorCode = DTB_ClearAllPatterns(handle);
+            break;
+
         default:
             cmdResult->errorCode = DTB_ERROR_INVALID_PARAM;
             break;
@@ -1079,7 +1209,7 @@ int DTB_SendRawModbusQueued(int slaveAddress, unsigned char functionCode,
                            unsigned short address, unsigned short data,
                            unsigned char *rxBuffer, int rxBufferSize, DevicePriority priority) {
     if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
-    
+
     DTBCommandParams params = {
         .rawModbus = {
             .slaveAddress = slaveAddress,
@@ -1091,14 +1221,282 @@ int DTB_SendRawModbusQueued(int slaveAddress, unsigned char functionCode,
         }
     };
     DTBCommandResult result;
-    
+
     int error = DTB_QueueCommandBlocking(g_dtbQueueManager, DTB_CMD_RAW_MODBUS,
                                        &params, priority, &result,
                                        DTB_QUEUE_COMMAND_TIMEOUT_MS);
-    
+
     // Response data is already copied to rxBuffer in DTB_AdapterExecuteCommand
-    
+
     return error;
+}
+
+/******************************************************************************
+ * Ramp-Soak Queued Wrapper Functions
+ ******************************************************************************/
+
+int DTB_SetPatternQueued(int slaveAddress, int patternNumber, const DTB_Pattern *pattern, DevicePriority priority) {
+    if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
+    if (!pattern) return ERR_NULL_POINTER;
+
+    DTBCommandParams params = {.setPattern = {slaveAddress, patternNumber, *pattern}};
+    DTBCommandResult result;
+
+    return DTB_QueueCommandBlocking(g_dtbQueueManager, DTB_CMD_SET_PATTERN,
+                                  &params, priority, &result,
+                                  DTB_QUEUE_COMMAND_TIMEOUT_MS);
+}
+
+int DTB_GetPatternQueued(int slaveAddress, int patternNumber, DTB_Pattern *pattern, DevicePriority priority) {
+    if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
+    if (!pattern) return ERR_NULL_POINTER;
+
+    DTBCommandParams params = {.getPattern = {slaveAddress, patternNumber}};
+    DTBCommandResult result;
+
+    int error = DTB_QueueCommandBlocking(g_dtbQueueManager, DTB_CMD_GET_PATTERN,
+                                       &params, priority, &result,
+                                       DTB_QUEUE_COMMAND_TIMEOUT_MS);
+
+    if (error == DTB_SUCCESS) {
+        *pattern = result.data.pattern;
+    }
+    return error;
+}
+
+int DTB_SetStepQueued(int slaveAddress, int patternNumber, int stepNumber, const DTB_Step *step, DevicePriority priority) {
+    if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
+    if (!step) return ERR_NULL_POINTER;
+
+    DTBCommandParams params = {.setStep = {slaveAddress, patternNumber, stepNumber, *step}};
+    DTBCommandResult result;
+
+    return DTB_QueueCommandBlocking(g_dtbQueueManager, DTB_CMD_SET_STEP,
+                                  &params, priority, &result,
+                                  DTB_QUEUE_COMMAND_TIMEOUT_MS);
+}
+
+int DTB_GetStepQueued(int slaveAddress, int patternNumber, int stepNumber, DTB_Step *step, DevicePriority priority) {
+    if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
+    if (!step) return ERR_NULL_POINTER;
+
+    DTBCommandParams params = {.getStep = {slaveAddress, patternNumber, stepNumber}};
+    DTBCommandResult result;
+
+    int error = DTB_QueueCommandBlocking(g_dtbQueueManager, DTB_CMD_GET_STEP,
+                                       &params, priority, &result,
+                                       DTB_QUEUE_COMMAND_TIMEOUT_MS);
+
+    if (error == DTB_SUCCESS) {
+        *step = result.data.step;
+    }
+    return error;
+}
+
+int DTB_SetActualStepCountQueued(int slaveAddress, int patternNumber, int stepCount, DevicePriority priority) {
+    if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
+
+    DTBCommandParams params = {.setActualStepCount = {slaveAddress, patternNumber, stepCount}};
+    DTBCommandResult result;
+
+    return DTB_QueueCommandBlocking(g_dtbQueueManager, DTB_CMD_SET_ACTUAL_STEP_COUNT,
+                                  &params, priority, &result,
+                                  DTB_QUEUE_COMMAND_TIMEOUT_MS);
+}
+
+int DTB_GetActualStepCountQueued(int slaveAddress, int patternNumber, int *stepCount, DevicePriority priority) {
+    if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
+    if (!stepCount) return ERR_NULL_POINTER;
+
+    DTBCommandParams params = {.getActualStepCount = {slaveAddress, patternNumber}};
+    DTBCommandResult result;
+
+    int error = DTB_QueueCommandBlocking(g_dtbQueueManager, DTB_CMD_GET_ACTUAL_STEP_COUNT,
+                                       &params, priority, &result,
+                                       DTB_QUEUE_COMMAND_TIMEOUT_MS);
+
+    if (error == DTB_SUCCESS) {
+        *stepCount = result.data.stepCount;
+    }
+    return error;
+}
+
+int DTB_SetCycleCountQueued(int slaveAddress, int patternNumber, int cycleCount, DevicePriority priority) {
+    if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
+
+    DTBCommandParams params = {.setCycleCount = {slaveAddress, patternNumber, cycleCount}};
+    DTBCommandResult result;
+
+    return DTB_QueueCommandBlocking(g_dtbQueueManager, DTB_CMD_SET_CYCLE_COUNT,
+                                  &params, priority, &result,
+                                  DTB_QUEUE_COMMAND_TIMEOUT_MS);
+}
+
+int DTB_GetCycleCountQueued(int slaveAddress, int patternNumber, int *cycleCount, DevicePriority priority) {
+    if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
+    if (!cycleCount) return ERR_NULL_POINTER;
+
+    DTBCommandParams params = {.getCycleCount = {slaveAddress, patternNumber}};
+    DTBCommandResult result;
+
+    int error = DTB_QueueCommandBlocking(g_dtbQueueManager, DTB_CMD_GET_CYCLE_COUNT,
+                                       &params, priority, &result,
+                                       DTB_QUEUE_COMMAND_TIMEOUT_MS);
+
+    if (error == DTB_SUCCESS) {
+        *cycleCount = result.data.cycleCount;
+    }
+    return error;
+}
+
+int DTB_SetLinkPatternQueued(int slaveAddress, int patternNumber, int linkPattern, DevicePriority priority) {
+    if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
+
+    DTBCommandParams params = {.setLinkPattern = {slaveAddress, patternNumber, linkPattern}};
+    DTBCommandResult result;
+
+    return DTB_QueueCommandBlocking(g_dtbQueueManager, DTB_CMD_SET_LINK_PATTERN,
+                                  &params, priority, &result,
+                                  DTB_QUEUE_COMMAND_TIMEOUT_MS);
+}
+
+int DTB_GetLinkPatternQueued(int slaveAddress, int patternNumber, int *linkPattern, DevicePriority priority) {
+    if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
+    if (!linkPattern) return ERR_NULL_POINTER;
+
+    DTBCommandParams params = {.getLinkPattern = {slaveAddress, patternNumber}};
+    DTBCommandResult result;
+
+    int error = DTB_QueueCommandBlocking(g_dtbQueueManager, DTB_CMD_GET_LINK_PATTERN,
+                                       &params, priority, &result,
+                                       DTB_QUEUE_COMMAND_TIMEOUT_MS);
+
+    if (error == DTB_SUCCESS) {
+        *linkPattern = result.data.linkPattern;
+    }
+    return error;
+}
+
+int DTB_SetStartPatternQueued(int slaveAddress, int patternNumber, DevicePriority priority) {
+    if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
+
+    DTBCommandParams params = {.setStartPattern = {slaveAddress, patternNumber}};
+    DTBCommandResult result;
+
+    return DTB_QueueCommandBlocking(g_dtbQueueManager, DTB_CMD_SET_START_PATTERN,
+                                  &params, priority, &result,
+                                  DTB_QUEUE_COMMAND_TIMEOUT_MS);
+}
+
+int DTB_GetStartPatternQueued(int slaveAddress, int *startPattern, DevicePriority priority) {
+    if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
+    if (!startPattern) return ERR_NULL_POINTER;
+
+    DTBCommandParams params = {.getStartPattern = {slaveAddress}};
+    DTBCommandResult result;
+
+    int error = DTB_QueueCommandBlocking(g_dtbQueueManager, DTB_CMD_GET_START_PATTERN,
+                                       &params, priority, &result,
+                                       DTB_QUEUE_COMMAND_TIMEOUT_MS);
+
+    if (error == DTB_SUCCESS) {
+        *startPattern = result.data.startPattern;
+    }
+    return error;
+}
+
+int DTB_StartProgramQueued(int slaveAddress, DevicePriority priority) {
+    if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
+
+    DTBCommandParams params = {.startProgram = {slaveAddress}};
+    DTBCommandResult result;
+
+    return DTB_QueueCommandBlocking(g_dtbQueueManager, DTB_CMD_START_PROGRAM,
+                                  &params, priority, &result,
+                                  DTB_QUEUE_COMMAND_TIMEOUT_MS);
+}
+
+int DTB_StopProgramQueued(int slaveAddress, DevicePriority priority) {
+    if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
+
+    DTBCommandParams params = {.stopProgram = {slaveAddress}};
+    DTBCommandResult result;
+
+    return DTB_QueueCommandBlocking(g_dtbQueueManager, DTB_CMD_STOP_PROGRAM,
+                                  &params, priority, &result,
+                                  DTB_QUEUE_COMMAND_TIMEOUT_MS);
+}
+
+int DTB_HoldProgramQueued(int slaveAddress, DevicePriority priority) {
+    if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
+
+    DTBCommandParams params = {.holdProgram = {slaveAddress}};
+    DTBCommandResult result;
+
+    return DTB_QueueCommandBlocking(g_dtbQueueManager, DTB_CMD_HOLD_PROGRAM,
+                                  &params, priority, &result,
+                                  DTB_QUEUE_COMMAND_TIMEOUT_MS);
+}
+
+int DTB_ResumeProgramQueued(int slaveAddress, DevicePriority priority) {
+    if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
+
+    DTBCommandParams params = {.resumeProgram = {slaveAddress}};
+    DTBCommandResult result;
+
+    return DTB_QueueCommandBlocking(g_dtbQueueManager, DTB_CMD_RESUME_PROGRAM,
+                                  &params, priority, &result,
+                                  DTB_QUEUE_COMMAND_TIMEOUT_MS);
+}
+
+int DTB_GetProgramStatusQueued(int slaveAddress, DTB_ProgramStatus *status, DevicePriority priority) {
+    if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
+    if (!status) return ERR_NULL_POINTER;
+
+    DTBCommandParams params = {.getProgramStatus = {slaveAddress}};
+    DTBCommandResult result;
+
+    int error = DTB_QueueCommandBlocking(g_dtbQueueManager, DTB_CMD_GET_PROGRAM_STATUS,
+                                       &params, priority, &result,
+                                       DTB_QUEUE_COMMAND_TIMEOUT_MS);
+
+    if (error == DTB_SUCCESS) {
+        *status = result.data.programStatus;
+    }
+    return error;
+}
+
+int DTB_SetSimpleRampQueued(int slaveAddress, double startTemp, double endTemp, int durationMinutes, DevicePriority priority) {
+    if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
+
+    DTBCommandParams params = {.setSimpleRamp = {slaveAddress, startTemp, endTemp, durationMinutes}};
+    DTBCommandResult result;
+
+    return DTB_QueueCommandBlocking(g_dtbQueueManager, DTB_CMD_SET_SIMPLE_RAMP,
+                                  &params, priority, &result,
+                                  DTB_QUEUE_COMMAND_TIMEOUT_MS);
+}
+
+int DTB_ClearPatternQueued(int slaveAddress, int patternNumber, DevicePriority priority) {
+    if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
+
+    DTBCommandParams params = {.clearPattern = {slaveAddress, patternNumber}};
+    DTBCommandResult result;
+
+    return DTB_QueueCommandBlocking(g_dtbQueueManager, DTB_CMD_CLEAR_PATTERN,
+                                  &params, priority, &result,
+                                  DTB_QUEUE_COMMAND_TIMEOUT_MS);
+}
+
+int DTB_ClearAllPatternsQueued(int slaveAddress, DevicePriority priority) {
+    if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
+
+    DTBCommandParams params = {.clearAllPatterns = {slaveAddress}};
+    DTBCommandResult result;
+
+    return DTB_QueueCommandBlocking(g_dtbQueueManager, DTB_CMD_CLEAR_ALL_PATTERNS,
+                                  &params, priority, &result,
+                                  DTB_QUEUE_COMMAND_TIMEOUT_MS);
 }
 
 /******************************************************************************
@@ -1214,7 +1612,7 @@ int DTB_SetSetPointAllQueued(double temperature, DevicePriority priority) {
     int allSuccess = DTB_SUCCESS;
     int failureCount = 0;
     
-    LogMessageEx(LOG_DEVICE_DTB, "Setting setpoint to %.1f°C for all %d DTB devices...", 
+    LogMessageEx(LOG_DEVICE_DTB, "Setting setpoint to %.1fï¿½C for all %d DTB devices...", 
                  temperature, ctx->numDevices);
     
     for (int i = 0; i < ctx->numDevices; i++) {
@@ -1344,14 +1742,14 @@ int DTB_QueueGetCommandDelay(DTBCommandType type) {
     switch (type) {
         case DTB_CMD_SET_RUN_STOP:
             return DTB_DELAY_STATE_CHANGE;
-            
+
         case DTB_CMD_SET_SETPOINT:
             return DTB_DELAY_SETPOINT_CHANGE;
-            
+
         case DTB_CMD_START_AUTO_TUNING:
         case DTB_CMD_STOP_AUTO_TUNING:
             return DTB_DELAY_STATE_CHANGE;
-            
+
         case DTB_CMD_SET_CONTROL_METHOD:
         case DTB_CMD_SET_PID_MODE:
         case DTB_CMD_SET_SENSOR_TYPE:
@@ -1359,15 +1757,15 @@ int DTB_QueueGetCommandDelay(DTBCommandType type) {
         case DTB_CMD_CONFIGURE:
         case DTB_CMD_CONFIGURE_DEFAULT:
             return DTB_DELAY_CONFIG_CHANGE;
-            
+
         case DTB_CMD_SET_TEMPERATURE_LIMITS:
         case DTB_CMD_SET_ALARM_LIMITS:
         case DTB_CMD_SET_FRONT_PANEL_LOCK:
             return DTB_DELAY_AFTER_WRITE_REGISTER;
-            
+
         case DTB_CMD_FACTORY_RESET:
             return 1000; // 1 second after factory reset
-            
+
         case DTB_CMD_GET_STATUS:
         case DTB_CMD_GET_PROCESS_VALUE:
         case DTB_CMD_GET_SETPOINT:
@@ -1375,12 +1773,41 @@ int DTB_QueueGetCommandDelay(DTBCommandType type) {
         case DTB_CMD_GET_ALARM_STATUS:
         case DTB_CMD_GET_FRONT_PANEL_LOCK:
             return DTB_DELAY_AFTER_READ;
-            
+
         case DTB_CMD_CLEAR_ALARM:
             return DTB_DELAY_AFTER_WRITE_BIT;
-        
+
         case DTB_CMD_RAW_MODBUS:
             return DTB_DELAY_RECOVERY;
+
+        // Ramp-soak write commands
+        case DTB_CMD_SET_PATTERN:
+        case DTB_CMD_SET_STEP:
+        case DTB_CMD_SET_ACTUAL_STEP_COUNT:
+        case DTB_CMD_SET_CYCLE_COUNT:
+        case DTB_CMD_SET_LINK_PATTERN:
+        case DTB_CMD_SET_START_PATTERN:
+        case DTB_CMD_SET_SIMPLE_RAMP:
+        case DTB_CMD_CLEAR_PATTERN:
+        case DTB_CMD_CLEAR_ALL_PATTERNS:
+            return DTB_DELAY_AFTER_WRITE_REGISTER;
+
+        // Ramp-soak read commands
+        case DTB_CMD_GET_PATTERN:
+        case DTB_CMD_GET_STEP:
+        case DTB_CMD_GET_ACTUAL_STEP_COUNT:
+        case DTB_CMD_GET_CYCLE_COUNT:
+        case DTB_CMD_GET_LINK_PATTERN:
+        case DTB_CMD_GET_START_PATTERN:
+        case DTB_CMD_GET_PROGRAM_STATUS:
+            return DTB_DELAY_AFTER_READ;
+
+        // Ramp-soak program control commands
+        case DTB_CMD_START_PROGRAM:
+        case DTB_CMD_STOP_PROGRAM:
+        case DTB_CMD_HOLD_PROGRAM:
+        case DTB_CMD_RESUME_PROGRAM:
+            return DTB_DELAY_STATE_CHANGE;
 
         default:
             return DTB_DELAY_RECOVERY;
@@ -1561,5 +1988,80 @@ int DTB_SetControlMethodWithParams(int slaveAddress, int method, int pidMode,
 cleanup:
     DTB_QueueCancelTransaction(queueMgr, txn);
     LogErrorEx(LOG_DEVICE_DTB, "Failed to change control method for slave %d", slaveAddress);
+    return result;
+}
+
+int DTB_ConfigurePatternAtomic(int slaveAddress, int patternNumber, const DTB_Pattern *pattern,
+                              DTBTransactionCallback callback, void *userData, DevicePriority priority) {
+
+    DTBQueueManager *queueMgr = DTB_GetGlobalQueueManager();
+    if (!queueMgr) {
+        LogErrorEx(LOG_DEVICE_DTB, "Queue manager not initialized for atomic pattern configuration");
+        return ERR_QUEUE_NOT_INIT;
+    }
+    if (!pattern) {
+        return ERR_NULL_POINTER;
+    }
+
+    // Create transaction
+    TransactionHandle txn = DTB_QueueBeginTransaction(queueMgr);
+    if (txn == 0) {
+        LogErrorEx(LOG_DEVICE_DTB, "Failed to begin pattern configuration transaction for slave %d pattern %d",
+                   slaveAddress, patternNumber);
+        return ERR_QUEUE_NOT_INIT;
+    }
+
+    // Set transaction priority
+    int result = DeviceQueue_SetTransactionPriority(queueMgr, txn, priority);
+    if (result != SUCCESS) {
+        DTB_QueueCancelTransaction(queueMgr, txn);
+        return result;
+    }
+
+    DTBCommandParams params;
+
+    // 1. Set all steps in the pattern
+    for (int i = 0; i < pattern->actualStepCount && i < DTB_MAX_STEPS_PER_PATTERN; i++) {
+        params.setStep.slaveAddress = slaveAddress;
+        params.setStep.patternNumber = patternNumber;
+        params.setStep.stepNumber = i;
+        params.setStep.step = pattern->steps[i];
+        result = DTB_QueueAddToTransaction(queueMgr, txn, DTB_CMD_SET_STEP, &params);
+        if (result != SUCCESS) goto cleanup;
+    }
+
+    // 2. Set actual step count
+    params.setActualStepCount.slaveAddress = slaveAddress;
+    params.setActualStepCount.patternNumber = patternNumber;
+    params.setActualStepCount.stepCount = pattern->actualStepCount;
+    result = DTB_QueueAddToTransaction(queueMgr, txn, DTB_CMD_SET_ACTUAL_STEP_COUNT, &params);
+    if (result != SUCCESS) goto cleanup;
+
+    // 3. Set cycle count
+    params.setCycleCount.slaveAddress = slaveAddress;
+    params.setCycleCount.patternNumber = patternNumber;
+    params.setCycleCount.cycleCount = pattern->cycleCount;
+    result = DTB_QueueAddToTransaction(queueMgr, txn, DTB_CMD_SET_CYCLE_COUNT, &params);
+    if (result != SUCCESS) goto cleanup;
+
+    // 4. Set link pattern
+    params.setLinkPattern.slaveAddress = slaveAddress;
+    params.setLinkPattern.patternNumber = patternNumber;
+    params.setLinkPattern.linkPattern = pattern->linkPattern;
+    result = DTB_QueueAddToTransaction(queueMgr, txn, DTB_CMD_SET_LINK_PATTERN, &params);
+    if (result != SUCCESS) goto cleanup;
+
+    // Commit transaction
+    result = DTB_QueueCommitTransaction(queueMgr, txn, callback, userData);
+    if (result == SUCCESS) {
+        LogMessageEx(LOG_DEVICE_DTB, "Pattern %d configuration transaction committed for slave %d",
+                     patternNumber, slaveAddress);
+        return SUCCESS;
+    }
+
+cleanup:
+    DTB_QueueCancelTransaction(queueMgr, txn);
+    LogErrorEx(LOG_DEVICE_DTB, "Failed to create pattern configuration transaction for slave %d pattern %d",
+               slaveAddress, patternNumber);
     return result;
 }

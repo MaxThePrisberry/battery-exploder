@@ -426,12 +426,12 @@ int DTB_SetSetPoint(DTB_Handle *handle, double temperature) {
     
     // Validate temperature range for K-type
     if (temperature < K_TYPE_MIN_TEMP || temperature > K_TYPE_MAX_TEMP) {
-        LogErrorEx(LOG_DEVICE_DTB, "Temperature %.1f°C out of range (%.1f to %.1f)",
+        LogErrorEx(LOG_DEVICE_DTB, "Temperature %.1fï¿½C out of range (%.1f to %.1f)",
                    temperature, K_TYPE_MIN_TEMP, K_TYPE_MAX_TEMP);
         return DTB_ERROR_INVALID_PARAM;
     }
     
-    LogMessageEx(LOG_DEVICE_DTB, "Setting setpoint: %.1f°C", temperature);
+    LogMessageEx(LOG_DEVICE_DTB, "Setting setpoint: %.1fï¿½C", temperature);
     
     // Temperature is stored as value * 10 (one decimal place)
     short tempValue = (short)(temperature * 10);
@@ -937,8 +937,8 @@ void DTB_PrintStatus(const DTB_Status *status) {
     if (!status) return;
     
     LogMessageEx(LOG_DEVICE_DTB, "=== DTB Status ===");
-    LogMessageEx(LOG_DEVICE_DTB, "Process Value: %.1f °C", status->processValue);
-    LogMessageEx(LOG_DEVICE_DTB, "Set Point: %.1f °C", status->setPoint);
+    LogMessageEx(LOG_DEVICE_DTB, "Process Value: %.1f ï¿½C", status->processValue);
+    LogMessageEx(LOG_DEVICE_DTB, "Set Point: %.1f ï¿½C", status->setPoint);
     LogMessageEx(LOG_DEVICE_DTB, "Output: %s", status->outputEnabled ? "RUN" : "STOP");
     LogMessageEx(LOG_DEVICE_DTB, "Output 1: %s", status->output1State ? "ON" : "OFF");
     LogMessageEx(LOG_DEVICE_DTB, "Output 2: %s", status->output2State ? "ON" : "OFF");
@@ -953,4 +953,503 @@ void DTB_PrintStatus(const DTB_Status *status) {
     LogMessageEx(LOG_DEVICE_DTB, "PID Mode: %d%s", status->pidMode,
                  status->pidMode == 4 ? " (AUTO)" : "");
     LogMessageEx(LOG_DEVICE_DTB, "==================");
+}
+
+/******************************************************************************
+ * Ramp-Soak (PID Program Control) Functions
+ ******************************************************************************/
+
+// Helper function to calculate register address for step temperature
+static unsigned short GetStepTempRegister(int patternNumber, int stepNumber) {
+    return (unsigned short)(REG_PATTERN_TEMP_BASE + (patternNumber * 8) + stepNumber);
+}
+
+// Helper function to calculate register address for step time
+static unsigned short GetStepTimeRegister(int patternNumber, int stepNumber) {
+    return (unsigned short)(REG_PATTERN_TIME_BASE + (patternNumber * 8) + stepNumber);
+}
+
+// Pattern/Step Configuration Functions
+
+int DTB_SetStep(DTB_Handle *handle, int patternNumber, int stepNumber,
+                double temperature, int timeMinutes) {
+    if (!handle || !handle->isConnected) return DTB_ERROR_NOT_CONNECTED;
+
+    // Validate parameters
+    if (patternNumber < 0 || patternNumber >= DTB_MAX_PATTERNS) {
+        LogErrorEx(LOG_DEVICE_DTB, "Invalid pattern number: %d (must be 0-7)", patternNumber);
+        return DTB_ERROR_INVALID_PARAM;
+    }
+    if (stepNumber < 0 || stepNumber >= DTB_MAX_STEPS_PER_PATTERN) {
+        LogErrorEx(LOG_DEVICE_DTB, "Invalid step number: %d (must be 0-7)", stepNumber);
+        return DTB_ERROR_INVALID_PARAM;
+    }
+    if (timeMinutes < DTB_MIN_STEP_TIME || timeMinutes > DTB_MAX_STEP_TIME) {
+        LogErrorEx(LOG_DEVICE_DTB, "Invalid step time: %d minutes (must be 0-900)", timeMinutes);
+        return DTB_ERROR_INVALID_PARAM;
+    }
+
+    LogMessageEx(LOG_DEVICE_DTB, "Setting Pattern %d, Step %d: %.1fÂ°C for %d minutes",
+                 patternNumber, stepNumber, temperature, timeMinutes);
+
+    int result;
+
+    // Set temperature (stored as value * 10)
+    short tempValue = (short)(temperature * 10);
+    unsigned short tempReg = GetStepTempRegister(patternNumber, stepNumber);
+    result = DTB_WriteRegister(handle, tempReg, (unsigned short)tempValue);
+    if (result != DTB_SUCCESS) {
+        LogErrorEx(LOG_DEVICE_DTB, "Failed to write step temperature");
+        return result;
+    }
+
+    // Set time (stored in minutes)
+    unsigned short timeReg = GetStepTimeRegister(patternNumber, stepNumber);
+    result = DTB_WriteRegister(handle, timeReg, (unsigned short)timeMinutes);
+    if (result != DTB_SUCCESS) {
+        LogErrorEx(LOG_DEVICE_DTB, "Failed to write step time");
+        return result;
+    }
+
+    return DTB_SUCCESS;
+}
+
+int DTB_GetStep(DTB_Handle *handle, int patternNumber, int stepNumber,
+                double *temperature, int *timeMinutes) {
+    if (!handle || !handle->isConnected) return DTB_ERROR_NOT_CONNECTED;
+    if (!temperature || !timeMinutes) return DTB_ERROR_INVALID_PARAM;
+
+    // Validate parameters
+    if (patternNumber < 0 || patternNumber >= DTB_MAX_PATTERNS) {
+        return DTB_ERROR_INVALID_PARAM;
+    }
+    if (stepNumber < 0 || stepNumber >= DTB_MAX_STEPS_PER_PATTERN) {
+        return DTB_ERROR_INVALID_PARAM;
+    }
+
+    int result;
+    unsigned short value;
+
+    // Read temperature
+    unsigned short tempReg = GetStepTempRegister(patternNumber, stepNumber);
+    result = DTB_ReadRegister(handle, tempReg, &value);
+    if (result != DTB_SUCCESS) return result;
+    *temperature = (short)value / 10.0;
+
+    // Read time
+    unsigned short timeReg = GetStepTimeRegister(patternNumber, stepNumber);
+    result = DTB_ReadRegister(handle, timeReg, &value);
+    if (result != DTB_SUCCESS) return result;
+    *timeMinutes = (int)value;
+
+    return DTB_SUCCESS;
+}
+
+int DTB_SetPattern(DTB_Handle *handle, int patternNumber, const DTB_Pattern *pattern) {
+    if (!handle || !handle->isConnected || !pattern) return DTB_ERROR_INVALID_PARAM;
+
+    if (patternNumber < 0 || patternNumber >= DTB_MAX_PATTERNS) {
+        LogErrorEx(LOG_DEVICE_DTB, "Invalid pattern number: %d", patternNumber);
+        return DTB_ERROR_INVALID_PARAM;
+    }
+
+    LogMessageEx(LOG_DEVICE_DTB, "Setting Pattern %d (complete configuration)", patternNumber);
+
+    int result;
+
+    // Set all steps
+    int stepsToSet = (pattern->actualStepCount < DTB_MAX_STEPS_PER_PATTERN) ?
+                     pattern->actualStepCount + 1 : DTB_MAX_STEPS_PER_PATTERN;
+
+    for (int i = 0; i < stepsToSet; i++) {
+        result = DTB_SetStep(handle, patternNumber, i,
+                            pattern->steps[i].temperature,
+                            pattern->steps[i].timeMinutes);
+        if (result != DTB_SUCCESS) {
+            LogErrorEx(LOG_DEVICE_DTB, "Failed to set step %d", i);
+            return result;
+        }
+    }
+
+    // Set actual step count
+    result = DTB_SetActualStepCount(handle, patternNumber, pattern->actualStepCount);
+    if (result != DTB_SUCCESS) return result;
+
+    // Set cycle count
+    result = DTB_SetCycleCount(handle, patternNumber, pattern->cycleCount);
+    if (result != DTB_SUCCESS) return result;
+
+    // Set link pattern
+    result = DTB_SetLinkPattern(handle, patternNumber, pattern->linkPattern);
+    if (result != DTB_SUCCESS) return result;
+
+    LogMessageEx(LOG_DEVICE_DTB, "Pattern %d configured: %d steps, %d cycles, link=%d",
+                 patternNumber, pattern->actualStepCount, pattern->cycleCount, pattern->linkPattern);
+
+    return DTB_SUCCESS;
+}
+
+int DTB_GetPattern(DTB_Handle *handle, int patternNumber, DTB_Pattern *pattern) {
+    if (!handle || !handle->isConnected || !pattern) return DTB_ERROR_INVALID_PARAM;
+
+    if (patternNumber < 0 || patternNumber >= DTB_MAX_PATTERNS) {
+        return DTB_ERROR_INVALID_PARAM;
+    }
+
+    memset(pattern, 0, sizeof(DTB_Pattern));
+
+    int result;
+
+    // Get actual step count first
+    result = DTB_GetActualStepCount(handle, patternNumber, &pattern->actualStepCount);
+    if (result != DTB_SUCCESS) return result;
+
+    // Get all steps
+    for (int i = 0; i < DTB_MAX_STEPS_PER_PATTERN; i++) {
+        result = DTB_GetStep(handle, patternNumber, i,
+                            &pattern->steps[i].temperature,
+                            &pattern->steps[i].timeMinutes);
+        if (result != DTB_SUCCESS) return result;
+    }
+
+    // Get cycle count
+    result = DTB_GetCycleCount(handle, patternNumber, &pattern->cycleCount);
+    if (result != DTB_SUCCESS) return result;
+
+    // Get link pattern
+    result = DTB_GetLinkPattern(handle, patternNumber, &pattern->linkPattern);
+    if (result != DTB_SUCCESS) return result;
+
+    return DTB_SUCCESS;
+}
+
+// Pattern Metadata Functions
+
+int DTB_SetActualStepCount(DTB_Handle *handle, int patternNumber, int stepCount) {
+    if (!handle || !handle->isConnected) return DTB_ERROR_NOT_CONNECTED;
+
+    if (patternNumber < 0 || patternNumber >= DTB_MAX_PATTERNS) {
+        return DTB_ERROR_INVALID_PARAM;
+    }
+    if (stepCount < 0 || stepCount >= DTB_MAX_STEPS_PER_PATTERN) {
+        LogErrorEx(LOG_DEVICE_DTB, "Invalid step count: %d (must be 0-7)", stepCount);
+        return DTB_ERROR_INVALID_PARAM;
+    }
+
+    LogMessageEx(LOG_DEVICE_DTB, "Pattern %d: setting actual step count to %d",
+                 patternNumber, stepCount);
+
+    unsigned short reg = REG_ACTUAL_STEP_BASE + patternNumber;
+    return DTB_WriteRegister(handle, reg, (unsigned short)stepCount);
+}
+
+int DTB_GetActualStepCount(DTB_Handle *handle, int patternNumber, int *stepCount) {
+    if (!handle || !handle->isConnected || !stepCount) return DTB_ERROR_INVALID_PARAM;
+
+    if (patternNumber < 0 || patternNumber >= DTB_MAX_PATTERNS) {
+        return DTB_ERROR_INVALID_PARAM;
+    }
+
+    unsigned short value;
+    unsigned short reg = REG_ACTUAL_STEP_BASE + patternNumber;
+    int result = DTB_ReadRegister(handle, reg, &value);
+
+    if (result == DTB_SUCCESS) {
+        *stepCount = (int)value;
+    }
+
+    return result;
+}
+
+int DTB_SetCycleCount(DTB_Handle *handle, int patternNumber, int cycleCount) {
+    if (!handle || !handle->isConnected) return DTB_ERROR_NOT_CONNECTED;
+
+    if (patternNumber < 0 || patternNumber >= DTB_MAX_PATTERNS) {
+        return DTB_ERROR_INVALID_PARAM;
+    }
+    if (cycleCount < DTB_MIN_CYCLE_COUNT || cycleCount > DTB_MAX_CYCLE_COUNT) {
+        LogErrorEx(LOG_DEVICE_DTB, "Invalid cycle count: %d (must be 0-99)", cycleCount);
+        return DTB_ERROR_INVALID_PARAM;
+    }
+
+    LogMessageEx(LOG_DEVICE_DTB, "Pattern %d: setting cycle count to %d",
+                 patternNumber, cycleCount);
+
+    unsigned short reg = REG_CYCLE_COUNT_BASE + patternNumber;
+    return DTB_WriteRegister(handle, reg, (unsigned short)cycleCount);
+}
+
+int DTB_GetCycleCount(DTB_Handle *handle, int patternNumber, int *cycleCount) {
+    if (!handle || !handle->isConnected || !cycleCount) return DTB_ERROR_INVALID_PARAM;
+
+    if (patternNumber < 0 || patternNumber >= DTB_MAX_PATTERNS) {
+        return DTB_ERROR_INVALID_PARAM;
+    }
+
+    unsigned short value;
+    unsigned short reg = REG_CYCLE_COUNT_BASE + patternNumber;
+    int result = DTB_ReadRegister(handle, reg, &value);
+
+    if (result == DTB_SUCCESS) {
+        *cycleCount = (int)value;
+    }
+
+    return result;
+}
+
+int DTB_SetLinkPattern(DTB_Handle *handle, int patternNumber, int linkPattern) {
+    if (!handle || !handle->isConnected) return DTB_ERROR_NOT_CONNECTED;
+
+    if (patternNumber < 0 || patternNumber >= DTB_MAX_PATTERNS) {
+        return DTB_ERROR_INVALID_PARAM;
+    }
+    if (linkPattern < 0 || linkPattern > DTB_LINK_PATTERN_END) {
+        LogErrorEx(LOG_DEVICE_DTB, "Invalid link pattern: %d (must be 0-8)", linkPattern);
+        return DTB_ERROR_INVALID_PARAM;
+    }
+
+    LogMessageEx(LOG_DEVICE_DTB, "Pattern %d: setting link pattern to %d %s",
+                 patternNumber, linkPattern,
+                 linkPattern == DTB_LINK_PATTERN_END ? "(END)" : "");
+
+    unsigned short reg = REG_LINK_PATTERN_BASE + patternNumber;
+    return DTB_WriteRegister(handle, reg, (unsigned short)linkPattern);
+}
+
+int DTB_GetLinkPattern(DTB_Handle *handle, int patternNumber, int *linkPattern) {
+    if (!handle || !handle->isConnected || !linkPattern) return DTB_ERROR_INVALID_PARAM;
+
+    if (patternNumber < 0 || patternNumber >= DTB_MAX_PATTERNS) {
+        return DTB_ERROR_INVALID_PARAM;
+    }
+
+    unsigned short value;
+    unsigned short reg = REG_LINK_PATTERN_BASE + patternNumber;
+    int result = DTB_ReadRegister(handle, reg, &value);
+
+    if (result == DTB_SUCCESS) {
+        *linkPattern = (int)value;
+    }
+
+    return result;
+}
+
+// Program Control Functions
+
+int DTB_SetStartPattern(DTB_Handle *handle, int patternNumber) {
+    if (!handle || !handle->isConnected) return DTB_ERROR_NOT_CONNECTED;
+
+    if (patternNumber < 0 || patternNumber >= DTB_MAX_PATTERNS) {
+        LogErrorEx(LOG_DEVICE_DTB, "Invalid pattern number: %d (must be 0-7)", patternNumber);
+        return DTB_ERROR_INVALID_PARAM;
+    }
+
+    LogMessageEx(LOG_DEVICE_DTB, "Setting start pattern: %d", patternNumber);
+
+    return DTB_WriteRegister(handle, REG_START_PATTERN, (unsigned short)patternNumber);
+}
+
+int DTB_GetStartPattern(DTB_Handle *handle, int *patternNumber) {
+    if (!handle || !handle->isConnected || !patternNumber) return DTB_ERROR_INVALID_PARAM;
+
+    unsigned short value;
+    int result = DTB_ReadRegister(handle, REG_START_PATTERN, &value);
+
+    if (result == DTB_SUCCESS) {
+        *patternNumber = (int)value;
+    }
+
+    return result;
+}
+
+int DTB_StartProgram(DTB_Handle *handle) {
+    if (!handle || !handle->isConnected) return DTB_ERROR_NOT_CONNECTED;
+
+    LogMessageEx(LOG_DEVICE_DTB, "Starting program execution...");
+
+    // First ensure control method is set to PID Program Control
+    int result = DTB_SetControlMethod(handle, CONTROL_METHOD_PID_PROG);
+    if (result != DTB_SUCCESS) {
+        LogErrorEx(LOG_DEVICE_DTB, "Failed to set control method to PID Program");
+        return result;
+    }
+
+    // Set RUN bit to start program
+    result = DTB_WriteBit(handle, BIT_RUN_STOP, 1);
+    if (result != DTB_SUCCESS) {
+        LogErrorEx(LOG_DEVICE_DTB, "Failed to set RUN bit");
+        return result;
+    }
+
+    LogMessageEx(LOG_DEVICE_DTB, "Program started successfully");
+    return DTB_SUCCESS;
+}
+
+int DTB_StopProgram(DTB_Handle *handle) {
+    if (!handle || !handle->isConnected) return DTB_ERROR_NOT_CONNECTED;
+
+    LogMessageEx(LOG_DEVICE_DTB, "Stopping program execution...");
+
+    // Set STOP bit
+    int result = DTB_WriteBit(handle, BIT_PROGRAM_STOP, 1);
+    if (result != DTB_SUCCESS) {
+        LogErrorEx(LOG_DEVICE_DTB, "Failed to set STOP bit");
+        return result;
+    }
+
+    LogMessageEx(LOG_DEVICE_DTB, "Program stopped");
+    return DTB_SUCCESS;
+}
+
+int DTB_HoldProgram(DTB_Handle *handle) {
+    if (!handle || !handle->isConnected) return DTB_ERROR_NOT_CONNECTED;
+
+    LogMessageEx(LOG_DEVICE_DTB, "Holding program execution...");
+
+    // Set HOLD bit
+    int result = DTB_WriteBit(handle, BIT_PROGRAM_HOLD, 1);
+    if (result != DTB_SUCCESS) {
+        LogErrorEx(LOG_DEVICE_DTB, "Failed to set HOLD bit");
+        return result;
+    }
+
+    LogMessageEx(LOG_DEVICE_DTB, "Program paused");
+    return DTB_SUCCESS;
+}
+
+int DTB_ResumeProgram(DTB_Handle *handle) {
+    if (!handle || !handle->isConnected) return DTB_ERROR_NOT_CONNECTED;
+
+    LogMessageEx(LOG_DEVICE_DTB, "Resuming program execution...");
+
+    // Clear HOLD bit
+    int result = DTB_WriteBit(handle, BIT_PROGRAM_HOLD, 0);
+    if (result != DTB_SUCCESS) {
+        LogErrorEx(LOG_DEVICE_DTB, "Failed to clear HOLD bit");
+        return result;
+    }
+
+    LogMessageEx(LOG_DEVICE_DTB, "Program resumed");
+    return DTB_SUCCESS;
+}
+
+int DTB_GetProgramStatus(DTB_Handle *handle, DTB_ProgramStatus *status) {
+    if (!handle || !handle->isConnected || !status) return DTB_ERROR_INVALID_PARAM;
+
+    memset(status, 0, sizeof(DTB_ProgramStatus));
+    status->currentPattern = -1;
+    status->currentStep = -1;
+
+    int result;
+    int bitValue;
+    unsigned short value;
+
+    // Check if running (control method == PID Program and RUN bit set)
+    result = DTB_ReadRegister(handle, REG_CONTROL_METHOD, &value);
+    if (result == DTB_SUCCESS && value == CONTROL_METHOD_PID_PROG) {
+        result = DTB_ReadBit(handle, BIT_RUN_STOP, &bitValue);
+        if (result == DTB_SUCCESS && bitValue) {
+            status->isRunning = 1;
+        }
+    }
+
+    // Check if paused
+    result = DTB_ReadBit(handle, BIT_PROGRAM_HOLD, &bitValue);
+    if (result == DTB_SUCCESS && bitValue) {
+        status->isPaused = 1;
+    }
+
+    // Determine state
+    if (!status->isRunning) {
+        status->state = DTB_PROG_STATE_STOPPED;
+    } else if (status->isPaused) {
+        status->state = DTB_PROG_STATE_PAUSED;
+    } else {
+        status->state = DTB_PROG_STATE_RUNNING;
+    }
+
+    // Note: DTB4848 doesn't provide current pattern/step via Modbus
+    // SV display shows P-XX format but only visible on front panel
+    // These would need to be tracked externally if needed
+
+    return DTB_SUCCESS;
+}
+
+// Convenience Functions
+
+int DTB_SetSimpleRamp(DTB_Handle *handle, int patternNumber,
+                      double startTemp, double endTemp,
+                      int rampTimeMinutes, int soakTimeMinutes) {
+    if (!handle || !handle->isConnected) return DTB_ERROR_NOT_CONNECTED;
+
+    if (patternNumber < 0 || patternNumber >= DTB_MAX_PATTERNS) {
+        LogErrorEx(LOG_DEVICE_DTB, "Invalid pattern number: %d", patternNumber);
+        return DTB_ERROR_INVALID_PARAM;
+    }
+
+    LogMessageEx(LOG_DEVICE_DTB, "Setting simple ramp in Pattern %d: %.1fÂ°C to %.1fÂ°C over %d min, soak %d min",
+                 patternNumber, startTemp, endTemp, rampTimeMinutes, soakTimeMinutes);
+
+    DTB_Pattern pattern;
+    memset(&pattern, 0, sizeof(DTB_Pattern));
+
+    // Step 0: Ramp from startTemp to endTemp
+    pattern.steps[0].temperature = endTemp;
+    pattern.steps[0].timeMinutes = rampTimeMinutes;
+
+    // Step 1: Soak at endTemp
+    pattern.steps[1].temperature = endTemp;
+    pattern.steps[1].timeMinutes = soakTimeMinutes;
+
+    // Set metadata
+    pattern.actualStepCount = 1;  // Execute steps 0-1 (2 steps)
+    pattern.cycleCount = 0;       // No additional cycles
+    pattern.linkPattern = DTB_LINK_PATTERN_END;  // End after this pattern
+
+    // Write pattern
+    int result = DTB_SetPattern(handle, patternNumber, &pattern);
+    if (result != DTB_SUCCESS) {
+        LogErrorEx(LOG_DEVICE_DTB, "Failed to set simple ramp pattern");
+        return result;
+    }
+
+    // Set the current temperature as starting point
+    // (User should set setpoint to startTemp before starting program)
+    LogMessageEx(LOG_DEVICE_DTB, "Simple ramp configured. Set setpoint to %.1fÂ°C before starting.", startTemp);
+
+    return DTB_SUCCESS;
+}
+
+int DTB_ClearPattern(DTB_Handle *handle, int patternNumber) {
+    if (!handle || !handle->isConnected) return DTB_ERROR_NOT_CONNECTED;
+
+    if (patternNumber < 0 || patternNumber >= DTB_MAX_PATTERNS) {
+        return DTB_ERROR_INVALID_PARAM;
+    }
+
+    LogMessageEx(LOG_DEVICE_DTB, "Clearing Pattern %d...", patternNumber);
+
+    DTB_Pattern pattern;
+    memset(&pattern, 0, sizeof(DTB_Pattern));
+    pattern.linkPattern = DTB_LINK_PATTERN_END;
+
+    return DTB_SetPattern(handle, patternNumber, &pattern);
+}
+
+int DTB_ClearAllPatterns(DTB_Handle *handle) {
+    if (!handle || !handle->isConnected) return DTB_ERROR_NOT_CONNECTED;
+
+    LogMessageEx(LOG_DEVICE_DTB, "Clearing all patterns...");
+
+    int result;
+    for (int i = 0; i < DTB_MAX_PATTERNS; i++) {
+        result = DTB_ClearPattern(handle, i);
+        if (result != DTB_SUCCESS) {
+            LogErrorEx(LOG_DEVICE_DTB, "Failed to clear pattern %d", i);
+            return result;
+        }
+    }
+
+    LogMessageEx(LOG_DEVICE_DTB, "All patterns cleared");
+    return DTB_SUCCESS;
 }

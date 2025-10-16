@@ -1,10 +1,10 @@
-# Battery Tester System
+# Battery Exploder
 
 ## Overview
 
-This is a comprehensive battery testing system built in **LabWindows/CVI 2020 (C99)** designed for automated battery characterization and analysis. The system integrates multiple hardware instruments to provide battery testing capabilities including charge/discharge cycles, electrochemical impedance spectroscopy (EIS), temperature control, and comprehensive data logging.
+This is a comprehensive battery testing system built in **LabWindows/CVI 2020 (C99)** designed for automated battery characterization and thermal runaway analysis. The system integrates multiple hardware instruments to provide battery testing capabilities including charge/discharge cycles, electrochemical impedance spectroscopy (EIS), temperature control, mass flow control, and comprehensive data logging.
 
-**Developed by:** Maxwell Prisbrey
+**Developed by:** Maxwell Prisbrey, Nicolas Rasmont, and Gabriel Meier
 
 ---
 
@@ -12,13 +12,14 @@ This is a comprehensive battery testing system built in **LabWindows/CVI 2020 (C
 
 ### Hardware Components
 
-The system interfaces with 5 main hardware devices through various communication protocols:
+The system interfaces with 6 main hardware devices through various communication protocols:
 
 1. **[PSB 10000 Power Supply](#psb-10000-power-supply)** - EA Elektro-Automatik bidirectional power supply (60V/60A derated)
 2. **[Bio-Logic SP-150e](#bio-logic-sp-150e-potentiostat)** - Potentiostat for electrochemical measurements
 3. **[DTB4848 Temperature Controllers](#dtb4848-temperature-controllers)** - K-type thermocouple PID controllers
-4. **[Teensy Microcontroller](#teensy-microcontroller)** - Digital I/O control via Arduino-compatible board
-5. **[cDAQ-9178 System](#cdaq-9178-system)** - National Instruments data acquisition for temperature monitoring
+4. **[ALICAT Basis 2 Mass Flow Controller](#alicat-basis-2-mass-flow-controller)** - Gas flow control
+5. **[Teensy Microcontroller](#teensy-microcontroller)** - Digital I/O control via Arduino-compatible board
+6. **[cDAQ-9178 System](#cdaq-9178-system)** - National Instruments data acquisition for temperature monitoring
 
 ---
 
@@ -146,6 +147,94 @@ int DTB_ConfigureAtomic(int slaveAddress, const DTB_Configuration *config,
 - Configurable alarm thresholds with hysteresis
 - Front panel lock for security during automated operation
 - Write protection to prevent unauthorized changes
+
+**Ramp-Soak (PID Program) Capabilities:**
+
+The DTB4848 controllers support advanced **PID Program Control** for automated, multi-step temperature sequences ideal for thermal characterization and aging tests.
+
+*Architecture:*
+- **8 Patterns** × **8 Steps per pattern** = 64 programmable temperature points
+- **Pattern Chaining** - Link patterns for complex sequences
+- **Cycle Control** - Repeat patterns 0-99 times
+- **Program Control** - Start/Stop/Hold/Resume capabilities
+
+*Pattern Programming:*
+```c
+// Simple 2-step ramp
+int DTB_SetSimpleRamp(DTB_Handle *handle, double startTemp, double endTemp, int durationMinutes);
+
+// Complex multi-step pattern
+DTB_Pattern pattern = {0};
+pattern.actualStepCount = 3;
+pattern.cycleCount = 2;  // Repeat twice
+pattern.linkPattern = DTB_LINK_PATTERN_END;
+pattern.steps[0].temperature = 25.0;
+pattern.steps[0].timeMinutes = 10;
+// ... configure remaining steps
+
+DTB_SetPattern(&handle, 0, &pattern);
+DTB_SetStartPattern(&handle, 0);
+DTB_StartProgram(&handle);
+```
+
+*Key Functions:*
+```c
+// Pattern management
+int DTB_SetPattern(DTB_Handle *handle, int patternNumber, const DTB_Pattern *pattern);
+int DTB_GetPattern(DTB_Handle *handle, int patternNumber, DTB_Pattern *pattern);
+int DTB_ClearAllPatterns(DTB_Handle *handle);
+
+// Program control
+int DTB_StartProgram(DTB_Handle *handle);
+int DTB_StopProgram(DTB_Handle *handle);
+int DTB_HoldProgram(DTB_Handle *handle);
+int DTB_GetProgramStatus(DTB_Handle *handle, DTB_ProgramStatus *status);
+
+// Atomic transactions for complex configurations
+int DTB_ConfigurePatternAtomic(int slaveAddress, int patternNumber,
+                              const DTB_Pattern *pattern, DevicePriority priority);
+```
+
+*Testing:*
+Comprehensive test suite available: `tests/dtb_ramp_soak_test.h/c`
+
+This feature enables precise, repeatable thermal profiles for experiments requiring complex temperature sequences without manual intervention.
+
+### ALICAT Basis 2 Mass Flow Controller
+
+**Purpose:** Gas flow control for thermal runaway experiments and environmental control
+
+**Files:**
+- `alicat basis 2/alicat_dll.h/c` - Modbus RTU protocol implementation
+- `alicat basis 2/alicat_queue.h/c` - Thread-safe command queuing
+
+**Communication:** Modbus RTU over RS232 (COM7, 38400 baud, Modbus Address 1)
+
+**Features:**
+- **Flow Control:** Precise gas flow measurement and control
+- **Multi-Gas Support:** Configurable for different gas types
+- **Real-time Monitoring:** Continuous flow rate, pressure, and temperature readings
+- **Setpoint Control:** Automated flow rate regulation
+
+**Key Functions:**
+```c
+// Connection and setup
+int ALICAT_Connect(ALICAT_Handle *handle, const char *comPort, int baudRate);
+int ALICAT_TestConnection(ALICAT_Handle *handle);
+
+// Flow control (queued for thread safety)
+int ALICAT_SetFlowSetpointQueued(int deviceIndex, double setpoint, DevicePriority priority);
+int ALICAT_GetStatusQueued(int deviceIndex, ALICAT_Status *status, DevicePriority priority);
+
+// Real-time monitoring
+int ALICAT_GetFlowRate(ALICAT_Handle *handle, double *flowRate);
+int ALICAT_GetPressure(ALICAT_Handle *handle, double *pressure);
+```
+
+**Applications:**
+- Controlled gas environment for thermal runaway testing
+- Inert gas purging during high-temperature experiments
+- Flow rate monitoring during battery venting events
 
 ### Teensy Microcontroller
 
@@ -353,6 +442,44 @@ StartCDCOperation(panel, control, CDC_MODE_CHARGE/DISCHARGE)
 
 **Typical Use Case:**
 Long-term battery aging studies where you need to track how internal resistance and other electrochemical properties change over days/weeks/months of testing.
+
+### Temperature Ramp EIS Experiment
+
+**Purpose:** Perform EIS measurements during controlled temperature ramping for thermal runaway analysis and thermal characterization
+
+**Files:** `exp_temp_ramp.h/c`
+
+**Workflow:**
+1. **Initial Temperature Setup** - Reach initial temperature using DTB controllers
+2. **Stabilization Period** - Wait for thermal equilibrium at starting temperature
+3. **Temperature Ramping** - Begin controlled temperature ramp at specified rate
+4. **Periodic EIS Measurements** - Perform impedance measurements at regular intervals during ramp
+5. **Final Temperature Hold** - Maintain final temperature while completing measurements
+6. **Data Logging** - Record complete temperature profile, EIS data, and environmental conditions
+
+**Key Parameters:**
+- **Initial/Final Temperature** - Temperature range for the ramp
+- **Ramp Rate** - Temperature change rate (°C/min)
+- **EIS Interval** - Frequency of impedance measurements during ramp
+- **Stabilization Time** - Hold duration at initial and final temperatures
+- **Ramp Mode** - Continue ramping during EIS or pause for measurements
+
+**Integration Points:**
+- Uses **DTB controllers** for precise temperature ramping and control
+- Uses **Bio-Logic** for EIS measurements (PEIS technique)
+- Uses **cDAQ system** for comprehensive temperature monitoring (32 channels)
+- Uses **ALICAT** for mass flow monitoring and control
+- Uses **Teensy** for relay switching to isolate devices during measurements
+
+**Advanced Features:**
+- Option to continue or pause temperature ramp during EIS measurements
+- Multi-device temperature monitoring for spatial temperature mapping
+- Automatic data logging with timestamped directories
+- Real-time temperature profile visualization
+- Integration with DTB ramp-soak programs for complex thermal profiles
+
+**Typical Use Case:**
+Thermal runaway characterization where impedance changes are monitored as battery temperature increases, allowing detection of critical temperature thresholds and thermal degradation mechanisms.
 
 ---
 
@@ -601,8 +728,8 @@ if (experiment_running) {
 
 ### Project Structure
 ```
-battery-tester/
-├── BatteryTester.c/h/uir          # Main application
+battery_exploder/
+├── BatteryExploder.c/h/uir        # Main application
 ├── common.h/c                     # Shared definitions  
 ├── device_queue.h/c               # Generic queue system
 ├── battery_utils.h/c              # Battery calculations
@@ -622,8 +749,12 @@ battery-tester/
 │   └── psb10000_queue.h/c         # Queue management
 │
 ├── dtb4848/                       # DTB4848 Temperature Controllers
-│   ├── dtb4848_dll.h/c            # Modbus ASCII interface  
+│   ├── dtb4848_dll.h/c            # Modbus ASCII interface
 │   └── dtb4848_queue.h/c          # Queue management
+│
+├── alicat basis 2/                # ALICAT Mass Flow Controller
+│   ├── alicat_dll.h/c             # Modbus RTU interface
+│   └── alicat_queue.h/c           # Queue management
 │
 ├── teensy/                        # Teensy Microcontroller
 │   ├── teensy_dll.h/c             # Serial interface
@@ -633,10 +764,12 @@ battery-tester/
 │   ├── biologic_test.h/c          # Bio-Logic validation
 │   ├── psb10000_test.h/c          # PSB validation
 │   ├── device_queue_test.h/c      # Queue system tests
+│   ├── dtb_ramp_soak_test.h/c     # DTB ramp-soak tests
 │   └── ...
 │
 ├── exp_baseline.h/c               # Baseline experiment
-└── exp_cdc.h/c                    # CDC experiment
+├── exp_cdc.h/c                    # CDC experiment
+└── exp_temp_ramp.h/c              # Temperature ramp EIS experiment
 ```
 
 ### Key Dependencies
@@ -662,18 +795,33 @@ battery-tester/
 **Serial Port Assignments (configurable in common.h):**
 ```c
 #define PSB_COM_PORT            3       // PSB 10000 COM port
-#define DTB_COM_PORT            5       // DTB 4848 COM port  
-#define PSB_SLAVE_ADDRESS       1       // PSB Modbus slave address
-#define PSB_BAUD_RATE           9600    // PSB baud rate
+#define DTB_COM_PORT            5       // DTB 4848 COM port
+#define ALICAT_COM_PORT         7       // ALICAT Basis 2 COM port
+#define TNY_COM_PORT            6       // Teensy COM port
 ```
 
 **Device Enable Flags:**
 ```c
-#define ENABLE_PSB         1    // Enable PSB 10000 monitoring
-#define ENABLE_BIOLOGIC    1    // Enable BioLogic SP-150e monitoring  
-#define ENABLE_DTB         1    // Enable DTB4848 monitoring
-#define ENABLE_TNY         1    // Enable Teensy monitoring
+#define ENABLE_PSB         1    // Enable PSB 10000
+#define ENABLE_BIOLOGIC    1    // Enable Bio-Logic SP-150e
+#define ENABLE_DTB         1    // Enable DTB4848
+#define ENABLE_ALICAT      1    // Enable ALICAT flow controller
+#define ENABLE_TNY         1    // Enable Teensy
 #define ENABLE_CDAQ        1    // Enable cDAQ 9178
+```
+
+**DTB Configuration:**
+```c
+#define DTB_NUM_DEVICES     2
+#define DTB1_SLAVE_ADDRESS  2
+#define DTB2_SLAVE_ADDRESS  3
+```
+
+**ALICAT Configuration:**
+```c
+#define ALICAT_BAUD_RATE        38400
+#define ALICAT_NUM_DEVICES      1
+#define ALICAT_MODBUS_ADDRESS   1
 ```
 
 **Safety Limits (PSB 10000 - 60V/60A derated version):**
@@ -838,7 +986,7 @@ static const DeviceAdapter g_newdevAdapter = {
 
 **3. Integrate with Main Application**
 ```c
-// Add to BatteryTester.c
+// Add to BatteryExploder.c
 #include "newdevice_queue.h"
 
 // Global queue manager
@@ -848,7 +996,7 @@ NEWDEVQueueManager *g_newdevQueueMgr = NULL;
 g_newdevQueueMgr = NEWDEV_QueueInitialize(g_threadPool, connectionParams);
 
 // Add to status monitoring in status.c
-// Add to cleanup in BatteryTester.c
+// Add to cleanup in BatteryExploder.c
 ```
 
 ### Code Style Guidelines
@@ -888,4 +1036,4 @@ Each module should have comprehensive test coverage:
 
 ---
 
-*Last Updated: Based on analysis of BatteryTester.prj version 1.0*  
+*Last Updated: Based on analysis of BatteryExploder.prj - includes DTB4848 ramp-soak capabilities, ALICAT integration, and temperature ramp EIS experiment*  

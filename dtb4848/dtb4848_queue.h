@@ -88,7 +88,33 @@ typedef enum {
     
     // Raw Modbus commands
     DTB_CMD_RAW_MODBUS,
-    
+
+    // Ramp-Soak pattern configuration
+    DTB_CMD_SET_PATTERN,
+    DTB_CMD_GET_PATTERN,
+    DTB_CMD_SET_STEP,
+    DTB_CMD_GET_STEP,
+    DTB_CMD_SET_ACTUAL_STEP_COUNT,
+    DTB_CMD_GET_ACTUAL_STEP_COUNT,
+    DTB_CMD_SET_CYCLE_COUNT,
+    DTB_CMD_GET_CYCLE_COUNT,
+    DTB_CMD_SET_LINK_PATTERN,
+    DTB_CMD_GET_LINK_PATTERN,
+
+    // Program control
+    DTB_CMD_SET_START_PATTERN,
+    DTB_CMD_GET_START_PATTERN,
+    DTB_CMD_START_PROGRAM,
+    DTB_CMD_STOP_PROGRAM,
+    DTB_CMD_HOLD_PROGRAM,
+    DTB_CMD_RESUME_PROGRAM,
+    DTB_CMD_GET_PROGRAM_STATUS,
+
+    // Convenience
+    DTB_CMD_SET_SIMPLE_RAMP,
+    DTB_CMD_CLEAR_PATTERN,
+    DTB_CMD_CLEAR_ALL_PATTERNS,
+
     DTB_CMD_TYPE_COUNT
 } DTBCommandType;
 
@@ -116,7 +142,7 @@ typedef union {
     struct { int slaveAddress; } enableWriteAccess;
     struct { int slaveAddress; } disableWriteAccess;
     struct { int slaveAddress; } getWriteAccessStatus;
-    struct { 
+    struct {
         int slaveAddress;
         unsigned char functionCode;
         unsigned short address;
@@ -124,6 +150,30 @@ typedef union {
         unsigned char *rxBuffer;
         int rxBufferSize;
     } rawModbus;
+
+    // Ramp-Soak parameters
+    struct { int slaveAddress; int patternNumber; DTB_Pattern pattern; } setPattern;
+    struct { int slaveAddress; int patternNumber; } getPattern;
+    struct { int slaveAddress; int patternNumber; int stepNumber;
+             double temperature; int timeMinutes; } setStep;
+    struct { int slaveAddress; int patternNumber; int stepNumber; } getStep;
+    struct { int slaveAddress; int patternNumber; int stepCount; } setActualStepCount;
+    struct { int slaveAddress; int patternNumber; } getActualStepCount;
+    struct { int slaveAddress; int patternNumber; int cycleCount; } setCycleCount;
+    struct { int slaveAddress; int patternNumber; } getCycleCount;
+    struct { int slaveAddress; int patternNumber; int linkPattern; } setLinkPattern;
+    struct { int slaveAddress; int patternNumber; } getLinkPattern;
+    struct { int slaveAddress; int patternNumber; } setStartPattern;
+    struct { int slaveAddress; } getStartPattern;
+    struct { int slaveAddress; } startProgram;
+    struct { int slaveAddress; } stopProgram;
+    struct { int slaveAddress; } holdProgram;
+    struct { int slaveAddress; } resumeProgram;
+    struct { int slaveAddress; } getProgramStatus;
+    struct { int slaveAddress; int patternNumber; double startTemp;
+             double endTemp; int rampTimeMinutes; int soakTimeMinutes; } setSimpleRamp;
+    struct { int slaveAddress; int patternNumber; } clearPattern;
+    struct { int slaveAddress; } clearAllPatterns;
 } DTBCommandParams;
 
 // Command result structure
@@ -138,6 +188,15 @@ typedef struct {
         int frontPanelLockMode;
         int writeAccessEnabled;
         struct { unsigned char *rxData; int rxLength; } rawResponse;
+
+        // Ramp-Soak results
+        DTB_Pattern pattern;
+        struct { double temperature; int timeMinutes; } step;
+        int stepCount;
+        int cycleCount;
+        int linkPattern;
+        int startPattern;
+        DTB_ProgramStatus programStatus;
     } data;
 } DTBCommandResult;
 
@@ -267,6 +326,52 @@ int DTB_SendRawModbusQueued(int slaveAddress, unsigned char functionCode,
                            unsigned char *rxBuffer, int rxBufferSize, DevicePriority priority);
 
 /******************************************************************************
+ * Ramp-Soak (PID Program Control) Functions
+ ******************************************************************************/
+
+// Pattern/Step Configuration
+int DTB_SetPatternQueued(int slaveAddress, int patternNumber,
+                         const DTB_Pattern *pattern, DevicePriority priority);
+int DTB_GetPatternQueued(int slaveAddress, int patternNumber,
+                         DTB_Pattern *pattern, DevicePriority priority);
+int DTB_SetStepQueued(int slaveAddress, int patternNumber, int stepNumber,
+                      double temperature, int timeMinutes, DevicePriority priority);
+int DTB_GetStepQueued(int slaveAddress, int patternNumber, int stepNumber,
+                      double *temperature, int *timeMinutes, DevicePriority priority);
+
+// Pattern Metadata
+int DTB_SetActualStepCountQueued(int slaveAddress, int patternNumber,
+                                 int stepCount, DevicePriority priority);
+int DTB_GetActualStepCountQueued(int slaveAddress, int patternNumber,
+                                 int *stepCount, DevicePriority priority);
+int DTB_SetCycleCountQueued(int slaveAddress, int patternNumber,
+                            int cycleCount, DevicePriority priority);
+int DTB_GetCycleCountQueued(int slaveAddress, int patternNumber,
+                            int *cycleCount, DevicePriority priority);
+int DTB_SetLinkPatternQueued(int slaveAddress, int patternNumber,
+                             int linkPattern, DevicePriority priority);
+int DTB_GetLinkPatternQueued(int slaveAddress, int patternNumber,
+                             int *linkPattern, DevicePriority priority);
+
+// Program Control
+int DTB_SetStartPatternQueued(int slaveAddress, int patternNumber, DevicePriority priority);
+int DTB_GetStartPatternQueued(int slaveAddress, int *patternNumber, DevicePriority priority);
+int DTB_StartProgramQueued(int slaveAddress, DevicePriority priority);
+int DTB_StopProgramQueued(int slaveAddress, DevicePriority priority);
+int DTB_HoldProgramQueued(int slaveAddress, DevicePriority priority);
+int DTB_ResumeProgramQueued(int slaveAddress, DevicePriority priority);
+int DTB_GetProgramStatusQueued(int slaveAddress, DTB_ProgramStatus *status,
+                               DevicePriority priority);
+
+// Convenience Functions
+int DTB_SetSimpleRampQueued(int slaveAddress, int patternNumber,
+                            double startTemp, double endTemp,
+                            int rampTimeMinutes, int soakTimeMinutes,
+                            DevicePriority priority);
+int DTB_ClearPatternQueued(int slaveAddress, int patternNumber, DevicePriority priority);
+int DTB_ClearAllPatternsQueued(int slaveAddress, DevicePriority priority);
+
+/******************************************************************************
  * "All Devices" Convenience Functions
  ******************************************************************************/
 
@@ -379,7 +484,7 @@ int DTB_ConfigureAtomic(int slaveAddress, const DTB_Configuration *config,
 /**
  * Safely change control method with PID parameters
  * Uses transaction to ensure consistent state
- * 
+ *
  * @param slaveAddress - Modbus slave address of target device
  * @param method - Control method (PID, ON/OFF, etc.)
  * @param pidMode - PID mode (if method is PID)
@@ -389,5 +494,22 @@ int DTB_ConfigureAtomic(int slaveAddress, const DTB_Configuration *config,
  */
 int DTB_SetControlMethodWithParams(int slaveAddress, int method, int pidMode,
                                   const DTB_PIDParams *pidParams, DevicePriority priority);
+
+/**
+ * Atomically configure a complete ramp-soak pattern
+ * Uses transaction to ensure all pattern parameters are set together
+ *
+ * @param slaveAddress - Modbus slave address of target device
+ * @param patternNumber - Pattern number (0-7)
+ * @param pattern - Complete pattern configuration
+ * @param callback - Optional callback for transaction completion
+ * @param userData - User data for callback
+ * @param priority - Priority for all commands in the transaction
+ * @return SUCCESS or error code
+ */
+int DTB_ConfigurePatternAtomic(int slaveAddress, int patternNumber,
+                              const DTB_Pattern *pattern,
+                              DTBTransactionCallback callback, void *userData,
+                              DevicePriority priority);
 
 #endif // DTB4848_QUEUE_H
