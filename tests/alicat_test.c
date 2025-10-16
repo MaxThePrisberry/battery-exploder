@@ -246,8 +246,8 @@ int CVICALLBACK TestALICATWorkerThread(void *functionData) {
     }
 
     // TODO: Restore Test ALICAT button when UI control is added
-    // SetCtrlAttribute(g_mainPanelHandle, PANEL_BTN_TEST_ALICAT, ATTR_LABEL_TEXT, "Test ALICAT");
-    // SetCtrlAttribute(g_mainPanelHandle, PANEL_BTN_TEST_ALICAT, ATTR_DIMMED, 0);
+    SetCtrlAttribute(g_mainPanelHandle, PANEL_BTN_TEST_ALICAT, ATTR_LABEL_TEXT, "Test ALICAT");
+    SetCtrlAttribute(g_mainPanelHandle, PANEL_BTN_TEST_ALICAT, ATTR_DIMMED, 0);
 
     // Clear busy flag
     CmtGetLock(g_busyLock);

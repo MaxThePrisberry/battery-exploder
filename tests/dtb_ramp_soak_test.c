@@ -313,9 +313,10 @@ int CVICALLBACK TestDTBRampSoakWorkerThread(void *functionData) {
     }
 
     // Restore Test DTB button (need to find control ID)
-    // This will be set when the button is added to the UI
-    // For now, we'll use a placeholder comment
-    // TODO: Update with actual button control ID when UI is updated
+    SetCtrlAttribute(g_mainPanelHandle, PANEL_BTN_TEST_TEMP_RAMP,
+                      ATTR_LABEL_TEXT, "Test DTB Ramp-Soak");
+     SetCtrlAttribute(g_mainPanelHandle, PANEL_BTN_TEST_TEMP_RAMP,
+                      ATTR_DIMMED, 0);
 
     // Clear busy flag
     CmtGetLock(g_busyLock);
@@ -340,6 +341,18 @@ int DTB_TestSuite_Initialize(DTBTestSuiteContext *context, DTBQueueManager *dtbQ
     context->ledControl = ledControl;
     context->cancelRequested = 0;
     context->state = TEST_STATE_IDLE;
+	
+	DTBDeviceContext *dtbContext = (DTBDeviceContext*)DeviceQueue_GetDeviceContext(dtbQueueMgr);
+    if (!dtbContext || dtbContext->numDevices == 0) {
+        LogErrorEx(LOG_DEVICE_DTB, "No DTB devices available in queue manager");
+        return -1;
+    }
+	
+	// Copy the first handle to the global test handle
+    g_testHandle = dtbContext->handles[0];
+    
+    LogMessageEx(LOG_DEVICE_DTB, "Test suite initialized with slave address %d", 
+                 dtbContext->slaveAddresses[0]);
 
     // Reset all test results
     for (int i = 0; i < g_numRampSoakTestCases; i++) {

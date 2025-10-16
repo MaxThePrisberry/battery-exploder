@@ -82,203 +82,270 @@ static void BytesToHexString(const unsigned char *bytes, int length, char *hex) 
     hex[length * 2] = '\0';
 }
 
-static int SendModbusASCII(DTB_Handle *handle, unsigned char functionCode, 
-                          unsigned short address, unsigned short data,
-                          unsigned char *response, int maxResponseLen) {
-    if (!handle || !handle->isConnected) {
-        return DTB_ERROR_NOT_CONNECTED;
-    }
-    
-    // Build binary message
-    unsigned char binMsg[6];
-    binMsg[0] = (unsigned char)handle->slaveAddress;
-    binMsg[1] = functionCode;
-    binMsg[2] = (unsigned char)((address >> 8) & 0xFF);
-    binMsg[3] = (unsigned char)(address & 0xFF);
-    binMsg[4] = (unsigned char)((data >> 8) & 0xFF);
-    binMsg[5] = (unsigned char)(data & 0xFF);
-    
-    // Calculate LRC
-    unsigned char lrc = CalculateLRC(binMsg, 6);
-    
-    // Convert to ASCII
-    char asciiFrame[32];
-    char hexData[16];
-    BytesToHexString(binMsg, 6, hexData);
-    sprintf(asciiFrame, ":%s%02X\r\n", hexData, lrc);
-    
-    PrintDebug("TX: %s", asciiFrame);
-    LogDebugEx(LOG_DEVICE_DTB, "Sending frame: %s (length=%d)", asciiFrame, strlen(asciiFrame));
-    
-    // Clear input queue before sending
-    int bytesInQueue = GetInQLen(handle->comPort);
-    if (bytesInQueue > 0) {
-        LogWarningEx(LOG_DEVICE_DTB, "Input queue has %d bytes before sending", bytesInQueue);
-        FlushInQ(handle->comPort);
-    }
-    
-    // Send command
-    int frameLen = strlen(asciiFrame);
-    int bytesWritten = ComWrt(handle->comPort, asciiFrame, frameLen);
-    if (bytesWritten != frameLen) {
-        LogErrorEx(LOG_DEVICE_DTB, "Failed to write to COM port: wrote %d of %d bytes", 
-                   bytesWritten, frameLen);
-        return DTB_ERROR_COMM;
-    }
-    
-    LogDebugEx(LOG_DEVICE_DTB, "Successfully wrote %d bytes", bytesWritten);
-    
-    // Wait for response
-    double sendTime = Timer();
-    Delay(0.1);  // 100ms for device processing
-    
-    // Read response
-    char rxBuffer[128] = {0};
-    int totalRead = 0;
-    double startTime = Timer();
-    
-    LogDebugEx(LOG_DEVICE_DTB, "Waiting for response (timeout=%.1f seconds)...", 
-               handle->timeoutMs / 1000.0);
-    
-    // Look for start character
-    while (totalRead == 0) {
-        int available = GetInQLen(handle->comPort);
-        
-        if (available > 0) {
-            char c;
-            if (ComRd(handle->comPort, &c, 1) == 1) {
-                if (c == MODBUS_ASCII_START) {
-                    rxBuffer[totalRead++] = c;
-                    break;
-                }
-            }
-        }
-        
-        if ((Timer() - startTime) > (handle->timeoutMs / 1000.0)) {
-            LogErrorEx(LOG_DEVICE_DTB, "Timeout waiting for response start character");
-            return DTB_ERROR_TIMEOUT;
-        }
-        
-        Delay(0.01);
-    }
-    
-    // Read until CR/LF
-    while (totalRead < sizeof(rxBuffer) - 1) {
-        int available = GetInQLen(handle->comPort);
-        if (available > 0) {
-            char c;
-            if (ComRd(handle->comPort, &c, 1) == 1) {
-                rxBuffer[totalRead++] = c;
-                if (totalRead >= 2 && rxBuffer[totalRead-2] == MODBUS_ASCII_CR && 
-                    rxBuffer[totalRead-1] == MODBUS_ASCII_LF) {
-                    break;
-                }
-            }
-        }
-        
-        if ((Timer() - startTime) > (handle->timeoutMs / 1000.0)) {
-            LogErrorEx(LOG_DEVICE_DTB, "Timeout reading response (got %d bytes so far)", totalRead);
-            return DTB_ERROR_TIMEOUT;
-        }
-    }
-    
-    rxBuffer[totalRead] = '\0';
-    PrintDebug("RX: %s", rxBuffer);
-    LogDebugEx(LOG_DEVICE_DTB, "Received frame: %s (length=%d)", rxBuffer, totalRead);
-    
-    // Parse ASCII response
-    if (totalRead < 11 || rxBuffer[0] != MODBUS_ASCII_START) {
-        LogErrorEx(LOG_DEVICE_DTB, "Invalid response format: length=%d, start=0x%02X", 
-                   totalRead, rxBuffer[0]);
-        return DTB_ERROR_RESPONSE;
-    }
-    
-    // Extract hex data (skip ':', take until CR)
-    int hexLen = 0;
-    char respHexData[32];
-    for (int i = 1; i < totalRead && rxBuffer[i] != MODBUS_ASCII_CR; i++) {
-        respHexData[hexLen++] = rxBuffer[i];
-    }
-    respHexData[hexLen] = '\0';
-    
-    LogDebugEx(LOG_DEVICE_DTB, "Response hex data: %s", respHexData);
-    
-    // Convert hex to binary
-    unsigned char binResponse[64];
-    int binLen = HexStringToBytes(respHexData, binResponse, sizeof(binResponse));
-    if (binLen < 4) {
-        LogErrorEx(LOG_DEVICE_DTB, "Response too short: %d bytes", binLen);
-        return DTB_ERROR_RESPONSE;
-    }
-    
-    // Verify LRC
-    unsigned char calcLrc = CalculateLRC(binResponse, binLen - 1);
-    if (calcLrc != binResponse[binLen - 1]) {
-        LogErrorEx(LOG_DEVICE_DTB, "LRC mismatch: calc=0x%02X, recv=0x%02X", 
-                   calcLrc, binResponse[binLen - 1]);
-        return DTB_ERROR_CHECKSUM;
-    }
-    
-    // Check slave address
-    if (binResponse[0] != handle->slaveAddress) {
-        LogErrorEx(LOG_DEVICE_DTB, "Wrong slave address: expected %d, got %d",
-                   handle->slaveAddress, binResponse[0]);
-        return DTB_ERROR_RESPONSE;
-    }
-    
-    // Check for exception
-    if (binResponse[1] & 0x80) {
-        LogErrorEx(LOG_DEVICE_DTB, "Modbus exception: code 0x%02X", binResponse[2]);
-        return DTB_ERROR_RESPONSE;
-    }
-    
-    // Check function code
-    if (binResponse[1] != functionCode) {
-        LogErrorEx(LOG_DEVICE_DTB, "Wrong function code: expected 0x%02X, got 0x%02X",
-                   functionCode, binResponse[1]);
-        return DTB_ERROR_RESPONSE;
-    }
-    
-    // For Write Register (0x06), verify the echo response
-    if (functionCode == MODBUS_WRITE_REGISTER) {
-        // Response should echo the register address and value
-        if (binLen < 7) {  // Need at least 7 bytes (addr + func + 2 addr + 2 data + lrc)
-            LogErrorEx(LOG_DEVICE_DTB, "Write register response too short: %d bytes", binLen);
-            return DTB_ERROR_RESPONSE;
-        }
-        
-        unsigned short respAddr = (unsigned short)((binResponse[2] << 8) | binResponse[3]);
+static int SendModbusASCII(DTB_Handle *handle, unsigned char functionCode,
+						   unsigned short address, unsigned short data,
+						   unsigned char *response, int maxResponseLen)
+{
+	if (!handle || !handle->isConnected)
+	{
+		return DTB_ERROR_NOT_CONNECTED;
+	}
+
+	// Build binary message
+	unsigned char binMsg[6];
+	binMsg[0] = (unsigned char)handle->slaveAddress;
+	binMsg[1] = functionCode;
+	binMsg[2] = (unsigned char)((address >> 8) & 0xFF);
+	binMsg[3] = (unsigned char)(address & 0xFF);
+	binMsg[4] = (unsigned char)((data >> 8) & 0xFF);
+	binMsg[5] = (unsigned char)(data & 0xFF);
+
+	// Calculate LRC
+	unsigned char lrc = CalculateLRC(binMsg, 6);
+
+	// Convert to ASCII
+	char asciiFrame[32];
+	char hexData[16];
+	BytesToHexString(binMsg, 6, hexData);
+	sprintf(asciiFrame, ":%s%02X\r\n", hexData, lrc);
+
+	PrintDebug("TX: %s", asciiFrame);
+	LogDebugEx(LOG_DEVICE_DTB, "Sending frame: %s (length=%d)", asciiFrame, strlen(asciiFrame));
+
+	// **ENHANCED: More aggressive buffer clearing**
+	// Flush multiple times with delays to ensure all stale data is gone
+	for (int flush_attempt = 0; flush_attempt < 3; flush_attempt++)
+	{
+		int bytesInQueue = GetInQLen(handle->comPort);
+		if (bytesInQueue > 0)
+		{
+			if (flush_attempt == 0)
+			{
+				LogWarningEx(LOG_DEVICE_DTB, "Input queue has %d bytes before sending (attempt %d)",
+							 bytesInQueue, flush_attempt + 1);
+			}
+			FlushInQ(handle->comPort);
+			Delay(0.02);  // 20ms delay to let buffer clear
+		}
+		else
+		{
+			break;  // Buffer is clean
+		}
+	}
+
+// **ENHANCED: Add a settling delay before sending**
+	Delay(0.05);  // 50ms settling time
+
+	// Send command
+	int frameLen = strlen(asciiFrame);
+	int bytesWritten = ComWrt(handle->comPort, asciiFrame, frameLen);
+	if (bytesWritten != frameLen)
+	{
+		LogErrorEx(LOG_DEVICE_DTB, "Failed to write to COM port: wrote %d of %d bytes",
+				   bytesWritten, frameLen);
+		return DTB_ERROR_COMM;
+	}
+
+	LogDebugEx(LOG_DEVICE_DTB, "Successfully wrote %d bytes", bytesWritten);
+
+	// Wait for response
+	double sendTime = Timer();
+	Delay(0.15);  // 150ms for device processing
+
+	// Read response
+	char rxBuffer[128] = {0};
+	int totalRead = 0;
+	double startTime = Timer();
+
+	LogDebugEx(LOG_DEVICE_DTB, "Waiting for response (timeout=%.1f seconds)...",
+			   handle->timeoutMs / 1000.0);
+
+	// Look for start character
+	while (totalRead == 0)
+	{
+		int available = GetInQLen(handle->comPort);
+
+		if (available > 0)
+		{
+			char c;
+			if (ComRd(handle->comPort, &c, 1) == 1)
+			{
+				if (c == MODBUS_ASCII_START)
+				{
+					rxBuffer[totalRead++] = c;
+					break;
+				}
+				else
+				{
+					// **NEW: Skip garbage characters from other devices**
+					LogDebugEx(LOG_DEVICE_DTB, "Skipping garbage character: 0x%02X", (unsigned char)c);
+				}
+			}
+		}
+
+		if ((Timer() - startTime) > (handle->timeoutMs / 1000.0))
+		{
+			LogErrorEx(LOG_DEVICE_DTB, "Timeout waiting for response start character");
+			return DTB_ERROR_TIMEOUT;
+		}
+
+		Delay(0.01);
+	}
+
+	// Read until CR/LF
+	while (totalRead < sizeof(rxBuffer) - 1)
+	{
+		int available = GetInQLen(handle->comPort);
+		if (available > 0)
+		{
+			char c;
+			if (ComRd(handle->comPort, &c, 1) == 1)
+			{
+				rxBuffer[totalRead++] = c;
+				if (totalRead >= 2 && rxBuffer[totalRead-2] == MODBUS_ASCII_CR &&
+						rxBuffer[totalRead-1] == MODBUS_ASCII_LF)
+				{
+					break;
+				}
+			}
+		}
+
+		if ((Timer() - startTime) > (handle->timeoutMs / 1000.0))
+		{
+			LogErrorEx(LOG_DEVICE_DTB, "Timeout reading response (got %d bytes so far)", totalRead);
+			return DTB_ERROR_TIMEOUT;
+		}
+	}
+
+	rxBuffer[totalRead] = '\0';
+	PrintDebug("RX: %s", rxBuffer);
+	LogDebugEx(LOG_DEVICE_DTB, "Received frame: %s (length=%d)", rxBuffer, totalRead);
+
+	rxBuffer[totalRead] = '\0';
+	PrintDebug("RX: %s", rxBuffer);
+	LogDebugEx(LOG_DEVICE_DTB, "Received frame: %s (length=%d)", rxBuffer, totalRead);
+
+// **NEW: Quick pre-check of slave address to catch wrong responses early**
+	if (totalRead >= 5)    // Minimum: ':' + 2 hex chars for slave address
+	{
+		char slaveHex[3] = {rxBuffer[1], rxBuffer[2], '\0'};
+		int receivedSlave = strtol(slaveHex, NULL, 16);
+
+		if (receivedSlave != handle->slaveAddress)
+		{
+			LogErrorEx(LOG_DEVICE_DTB,
+					   "Received response for slave %d, but expected slave %d - possible bus contention",
+					   receivedSlave, handle->slaveAddress);
+			// Still continue to full parse for proper error reporting
+		}
+	}
+
+// Parse ASCII response
+	if (totalRead < 11 || rxBuffer[0] != MODBUS_ASCII_START)
+	{
+
+		LogErrorEx(LOG_DEVICE_DTB, "Invalid response format: length=%d, start=0x%02X",
+				   totalRead, rxBuffer[0]);
+		return DTB_ERROR_RESPONSE;
+	}
+
+	// Extract hex data (skip ':', take until CR)
+	int hexLen = 0;
+	char respHexData[32];
+	for (int i = 1; i < totalRead && rxBuffer[i] != MODBUS_ASCII_CR; i++)
+	{
+		respHexData[hexLen++] = rxBuffer[i];
+	}
+	respHexData[hexLen] = '\0';
+
+	LogDebugEx(LOG_DEVICE_DTB, "Response hex data: %s", respHexData);
+
+	// Convert hex to binary
+	unsigned char binResponse[64];
+	int binLen = HexStringToBytes(respHexData, binResponse, sizeof(binResponse));
+	if (binLen < 4)
+	{
+		LogErrorEx(LOG_DEVICE_DTB, "Response too short: %d bytes", binLen);
+		return DTB_ERROR_RESPONSE;
+	}
+
+	// Verify LRC
+	unsigned char calcLrc = CalculateLRC(binResponse, binLen - 1);
+	if (calcLrc != binResponse[binLen - 1])
+	{
+		LogErrorEx(LOG_DEVICE_DTB, "LRC mismatch: calc=0x%02X, recv=0x%02X",
+				   calcLrc, binResponse[binLen - 1]);
+		return DTB_ERROR_CHECKSUM;
+	}
+
+	// Check slave address
+	if (binResponse[0] != handle->slaveAddress)
+	{
+		LogErrorEx(LOG_DEVICE_DTB, "Wrong slave address: expected %d, got %d",
+				   handle->slaveAddress, binResponse[0]);
+		return DTB_ERROR_RESPONSE;
+	}
+
+	// Check for exception
+	if (binResponse[1] & 0x80)
+	{
+		LogErrorEx(LOG_DEVICE_DTB, "Modbus exception: code 0x%02X", binResponse[2]);
+		return DTB_ERROR_RESPONSE;
+	}
+
+	// Check function code
+	if (binResponse[1] != functionCode)
+	{
+		LogErrorEx(LOG_DEVICE_DTB, "Wrong function code: expected 0x%02X, got 0x%02X",
+				   functionCode, binResponse[1]);
+		return DTB_ERROR_RESPONSE;
+	}
+
+	// For Write Register (0x06), verify the echo response
+	if (functionCode == MODBUS_WRITE_REGISTER)
+	{
+		// Response should echo the register address and value
+		if (binLen < 7)    // Need at least 7 bytes (addr + func + 2 addr + 2 data + lrc)
+		{
+			LogErrorEx(LOG_DEVICE_DTB, "Write register response too short: %d bytes", binLen);
+			return DTB_ERROR_RESPONSE;
+		}
+
+		unsigned short respAddr = (unsigned short)((binResponse[2] << 8) | binResponse[3]);
 		unsigned short respData = (unsigned short)((binResponse[4] << 8) | binResponse[5]);
-        
-        if (respAddr != address) {
-            LogErrorEx(LOG_DEVICE_DTB, "Register address mismatch: sent 0x%04X, got 0x%04X",
-                       address, respAddr);
-            return DTB_ERROR_RESPONSE;
-        }
-        
-        if (respData != data) {
-            LogErrorEx(LOG_DEVICE_DTB, "Register data mismatch: sent 0x%04X, got 0x%04X",
-                       data, respData);
-            return DTB_ERROR_RESPONSE;
-        }
-        
-        LogDebugEx(LOG_DEVICE_DTB, "Write register verified: addr=0x%04X, data=0x%04X",
-                   respAddr, respData);
-    }
-    
-    // Copy response data if requested
-    if (response && maxResponseLen > 0) {
-        int copyLen = binLen - 1;  // Exclude LRC
-        if (copyLen > maxResponseLen) copyLen = maxResponseLen;
-        memcpy(response, binResponse, copyLen);
-    }
-    
-    double totalTime = Timer() - sendTime;
-    LogDebugEx(LOG_DEVICE_DTB, "Transaction completed successfully in %.3f seconds", totalTime);
-    
-    Delay(0.05);  // 50ms recovery time
-    
-    return DTB_SUCCESS;
+
+		if (respAddr != address)
+		{
+			LogErrorEx(LOG_DEVICE_DTB, "Register address mismatch: sent 0x%04X, got 0x%04X",
+					   address, respAddr);
+			return DTB_ERROR_RESPONSE;
+		}
+
+		if (respData != data)
+		{
+			LogErrorEx(LOG_DEVICE_DTB, "Register data mismatch: sent 0x%04X, got 0x%04X",
+					   data, respData);
+			return DTB_ERROR_RESPONSE;
+		}
+
+		LogDebugEx(LOG_DEVICE_DTB, "Write register verified: addr=0x%04X, data=0x%04X",
+				   respAddr, respData);
+	}
+
+	// Copy response data if requested
+	if (response && maxResponseLen > 0)
+	{
+		int copyLen = binLen - 1;  // Exclude LRC
+		if (copyLen > maxResponseLen) copyLen = maxResponseLen;
+		memcpy(response, binResponse, copyLen);
+	}
+
+	double totalTime = Timer() - sendTime;
+	LogDebugEx(LOG_DEVICE_DTB, "Transaction completed successfully in %.3f seconds", totalTime);
+
+	Delay(0.1);  // 100ms recovery time
+
+	return DTB_SUCCESS;
 }
 
 /******************************************************************************
