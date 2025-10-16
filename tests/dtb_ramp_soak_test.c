@@ -37,6 +37,9 @@ static DTBRampSoakTestContext *g_testContext = NULL;
 static DTBQueueManager *g_testQueueManager = NULL;
 static DTB_Handle g_testHandle;
 
+// UI test suite context
+static DTBTestSuiteContext *g_dtbTestSuiteContext = NULL;
+
 // Test cases array
 static TestCase g_rampSoakTestCases[] = {
     {"Pattern Set and Get", Test_PatternSetGet, 0, "", 0.0},
@@ -108,6 +111,329 @@ static void PrintPattern(const DTB_Pattern *pattern, int patternNumber) {
     for (int i = 0; i < pattern->actualStepCount; i++) {
         LogMessage("  Step %d: %.1f°C for %d min",
                    i, pattern->steps[i].temperature, pattern->steps[i].timeMinutes);
+    }
+}
+
+/******************************************************************************
+ * UI Test Suite Helper Functions
+ ******************************************************************************/
+
+void DTB_UpdateTestProgress(DTBTestSuiteContext *context, const char *message) {
+    if (context && context->progressCallback) {
+        context->progressCallback(message);
+    }
+
+    if (context && context->statusStringControl > 0 && context->panelHandle > 0) {
+        SetCtrlVal(context->panelHandle, context->statusStringControl, message);
+        ProcessDrawEvents();
+    }
+}
+
+static void GenerateDTBTestSummary(DTBTestSummary *summary, TestCase *tests, int numTests) {
+    if (!summary || !tests) return;
+
+    // Calculate total execution time from individual test times
+    double totalTime = 0.0;
+    for (int i = 0; i < numTests; i++) {
+        totalTime += tests[i].duration;
+    }
+
+    summary->executionTime = totalTime;
+
+    LogMessageEx(LOG_DEVICE_DTB, "========================================");
+    LogMessageEx(LOG_DEVICE_DTB, "DTB Ramp-Soak Test Suite Summary:");
+    LogMessageEx(LOG_DEVICE_DTB, "Total Tests: %d", summary->totalTests);
+    LogMessageEx(LOG_DEVICE_DTB, "Passed: %d", summary->passedTests);
+    LogMessageEx(LOG_DEVICE_DTB, "Failed: %d", summary->failedTests);
+    LogMessageEx(LOG_DEVICE_DTB, "Total Time: %.2f seconds", totalTime);
+    LogMessageEx(LOG_DEVICE_DTB, "Average Time: %.2f seconds",
+                 (numTests > 0) ? (totalTime / numTests) : 0.0);
+    LogMessageEx(LOG_DEVICE_DTB, "========================================");
+
+    if (summary->failedTests > 0) {
+        LogMessageEx(LOG_DEVICE_DTB, "Failed Tests:");
+        for (int i = 0; i < numTests; i++) {
+            if (!tests[i].passed) {
+                LogMessageEx(LOG_DEVICE_DTB, "  - %s: %s",
+                           tests[i].name, tests[i].errorMessage);
+            }
+        }
+    }
+}
+
+/******************************************************************************
+ * UI Test Button Callback and Worker Thread
+ ******************************************************************************/
+
+int CVICALLBACK TestDTBRampSoakCallback(int panel, int control, int event,
+                                        void *callbackData, int eventData1, int eventData2) {
+    switch (event) {
+        case EVENT_COMMIT:
+            // Check if this is a cancel request (test is running)
+            if (g_dtbTestSuiteContext != NULL) {
+                LogMessageEx(LOG_DEVICE_DTB, "User requested to cancel DTB Ramp-Soak test suite");
+                DTB_TestSuite_Cancel(g_dtbTestSuiteContext);
+
+                // Update button text to show cancelling
+                SetCtrlAttribute(panel, control, ATTR_LABEL_TEXT, "Cancelling...");
+                SetCtrlAttribute(panel, control, ATTR_DIMMED, 1);
+
+                return 0;
+            }
+
+            // Otherwise, this is a start request
+            // Check if system is busy with another operation
+            CmtGetLock(g_busyLock);
+            if (g_systemBusy) {
+                CmtReleaseLock(g_busyLock);
+                LogWarningEx(LOG_DEVICE_DTB, "Cannot start test - system is busy");
+                MessagePopup("System Busy",
+                           "Another operation is in progress.\n"
+                           "Please wait for it to complete before starting a test.");
+                return 0;
+            }
+            g_systemBusy = 1;
+            CmtReleaseLock(g_busyLock);
+
+            // Check if DTB is connected through queue manager
+            DTBQueueManager *dtbQueueMgr = DTB_GetGlobalQueueManager();
+            if (!dtbQueueMgr) {
+                LogErrorEx(LOG_DEVICE_DTB, "DTB queue manager not initialized");
+                MessagePopup("DTB Not Available",
+                           "The DTB queue manager is not initialized.\n"
+                           "Please check the system configuration.");
+
+                CmtGetLock(g_busyLock);
+                g_systemBusy = 0;
+                CmtReleaseLock(g_busyLock);
+                return 0;
+            }
+
+            // Dim EXPERIMENTS tab control
+            SetCtrlAttribute(panel, PANEL_EXPERIMENTS, ATTR_DIMMED, 1);
+
+            // Change Test DTB button text to "Cancel"
+            SetCtrlAttribute(panel, control, ATTR_LABEL_TEXT, "Cancel");
+
+            // Create test context
+            DTBTestSuiteContext *context = calloc(1, sizeof(DTBTestSuiteContext));
+            if (context) {
+                DTB_TestSuite_Initialize(context, dtbQueueMgr, panel,
+                                       PANEL_STR_DTB_1_STATUS, PANEL_LED_DTB_1_STATUS);
+                context->state = TEST_STATE_PREPARING;
+
+                // Store pointer to running context
+                g_dtbTestSuiteContext = context;
+
+                // Start test in worker thread
+                CmtThreadFunctionID threadID;
+                CmtScheduleThreadPoolFunction(g_threadPool,
+                    TestDTBRampSoakWorkerThread, context, &threadID);
+            } else {
+                // Failed to allocate - restore UI
+                SetCtrlAttribute(panel, PANEL_EXPERIMENTS, ATTR_DIMMED, 0);
+                SetCtrlAttribute(panel, control, ATTR_LABEL_TEXT, "Test DTB Ramp-Soak");
+
+                CmtGetLock(g_busyLock);
+                g_systemBusy = 0;
+                CmtReleaseLock(g_busyLock);
+            }
+            break;
+    }
+    return 0;
+}
+
+int CVICALLBACK TestDTBRampSoakWorkerThread(void *functionData) {
+    DTBTestSuiteContext *context = (DTBTestSuiteContext*)functionData;
+
+    // Run the test suite
+    int result = DTB_TestSuite_Run(context);
+
+    // Create one-line summary for status control
+    char statusMsg[MEDIUM_BUFFER_SIZE];
+    if (context->state == TEST_STATE_ABORTED) {
+        snprintf(statusMsg, sizeof(statusMsg),
+                 "Test cancelled: %d/%d passed",
+                 context->summary.passedTests,
+                 context->summary.totalTests);
+    } else if (context->state == TEST_STATE_COMPLETED) {
+        snprintf(statusMsg, sizeof(statusMsg),
+                 "All tests passed (%d/%d)",
+                 context->summary.passedTests,
+                 context->summary.totalTests);
+    } else {
+        snprintf(statusMsg, sizeof(statusMsg),
+                 "Tests failed: %d/%d passed",
+                 context->summary.passedTests,
+                 context->summary.totalTests);
+    }
+
+    // Update status control with summary
+    SetCtrlVal(g_mainPanelHandle, PANEL_STR_DTB_1_STATUS, statusMsg);
+
+    // Update LED based on results
+    if (context->state == TEST_STATE_COMPLETED && context->summary.failedTests == 0) {
+        SetCtrlAttribute(g_mainPanelHandle, PANEL_LED_DTB_1_STATUS, ATTR_ON_COLOR, VAL_GREEN);
+        SetCtrlVal(g_mainPanelHandle, PANEL_LED_DTB_1_STATUS, 1);
+    } else if (context->state == TEST_STATE_ABORTED) {
+        SetCtrlAttribute(g_mainPanelHandle, PANEL_LED_DTB_1_STATUS, ATTR_ON_COLOR, VAL_YELLOW);
+        SetCtrlVal(g_mainPanelHandle, PANEL_LED_DTB_1_STATUS, 1);
+    } else {
+        SetCtrlAttribute(g_mainPanelHandle, PANEL_LED_DTB_1_STATUS, ATTR_ON_COLOR, VAL_RED);
+        SetCtrlVal(g_mainPanelHandle, PANEL_LED_DTB_1_STATUS, 1);
+    }
+
+    // Log detailed results
+    if (result > 0) {
+        LogMessageEx(LOG_DEVICE_DTB, "DTB Ramp-Soak test suite completed successfully (%d tests passed)", result);
+    } else if (result == -2) {
+        LogMessageEx(LOG_DEVICE_DTB, "DTB Ramp-Soak test suite cancelled by user");
+    } else if (result == 0) {
+        LogWarningEx(LOG_DEVICE_DTB, "DTB Ramp-Soak test suite completed with failures");
+    } else {
+        LogErrorEx(LOG_DEVICE_DTB, "DTB Ramp-Soak test suite failed with error: %d", result);
+    }
+
+    // Clean up
+    DTB_TestSuite_Cleanup(context);
+
+    // Clear the running context pointer
+    g_dtbTestSuiteContext = NULL;
+
+    free(context);
+
+    // Restore UI controls
+    SetCtrlAttribute(g_mainPanelHandle, PANEL_EXPERIMENTS, ATTR_DIMMED, 0);
+
+    // Re-enable all tabs
+    int numTabs;
+    GetNumTabPages(g_mainPanelHandle, PANEL_EXPERIMENTS, &numTabs);
+    for (int i = 0; i < numTabs; i++) {
+        SetTabPageAttribute(g_mainPanelHandle, PANEL_EXPERIMENTS, i, ATTR_DIMMED, 0);
+    }
+
+    // Restore Test DTB button (need to find control ID)
+    // This will be set when the button is added to the UI
+    // For now, we'll use a placeholder comment
+    // TODO: Update with actual button control ID when UI is updated
+
+    // Clear busy flag
+    CmtGetLock(g_busyLock);
+    g_systemBusy = 0;
+    CmtReleaseLock(g_busyLock);
+
+    return 0;
+}
+
+/******************************************************************************
+ * UI Test Suite Functions
+ ******************************************************************************/
+
+int DTB_TestSuite_Initialize(DTBTestSuiteContext *context, DTBQueueManager *dtbQueueMgr,
+                            int panel, int statusControl, int ledControl) {
+    if (!context || !dtbQueueMgr) return -1;
+
+    memset(context, 0, sizeof(DTBTestSuiteContext));
+    context->dtbQueueMgr = dtbQueueMgr;
+    context->panelHandle = panel;
+    context->statusStringControl = statusControl;
+    context->ledControl = ledControl;
+    context->cancelRequested = 0;
+    context->state = TEST_STATE_IDLE;
+
+    // Reset all test results
+    for (int i = 0; i < g_numRampSoakTestCases; i++) {
+        g_rampSoakTestCases[i].passed = 0;
+        g_rampSoakTestCases[i].errorMessage[0] = '\0';
+        g_rampSoakTestCases[i].duration = 0.0;
+    }
+
+    return 0;
+}
+
+int DTB_TestSuite_Run(DTBTestSuiteContext *context) {
+    if (!context || !context->dtbQueueMgr) return -1;
+
+    context->state = TEST_STATE_RUNNING;
+    context->cancelRequested = 0;
+
+    LogMessageEx(LOG_DEVICE_DTB, "Starting DTB Ramp-Soak Test Suite");
+    DTB_UpdateTestProgress(context, "Starting DTB Ramp-Soak Test Suite...");
+
+    // Run each test
+    for (int i = 0; i < g_numRampSoakTestCases; i++) {
+        // Check for cancellation before starting each test
+        if (context->cancelRequested) {
+            LogMessageEx(LOG_DEVICE_DTB, "Test suite cancelled before test %d", i + 1);
+            break;
+        }
+
+        TestCase* test = &g_rampSoakTestCases[i];
+
+        char progressMsg[256];
+        snprintf(progressMsg, sizeof(progressMsg), "Running test %d/%d: %s",
+                i + 1, g_numRampSoakTestCases, test->name);
+        DTB_UpdateTestProgress(context, progressMsg);
+
+        LogMessageEx(LOG_DEVICE_DTB, "Running test: %s", test->name);
+
+        double startTime = Timer();
+        int result = test->testFunc();
+        test->duration = Timer() - startTime;
+
+        test->passed = (result == 0);
+
+        if (test->passed) {
+            LogMessageEx(LOG_DEVICE_DTB, "Test PASSED: %s (%.2f seconds)",
+                       test->name, test->duration);
+            context->summary.passedTests++;
+        } else {
+            LogErrorEx(LOG_DEVICE_DTB, "Test FAILED: %s", test->name);
+            snprintf(test->errorMessage, sizeof(test->errorMessage), "Test failed");
+            context->summary.failedTests++;
+        }
+
+        context->summary.totalTests++;
+
+        // Short delay between tests
+        if (i < g_numRampSoakTestCases - 1 && !context->cancelRequested) {
+            Delay(0.2);
+        }
+    }
+
+    // Generate summary
+    GenerateDTBTestSummary(&context->summary, g_rampSoakTestCases, g_numRampSoakTestCases);
+
+    // Set final state
+    if (context->cancelRequested) {
+        context->state = TEST_STATE_ABORTED;
+    } else if (context->summary.failedTests == 0) {
+        context->state = TEST_STATE_COMPLETED;
+    } else {
+        context->state = TEST_STATE_ERROR;
+    }
+
+    // Return value based on state
+    if (context->state == TEST_STATE_ABORTED) {
+        return -2; // Special value to indicate cancellation
+    } else if (context->state == TEST_STATE_COMPLETED) {
+        return context->summary.totalTests; // All passed
+    } else {
+        return 0; // Some failed
+    }
+}
+
+void DTB_TestSuite_Cancel(DTBTestSuiteContext *context) {
+    if (context) {
+        context->cancelRequested = 1;
+        LogMessageEx(LOG_DEVICE_DTB, "Test suite cancellation requested");
+    }
+}
+
+void DTB_TestSuite_Cleanup(DTBTestSuiteContext *context) {
+    if (context) {
+        // No specific cleanup needed for DTB tests currently
+        LogMessageEx(LOG_DEVICE_DTB, "DTB Ramp-Soak test suite cleanup complete");
     }
 }
 

@@ -1,0 +1,219 @@
+================================================================================
+ALICAT MASS FLOW CONTROLLER TEST SUITE - UI INTEGRATION INSTRUCTIONS
+================================================================================
+
+This document describes the UI changes needed to complete the integration of
+the ALICAT BASIS 2 test functionality into the Battery Exploder UI.
+
+COMPLETED WORK:
+---------------
+1. Created tests/alicat_test.h with test suite structures and prototypes:
+   - ALICAT_TestSuiteContext for UI test suite control
+   - ALICAT_TestSummary for test results
+   - ALICAT_TestCase for individual test definitions
+   - Test configuration constants and tolerances
+   - All function prototypes for callbacks and test functions
+
+2. Created tests/alicat_test.c with comprehensive test implementations:
+   - TestALICATCallback() - Main button callback
+   - TestALICATWorkerThread() - Background test execution
+   - ALICAT_TestSuite_Initialize() - Context initialization
+   - ALICAT_TestSuite_Run() - Test suite runner
+   - ALICAT_TestSuite_Cancel() - Cancellation handler
+   - ALICAT_TestSuite_Cleanup() - Cleanup function
+   - ALICAT_UpdateTestProgress() - Progress update helper
+   - 16 comprehensive test functions
+
+3. Added TestALICATCallback prototype to BatteryExploder.h
+
+REMAINING WORK:
+--------------
+
+1. ADD TEST FILES TO PROJECT (in LabWindows/CVI 2020):
+   - Open BatteryExploder.prj in LabWindows/CVI 2020
+   - Add to project:
+     * tests/alicat_test.h (to Include Files folder)
+     * tests/alicat_test.c (to Source Files folder)
+
+2. ADD TEST BUTTON TO UI:
+   - Open BatteryExploder.uir in LabWindows/CVI 2020 UI editor
+   - Add a new command button control to the main panel
+   - Configure the button:
+     * Label: "Test ALICAT"
+     * Callback Function: TestALICATCallback
+     * Recommended placement: Near other test buttons (Test PSB, Test BioLogic, Test DTB)
+
+3. GET THE BUTTON CONTROL ID:
+   - After adding the button, LabWindows/CVI will generate a #define in BatteryExploder.h
+   - The #define will be something like: PANEL_BTN_TEST_ALICAT
+   - Note this control ID
+
+4. UPDATE THE WORKER THREAD CODE:
+   - In tests/alicat_test.c, locate the TODO comment around line 215-217
+   - Replace the TODO section with code to restore the button:
+
+     SetCtrlAttribute(g_mainPanelHandle, PANEL_BTN_TEST_ALICAT,
+                      ATTR_LABEL_TEXT, "Test ALICAT");
+     SetCtrlAttribute(g_mainPanelHandle, PANEL_BTN_TEST_ALICAT,
+                      ATTR_DIMMED, 0);
+
+5. OPTIONAL - ADD DEDICATED LED INDICATOR:
+   - Currently uses PANEL_MFLOW_STATUS for status display
+   - Consider adding a dedicated LED indicator like PANEL_LED_ALICAT_STATUS
+   - Update line 154 in alicat_test.c if adding LED
+
+EXISTING UI CONTROLS USED:
+---------------------------
+The implementation currently uses these existing controls:
+- PANEL_MFLOW_STATUS - Status string control for mass flow
+- PANEL_EXPERIMENTS - Tab control (dimmed during testing)
+
+TEST SUITE CAPABILITIES:
+-------------------------
+The test suite includes 16 comprehensive tests:
+
+1. Connection Test - Verifies ALICAT is connected and queue manager is valid
+2. Get Status - Reads complete device status (flow, temp, valve, gas, flags)
+3. Set/Get Setpoint - Tests setpoint control and readback verification
+4. Set/Get Gas Type - Tests gas selection (Air, N2, etc.) and verification
+5. Tare Function - Tests zero/tare functionality
+6. Get Flow Rate - Reads current flow rate measurement
+7. Get Temperature - Reads device temperature
+8. Get Valve Drive - Reads valve position (0-100%)
+9. PID Parameters - Tests reading and setting P and I gains
+10. Flow Averaging - Tests setting flow averaging time
+11. Reference Temperature - Tests setting reference temperature
+12. Setpoint Source - Tests setting setpoint source (analog/digital)
+13. Totalizer Functions - Tests totalizer reset and volume accumulation
+14. Batch Volume - Tests batch mode volume settings
+15. Queued Commands - Verifies command queue functionality
+16. Setpoint Ramp - Tests dynamic setpoint changes and flow response
+
+TEST PARAMETERS:
+----------------
+Defined in tests/alicat_test.h:
+
+- Test Setpoints:
+  * Low: 10 sccm
+  * Mid: 50 sccm
+  * High: 100 sccm
+
+- Test Gas: Air (can be changed in header)
+
+- Tolerances:
+  * Flow: ±5 sccm
+  * Temperature: ±2°C
+
+- Timing:
+  * Short delay: 0.5s
+  * Medium delay: 1.0s
+  * Long delay: 2.0s
+  * Timeout: 5000ms
+
+TESTING PROCEDURE:
+------------------
+After completing the UI integration:
+
+1. Build the project in LabWindows/CVI 2020
+2. Run the Battery Exploder application
+3. Ensure ALICAT device is:
+   - Physically connected to COM port (default COM7)
+   - Configured with correct Modbus address (default 1)
+   - Powered on and initialized
+4. Click "Test ALICAT" button
+5. Monitor the PANEL_MFLOW_STATUS control for test progress
+6. Observe log output for detailed test results
+7. All 16 tests should pass for proper ALICAT operation
+
+Test Cancellation:
+- Click button again during execution to cancel
+- Status will show "Test cancelled: X/16 passed"
+
+INTEGRATION PATTERN:
+--------------------
+This implementation follows the same pattern as BioLogic and DTB tests:
+
+- Callback function checks for running test and handles start/cancel
+- Worker thread runs tests in background
+- UI updates show progress and results
+- System busy flag prevents concurrent operations
+- Status string shows one-line summary
+- All communication uses queued commands for thread safety
+
+SAFETY CONSIDERATIONS:
+----------------------
+- Tests will change setpoint values (0-100 sccm range)
+- Tests will change gas selection
+- Tests will reset totalizer
+- Tests will modify PID parameters (restored after test)
+- Ensure no critical process is running before testing
+- Tests are non-destructive but will temporarily alter settings
+
+QUEUE MANAGER REQUIREMENTS:
+----------------------------
+The test suite requires:
+- ALICAT queue manager initialized (ALICAT_QueueInit)
+- Queue manager set as global (ALICAT_SetGlobalQueueManager)
+- At least one ALICAT device configured
+- Default Modbus address: ALICAT_MODBUS_ADDRESS (from common.h)
+
+TROUBLESHOOTING:
+----------------
+If tests fail:
+
+1. Connection Test Failure:
+   - Check COM port connection
+   - Verify Modbus address matches
+   - Check baud rate (38400)
+   - Ensure device is powered on
+
+2. Communication Failures:
+   - Check RS232 cable integrity
+   - Verify no other software using COM port
+   - Check timeout settings
+   - Ensure proper termination
+
+3. Setpoint/Control Failures:
+   - Verify gas supply is connected
+   - Check for valve restrictions
+   - Verify PID parameters are reasonable
+   - Check for hardware faults
+
+4. Parameter Mismatch:
+   - Some parameters may have limited precision
+   - Check tolerance settings in test code
+   - Verify device firmware supports feature
+
+LOGGING:
+--------
+All test output is logged via the logging system with LOG_DEVICE_ALICAT prefix:
+- LogMessageEx(LOG_DEVICE_ALICAT, ...) - Normal messages
+- LogDebugEx(LOG_DEVICE_ALICAT, ...) - Debug details
+- LogErrorEx(LOG_DEVICE_ALICAT, ...) - Error messages
+- LogWarningEx(LOG_DEVICE_ALICAT, ...) - Warnings
+
+Check the log output textbox for detailed test execution information.
+
+CUSTOMIZATION:
+--------------
+To modify test parameters, edit tests/alicat_test.h:
+
+- Change ALICAT_TEST_SETPOINT_* for different flow rates
+- Change ALICAT_TEST_GAS for different gas type
+- Adjust ALICAT_FLOW_TOLERANCE for different precision
+- Modify timing delays for slower/faster tests
+
+To add new tests:
+1. Add prototype to tests/alicat_test.h
+2. Implement test function in tests/alicat_test.c
+3. Add to testCases[] array in alicat_test.c
+4. Rebuild project
+
+For questions or issues, refer to:
+- tests/biologic_test.c - Reference implementation
+- tests/dtb_ramp_soak_test.c - Another reference implementation
+- CLAUDE.md - Project documentation
+- README.md - System overview
+- alicat basis 2/alicat_dll.h - ALICAT API documentation
+
+================================================================================

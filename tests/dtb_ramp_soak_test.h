@@ -9,8 +9,34 @@
 #ifndef DTB_RAMP_SOAK_TEST_H
 #define DTB_RAMP_SOAK_TEST_H
 
+#include "common.h"
 #include "dtb4848_dll.h"
 #include "dtb4848_queue.h"
+#include <userint.h>
+
+/******************************************************************************
+ * Test Configuration
+ ******************************************************************************/
+
+// Test timing
+#define DTB_TEST_DELAY_SHORT        0.5     // seconds
+#define DTB_TEST_DELAY_MEDIUM       1.0     // seconds
+#define DTB_TEST_DELAY_LONG         2.0     // seconds
+
+// Test timeout
+#define DTB_TEST_TIMEOUT_MS         5000    // 5 seconds
+
+/******************************************************************************
+ * Test Result Structure
+ ******************************************************************************/
+
+typedef struct {
+    int totalTests;
+    int passedTests;
+    int failedTests;
+    char lastError[256];
+    double executionTime;
+} DTBTestSummary;
 
 /******************************************************************************
  * Test Context Structure
@@ -21,6 +47,21 @@ typedef struct {
     int numPassed;
     int numFailed;
 } DTBRampSoakTestContext;
+
+/******************************************************************************
+ * Test Suite Control
+ ******************************************************************************/
+
+typedef struct {
+    DTBQueueManager *dtbQueueMgr;
+    int panelHandle;
+    int statusStringControl;
+    int ledControl;
+    volatile int cancelRequested;
+    TestState state;
+    DTBTestSummary summary;
+    void (*progressCallback)(const char *message);
+} DTBTestSuiteContext;
 
 /******************************************************************************
  * Test Case Structure
@@ -35,9 +76,25 @@ typedef struct {
 } TestCase;
 
 /******************************************************************************
- * Test Suite Functions
+ * Function Prototypes
  ******************************************************************************/
 
+// Main callback and worker thread
+int CVICALLBACK TestDTBRampSoakCallback(int panel, int control, int event,
+                                        void *callbackData, int eventData1, int eventData2);
+int CVICALLBACK TestDTBRampSoakWorkerThread(void *functionData);
+
+// Test suite functions
+int DTB_TestSuite_Initialize(DTBTestSuiteContext *context, DTBQueueManager *dtbQueueMgr,
+                             int panel, int statusControl, int ledControl);
+int DTB_TestSuite_Run(DTBTestSuiteContext *context);
+void DTB_TestSuite_Cancel(DTBTestSuiteContext *context);
+void DTB_TestSuite_Cleanup(DTBTestSuiteContext *context);
+
+// Utility functions
+void DTB_UpdateTestProgress(DTBTestSuiteContext *context, const char *message);
+
+// Legacy test suite functions (kept for standalone testing)
 /**
  * Initialize the test suite
  * Returns 0 on success, -1 on failure

@@ -1,0 +1,109 @@
+================================================================================
+DTB RAMP-SOAK TEST SUITE - UI INTEGRATION INSTRUCTIONS
+================================================================================
+
+This document describes the UI changes needed to complete the integration of
+the DTB Ramp-Soak test functionality into the Battery Exploder UI.
+
+COMPLETED WORK:
+---------------
+1. Added DTB test suite context structures and prototypes to
+   tests/dtb_ramp_soak_test.h
+
+2. Implemented UI callback and worker thread functions in
+   tests/dtb_ramp_soak_test.c:
+   - TestDTBRampSoakCallback() - Main button callback
+   - TestDTBRampSoakWorkerThread() - Background test execution
+   - DTB_TestSuite_Initialize() - Context initialization
+   - DTB_TestSuite_Run() - Test suite runner
+   - DTB_TestSuite_Cancel() - Cancellation handler
+   - DTB_TestSuite_Cleanup() - Cleanup function
+   - DTB_UpdateTestProgress() - Progress update helper
+
+3. Added callback prototype to BatteryExploder.h
+
+REMAINING UI WORK (must be done in LabWindows/CVI UIR editor):
+--------------------------------------------------------------
+
+1. ADD TEST BUTTON:
+   - Open BatteryExploder.uir in LabWindows/CVI 2020 UI editor
+   - Add a new command button control to the main panel
+   - Configure the button:
+     * Label: "Test DTB Ramp-Soak"
+     * Callback Function: TestDTBRampSoakCallback
+     * Recommended placement: Near the other test buttons (Test PSB, Test BioLogic)
+
+2. GET THE BUTTON CONTROL ID:
+   - After adding the button, LabWindows/CVI will generate a #define in BatteryExploder.h
+   - The #define will be something like: PANEL_BTN_TEST_DTB_RAMP_SOAK
+   - Note this control ID
+
+3. UPDATE THE WORKER THREAD CODE:
+   - In tests/dtb_ramp_soak_test.c, locate the TODO comment around line 315-318
+   - Replace the TODO section with code to restore the button:
+
+     SetCtrlAttribute(g_mainPanelHandle, PANEL_BTN_TEST_DTB_RAMP_SOAK,
+                      ATTR_LABEL_TEXT, "Test DTB Ramp-Soak");
+     SetCtrlAttribute(g_mainPanelHandle, PANEL_BTN_TEST_DTB_RAMP_SOAK,
+                      ATTR_DIMMED, 0);
+
+EXISTING UI CONTROLS USED:
+---------------------------
+The implementation already uses these existing controls:
+- PANEL_STR_DTB_1_STATUS - Status string control for DTB 1
+- PANEL_LED_DTB_1_STATUS - LED indicator for DTB 1 status
+- PANEL_EXPERIMENTS - Tab control (dimmed during testing)
+
+TESTING:
+--------
+After completing the UI integration:
+1. Build the project in LabWindows/CVI 2020
+2. Run the Battery Exploder application
+3. Ensure DTB devices are connected and initialized
+4. Click "Test DTB Ramp-Soak" button
+5. Monitor the status string and LED for test progress
+6. Verify all 17 test cases execute correctly:
+   - Pattern Set and Get
+   - Step Set and Get
+   - Actual Step Count
+   - Cycle Count
+   - Link Pattern
+   - Start Pattern
+   - Program Control
+   - Program Status
+   - Simple Ramp
+   - Clear Pattern
+   - Clear All Patterns
+   - Pattern Validation
+   - Step Validation
+   - Queued Commands
+   - Atomic Pattern Configuration
+   - Multi-Pattern Chain
+   - Edge Cases
+
+7. Test cancellation by clicking the button again during test execution
+
+INTEGRATION PATTERN:
+--------------------
+This implementation follows the same pattern as the BioLogic test suite:
+- Callback function checks for running test and handles start/cancel
+- Worker thread runs tests in background
+- UI updates show progress and results
+- System busy flag prevents concurrent operations
+- LED color indicates test outcome (green=pass, red=fail, yellow=cancelled)
+
+NOTES:
+------
+- The test suite uses the existing DTB queue manager (g_dtbQueueMgr)
+- Tests execute using the queued command interface
+- Each test runs independently and reports pass/fail status
+- Full test log output goes to the logging system
+- Status string shows one-line summary
+- LED provides visual feedback
+
+For questions or issues, refer to:
+- tests/biologic_test.c - Reference implementation
+- CLAUDE.md - Project documentation
+- README.md - System overview
+
+================================================================================
