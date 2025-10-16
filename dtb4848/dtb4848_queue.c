@@ -534,19 +534,21 @@ static int DTB_AdapterExecuteCommand(void *deviceContext, int commandType, void 
                 &cmdResult->data.pattern);
             break;
 
-        case DTB_CMD_SET_STEP:
-            cmdResult->errorCode = DTB_SetStep(handle,
-                cmdParams->setStep.patternNumber,
-                cmdParams->setStep.stepNumber,
-                &cmdParams->setStep.step);
-            break;
+		case DTB_CMD_SET_STEP:
+			cmdResult->errorCode = DTB_SetStep(handle,
+				cmdParams->setStep.patternNumber,
+				cmdParams->setStep.stepNumber,
+				cmdParams->setStep.temperature,
+				cmdParams->setStep.timeMinutes);
+			break;
 
-        case DTB_CMD_GET_STEP:
-            cmdResult->errorCode = DTB_GetStep(handle,
-                cmdParams->getStep.patternNumber,
-                cmdParams->getStep.stepNumber,
-                &cmdResult->data.step);
-            break;
+		case DTB_CMD_GET_STEP:
+			cmdResult->errorCode = DTB_GetStep(handle,
+				cmdParams->getStep.patternNumber,
+				cmdParams->getStep.stepNumber,
+				&cmdResult->data.step.temperature,
+				&cmdResult->data.step.timeMinutes);
+			break;
 
         case DTB_CMD_SET_ACTUAL_STEP_COUNT:
             cmdResult->errorCode = DTB_SetActualStepCount(handle,
@@ -615,12 +617,14 @@ static int DTB_AdapterExecuteCommand(void *deviceContext, int commandType, void 
                 &cmdResult->data.programStatus);
             break;
 
-        case DTB_CMD_SET_SIMPLE_RAMP:
-            cmdResult->errorCode = DTB_SetSimpleRamp(handle,
-                cmdParams->setSimpleRamp.startTemp,
-                cmdParams->setSimpleRamp.endTemp,
-                cmdParams->setSimpleRamp.durationMinutes);
-            break;
+		case DTB_CMD_SET_SIMPLE_RAMP:
+    		cmdResult->errorCode = DTB_SetSimpleRamp(handle,
+        		cmdParams->setSimpleRamp.patternNumber,
+        		cmdParams->setSimpleRamp.startTemp,
+        		cmdParams->setSimpleRamp.endTemp,
+        		cmdParams->setSimpleRamp.rampTimeMinutes,
+        		cmdParams->setSimpleRamp.soakTimeMinutes);
+    		break;
 
         case DTB_CMD_CLEAR_PATTERN:
             cmdResult->errorCode = DTB_ClearPattern(handle,
@@ -1264,11 +1268,11 @@ int DTB_GetPatternQueued(int slaveAddress, int patternNumber, DTB_Pattern *patte
     return error;
 }
 
-int DTB_SetStepQueued(int slaveAddress, int patternNumber, int stepNumber, const DTB_Step *step, DevicePriority priority) {
+int DTB_SetStepQueued(int slaveAddress, int patternNumber, int stepNumber,
+                      double temperature, int timeMinutes, DevicePriority priority) {
     if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
-    if (!step) return ERR_NULL_POINTER;
 
-    DTBCommandParams params = {.setStep = {slaveAddress, patternNumber, stepNumber, *step}};
+    DTBCommandParams params = {.setStep = {slaveAddress, patternNumber, stepNumber, temperature, timeMinutes}};
     DTBCommandResult result;
 
     return DTB_QueueCommandBlocking(g_dtbQueueManager, DTB_CMD_SET_STEP,
@@ -1276,9 +1280,10 @@ int DTB_SetStepQueued(int slaveAddress, int patternNumber, int stepNumber, const
                                   DTB_QUEUE_COMMAND_TIMEOUT_MS);
 }
 
-int DTB_GetStepQueued(int slaveAddress, int patternNumber, int stepNumber, DTB_Step *step, DevicePriority priority) {
+int DTB_GetStepQueued(int slaveAddress, int patternNumber, int stepNumber,
+                      double *temperature, int *timeMinutes, DevicePriority priority) {
     if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
-    if (!step) return ERR_NULL_POINTER;
+    if (!temperature || !timeMinutes) return ERR_NULL_POINTER;
 
     DTBCommandParams params = {.getStep = {slaveAddress, patternNumber, stepNumber}};
     DTBCommandResult result;
@@ -1288,7 +1293,8 @@ int DTB_GetStepQueued(int slaveAddress, int patternNumber, int stepNumber, DTB_S
                                        DTB_QUEUE_COMMAND_TIMEOUT_MS);
 
     if (error == DTB_SUCCESS) {
-        *step = result.data.step;
+        *temperature = result.data.step.temperature;
+        *timeMinutes = result.data.step.timeMinutes;
     }
     return error;
 }
@@ -1466,10 +1472,13 @@ int DTB_GetProgramStatusQueued(int slaveAddress, DTB_ProgramStatus *status, Devi
     return error;
 }
 
-int DTB_SetSimpleRampQueued(int slaveAddress, double startTemp, double endTemp, int durationMinutes, DevicePriority priority) {
+int DTB_SetSimpleRampQueued(int slaveAddress, int patternNumber,
+                            double startTemp, double endTemp,
+                            int rampTimeMinutes, int soakTimeMinutes,
+                            DevicePriority priority) {
     if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
 
-    DTBCommandParams params = {.setSimpleRamp = {slaveAddress, startTemp, endTemp, durationMinutes}};
+    DTBCommandParams params = {.setSimpleRamp = {slaveAddress, patternNumber, startTemp, endTemp, rampTimeMinutes, soakTimeMinutes}};
     DTBCommandResult result;
 
     return DTB_QueueCommandBlocking(g_dtbQueueManager, DTB_CMD_SET_SIMPLE_RAMP,
@@ -2022,11 +2031,12 @@ int DTB_ConfigurePatternAtomic(int slaveAddress, int patternNumber, const DTB_Pa
 
     // 1. Set all steps in the pattern
     for (int i = 0; i < pattern->actualStepCount && i < DTB_MAX_STEPS_PER_PATTERN; i++) {
-        params.setStep.slaveAddress = slaveAddress;
-        params.setStep.patternNumber = patternNumber;
-        params.setStep.stepNumber = i;
-        params.setStep.step = pattern->steps[i];
-        result = DTB_QueueAddToTransaction(queueMgr, txn, DTB_CMD_SET_STEP, &params);
+		params.setStep.slaveAddress = slaveAddress;
+		params.setStep.patternNumber = patternNumber;
+		params.setStep.stepNumber = i;
+		params.setStep.temperature = pattern->steps[i].temperature;
+		params.setStep.timeMinutes = pattern->steps[i].timeMinutes;
+		result = DTB_QueueAddToTransaction(queueMgr, txn, DTB_CMD_SET_STEP, &params);
         if (result != SUCCESS) goto cleanup;
     }
 

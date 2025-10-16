@@ -219,7 +219,8 @@ int Test_StepSetGet(void) {
     // Set step
     LogMessage("Setting step %d in pattern %d: %.1f°C for %d min",
                stepNumber, patternNumber, testStep.temperature, testStep.timeMinutes);
-    int result = DTB_SetStep(&g_testHandle, patternNumber, stepNumber, &testStep);
+    int result = DTB_SetStep(&g_testHandle, patternNumber, stepNumber,
+                     testStep.temperature, testStep.timeMinutes);
     if (result != DTB_SUCCESS) {
         LogError("DTB_SetStep failed: %s", DTB_GetErrorString(result));
         return -1;
@@ -228,7 +229,8 @@ int Test_StepSetGet(void) {
     // Get step back
     DTB_Step readStep;
     LogMessage("Reading step %d from pattern %d...", stepNumber, patternNumber);
-    result = DTB_GetStep(&g_testHandle, patternNumber, stepNumber, &readStep);
+    result = DTB_GetStep(&g_testHandle, patternNumber, stepNumber,
+                     &readStep.temperature, &readStep.timeMinutes);
     if (result != DTB_SUCCESS) {
         LogError("DTB_GetStep failed: %s", DTB_GetErrorString(result));
         return -1;
@@ -475,7 +477,9 @@ int Test_SimpleRamp(void) {
     // Set simple ramp
     LogMessage("Setting simple ramp: %.1f°C to %.1f°C over %d minutes",
                startTemp, endTemp, durationMinutes);
-    int result = DTB_SetSimpleRamp(&g_testHandle, startTemp, endTemp, durationMinutes);
+    int result = DTB_SetSimpleRamp(&g_testHandle, 0,  // patternNumber
+                          startTemp, endTemp,
+                          durationMinutes, 0);  // soakTime = 0
     if (result != DTB_SUCCESS) {
         LogError("DTB_SetSimpleRamp failed: %s", DTB_GetErrorString(result));
         return -1;
@@ -617,7 +621,7 @@ int Test_StepValidation(void) {
 
     // Test: Invalid step number (negative)
     LogMessage("Testing invalid step number (negative)...");
-    result = DTB_SetStep(&g_testHandle, 0, -1, &testStep);
+    result = DTB_SetStep(&g_testHandle, 0, -1, testStep.temperature,testStep.timeMinutes);
     if (result == DTB_SUCCESS) {
         LogError("Should have rejected negative step number");
         return -1;
@@ -626,21 +630,12 @@ int Test_StepValidation(void) {
 
     // Test: Invalid step number (too large)
     LogMessage("Testing invalid step number (>= DTB_MAX_STEPS_PER_PATTERN)...");
-    result = DTB_SetStep(&g_testHandle, 0, DTB_MAX_STEPS_PER_PATTERN, &testStep);
+    result = DTB_SetStep(&g_testHandle, 0, DTB_MAX_STEPS_PER_PATTERN, testStep.temperature,testStep.timeMinutes);
     if (result == DTB_SUCCESS) {
         LogError("Should have rejected step number >= DTB_MAX_STEPS_PER_PATTERN");
         return -1;
     }
     LogMessage("  Correctly rejected step number >= DTB_MAX_STEPS_PER_PATTERN");
-
-    // Test: NULL step pointer
-    LogMessage("Testing NULL step pointer...");
-    result = DTB_SetStep(&g_testHandle, 0, 0, NULL);
-    if (result == DTB_SUCCESS) {
-        LogError("Should have rejected NULL step pointer");
-        return -1;
-    }
-    LogMessage("  Correctly rejected NULL step pointer");
 
     LogMessage("Step validation test PASSED");
     return 0;
@@ -665,7 +660,7 @@ int Test_QueuedCommands(void) {
     testPattern.steps[1].timeMinutes = 40;
 
     LogMessage("Setting pattern via queue...");
-    int result = DTB_SetPatternQueued(TEST_SLAVE_ADDRESS, 7, &testPattern, PRIORITY_NORMAL);
+    int result = DTB_SetPatternQueued(TEST_SLAVE_ADDRESS, 7, &testPattern, DEVICE_PRIORITY_NORMAL);
     if (result != DTB_SUCCESS) {
         LogError("DTB_SetPatternQueued failed: %s", DTB_GetErrorString(result));
         return -1;
@@ -674,7 +669,7 @@ int Test_QueuedCommands(void) {
     // Get pattern back via queue
     DTB_Pattern readPattern;
     LogMessage("Getting pattern via queue...");
-    result = DTB_GetPatternQueued(TEST_SLAVE_ADDRESS, 7, &readPattern, PRIORITY_NORMAL);
+    result = DTB_GetPatternQueued(TEST_SLAVE_ADDRESS, 7, &readPattern, DEVICE_PRIORITY_NORMAL);
     if (result != DTB_SUCCESS) {
         LogError("DTB_GetPatternQueued failed: %s", DTB_GetErrorString(result));
         return -1;
@@ -715,7 +710,7 @@ int Test_AtomicPatternConfiguration(void) {
     // Configure atomically
     LogMessage("Configuring pattern atomically...");
     int result = DTB_ConfigurePatternAtomic(TEST_SLAVE_ADDRESS, 0, &testPattern,
-                                           NULL, NULL, PRIORITY_NORMAL);
+                                           NULL, NULL, DEVICE_PRIORITY_NORMAL);
     if (result != SUCCESS) {
         LogError("DTB_ConfigurePatternAtomic failed: %d", result);
         return -1;
@@ -726,7 +721,7 @@ int Test_AtomicPatternConfiguration(void) {
 
     // Verify pattern was configured correctly
     DTB_Pattern readPattern;
-    result = DTB_GetPatternQueued(TEST_SLAVE_ADDRESS, 0, &readPattern, PRIORITY_NORMAL);
+    result = DTB_GetPatternQueued(TEST_SLAVE_ADDRESS, 0, &readPattern, DEVICE_PRIORITY_NORMAL);
     if (result != DTB_SUCCESS) {
         LogError("DTB_GetPatternQueued failed: %s", DTB_GetErrorString(result));
         return -1;
@@ -816,7 +811,7 @@ int Test_RampSoakEdgeCases(void) {
     DTB_Step maxStep;
     maxStep.temperature = 100.0;
     maxStep.timeMinutes = DTB_MAX_STEP_TIME;
-    result = DTB_SetStep(&g_testHandle, 0, 0, &maxStep);
+    result = DTB_SetStep(&g_testHandle, 0, 0, maxStep.temperature, maxStep.timeMinutes);
     if (result != DTB_SUCCESS) {
         LogError("Failed to set maximum step time: %s", DTB_GetErrorString(result));
         return -1;
@@ -827,7 +822,7 @@ int Test_RampSoakEdgeCases(void) {
     DTB_Step minStep;
     minStep.temperature = 25.0;
     minStep.timeMinutes = DTB_MIN_STEP_TIME;
-    result = DTB_SetStep(&g_testHandle, 0, 1, &minStep);
+    result = DTB_SetStep(&g_testHandle, 0, 1, minStep.temperature, minStep.timeMinutes);
     if (result != DTB_SUCCESS) {
         LogError("Failed to set minimum step time: %s", DTB_GetErrorString(result));
         return -1;
