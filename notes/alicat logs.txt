@@ -1,0 +1,101 @@
+[INFO] [ALI] Starting ALICAT Test Suite
+[INFO] [ALI] Running test: Connection Test
+[INFO] [ALI] Test PASSED: Connection Test (0.00 seconds)
+[INFO] [ALI] Running test: Get Status
+[INFO] [ALI] ========================================
+[INFO] [ALI] ALICAT Status:
+[INFO] [ALI]   Flow Rate: 0.00 sccm
+[INFO] [ALI]   Setpoint: 0.00 sccm
+[INFO] [ALI]   Temperature: 19.31 Â°C
+[INFO] [ALI]   Total Volume: 0.00
+[INFO] [ALI]   Valve Drive: 0.00 %
+[INFO] [ALI]   Gas: Nitrogen
+[INFO] [ALI]   Status Flags: 0x0000
+[INFO] [ALI] ========================================
+[INFO] [ALI] Test PASSED: Get Status (0.11 seconds)
+[INFO] [ALI] Running test: Set/Get Setpoint
+[INFO] [ALI] Setting setpoint: 50.000
+[INFO] [ALI] Setpoint: Set=50.00, Read=0.50 sccm
+[ERROR] [ALI] Test FAILED: Set/Get Setpoint - Setpoint mismatch: expected 50.00, got 0.50 sccm
+[INFO] [ALI] Running test: Set/Get Gas Type
+[INFO] [ALI] Initial gas: Nitrogen
+[INFO] [ALI] Setting gas type: 0 (Air)
+[INFO] [ALI] New gas: Air
+[INFO] [ALI] Setting gas type: 3 (Nitrogen)
+[INFO] [ALI] Test PASSED: Set/Get Gas Type (0.90 seconds)
+[INFO] [ALI] Running test: Tare Function
+[INFO] [ALI] Performing tare...
+[INFO] [ALI] Test PASSED: Tare Function (2.10 seconds)
+[INFO] [ALI] Running test: Get Flow Rate
+[INFO] [ALI] Current flow rate: 0.00 sccm
+[INFO] [ALI] Test PASSED: Get Flow Rate (0.12 seconds)
+[INFO] [ALI] Running test: Get Temperature
+[INFO] [ALI] Current temperature: 19.31 Â°C
+[INFO] [ALI] Test PASSED: Get Temperature (0.08 seconds)
+[INFO] [ALI] Running test: Get Valve Drive
+[INFO] [ALI] Current valve drive: 100.00 %
+[INFO] [ALI] Test PASSED: Get Valve Drive (0.10 seconds)
+[INFO] [ALI] Running test: PID Parameters
+[INFO] [ALI] Initial PID: P=500, I=5000
+[INFO] [ALI] Setting PID parameters: P=5000, I=2500
+[INFO] [ALI] New PID: P=5000, I=2500
+[INFO] [ALI] Setting PID parameters: P=500, I=5000
+[INFO] [ALI] Test PASSED: PID Parameters (0.92 seconds)
+[INFO] [ALI] Running test: Flow Averaging
+[INFO] [ALI] Setting flow averaging: 500 ms
+[INFO] [ALI] Flow averaging set to 500 ms
+[INFO] [ALI] Test PASSED: Flow Averaging (0.61 seconds)
+[INFO] [ALI] Running test: Reference Temperature
+[INFO] [ALI] Setting reference temperature: 25.0 °C
+[INFO] [ALI] Reference temperature set to 25.0 Â°C
+[INFO] [ALI] Test PASSED: Reference Temperature (0.60 seconds)
+[INFO] [ALI] Running test: Setpoint Source
+[INFO] [ALI] Setting setpoint source: 2
+[INFO] [ALI] Setpoint source set to digital (unsaved)
+[INFO] [ALI] Test PASSED: Setpoint Source (0.59 seconds)
+[INFO] [ALI] Running test: Totalizer Functions
+[INFO] [ALI] Initial total volume: 0.00
+[INFO] [ALI] Resetting totalizer...
+[INFO] [ALI] Total volume after reset: 0.00
+[INFO] [ALI] Test PASSED: Totalizer Functions (0.80 seconds)
+[INFO] [ALI] Running test: Batch Volume
+[INFO] [ALI] Setting batch volume: 1000.000
+[INFO] [ALI] Batch volume: 1000.00, Remaining: 1000.00
+[INFO] [ALI] Test PASSED: Batch Volume (0.71 seconds)
+[INFO] [ALI] Running test: Queued Commands
+[INFO] [ALI] Setting setpoint: 20.000
+[INFO] [ALI] Setting setpoint: 0.000
+[INFO] [ALI] Queued commands executed successfully
+[INFO] [ALI] Test PASSED: Queued Commands (0.80 seconds)
+[INFO] [ALI] Running test: Setpoint Ramp
+[INFO] [ALI] Setting setpoint to 0.0 sccm
+[INFO] [ALI] Setting setpoint: 0.000
+[INFO] [ALI]   Flow rate: 0.00 sccm
+[INFO] [ALI] Setting setpoint to 10.0 sccm
+[INFO] [ALI] Setting setpoint: 10.000
+[INFO] [ALI]   Flow rate: 0.00 sccm
+[INFO] [ALI] Setting setpoint to 25.0 sccm
+[INFO] [ALI] Setting setpoint: 25.000
+[INFO] [ALI]   Flow rate: 0.00 sccm
+[INFO] [ALI] Setting setpoint to 50.0 sccm
+[INFO] [ALI] Setting setpoint: 50.000
+[INFO] [ALI]   Flow rate: 0.00 sccm
+[INFO] [ALI] Setting setpoint to 25.0 sccm
+[INFO] [ALI] Setting setpoint: 25.000
+[INFO] [ALI]   Flow rate: 0.00 sccm
+[INFO] [ALI] Setting setpoint to 0.0 sccm
+[INFO] [ALI] Setting setpoint: 0.000
+[INFO] [ALI]   Flow rate: 0.00 sccm
+[INFO] [ALI] Test PASSED: Setpoint Ramp (7.20 seconds)
+[INFO] [ALI] ========================================
+[INFO] [ALI] ALICAT Test Suite Summary:
+[INFO] [ALI] Total Tests: 16
+[INFO] [ALI] Passed: 15
+[INFO] [ALI] Failed: 1
+[INFO] [ALI] Total Time: 16.84 seconds
+[INFO] [ALI] Average Time: 1.05 seconds
+[INFO] [ALI] ========================================
+[INFO] [ALI] Failed Tests:
+[INFO] [ALI]   - Set/Get Setpoint: Setpoint mismatch: expected 50.00, got 0.50 sccm
+[WARN] [ALI] ALICAT test suite completed with failures
+[INFO] [ALI] ALICAT test suite cleanup complete

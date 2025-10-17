@@ -1469,7 +1469,7 @@ int DTB_SetSimpleRamp(DTB_Handle *handle, int patternNumber,
     pattern.steps[1].timeMinutes = soakTimeMinutes;
 
     // Set metadata
-    pattern.actualStepCount = 1;  // Execute steps 0-1 (2 steps)
+    pattern.actualStepCount = 2;  // Execute steps 0-1 (2 steps)
     pattern.cycleCount = 0;       // No additional cycles
     pattern.linkPattern = DTB_LINK_PATTERN_END;  // End after this pattern
 
@@ -1498,9 +1498,20 @@ int DTB_ClearPattern(DTB_Handle *handle, int patternNumber) {
 
     DTB_Pattern pattern;
     memset(&pattern, 0, sizeof(DTB_Pattern));
+    
+    // **IMPORTANT: Set actualStepCount to max so all steps get cleared**
+    pattern.actualStepCount = DTB_MAX_STEPS_PER_PATTERN - 1;  // Will clear steps 0-7
+    pattern.cycleCount = 0;
     pattern.linkPattern = DTB_LINK_PATTERN_END;
 
-    return DTB_SetPattern(handle, patternNumber, &pattern);
+    int result = DTB_SetPattern(handle, patternNumber, &pattern);
+    
+    // **Now set actualStepCount back to 0 for the cleared pattern**
+    if (result == DTB_SUCCESS) {
+        result = DTB_SetActualStepCount(handle, patternNumber, 0);
+    }
+    
+    return result;
 }
 
 int DTB_ClearAllPatterns(DTB_Handle *handle) {

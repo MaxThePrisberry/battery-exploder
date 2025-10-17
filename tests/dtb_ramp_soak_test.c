@@ -294,14 +294,8 @@ int CVICALLBACK TestDTBRampSoakWorkerThread(void *functionData) {
         LogErrorEx(LOG_DEVICE_DTB, "DTB Ramp-Soak test suite failed with error: %d", result);
     }
 
-    // Clean up
-    DTB_TestSuite_Cleanup(context);
-
-    // Clear the running context pointer
-    g_dtbTestSuiteContext = NULL;
-
-    free(context);
-
+    // **CRITICAL: DO ALL UI UPDATES FIRST, BEFORE RESUMING QUEUE**
+    
     // Restore UI controls
     SetCtrlAttribute(g_mainPanelHandle, PANEL_EXPERIMENTS, ATTR_DIMMED, 0);
 
@@ -312,16 +306,24 @@ int CVICALLBACK TestDTBRampSoakWorkerThread(void *functionData) {
         SetTabPageAttribute(g_mainPanelHandle, PANEL_EXPERIMENTS, i, ATTR_DIMMED, 0);
     }
 
-    // Restore Test DTB button (need to find control ID)
+    // Restore Test DTB button
     SetCtrlAttribute(g_mainPanelHandle, PANEL_BTN_TEST_TEMP_RAMP,
                       ATTR_LABEL_TEXT, "Test DTB Ramp-Soak");
-     SetCtrlAttribute(g_mainPanelHandle, PANEL_BTN_TEST_TEMP_RAMP,
+    SetCtrlAttribute(g_mainPanelHandle, PANEL_BTN_TEST_TEMP_RAMP,
                       ATTR_DIMMED, 0);
 
-    // Clear busy flag
+    // **CRITICAL: Clear busy flag BEFORE resuming queue**
     CmtGetLock(g_busyLock);
     g_systemBusy = 0;
     CmtReleaseLock(g_busyLock);
+    
+    // **CRITICAL: Resume queue AFTER everything else is cleaned up**
+    DTB_TestSuite_Cleanup(context);
+
+    // Clear the running context pointer
+    g_dtbTestSuiteContext = NULL;
+
+    free(context);
 
     return 0;
 }
@@ -341,15 +343,36 @@ int DTB_TestSuite_Initialize(DTBTestSuiteContext *context, DTBQueueManager *dtbQ
     context->ledControl = ledControl;
     context->cancelRequested = 0;
     context->state = TEST_STATE_IDLE;
-	
-	DTBDeviceContext *dtbContext = (DTBDeviceContext*)DeviceQueue_GetDeviceContext(dtbQueueMgr);
+
+    // Get the DTB handle from the queue manager
+    DTBDeviceContext *dtbContext = (DTBDeviceContext*)DeviceQueue_GetDeviceContext(dtbQueueMgr);
     if (!dtbContext || dtbContext->numDevices == 0) {
         LogErrorEx(LOG_DEVICE_DTB, "No DTB devices available in queue manager");
         return -1;
     }
-	
-	// Copy the first handle to the global test handle
+    
+    // Copy the first handle to the global test handle
     g_testHandle = dtbContext->handles[0];
+    
+    // **CRITICAL: Stop the queue worker thread to prevent interference**
+    LogMessageEx(LOG_DEVICE_DTB, "Pausing DTB queue manager for exclusive bus access");
+    DeviceQueue_Pause(dtbQueueMgr);
+    
+    // **CRITICAL: Flush all pending commands**
+    DTB_QueueCancelAll(dtbQueueMgr);
+    
+    // **CRITICAL: Give the bus time to settle**
+    Delay(0.5);
+    
+    // **CRITICAL: Aggressively clear the input buffer**
+    for (int i = 0; i < 5; i++) {
+        int bytesInQueue = GetInQLen(dtbContext->comPort);
+        if (bytesInQueue > 0) {
+            LogMessageEx(LOG_DEVICE_DTB, "Clearing %d stale bytes from input buffer", bytesInQueue);
+            FlushInQ(dtbContext->comPort);
+            Delay(0.1);
+        }
+    }
     
     LogMessageEx(LOG_DEVICE_DTB, "Test suite initialized with slave address %d", 
                  dtbContext->slaveAddresses[0]);
@@ -444,8 +467,11 @@ void DTB_TestSuite_Cancel(DTBTestSuiteContext *context) {
 }
 
 void DTB_TestSuite_Cleanup(DTBTestSuiteContext *context) {
-    if (context) {
-        // No specific cleanup needed for DTB tests currently
+    if (context && context->dtbQueueMgr) {
+        // **CRITICAL: Resume the queue manager**
+        LogMessageEx(LOG_DEVICE_DTB, "Resuming DTB queue manager");
+        DeviceQueue_Resume(context->dtbQueueMgr);
+        
         LogMessageEx(LOG_DEVICE_DTB, "DTB Ramp-Soak test suite cleanup complete");
     }
 }
