@@ -983,7 +983,7 @@ void BIO_QueueGetStats(BioQueueManager *mgr, BioQueueStats *stats) {
 static int BIO_QueueCommandBlocking(BioQueueManager *mgr, BioCommandType type,
                            BioCommandParams *params, DevicePriority priority,
                            BioCommandResult *result, int timeoutMs) {
-    return DeviceQueue_CommandBlocking(mgr, type, params, priority, result, timeoutMs);
+    return DeviceQueue_CommandBlocking(mgr, type, params, priority, result, timeoutMs, NULL, NULL);
 }
 
 static BioCommandID BIO_QueueCommandAsync(BioQueueManager *mgr, BioCommandType type,

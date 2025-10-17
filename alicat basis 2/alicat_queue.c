@@ -537,7 +537,7 @@ int ALICAT_SetSetpointQueued(int modbusAddress, double flowRate, DevicePriority 
     
     return DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_SET_SETPOINT,
                                       &params, priority, &result,
-                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
+                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
 }
 
 int ALICAT_SetGasQueued(int modbusAddress, int gasType, DevicePriority priority) {
@@ -548,7 +548,7 @@ int ALICAT_SetGasQueued(int modbusAddress, int gasType, DevicePriority priority)
     
     return DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_SET_GAS,
                                       &params, priority, &result,
-                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
+                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
 }
 
 int ALICAT_TareQueued(int modbusAddress, DevicePriority priority) {
@@ -559,7 +559,7 @@ int ALICAT_TareQueued(int modbusAddress, DevicePriority priority) {
     
     return DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_TARE,
                                       &params, priority, &result,
-                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
+                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
 }
 
 int ALICAT_SetSetpointSourceQueued(int modbusAddress, int source, DevicePriority priority) {
@@ -570,7 +570,7 @@ int ALICAT_SetSetpointSourceQueued(int modbusAddress, int source, DevicePriority
     
     return DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_SET_SETPOINT_SOURCE,
                                       &params, priority, &result,
-                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
+                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
 }
 
 int ALICAT_SetPIDParamsQueued(int modbusAddress, const ALICAT_PIDParams *pidParams, DevicePriority priority) {
@@ -582,7 +582,7 @@ int ALICAT_SetPIDParamsQueued(int modbusAddress, const ALICAT_PIDParams *pidPara
     
     return DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_SET_PID_PARAMS,
                                       &params, priority, &result,
-                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
+                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
 }
 
 int ALICAT_SetFlowAveragingQueued(int modbusAddress, int averagingMs, DevicePriority priority) {
@@ -593,7 +593,7 @@ int ALICAT_SetFlowAveragingQueued(int modbusAddress, int averagingMs, DevicePrio
     
     return DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_SET_FLOW_AVERAGING,
                                       &params, priority, &result,
-                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
+                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
 }
 
 int ALICAT_SetRefTemperatureQueued(int modbusAddress, double tempC, DevicePriority priority) {
@@ -604,7 +604,7 @@ int ALICAT_SetRefTemperatureQueued(int modbusAddress, double tempC, DevicePriori
     
     return DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_SET_REF_TEMPERATURE,
                                       &params, priority, &result,
-                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
+                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
 }
 
 int ALICAT_SetWatchdogQueued(int modbusAddress, int timeoutMs, DevicePriority priority) {
@@ -615,7 +615,7 @@ int ALICAT_SetWatchdogQueued(int modbusAddress, int timeoutMs, DevicePriority pr
     
     return DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_SET_WATCHDOG,
                                       &params, priority, &result,
-                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
+                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
 }
 
 int ALICAT_SetAutotareQueued(int modbusAddress, int enable, DevicePriority priority) {
@@ -626,7 +626,7 @@ int ALICAT_SetAutotareQueued(int modbusAddress, int enable, DevicePriority prior
     
     return DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_SET_AUTOTARE,
                                       &params, priority, &result,
-                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
+                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
 }
 
 int ALICAT_ConfigureQueued(int modbusAddress, const ALICAT_Configuration *config, DevicePriority priority) {
@@ -638,7 +638,7 @@ int ALICAT_ConfigureQueued(int modbusAddress, const ALICAT_Configuration *config
     
     return DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_CONFIGURE,
                                       &params, priority, &result,
-                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
+                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
 }
 
 int ALICAT_ConfigureDefaultQueued(int modbusAddress, DevicePriority priority) {
@@ -649,7 +649,7 @@ int ALICAT_ConfigureDefaultQueued(int modbusAddress, DevicePriority priority) {
     
     return DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_CONFIGURE_DEFAULT,
                                       &params, priority, &result,
-                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
+                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
 }
 
 int ALICAT_FactoryResetQueued(int modbusAddress, DevicePriority priority) {
@@ -660,7 +660,7 @@ int ALICAT_FactoryResetQueued(int modbusAddress, DevicePriority priority) {
     
     return DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_FACTORY_RESET,
                                       &params, priority, &result,
-                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
+                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
 }
 
 int ALICAT_GetStatusQueued(int modbusAddress, ALICAT_Status *status, DevicePriority priority) {
@@ -672,7 +672,7 @@ int ALICAT_GetStatusQueued(int modbusAddress, ALICAT_Status *status, DevicePrior
     
     int error = DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_GET_STATUS,
                                           &params, priority, &result,
-                                          ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
+                                          ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
     
     if (error == ALICAT_SUCCESS) {
         *status = result.data.status;
@@ -689,7 +689,7 @@ int ALICAT_GetFlowRateQueued(int modbusAddress, double *flowRate, DevicePriority
     
     int error = DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_GET_FLOW_RATE,
                                           &params, priority, &result,
-                                          ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
+                                          ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
     
     if (error == ALICAT_SUCCESS) {
         *flowRate = result.data.flowRate;
@@ -706,7 +706,7 @@ int ALICAT_GetSetpointQueued(int modbusAddress, double *setpoint, DevicePriority
     
     int error = DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_GET_SETPOINT,
                                           &params, priority, &result,
-                                          ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
+                                          ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
     
     if (error == ALICAT_SUCCESS) {
         *setpoint = result.data.setpoint;
@@ -723,7 +723,7 @@ int ALICAT_GetTemperatureQueued(int modbusAddress, double *temperature, DevicePr
     
     int error = DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_GET_TEMPERATURE,
                                           &params, priority, &result,
-                                          ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
+                                          ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
     
     if (error == ALICAT_SUCCESS) {
         *temperature = result.data.temperature;
@@ -740,7 +740,7 @@ int ALICAT_GetTotalVolumeQueued(int modbusAddress, double *totalVolume, DevicePr
     
     int error = DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_GET_TOTAL_VOLUME,
                                           &params, priority, &result,
-                                          ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
+                                          ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
     
     if (error == ALICAT_SUCCESS) {
         *totalVolume = result.data.totalVolume;
@@ -757,7 +757,7 @@ int ALICAT_GetValveDriveQueued(int modbusAddress, double *valveDrive, DevicePrio
     
     int error = DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_GET_VALVE_DRIVE,
                                           &params, priority, &result,
-                                          ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
+                                          ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
     
     if (error == ALICAT_SUCCESS) {
         *valveDrive = result.data.valveDrive;
@@ -774,7 +774,7 @@ int ALICAT_GetPIDParamsQueued(int modbusAddress, ALICAT_PIDParams *params, Devic
     
     int error = DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_GET_PID_PARAMS,
                                           &cmdParams, priority, &result,
-                                          ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
+                                          ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
     
     if (error == ALICAT_SUCCESS) {
         *params = result.data.pidParams;
@@ -790,7 +790,7 @@ int ALICAT_ResetTotalizerQueued(int modbusAddress, DevicePriority priority) {
     
     return DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_RESET_TOTALIZER,
                                       &params, priority, &result,
-                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
+                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
 }
 
 int ALICAT_SetBatchVolumeQueued(int modbusAddress, double volume, DevicePriority priority) {
@@ -801,7 +801,7 @@ int ALICAT_SetBatchVolumeQueued(int modbusAddress, double volume, DevicePriority
     
     return DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_SET_BATCH_VOLUME,
                                       &params, priority, &result,
-                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
+                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
 }
 
 int ALICAT_GetBatchRemainingQueued(int modbusAddress, double *remaining, DevicePriority priority) {
@@ -813,7 +813,7 @@ int ALICAT_GetBatchRemainingQueued(int modbusAddress, double *remaining, DeviceP
     
     int error = DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_GET_BATCH_REMAINING,
                                           &params, priority, &result,
-                                          ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
+                                          ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
     
     if (error == ALICAT_SUCCESS) {
         *remaining = result.data.batchRemaining;

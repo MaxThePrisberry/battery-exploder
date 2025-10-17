@@ -333,7 +333,7 @@ void TNY_QueueGetStats(TNYQueueManager *mgr, TNYQueueStats *stats) {
 static int TNY_QueueCommandBlocking(TNYQueueManager *mgr, TNYCommandType type,
                            TNYCommandParams *params, DevicePriority priority,
                            TNYCommandResult *result, int timeoutMs) {
-    return DeviceQueue_CommandBlocking(mgr, type, params, priority, result, timeoutMs);
+    return DeviceQueue_CommandBlocking(mgr, type, params, priority, result, timeoutMs, NULL, NULL);
 }
 
 static CommandID TNY_QueueCommandAsync(TNYQueueManager *mgr, TNYCommandType type,

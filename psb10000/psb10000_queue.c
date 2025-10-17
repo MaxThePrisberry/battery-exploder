@@ -428,7 +428,7 @@ void PSB_QueueGetStats(PSBQueueManager *mgr, PSBQueueStats *stats) {
 static int PSB_QueueCommandBlocking(PSBQueueManager *mgr, PSBCommandType type,
                            PSBCommandParams *params, DevicePriority priority,
                            PSBCommandResult *result, int timeoutMs) {
-    return DeviceQueue_CommandBlocking(mgr, type, params, priority, result, timeoutMs);
+    return DeviceQueue_CommandBlocking(mgr, type, params, priority, result, timeoutMs, NULL, NULL);
 }
 
 static CommandID PSB_QueueCommandAsync(PSBQueueManager *mgr, PSBCommandType type,
