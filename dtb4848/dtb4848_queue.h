@@ -71,6 +71,7 @@ typedef enum {
     DTB_CMD_GET_STATUS,
     DTB_CMD_GET_PROCESS_VALUE,
     DTB_CMD_GET_SETPOINT,
+    DTB_CMD_GET_TEMPERATURE_QUICK,
     DTB_CMD_GET_PID_PARAMS,
     DTB_CMD_GET_ALARM_STATUS,
     
@@ -136,6 +137,7 @@ typedef union {
     struct { int slaveAddress; } getStatus;
     struct { int slaveAddress; } getProcessValue;
     struct { int slaveAddress; } getSetpoint;
+    struct { int slaveAddress; } getTemperatureQuick;
     struct { int slaveAddress; } getAlarmStatus;
     struct { int slaveAddress; } clearAlarm;
     struct { int slaveAddress; } getFrontPanelLock;
@@ -183,6 +185,7 @@ typedef struct {
         DTB_Status status;
         double temperature;
         double setpoint;
+        struct { double temperature; double setpoint; } temperatureQuick;
         DTB_PIDParams pidParams;
         int alarmActive;
         int frontPanelLockMode;
@@ -303,6 +306,7 @@ int DTB_FactoryResetQueued(int slaveAddress, DevicePriority priority);
 int DTB_GetStatusQueued(int slaveAddress, DTB_Status *status, DevicePriority priority);
 int DTB_GetProcessValueQueued(int slaveAddress, double *temperature, DevicePriority priority);
 int DTB_GetSetPointQueued(int slaveAddress, double *setPoint, DevicePriority priority);
+int DTB_GetTemperatureQuickQueued(int slaveAddress, double *temperature, double *setPoint, DevicePriority priority);
 int DTB_GetPIDParamsQueued(int slaveAddress, int pidNumber, DTB_PIDParams *params, DevicePriority priority);
 int DTB_GetAlarmStatusQueued(int slaveAddress, int *alarmActive, DevicePriority priority);
 
@@ -414,6 +418,18 @@ int DTB_SetSetPointAllQueued(double temperature, DevicePriority priority);
  */
 int DTB_GetStatusAllQueued(DTB_Status *statuses, int *numDevices, DevicePriority priority);
 
+/**
+ * Get status from all DTB devices with cancellation support
+ * @param statuses - Array to receive status from each device (must have space for MAX_DTB_DEVICES)
+ * @param numDevices - Pointer to receive the actual number of devices
+ * @param priority - Command priority
+ * @param cancelCallback - Optional callback to check if operation should be cancelled
+ * @param cancelUserData - User data passed to cancellation callback
+ * @return DTB_SUCCESS if ALL devices responded successfully, error code otherwise (ERR_CANCELLED if cancelled)
+ */
+int DTB_GetStatusAllQueuedEx(DTB_Status *statuses, int *numDevices, DevicePriority priority,
+                             DeviceCancellationCallback cancelCallback, void *cancelUserData);
+
 /******************************************************************************
  * Async Command Functions
  * 
@@ -452,6 +468,16 @@ CommandID DTB_SetRunStopAsync(int slaveAddress, int run, DTBCommandCallback call
  * @return Command ID on success or ERR_QUEUE_NOT_INIT if queue not initialized
  */
 CommandID DTB_SetSetPointAsync(int slaveAddress, double temperature, DTBCommandCallback callback, void *userData, DevicePriority priority);
+
+/**
+ * Get DTB temperature and setpoint (optimized) asynchronously
+ * @param slaveAddress - Modbus slave address of target device
+ * @param callback - Callback function to be called when command completes
+ * @param userData - User data passed to callback
+ * @param priority - Command priority
+ * @return Command ID on success or ERR_QUEUE_NOT_INIT if queue not initialized
+ */
+CommandID DTB_GetTemperatureQuickAsync(int slaveAddress, DTBCommandCallback callback, void *userData, DevicePriority priority);
 
 /******************************************************************************
  * Utility Functions

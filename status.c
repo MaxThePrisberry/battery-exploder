@@ -438,11 +438,12 @@ static void Status_RequestDeviceUpdate(int deviceIndex) {
                 int dtbIndex = deviceIndex - DEVICE_DTB_BASE;
                 if (dtbIndex >= 0 && dtbIndex < ctx->numDevices) {
                     int slaveAddress = ctx->slaveAddresses[dtbIndex];
-                    
-                    int cmdId = DTB_GetStatusAsync(slaveAddress, DTBStatusCallback, 
-                                                  (void*)(intptr_t)slaveAddress, DEVICE_PRIORITY_LOW);
+
+                    // Use quick temperature read instead of full status for performance
+                    int cmdId = DTB_GetTemperatureQuickAsync(slaveAddress, DTBStatusCallback,
+                                                            (void*)(intptr_t)slaveAddress, DEVICE_PRIORITY_LOW);
                     if (cmdId <= 0) {
-                        LogErrorEx(LOG_DEVICE_DTB, "Failed to request DTB status for slave %d", slaveAddress);
+                        LogErrorEx(LOG_DEVICE_DTB, "Failed to request DTB temperature for slave %d", slaveAddress);
                         device->pendingCall = false;
                     }
                     return;
@@ -665,25 +666,61 @@ static void DTBStatusCallback(CommandID cmdId, DTBCommandType type,
     }
     
     if (cmdResult->errorCode == DTB_SUCCESS) {
-        DTB_Status *status = &cmdResult->data.status;
-        
-        // Update DTB measurement values
-        UpdateDTBValues(deviceIndex, status);
-        
-        // Update device state based on output enabled status
-        ConnectionState newState = status->outputEnabled ? CONN_STATE_CONNECTED : CONN_STATE_IDLE;
-        g_status.devices[deviceIndex].lastState = newState;
-        
-        // Update status LED and message
-        UpdateDeviceLED(deviceIndex, newState);
-        
-        const char* statusMsg = status->outputEnabled ? "DTB Running" : "DTB Connected - Stopped";
-        UpdateDeviceStatus(deviceIndex, statusMsg);
-        
-        LogDebugEx(LOG_DEVICE_DTB, "DTB slave %d status updated: Temp=%.1f°C, Output=%s",
-                  slaveAddress, status->processValue, status->outputEnabled ? "ON" : "OFF");
+        // Handle quick temperature read (optimized for status monitoring)
+        if (type == DTB_CMD_GET_TEMPERATURE_QUICK) {
+            double temperature = cmdResult->data.temperatureQuick.temperature;
+            double setpoint = cmdResult->data.temperatureQuick.setpoint;
+
+            // Update temperature display
+            DTBQueueManager *mgr = DTB_GetGlobalQueueManager();
+            if (mgr) {
+                DTBDeviceContext *ctx = (DTBDeviceContext*)DeviceQueue_GetDeviceContext(mgr);
+                if (ctx) {
+                    int dtbIndex = deviceIndex - DEVICE_DTB_BASE;
+                    if (dtbIndex >= 0 && dtbIndex < ctx->numDevices) {
+                        int ledControl, statusControl, tempControl;
+                        if (GetDTBUIControls(slaveAddress, &ledControl, &statusControl, &tempControl)) {
+                            UIUpdateData* tempData = malloc(sizeof(UIUpdateData));
+                            if (tempData) {
+                                tempData->control = tempControl;
+                                tempData->dblValue = temperature;
+                                PostDeferredCall(DeferredNumericUpdate, tempData);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Set status to connected (we got a valid reading)
+            g_status.devices[deviceIndex].lastState = CONN_STATE_CONNECTED;
+            UpdateDeviceLED(deviceIndex, CONN_STATE_CONNECTED);
+            UpdateDeviceStatus(deviceIndex, "DTB Connected");
+
+            LogDebugEx(LOG_DEVICE_DTB, "DTB slave %d quick read: Temp=%.1fï¿½C, SP=%.1fï¿½C",
+                      slaveAddress, temperature, setpoint);
+        }
+        // Handle full status read (for compatibility)
+        else if (type == DTB_CMD_GET_STATUS) {
+            DTB_Status *status = &cmdResult->data.status;
+
+            // Update DTB measurement values
+            UpdateDTBValues(deviceIndex, status);
+
+            // Update device state based on output enabled status
+            ConnectionState newState = status->outputEnabled ? CONN_STATE_CONNECTED : CONN_STATE_IDLE;
+            g_status.devices[deviceIndex].lastState = newState;
+
+            // Update status LED and message
+            UpdateDeviceLED(deviceIndex, newState);
+
+            const char* statusMsg = status->outputEnabled ? "DTB Running" : "DTB Connected - Stopped";
+            UpdateDeviceStatus(deviceIndex, statusMsg);
+
+            LogDebugEx(LOG_DEVICE_DTB, "DTB slave %d status updated: Temp=%.1fï¿½C, Output=%s",
+                      slaveAddress, status->processValue, status->outputEnabled ? "ON" : "OFF");
+        }
     } else {
-        LogErrorEx(LOG_DEVICE_DTB, "Failed to get DTB slave %d status: %s",
+        LogErrorEx(LOG_DEVICE_DTB, "Failed to get DTB slave %d data: %s",
                  slaveAddress, DTB_GetErrorString(cmdResult->errorCode));
         g_status.devices[deviceIndex].lastState = CONN_STATE_ERROR;
         UpdateDeviceLED(deviceIndex, CONN_STATE_ERROR);

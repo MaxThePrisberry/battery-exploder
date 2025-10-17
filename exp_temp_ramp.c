@@ -53,6 +53,7 @@ static int HoldAtFinalTemperature(TempRampExperimentContext *ctx);
 static int UpdateTemperatureSetpoint(TempRampExperimentContext *ctx, double newSetpoint);
 static int ReadAllTemperatures(TempRampExperimentContext *ctx, TempRampTempData *tempData, double timestamp);
 static int LogTemperatureDataPoint(TempRampExperimentContext *ctx, TempRampTempData *tempData);
+static bool CheckExperimentCancellation(void *userData);
 
 static int PerformEISMeasurement(TempRampExperimentContext *ctx);
 static int RunOCVMeasurement(TempRampExperimentContext *ctx, TempRampEISMeasurement *measurement);
@@ -1046,39 +1047,51 @@ static int UpdateTemperatureSetpoint(TempRampExperimentContext *ctx, double newS
     return SUCCESS;
 }
 
+static bool CheckExperimentCancellation(void *userData) {
+    TempRampExperimentContext *ctx = (TempRampExperimentContext*)userData;
+    return ctx && (ctx->cancelRequested || ctx->emergencyStop);
+}
+
 static int ReadAllTemperatures(TempRampExperimentContext *ctx, TempRampTempData *tempData, double timestamp) {
     tempData->timestamp = timestamp;
     tempData->dtbDeviceCount = 0;
     tempData->dtbAverageTemperature = 0.0;
     tempData->dtbSetpoint = ctx->targetTemperature;
-    
+
     for (int i = 0; i < DTB_NUM_DEVICES; i++) {
         tempData->dtbTemperatures[i] = 0.0;
     }
-    
+
     if (ENABLE_DTB) {
         DTB_Status dtbStatuses[MAX_DTB_DEVICES];
         int numDevices = 0;
-        
-        if (DTB_GetStatusAllQueued(dtbStatuses, &numDevices, DEVICE_PRIORITY_NORMAL) == DTB_SUCCESS) {
+
+        // Use cancel-aware status query to allow experiment cancellation during blocking calls
+        int result = DTB_GetStatusAllQueuedEx(dtbStatuses, &numDevices, DEVICE_PRIORITY_NORMAL,
+                                              CheckExperimentCancellation, ctx);
+
+        if (result == DTB_SUCCESS) {
             double tempSum = 0.0;
             tempData->dtbDeviceCount = numDevices;
-            
+
             for (int i = 0; i < numDevices && i < DTB_NUM_DEVICES; i++) {
                 tempData->dtbTemperatures[i] = dtbStatuses[i].processValue;
                 tempSum += dtbStatuses[i].processValue;
             }
-            
+
             tempData->dtbAverageTemperature = tempSum / numDevices;
-            snprintf(tempData->status, sizeof(tempData->status), 
+            snprintf(tempData->status, sizeof(tempData->status),
                      "DTB Avg: %.1f�C (%d devices)", tempData->dtbAverageTemperature, numDevices);
+        } else if (result == ERR_CANCELLED) {
+            strcpy(tempData->status, "DTB: Cancelled");
+            return ERR_CANCELLED;
         } else {
             strcpy(tempData->status, "DTB: Error");
         }
     } else {
         strcpy(tempData->status, "DTB: Disabled");
     }
-    
+
     if (ENABLE_CDAQ) {
         CDAQ_ReadTC(2, 0, &tempData->tc0Temperature);
         CDAQ_ReadTC(2, 1, &tempData->tc1Temperature);
@@ -1086,7 +1099,7 @@ static int ReadAllTemperatures(TempRampExperimentContext *ctx, TempRampTempData 
         tempData->tc0Temperature = 0.0;
         tempData->tc1Temperature = 0.0;
     }
-    
+
     return SUCCESS;
 }
 

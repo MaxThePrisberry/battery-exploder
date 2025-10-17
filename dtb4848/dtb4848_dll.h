@@ -307,6 +307,11 @@ int DTB_ReadRegister(DTB_Handle *handle, unsigned short address, unsigned short 
 int DTB_WriteRegister(DTB_Handle *handle, unsigned short address, unsigned short value);
 int DTB_ReadBit(DTB_Handle *handle, unsigned short address, int *value);
 int DTB_WriteBit(DTB_Handle *handle, unsigned short address, int value);
+int DTB_ReadMultipleRegisters(DTB_Handle *handle, unsigned short startAddress,
+                              int numRegisters, unsigned short *values);
+
+// Optimized read functions
+int DTB_GetTemperatureQuick(DTB_Handle *handle, double *temperature, double *setpoint);
 
 /******************************************************************************
  * Ramp-Soak (PID Program Control) Functions

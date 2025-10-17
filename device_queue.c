@@ -540,27 +540,28 @@ static int EnqueueCommand(DeviceQueueManager *mgr, QueuedCommand *cmd, DevicePri
 
 int DeviceQueue_CommandBlocking(DeviceQueueManager *mgr, int commandType,
                               void *params, DevicePriority priority,
-                              void *result, int timeoutMs) {
+                              void *result, int timeoutMs,
+                              DeviceCancellationCallback cancelCallback, void *cancelUserData) {
     if (!mgr || !result) return ERR_INVALID_PARAMETER;
-    
+
     // Create command
     QueuedCommand *cmd = Command_Create(mgr, commandType, params);
     if (!cmd) return ERR_OUT_OF_MEMORY;
-    
+
     cmd->priority = priority;
-    
+
     // Create blocking context (stack allocated - owned by this thread)
     BlockingContext ctx = {0};
     ctx.errorCode = ERR_TIMEOUT;
     ctx.completed = 0;
-    
+
     // Create completion event
     int error = CmtNewLock(NULL, 0, &ctx.completionEvent);
     if (error < 0) {
         Command_Release(mgr, cmd);
         return ERR_BASE_THREAD;
     }
-    
+
     // Create result storage
     ctx.result = mgr->adapter->createCommandResult(commandType);
     if (!ctx.result) {
@@ -568,13 +569,13 @@ int DeviceQueue_CommandBlocking(DeviceQueueManager *mgr, int commandType,
         Command_Release(mgr, cmd);
         return ERR_OUT_OF_MEMORY;
     }
-    
+
     // Link command to blocking context
     cmd->blockingContext = &ctx;
-    
+
     // Add reference for the queue
     Command_AddRef(cmd);
-    
+
     // Enqueue command with retry logic
     int enqueueResult = EnqueueCommand(mgr, cmd, priority, timeoutMs);
     if (enqueueResult != SUCCESS) {
@@ -583,46 +584,52 @@ int DeviceQueue_CommandBlocking(DeviceQueueManager *mgr, int commandType,
         CmtDiscardLock(ctx.completionEvent);
         mgr->adapter->freeCommandResult(commandType, ctx.result);
         Command_Release(mgr, cmd);  // Release our reference
-        
+
         return enqueueResult;
     }
-    
+
     // Wait for completion
     double startTime = Timer();
     double timeout = (timeoutMs > 0 ? timeoutMs : 30000) / 1000.0;
     int finalError = ERR_TIMEOUT;
-    
+
     while ((Timer() - startTime) < timeout) {
         if (ctx.completed) {
             finalError = ctx.errorCode;
             break;
         }
-        
+
         if (mgr->shutdownRequested) {
             finalError = ERR_CANCELLED;
             break;
         }
-        
+
+        // Check user-provided cancellation callback
+        if (cancelCallback && cancelCallback(cancelUserData)) {
+            finalError = ERR_CANCELLED;
+            break;
+        }
+
         if (timeoutMs == 0) {
             break;  // Immediate timeout
         }
-        
+
         ProcessSystemEvents();
         Delay(0.001);
     }
-    
+
     // Copy result if successful
     if (finalError == SUCCESS) {
         mgr->adapter->copyCommandResult(commandType, result, ctx.result);
     }
-    
+
     // Clean up our resources
     CmtDiscardLock(ctx.completionEvent);
     mgr->adapter->freeCommandResult(commandType, ctx.result);
-    
+
     // Release our reference
     Command_Release(mgr, cmd);
-    
+
     return finalError;
 }
 

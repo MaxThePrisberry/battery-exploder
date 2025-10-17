@@ -33,6 +33,7 @@ static const char* g_commandTypeNames[] = {
     "GET_STATUS",
     "GET_PROCESS_VALUE",
     "GET_SETPOINT",
+    "GET_TEMPERATURE_QUICK",
     "GET_PID_PARAMS",
     "GET_ALARM_STATUS",
     "CLEAR_ALARM",
@@ -71,6 +72,12 @@ static DTBQueueManager *g_dtbQueueManager = NULL;
 static int DTB_QueueCommandBlocking(DTBQueueManager *mgr, DTBCommandType type,
                            DTBCommandParams *params, DevicePriority priority,
                            DTBCommandResult *result, int timeoutMs);
+
+// Queue a command (blocking with cancellation callback)
+static int DTB_QueueCommandBlockingEx(DTBQueueManager *mgr, DTBCommandType type,
+                           DTBCommandParams *params, DevicePriority priority,
+                           DTBCommandResult *result, int timeoutMs,
+                           DeviceCancellationCallback cancelCallback, void *cancelUserData);
 
 // Queue a command (async with callback)
 static CommandID DTB_QueueCommandAsync(DTBQueueManager *mgr, DTBCommandType type,
@@ -357,7 +364,13 @@ static int DTB_AdapterExecuteCommand(void *deviceContext, int commandType, void 
         case DTB_CMD_GET_SETPOINT:
             cmdResult->errorCode = DTB_GetSetPoint(handle, &cmdResult->data.setpoint);
             break;
-            
+
+        case DTB_CMD_GET_TEMPERATURE_QUICK:
+            cmdResult->errorCode = DTB_GetTemperatureQuick(handle,
+                &cmdResult->data.temperatureQuick.temperature,
+                &cmdResult->data.temperatureQuick.setpoint);
+            break;
+
         case DTB_CMD_GET_PID_PARAMS:
             cmdResult->errorCode = DTB_GetPIDParams(handle, 
                 cmdParams->getPidParams.pidNumber,
@@ -846,7 +859,15 @@ void DTB_QueueGetStats(DTBQueueManager *mgr, DTBQueueStats *stats) {
 static int DTB_QueueCommandBlocking(DTBQueueManager *mgr, DTBCommandType type,
                            DTBCommandParams *params, DevicePriority priority,
                            DTBCommandResult *result, int timeoutMs) {
-    return DeviceQueue_CommandBlocking(mgr, type, params, priority, result, timeoutMs);
+    return DeviceQueue_CommandBlocking(mgr, type, params, priority, result, timeoutMs, NULL, NULL);
+}
+
+static int DTB_QueueCommandBlockingEx(DTBQueueManager *mgr, DTBCommandType type,
+                           DTBCommandParams *params, DevicePriority priority,
+                           DTBCommandResult *result, int timeoutMs,
+                           DeviceCancellationCallback cancelCallback, void *cancelUserData) {
+    return DeviceQueue_CommandBlocking(mgr, type, params, priority, result, timeoutMs,
+                                      cancelCallback, cancelUserData);
 }
 
 static CommandID DTB_QueueCommandAsync(DTBQueueManager *mgr, DTBCommandType type,
@@ -1074,16 +1095,34 @@ int DTB_GetProcessValueQueued(int slaveAddress, double *temperature, DevicePrior
 int DTB_GetSetPointQueued(int slaveAddress, double *setPoint, DevicePriority priority) {
     if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
     if (!setPoint) return ERR_NULL_POINTER;
-    
+
     DTBCommandParams params = {.getSetpoint = {slaveAddress}};
     DTBCommandResult result;
-    
+
     int error = DTB_QueueCommandBlocking(g_dtbQueueManager, DTB_CMD_GET_SETPOINT,
                                        &params, priority, &result,
                                        DTB_QUEUE_COMMAND_TIMEOUT_MS);
-    
+
     if (error == DTB_SUCCESS) {
         *setPoint = result.data.setpoint;
+    }
+    return error;
+}
+
+int DTB_GetTemperatureQuickQueued(int slaveAddress, double *temperature, double *setPoint, DevicePriority priority) {
+    if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
+    if (!temperature || !setPoint) return ERR_NULL_POINTER;
+
+    DTBCommandParams params = {.getTemperatureQuick = {slaveAddress}};
+    DTBCommandResult result;
+
+    int error = DTB_QueueCommandBlocking(g_dtbQueueManager, DTB_CMD_GET_TEMPERATURE_QUICK,
+                                       &params, priority, &result,
+                                       DTB_QUEUE_COMMAND_TIMEOUT_MS);
+
+    if (error == DTB_SUCCESS) {
+        *temperature = result.data.temperatureQuick.temperature;
+        *setPoint = result.data.temperatureQuick.setpoint;
     }
     return error;
 }
@@ -1688,7 +1727,73 @@ int DTB_GetStatusAllQueued(DTB_Status *statuses, int *numDevices, DevicePriority
         return allSuccess;  // Return the first error encountered
     }
     
-    LogDebugEx(LOG_DEVICE_DTB, "Successfully got status from all %d DTB devices", 
+    LogDebugEx(LOG_DEVICE_DTB, "Successfully got status from all %d DTB devices",
+               ctx->numDevices);
+    return DTB_SUCCESS;
+}
+
+int DTB_GetStatusAllQueuedEx(DTB_Status *statuses, int *numDevices, DevicePriority priority,
+                             DeviceCancellationCallback cancelCallback, void *cancelUserData) {
+    DTBQueueManager *queueMgr = DTB_GetGlobalQueueManager();
+    if (!queueMgr) {
+        return ERR_QUEUE_NOT_INIT;
+    }
+    if (!statuses || !numDevices) {
+        return ERR_NULL_POINTER;
+    }
+
+    DTBDeviceContext *ctx = (DTBDeviceContext*)DeviceQueue_GetDeviceContext(queueMgr);
+    if (!ctx) {
+        return ERR_QUEUE_NOT_INIT;
+    }
+
+    *numDevices = 0;
+    int allSuccess = DTB_SUCCESS;
+    int successCount = 0;
+
+    for (int i = 0; i < ctx->numDevices; i++) {
+        // Check cancellation before each device query
+        if (cancelCallback && cancelCallback(cancelUserData)) {
+            LogWarningEx(LOG_DEVICE_DTB, "Status query cancelled by user");
+            return ERR_CANCELLED;
+        }
+
+        DTBCommandParams params = {.getStatus = {ctx->slaveAddresses[i]}};
+        DTBCommandResult result;
+
+        int error = DTB_QueueCommandBlockingEx(queueMgr, DTB_CMD_GET_STATUS,
+                                              &params, priority, &result,
+                                              DTB_QUEUE_COMMAND_TIMEOUT_MS,
+                                              cancelCallback, cancelUserData);
+
+        if (error == DTB_SUCCESS) {
+            statuses[i] = result.data.status;
+            successCount++;
+        } else if (error == ERR_CANCELLED) {
+            LogWarningEx(LOG_DEVICE_DTB, "Status query cancelled during device %d query",
+                        ctx->slaveAddresses[i]);
+            return ERR_CANCELLED;
+        } else {
+            LogErrorEx(LOG_DEVICE_DTB, "Failed to get status from DTB slave %d: %s",
+                       ctx->slaveAddresses[i], DTB_GetErrorString(error));
+            if (allSuccess == DTB_SUCCESS) {
+                allSuccess = error;  // Store first failure
+            }
+        }
+    }
+
+    *numDevices = ctx->numDevices;
+
+    if (successCount == 0) {
+        LogErrorEx(LOG_DEVICE_DTB, "Failed to get status from any DTB devices");
+        return allSuccess;
+    } else if (successCount < ctx->numDevices) {
+        LogWarningEx(LOG_DEVICE_DTB, "Got status from %d of %d DTB devices",
+                     successCount, ctx->numDevices);
+        return allSuccess;  // Return the first error encountered
+    }
+
+    LogDebugEx(LOG_DEVICE_DTB, "Successfully got status from all %d DTB devices",
                ctx->numDevices);
     return DTB_SUCCESS;
 }
@@ -1724,15 +1829,28 @@ CommandID DTB_SetRunStopAsync(int slaveAddress, int run, DTBCommandCallback call
 }
 
 CommandID DTB_SetSetPointAsync(int slaveAddress, double temperature, DTBCommandCallback callback, void *userData, DevicePriority priority) {
-    
+
     DTBQueueManager *mgr = DTB_GetGlobalQueueManager();
     if (!mgr) {
         return ERR_QUEUE_NOT_INIT;
     }
-    
+
     DTBCommandParams params = {.setpoint = {slaveAddress, temperature}};
-    
+
     return DTB_QueueCommandAsync(mgr, DTB_CMD_SET_SETPOINT, &params,
+                                priority, callback, userData);
+}
+
+CommandID DTB_GetTemperatureQuickAsync(int slaveAddress, DTBCommandCallback callback, void *userData, DevicePriority priority) {
+
+    DTBQueueManager *mgr = DTB_GetGlobalQueueManager();
+    if (!mgr) {
+        return ERR_QUEUE_NOT_INIT;
+    }
+
+    DTBCommandParams params = {.getTemperatureQuick = {slaveAddress}};
+
+    return DTB_QueueCommandAsync(mgr, DTB_CMD_GET_TEMPERATURE_QUICK, &params,
                                 priority, callback, userData);
 }
 
@@ -1778,6 +1896,7 @@ int DTB_QueueGetCommandDelay(DTBCommandType type) {
         case DTB_CMD_GET_STATUS:
         case DTB_CMD_GET_PROCESS_VALUE:
         case DTB_CMD_GET_SETPOINT:
+        case DTB_CMD_GET_TEMPERATURE_QUICK:
         case DTB_CMD_GET_PID_PARAMS:
         case DTB_CMD_GET_ALARM_STATUS:
         case DTB_CMD_GET_FRONT_PANEL_LOCK:

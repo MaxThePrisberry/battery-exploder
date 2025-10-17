@@ -69,15 +69,19 @@ typedef struct {
 } TransactionCommandResult;
 
 // Generic command callback
-typedef void (*DeviceCommandCallback)(DeviceCommandID cmdId, int commandType, 
+typedef void (*DeviceCommandCallback)(DeviceCommandID cmdId, int commandType,
                                     void *result, void *userData);
 
 // Enhanced transaction callback with detailed results
-typedef void (*DeviceTransactionCallback)(DeviceTransactionHandle txn, 
+typedef void (*DeviceTransactionCallback)(DeviceTransactionHandle txn,
                                         int successCount, int failureCount,
                                         TransactionCommandResult *results,
                                         int resultCount,
                                         void *userData);
+
+// Cancellation check callback for blocking calls
+// Returns true if operation should be cancelled
+typedef bool (*DeviceCancellationCallback)(void *userData);
 
 /******************************************************************************
  * Device Adapter Interface
@@ -156,7 +160,8 @@ void DeviceQueue_GetStats(DeviceQueueManager *mgr, DeviceQueueStats *stats);
 // Queue a command (blocking)
 int DeviceQueue_CommandBlocking(DeviceQueueManager *mgr, int commandType,
                               void *params, DevicePriority priority,
-                              void *result, int timeoutMs);
+                              void *result, int timeoutMs,
+                              DeviceCancellationCallback cancelCallback, void *cancelUserData);
 
 // Queue a command (async with callback)
 DeviceCommandID DeviceQueue_CommandAsync(DeviceQueueManager *mgr, int commandType,

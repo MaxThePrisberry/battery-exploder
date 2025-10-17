@@ -964,11 +964,79 @@ int DTB_ReadBit(DTB_Handle *handle, unsigned short address, int *value) {
 
 int DTB_WriteBit(DTB_Handle *handle, unsigned short address, int value) {
     if (!handle || !handle->isConnected) return DTB_ERROR_NOT_CONNECTED;
-    
+
     unsigned char response[16];
     unsigned short data = value ? 0xFF00 : 0x0000;
-    return SendModbusASCII(handle, MODBUS_WRITE_BIT, address, data, 
+    return SendModbusASCII(handle, MODBUS_WRITE_BIT, address, data,
                           response, sizeof(response));
+}
+
+int DTB_ReadMultipleRegisters(DTB_Handle *handle, unsigned short startAddress,
+                              int numRegisters, unsigned short *values) {
+    if (!handle || !handle->isConnected || !values) return DTB_ERROR_INVALID_PARAM;
+    if (numRegisters < 1 || numRegisters > 16) return DTB_ERROR_INVALID_PARAM;
+
+    unsigned char response[64];
+    int result = SendModbusASCII(handle, MODBUS_READ_REGISTERS, startAddress,
+                                (unsigned short)numRegisters, response, sizeof(response));
+
+    if (result == DTB_SUCCESS) {
+        // Response format: Address(1) + Function(1) + ByteCount(1) + Data(numRegisters*2)
+        int expectedBytes = numRegisters * 2;
+        if (response[2] == expectedBytes) {  // Verify byte count
+            for (int i = 0; i < numRegisters; i++) {
+                values[i] = (unsigned short)((response[3 + i*2] << 8) | response[4 + i*2]);
+            }
+        } else {
+            LogErrorEx(LOG_DEVICE_DTB, "Invalid byte count in multi-register response: got %d, expected %d",
+                      response[2], expectedBytes);
+            return DTB_ERROR_RESPONSE;
+        }
+    }
+
+    return result;
+}
+
+/******************************************************************************
+ * Optimized Read Functions
+ ******************************************************************************/
+
+int DTB_GetTemperatureQuick(DTB_Handle *handle, double *temperature, double *setpoint) {
+    if (!handle || !handle->isConnected || !temperature || !setpoint) {
+        return DTB_ERROR_INVALID_PARAM;
+    }
+
+    // Read both PV and SP in a single transaction
+    // REG_PROCESS_VALUE (0x1000) and REG_SET_POINT (0x1001) are consecutive
+    unsigned short values[2];
+    int result = DTB_ReadMultipleRegisters(handle, REG_PROCESS_VALUE, 2, values);
+
+    if (result == DTB_SUCCESS) {
+        // Handle special error values for process value
+        switch (values[0]) {
+            case 0x8002:
+                LogWarningEx(LOG_DEVICE_DTB, "Temperature not yet available (initializing)");
+                *temperature = 0.0;
+                *setpoint = (short)values[1] / 10.0;
+                return DTB_ERROR_BUSY;
+            case 0x8003:
+                LogWarningEx(LOG_DEVICE_DTB, "Temperature sensor not connected");
+                *temperature = 0.0;
+                *setpoint = (short)values[1] / 10.0;
+                return DTB_ERROR_RESPONSE;
+            case 0x8004:
+                LogWarningEx(LOG_DEVICE_DTB, "Temperature sensor input error");
+                *temperature = 0.0;
+                *setpoint = (short)values[1] / 10.0;
+                return DTB_ERROR_RESPONSE;
+            default:
+                *temperature = (short)values[0] / 10.0;
+                *setpoint = (short)values[1] / 10.0;
+                break;
+        }
+    }
+
+    return result;
 }
 
 /******************************************************************************
