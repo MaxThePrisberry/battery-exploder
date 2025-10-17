@@ -1,0 +1,75 @@
+================================================================================
+BATTERY EXPLODER - TECHNICAL DEBT & REFACTORING NOTES
+================================================================================
+
+This file tracks known technical debt, architectural issues, and potential
+refactoring opportunities that should be addressed in the future.
+
+--------------------------------------------------------------------------------
+[HIGH PRIORITY]
+--------------------------------------------------------------------------------
+
+None currently identified.
+
+--------------------------------------------------------------------------------
+[MEDIUM PRIORITY]
+--------------------------------------------------------------------------------
+
+1. DEVICE QUEUE CANCELLATION CALLBACK ARCHITECTURE
+   Date: 2025-10-17
+   Component: device_queue.c, all *_queue.c implementations
+
+   Issue:
+   - DeviceQueue_CommandBlocking() and DeviceQueue_CommandAsync() accept
+     cancellation callback parameters (DeviceCancellationCallback, cancelUserData)
+   - All device implementations (PSB, BioLogic, ALICAT, Teensy, DTB) wrap these
+     with static functions that pass NULL, NULL for these parameters
+   - Only ONE function in the entire codebase uses cancellation:
+     DTB_GetStatusAllQueuedEx() called from exp_temp_ramp.c
+   - This creates API inconsistency (only DTB has _Ex functions)
+   - Adds complexity with minimal benefit (8 unused parameters across the codebase)
+
+   Recommendation:
+   - Consider removing cancellation callback support entirely
+   - Alternative: Use timeout-based polling between operations
+   - Alternative: Implement context-based cancellation on queue manager
+     (set once, affects all subsequent blocking calls)
+   - If keeping it: Add _Ex versions consistently across ALL devices
+
+   Impact: Low risk, medium effort refactor
+   Benefit: Simplified API, reduced parameter passing, clearer architecture
+
+   Files affected:
+   - device_queue.h/c
+   - dtb4848/dtb4848_queue.h/c
+   - psb10000/psb10000_queue.c
+   - biologic/biologic_queue.c
+   - alicat basis 2/alicat_queue.c
+   - teensy/teensy_queue.c
+   - exp_temp_ramp.c (would need refactor)
+
+--------------------------------------------------------------------------------
+[LOW PRIORITY]
+--------------------------------------------------------------------------------
+
+None currently identified.
+
+--------------------------------------------------------------------------------
+[COMPLETED]
+--------------------------------------------------------------------------------
+
+1. DeviceQueue_CommandBlocking Parameter Mismatch (2025-10-17)
+   - Fixed: All calls to DeviceQueue_CommandBlocking were missing the last
+     two parameters (cancelCallback and cancelUserData)
+   - Solution: Added NULL, NULL to all calls across 5 files (26 total fixes)
+   - Commits: 5fd6ad7, 87f6312
+
+2. ALICAT Queue Wrapper Pattern (2025-10-17)
+   - Fixed: ALICAT was calling DeviceQueue_CommandBlocking directly (23 times)
+     instead of using a wrapper pattern like other devices
+   - Solution: Added ALICAT_QueueCommandBlocking() and ALICAT_QueueCommandAsync()
+     static wrappers to centralize NULL, NULL parameter passing
+   - Now consistent with PSB, BioLogic, Teensy, and DTB implementations
+   - Commit: [pending]
+
+================================================================================

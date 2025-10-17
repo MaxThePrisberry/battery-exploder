@@ -44,6 +44,16 @@ static const char* g_commandTypeNames[] = {
 // Global queue manager pointer
 static ALICAT_QueueManager *g_alicatQueueManager = NULL;
 
+// Queue a command (blocking)
+static int ALICAT_QueueCommandBlocking(ALICAT_QueueManager *mgr, ALICAT_CommandType type,
+                           ALICAT_CommandParams *params, DevicePriority priority,
+                           ALICAT_CommandResult *result, int timeoutMs);
+
+// Queue a command (async with callback)
+static CommandID ALICAT_QueueCommandAsync(ALICAT_QueueManager *mgr, ALICAT_CommandType type,
+                              ALICAT_CommandParams *params, DevicePriority priority,
+                              ALICAT_CommandCallback callback, void *userData);
+
 /******************************************************************************
  * Helper Functions
  ******************************************************************************/
@@ -492,6 +502,26 @@ void ALICAT_QueueGetStats(ALICAT_QueueManager *mgr, ALICAT_QueueStats *stats) {
 }
 
 /******************************************************************************
+ * Command Queueing Functions
+ ******************************************************************************/
+
+static int ALICAT_QueueCommandBlocking(ALICAT_QueueManager *mgr, ALICAT_CommandType type,
+                           ALICAT_CommandParams *params, DevicePriority priority,
+                           ALICAT_CommandResult *result, int timeoutMs) {
+    return DeviceQueue_CommandBlocking(mgr, type, params, priority, result, timeoutMs, NULL, NULL);
+}
+
+static CommandID ALICAT_QueueCommandAsync(ALICAT_QueueManager *mgr, ALICAT_CommandType type,
+                              ALICAT_CommandParams *params, DevicePriority priority,
+                              ALICAT_CommandCallback callback, void *userData) {
+    return DeviceQueue_CommandAsync(mgr, type, params, priority, callback, userData);
+}
+
+int ALICAT_QueueCancelAll(ALICAT_QueueManager *mgr) {
+    return DeviceQueue_CancelAll(mgr);
+}
+
+/******************************************************************************
  * Transaction Functions
  ******************************************************************************/
 
@@ -531,149 +561,149 @@ ALICAT_QueueManager* ALICAT_GetGlobalQueueManager(void) {
 
 int ALICAT_SetSetpointQueued(int modbusAddress, double flowRate, DevicePriority priority) {
     if (!g_alicatQueueManager) return ERR_QUEUE_NOT_INIT;
-    
+
     ALICAT_CommandParams params = {.setSetpoint = {modbusAddress, flowRate}};
     ALICAT_CommandResult result;
-    
-    return DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_SET_SETPOINT,
+
+    return ALICAT_QueueCommandBlocking(g_alicatQueueManager, ALICAT_CMD_SET_SETPOINT,
                                       &params, priority, &result,
-                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
+                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
 }
 
 int ALICAT_SetGasQueued(int modbusAddress, int gasType, DevicePriority priority) {
     if (!g_alicatQueueManager) return ERR_QUEUE_NOT_INIT;
-    
+
     ALICAT_CommandParams params = {.setGas = {modbusAddress, gasType}};
     ALICAT_CommandResult result;
-    
-    return DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_SET_GAS,
+
+    return ALICAT_QueueCommandBlocking(g_alicatQueueManager, ALICAT_CMD_SET_GAS,
                                       &params, priority, &result,
-                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
+                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
 }
 
 int ALICAT_TareQueued(int modbusAddress, DevicePriority priority) {
     if (!g_alicatQueueManager) return ERR_QUEUE_NOT_INIT;
-    
+
     ALICAT_CommandParams params = {.tare = {modbusAddress}};
     ALICAT_CommandResult result;
-    
-    return DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_TARE,
+
+    return ALICAT_QueueCommandBlocking(g_alicatQueueManager, ALICAT_CMD_TARE,
                                       &params, priority, &result,
-                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
+                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
 }
 
 int ALICAT_SetSetpointSourceQueued(int modbusAddress, int source, DevicePriority priority) {
     if (!g_alicatQueueManager) return ERR_QUEUE_NOT_INIT;
-    
+
     ALICAT_CommandParams params = {.setSetpointSource = {modbusAddress, source}};
     ALICAT_CommandResult result;
-    
-    return DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_SET_SETPOINT_SOURCE,
+
+    return ALICAT_QueueCommandBlocking(g_alicatQueueManager, ALICAT_CMD_SET_SETPOINT_SOURCE,
                                       &params, priority, &result,
-                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
+                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
 }
 
 int ALICAT_SetPIDParamsQueued(int modbusAddress, const ALICAT_PIDParams *pidParams, DevicePriority priority) {
     if (!g_alicatQueueManager) return ERR_QUEUE_NOT_INIT;
     if (!pidParams) return ERR_NULL_POINTER;
-    
+
     ALICAT_CommandParams params = {.setPIDParams = {modbusAddress, *pidParams}};
     ALICAT_CommandResult result;
-    
-    return DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_SET_PID_PARAMS,
+
+    return ALICAT_QueueCommandBlocking(g_alicatQueueManager, ALICAT_CMD_SET_PID_PARAMS,
                                       &params, priority, &result,
-                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
+                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
 }
 
 int ALICAT_SetFlowAveragingQueued(int modbusAddress, int averagingMs, DevicePriority priority) {
     if (!g_alicatQueueManager) return ERR_QUEUE_NOT_INIT;
-    
+
     ALICAT_CommandParams params = {.setFlowAveraging = {modbusAddress, averagingMs}};
     ALICAT_CommandResult result;
-    
-    return DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_SET_FLOW_AVERAGING,
+
+    return ALICAT_QueueCommandBlocking(g_alicatQueueManager, ALICAT_CMD_SET_FLOW_AVERAGING,
                                       &params, priority, &result,
-                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
+                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
 }
 
 int ALICAT_SetRefTemperatureQueued(int modbusAddress, double tempC, DevicePriority priority) {
     if (!g_alicatQueueManager) return ERR_QUEUE_NOT_INIT;
-    
+
     ALICAT_CommandParams params = {.setRefTemperature = {modbusAddress, tempC}};
     ALICAT_CommandResult result;
-    
-    return DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_SET_REF_TEMPERATURE,
+
+    return ALICAT_QueueCommandBlocking(g_alicatQueueManager, ALICAT_CMD_SET_REF_TEMPERATURE,
                                       &params, priority, &result,
-                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
+                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
 }
 
 int ALICAT_SetWatchdogQueued(int modbusAddress, int timeoutMs, DevicePriority priority) {
     if (!g_alicatQueueManager) return ERR_QUEUE_NOT_INIT;
-    
+
     ALICAT_CommandParams params = {.setWatchdog = {modbusAddress, timeoutMs}};
     ALICAT_CommandResult result;
-    
-    return DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_SET_WATCHDOG,
+
+    return ALICAT_QueueCommandBlocking(g_alicatQueueManager, ALICAT_CMD_SET_WATCHDOG,
                                       &params, priority, &result,
-                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
+                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
 }
 
 int ALICAT_SetAutotareQueued(int modbusAddress, int enable, DevicePriority priority) {
     if (!g_alicatQueueManager) return ERR_QUEUE_NOT_INIT;
-    
+
     ALICAT_CommandParams params = {.setAutotare = {modbusAddress, enable}};
     ALICAT_CommandResult result;
-    
-    return DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_SET_AUTOTARE,
+
+    return ALICAT_QueueCommandBlocking(g_alicatQueueManager, ALICAT_CMD_SET_AUTOTARE,
                                       &params, priority, &result,
-                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
+                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
 }
 
 int ALICAT_ConfigureQueued(int modbusAddress, const ALICAT_Configuration *config, DevicePriority priority) {
     if (!g_alicatQueueManager) return ERR_QUEUE_NOT_INIT;
     if (!config) return ERR_NULL_POINTER;
-    
+
     ALICAT_CommandParams params = {.configure = {modbusAddress, *config}};
     ALICAT_CommandResult result;
-    
-    return DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_CONFIGURE,
+
+    return ALICAT_QueueCommandBlocking(g_alicatQueueManager, ALICAT_CMD_CONFIGURE,
                                       &params, priority, &result,
-                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
+                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
 }
 
 int ALICAT_ConfigureDefaultQueued(int modbusAddress, DevicePriority priority) {
     if (!g_alicatQueueManager) return ERR_QUEUE_NOT_INIT;
-    
+
     ALICAT_CommandParams params = {.configureDefault = {modbusAddress}};
     ALICAT_CommandResult result;
-    
-    return DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_CONFIGURE_DEFAULT,
+
+    return ALICAT_QueueCommandBlocking(g_alicatQueueManager, ALICAT_CMD_CONFIGURE_DEFAULT,
                                       &params, priority, &result,
-                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
+                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
 }
 
 int ALICAT_FactoryResetQueued(int modbusAddress, DevicePriority priority) {
     if (!g_alicatQueueManager) return ERR_QUEUE_NOT_INIT;
-    
+
     ALICAT_CommandParams params = {.factoryReset = {modbusAddress}};
     ALICAT_CommandResult result;
-    
-    return DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_FACTORY_RESET,
+
+    return ALICAT_QueueCommandBlocking(g_alicatQueueManager, ALICAT_CMD_FACTORY_RESET,
                                       &params, priority, &result,
-                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
+                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
 }
 
 int ALICAT_GetStatusQueued(int modbusAddress, ALICAT_Status *status, DevicePriority priority) {
     if (!g_alicatQueueManager) return ERR_QUEUE_NOT_INIT;
     if (!status) return ERR_NULL_POINTER;
-    
+
     ALICAT_CommandParams params = {.getStatus = {modbusAddress}};
     ALICAT_CommandResult result;
-    
-    int error = DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_GET_STATUS,
+
+    int error = ALICAT_QueueCommandBlocking(g_alicatQueueManager, ALICAT_CMD_GET_STATUS,
                                           &params, priority, &result,
-                                          ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
-    
+                                          ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
+
     if (error == ALICAT_SUCCESS) {
         *status = result.data.status;
     }
@@ -683,14 +713,14 @@ int ALICAT_GetStatusQueued(int modbusAddress, ALICAT_Status *status, DevicePrior
 int ALICAT_GetFlowRateQueued(int modbusAddress, double *flowRate, DevicePriority priority) {
     if (!g_alicatQueueManager) return ERR_QUEUE_NOT_INIT;
     if (!flowRate) return ERR_NULL_POINTER;
-    
+
     ALICAT_CommandParams params = {.getFlowRate = {modbusAddress}};
     ALICAT_CommandResult result;
-    
-    int error = DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_GET_FLOW_RATE,
+
+    int error = ALICAT_QueueCommandBlocking(g_alicatQueueManager, ALICAT_CMD_GET_FLOW_RATE,
                                           &params, priority, &result,
-                                          ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
-    
+                                          ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
+
     if (error == ALICAT_SUCCESS) {
         *flowRate = result.data.flowRate;
     }
@@ -700,14 +730,14 @@ int ALICAT_GetFlowRateQueued(int modbusAddress, double *flowRate, DevicePriority
 int ALICAT_GetSetpointQueued(int modbusAddress, double *setpoint, DevicePriority priority) {
     if (!g_alicatQueueManager) return ERR_QUEUE_NOT_INIT;
     if (!setpoint) return ERR_NULL_POINTER;
-    
+
     ALICAT_CommandParams params = {.getSetpoint = {modbusAddress}};
     ALICAT_CommandResult result;
-    
-    int error = DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_GET_SETPOINT,
+
+    int error = ALICAT_QueueCommandBlocking(g_alicatQueueManager, ALICAT_CMD_GET_SETPOINT,
                                           &params, priority, &result,
-                                          ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
-    
+                                          ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
+
     if (error == ALICAT_SUCCESS) {
         *setpoint = result.data.setpoint;
     }
@@ -717,14 +747,14 @@ int ALICAT_GetSetpointQueued(int modbusAddress, double *setpoint, DevicePriority
 int ALICAT_GetTemperatureQueued(int modbusAddress, double *temperature, DevicePriority priority) {
     if (!g_alicatQueueManager) return ERR_QUEUE_NOT_INIT;
     if (!temperature) return ERR_NULL_POINTER;
-    
+
     ALICAT_CommandParams params = {.getTemperature = {modbusAddress}};
     ALICAT_CommandResult result;
-    
-    int error = DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_GET_TEMPERATURE,
+
+    int error = ALICAT_QueueCommandBlocking(g_alicatQueueManager, ALICAT_CMD_GET_TEMPERATURE,
                                           &params, priority, &result,
-                                          ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
-    
+                                          ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
+
     if (error == ALICAT_SUCCESS) {
         *temperature = result.data.temperature;
     }
@@ -734,14 +764,14 @@ int ALICAT_GetTemperatureQueued(int modbusAddress, double *temperature, DevicePr
 int ALICAT_GetTotalVolumeQueued(int modbusAddress, double *totalVolume, DevicePriority priority) {
     if (!g_alicatQueueManager) return ERR_QUEUE_NOT_INIT;
     if (!totalVolume) return ERR_NULL_POINTER;
-    
+
     ALICAT_CommandParams params = {.getTotalVolume = {modbusAddress}};
     ALICAT_CommandResult result;
-    
-    int error = DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_GET_TOTAL_VOLUME,
+
+    int error = ALICAT_QueueCommandBlocking(g_alicatQueueManager, ALICAT_CMD_GET_TOTAL_VOLUME,
                                           &params, priority, &result,
-                                          ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
-    
+                                          ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
+
     if (error == ALICAT_SUCCESS) {
         *totalVolume = result.data.totalVolume;
     }
@@ -751,14 +781,14 @@ int ALICAT_GetTotalVolumeQueued(int modbusAddress, double *totalVolume, DevicePr
 int ALICAT_GetValveDriveQueued(int modbusAddress, double *valveDrive, DevicePriority priority) {
     if (!g_alicatQueueManager) return ERR_QUEUE_NOT_INIT;
     if (!valveDrive) return ERR_NULL_POINTER;
-    
+
     ALICAT_CommandParams params = {.getValveDrive = {modbusAddress}};
     ALICAT_CommandResult result;
-    
-    int error = DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_GET_VALVE_DRIVE,
+
+    int error = ALICAT_QueueCommandBlocking(g_alicatQueueManager, ALICAT_CMD_GET_VALVE_DRIVE,
                                           &params, priority, &result,
-                                          ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
-    
+                                          ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
+
     if (error == ALICAT_SUCCESS) {
         *valveDrive = result.data.valveDrive;
     }
@@ -768,14 +798,14 @@ int ALICAT_GetValveDriveQueued(int modbusAddress, double *valveDrive, DevicePrio
 int ALICAT_GetPIDParamsQueued(int modbusAddress, ALICAT_PIDParams *params, DevicePriority priority) {
     if (!g_alicatQueueManager) return ERR_QUEUE_NOT_INIT;
     if (!params) return ERR_NULL_POINTER;
-    
+
     ALICAT_CommandParams cmdParams = {.getPIDParams = {modbusAddress}};
     ALICAT_CommandResult result;
-    
-    int error = DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_GET_PID_PARAMS,
+
+    int error = ALICAT_QueueCommandBlocking(g_alicatQueueManager, ALICAT_CMD_GET_PID_PARAMS,
                                           &cmdParams, priority, &result,
-                                          ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
-    
+                                          ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
+
     if (error == ALICAT_SUCCESS) {
         *params = result.data.pidParams;
     }
@@ -784,37 +814,37 @@ int ALICAT_GetPIDParamsQueued(int modbusAddress, ALICAT_PIDParams *params, Devic
 
 int ALICAT_ResetTotalizerQueued(int modbusAddress, DevicePriority priority) {
     if (!g_alicatQueueManager) return ERR_QUEUE_NOT_INIT;
-    
+
     ALICAT_CommandParams params = {.resetTotalizer = {modbusAddress}};
     ALICAT_CommandResult result;
-    
-    return DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_RESET_TOTALIZER,
+
+    return ALICAT_QueueCommandBlocking(g_alicatQueueManager, ALICAT_CMD_RESET_TOTALIZER,
                                       &params, priority, &result,
-                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
+                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
 }
 
 int ALICAT_SetBatchVolumeQueued(int modbusAddress, double volume, DevicePriority priority) {
     if (!g_alicatQueueManager) return ERR_QUEUE_NOT_INIT;
-    
+
     ALICAT_CommandParams params = {.setBatchVolume = {modbusAddress, volume}};
     ALICAT_CommandResult result;
-    
-    return DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_SET_BATCH_VOLUME,
+
+    return ALICAT_QueueCommandBlocking(g_alicatQueueManager, ALICAT_CMD_SET_BATCH_VOLUME,
                                       &params, priority, &result,
-                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
+                                      ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
 }
 
 int ALICAT_GetBatchRemainingQueued(int modbusAddress, double *remaining, DevicePriority priority) {
     if (!g_alicatQueueManager) return ERR_QUEUE_NOT_INIT;
     if (!remaining) return ERR_NULL_POINTER;
-    
+
     ALICAT_CommandParams params = {.getBatchRemaining = {modbusAddress}};
     ALICAT_CommandResult result;
-    
-    int error = DeviceQueue_CommandBlocking(g_alicatQueueManager, ALICAT_CMD_GET_BATCH_REMAINING,
+
+    int error = ALICAT_QueueCommandBlocking(g_alicatQueueManager, ALICAT_CMD_GET_BATCH_REMAINING,
                                           &params, priority, &result,
-                                          ALICAT_QUEUE_COMMAND_TIMEOUT_MS, NULL, NULL);
-    
+                                          ALICAT_QUEUE_COMMAND_TIMEOUT_MS);
+
     if (error == ALICAT_SUCCESS) {
         *remaining = result.data.batchRemaining;
     }
@@ -1015,10 +1045,10 @@ CommandID ALICAT_GetStatusAsync(int modbusAddress, ALICAT_CommandCallback callba
     if (!mgr) {
         return ERR_QUEUE_NOT_INIT;
     }
-    
+
     ALICAT_CommandParams params = {.getStatus = {modbusAddress}};
-    
-    return DeviceQueue_CommandAsync(mgr, ALICAT_CMD_GET_STATUS, &params,
+
+    return ALICAT_QueueCommandAsync(mgr, ALICAT_CMD_GET_STATUS, &params,
                                    priority, callback, userData);
 }
 
@@ -1027,10 +1057,10 @@ CommandID ALICAT_SetSetpointAsync(int modbusAddress, double flowRate, ALICAT_Com
     if (!mgr) {
         return ERR_QUEUE_NOT_INIT;
     }
-    
+
     ALICAT_CommandParams params = {.setSetpoint = {modbusAddress, flowRate}};
-    
-    return DeviceQueue_CommandAsync(mgr, ALICAT_CMD_SET_SETPOINT, &params,
+
+    return ALICAT_QueueCommandAsync(mgr, ALICAT_CMD_SET_SETPOINT, &params,
                                    priority, callback, userData);
 }
 
@@ -1039,10 +1069,10 @@ CommandID ALICAT_SetGasAsync(int modbusAddress, int gasType, ALICAT_CommandCallb
     if (!mgr) {
         return ERR_QUEUE_NOT_INIT;
     }
-    
+
     ALICAT_CommandParams params = {.setGas = {modbusAddress, gasType}};
-    
-    return DeviceQueue_CommandAsync(mgr, ALICAT_CMD_SET_GAS, &params,
+
+    return ALICAT_QueueCommandAsync(mgr, ALICAT_CMD_SET_GAS, &params,
                                    priority, callback, userData);
 }
 
