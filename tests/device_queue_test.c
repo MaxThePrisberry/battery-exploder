@@ -634,8 +634,8 @@ static int CVICALLBACK BlockingCommandThread(void *functionData) {
     
     MockCommandParams params = {.value = 777};
     data->error = DeviceQueue_CommandBlocking(data->mgr, MOCK_CMD_SET_VALUE,
-                                            &params, DEVICE_PRIORITY_HIGH, 
-                                            data->result, 2000);
+                                            &params, DEVICE_PRIORITY_HIGH,
+                                            data->result, 2000, NULL, NULL);
     data->endTime = Timer();
     data->completed = 1;
     
@@ -1191,9 +1191,9 @@ int Test_QueueDestruction(DeviceQueueTestContext *ctx, char *errorMsg, int error
         // Submit some commands
         MockCommandParams params = {.value = i};
         MockCommandResult result;
-        
-        DeviceQueue_CommandBlocking(tempQueue, MOCK_CMD_SET_VALUE, &params, 
-                                  DEVICE_PRIORITY_NORMAL, &result, 100);
+
+        DeviceQueue_CommandBlocking(tempQueue, MOCK_CMD_SET_VALUE, &params,
+                                  DEVICE_PRIORITY_NORMAL, &result, 100, NULL, NULL);
         
         // Destroy while commands might be processing
         DestroyTestQueueManager(ctx, tempQueue);
@@ -1233,7 +1233,7 @@ int Test_ConnectionHandling(DeviceQueueTestContext *ctx, char *errorMsg, int err
     // Try a command that should fail
     MockCommandResult result;
     int error = DeviceQueue_CommandBlocking(ctx->queueManager, MOCK_CMD_TEST_CONNECTION,
-                                          NULL, DEVICE_PRIORITY_HIGH, &result, 1000);
+                                          NULL, DEVICE_PRIORITY_HIGH, &result, 1000, NULL, NULL);
     
     if (error != ERR_COMM_FAILED && error != ERR_NOT_CONNECTED) {
         snprintf(errorMsg, errorMsgSize, "Expected connection error, got %d", error);
@@ -1254,7 +1254,7 @@ int Test_ConnectionHandling(DeviceQueueTestContext *ctx, char *errorMsg, int err
     
     // Try command again - should work now
     error = DeviceQueue_CommandBlocking(ctx->queueManager, MOCK_CMD_TEST_CONNECTION,
-                                      NULL, DEVICE_PRIORITY_HIGH, &result, 1000);
+                                      NULL, DEVICE_PRIORITY_HIGH, &result, 1000, NULL, NULL);
     
     if (error != SUCCESS) {
         snprintf(errorMsg, errorMsgSize, "Failed to reconnect: %s", GetErrorString(error));
@@ -1286,7 +1286,7 @@ int Test_BlockingCommands(DeviceQueueTestContext *ctx, char *errorMsg, int error
     
     // Test successful command
     int error = DeviceQueue_CommandBlocking(ctx->queueManager, MOCK_CMD_SET_VALUE,
-                                          &params, DEVICE_PRIORITY_HIGH, &result, 1000);
+                                          &params, DEVICE_PRIORITY_HIGH, &result, 1000, NULL, NULL);
     
     if (error != SUCCESS) {
         snprintf(errorMsg, errorMsgSize, "Blocking command failed: %s", GetErrorString(error));
@@ -1302,7 +1302,7 @@ int Test_BlockingCommands(DeviceQueueTestContext *ctx, char *errorMsg, int error
     
     // Test GET command
     error = DeviceQueue_CommandBlocking(ctx->queueManager, MOCK_CMD_GET_VALUE,
-                                      NULL, DEVICE_PRIORITY_NORMAL, &result, 1000);
+                                      NULL, DEVICE_PRIORITY_NORMAL, &result, 1000, NULL, NULL);
     
     if (error != SUCCESS) {
         snprintf(errorMsg, errorMsgSize, "GET command failed: %s", GetErrorString(error));
@@ -1313,7 +1313,7 @@ int Test_BlockingCommands(DeviceQueueTestContext *ctx, char *errorMsg, int error
     params.delay = 0.2;  // 200ms delay
     double startTime = Timer();
     error = DeviceQueue_CommandBlocking(ctx->queueManager, MOCK_CMD_SLOW_OPERATION,
-                                      &params, DEVICE_PRIORITY_LOW, &result, 1000);
+                                      &params, DEVICE_PRIORITY_LOW, &result, 1000, NULL, NULL);
     double elapsed = Timer() - startTime;
     
     if (error != SUCCESS) {
@@ -2134,7 +2134,7 @@ int Test_QueueOverflow(DeviceQueueTestContext *ctx, char *errorMsg, int errorMsg
         if (rejected == 0 && i >= DEVICE_QUEUE_HIGH_PRIORITY_SIZE - 1) {
             MockCommandResult result;
             int error = DeviceQueue_CommandBlocking(ctx->queueManager, MOCK_CMD_SET_VALUE,
-                                                  &params, DEVICE_PRIORITY_HIGH, &result, 0);
+                                                  &params, DEVICE_PRIORITY_HIGH, &result, 0, NULL, NULL);
             if (error == ERR_QUEUE_FULL || error == ERR_TIMEOUT) {
                 rejected++;
                 break;  // We've proven the queue can be full
@@ -2177,7 +2177,7 @@ int Test_ErrorHandling(DeviceQueueTestContext *ctx, char *errorMsg, int errorMsg
     // Test command that always fails
     MockCommandResult result;
     int error = DeviceQueue_CommandBlocking(ctx->queueManager, MOCK_CMD_FAILING_OPERATION,
-                                          NULL, DEVICE_PRIORITY_HIGH, &result, 1000);
+                                          NULL, DEVICE_PRIORITY_HIGH, &result, 1000, NULL, NULL);
     
     if (error != ERR_OPERATION_FAILED) {
         snprintf(errorMsg, errorMsgSize, "Expected operation failed error, got %d", error);
@@ -2195,7 +2195,7 @@ int Test_ErrorHandling(DeviceQueueTestContext *ctx, char *errorMsg, int errorMsg
         
         MockCommandParams params = {.value = i};
         error = DeviceQueue_CommandBlocking(ctx->queueManager, MOCK_CMD_SET_VALUE,
-                                          &params, DEVICE_PRIORITY_NORMAL, &result, 1000);
+                                          &params, DEVICE_PRIORITY_NORMAL, &result, 1000, NULL, NULL);
         if (error == SUCCESS) {
             successes++;
         } else {
@@ -2240,7 +2240,7 @@ int Test_Timeouts(DeviceQueueTestContext *ctx, char *errorMsg, int errorMsgSize)
     
     // Test short timeout
     int error = DeviceQueue_CommandBlocking(ctx->queueManager, MOCK_CMD_SET_VALUE,
-                                          NULL, DEVICE_PRIORITY_HIGH, &result, 100);
+                                          NULL, DEVICE_PRIORITY_HIGH, &result, 100, NULL, NULL);
     
     double elapsed = Timer() - startTime;
     
@@ -2342,7 +2342,7 @@ static int CVICALLBACK MixedWorkerFunction(void *functionData) {
             MockCommandResult result;
             int error = DeviceQueue_CommandBlocking(data->queueManager, MOCK_CMD_GET_VALUE,
                                                   &params, DEVICE_PRIORITY_NORMAL,
-                                                  &result, 1000);
+                                                  &result, 1000, NULL, NULL);
             if (error == SUCCESS) {
                 InterlockedIncrement(&data->commandsSubmitted);
                 InterlockedIncrement(&data->commandsCompleted);
@@ -2594,7 +2594,7 @@ int Test_Statistics(DeviceQueueTestContext *ctx, char *errorMsg, int errorMsgSiz
         
         MockCommandParams params = {.value = i};
         DeviceQueue_CommandBlocking(ctx->queueManager, MOCK_CMD_SET_VALUE,
-                                  &params, DEVICE_PRIORITY_NORMAL, &result, 1000);
+                                  &params, DEVICE_PRIORITY_NORMAL, &result, 1000, NULL, NULL);
     }
     
     DeviceQueue_GetStats(ctx->queueManager, &stats);
@@ -2608,9 +2608,9 @@ int Test_Statistics(DeviceQueueTestContext *ctx, char *errorMsg, int errorMsgSiz
     
     for (int i = 0; i < 3; i++) {
         if (ctx->cancelRequested) goto cleanup;
-        
+
         DeviceQueue_CommandBlocking(ctx->queueManager, MOCK_CMD_SET_VALUE,
-                                  NULL, DEVICE_PRIORITY_HIGH, &result, 1000);
+                                  NULL, DEVICE_PRIORITY_HIGH, &result, 1000, NULL, NULL);
     }
     
     DeviceQueue_GetStats(ctx->queueManager, &stats);
@@ -2691,7 +2691,7 @@ int Test_ReconnectionLogic(DeviceQueueTestContext *ctx, char *errorMsg, int erro
     // Test command execution after reconnection
     MockCommandResult result;
     int error = DeviceQueue_CommandBlocking(ctx->queueManager, MOCK_CMD_TEST_CONNECTION,
-                                          NULL, DEVICE_PRIORITY_HIGH, &result, 1000);
+                                          NULL, DEVICE_PRIORITY_HIGH, &result, 1000, NULL, NULL);
     
     if (error != SUCCESS) {
         snprintf(errorMsg, errorMsgSize, "Command failed after reconnection: %s", 
@@ -2738,7 +2738,7 @@ int Test_EdgeCases(DeviceQueueTestContext *ctx, char *errorMsg, int errorMsgSize
     
     // Test null result pointer for blocking command
     int error = DeviceQueue_CommandBlocking(ctx->queueManager, MOCK_CMD_SET_VALUE, NULL,
-                                          DEVICE_PRIORITY_HIGH, NULL, 1000);
+                                          DEVICE_PRIORITY_HIGH, NULL, 1000, NULL, NULL);
     if (error != ERR_INVALID_PARAMETER) {
         snprintf(errorMsg, errorMsgSize, "Should reject NULL result pointer");
         goto cleanup;
@@ -2816,7 +2816,7 @@ int Test_GetDeviceContext(DeviceQueueTestContext *ctx, char *errorMsg, int error
     // Force a command to trigger disconnect detection
     MockCommandResult result;
     DeviceQueue_CommandBlocking(ctx->queueManager, MOCK_CMD_TEST_CONNECTION,
-                              NULL, DEVICE_PRIORITY_HIGH, &result, 1000);
+                              NULL, DEVICE_PRIORITY_HIGH, &result, 1000, NULL, NULL);
     
     // Wait a bit for the connection state to update in the queue manager
     Delay(0.5);
@@ -3062,9 +3062,9 @@ int Test_ThreadPoolExhaustion(DeviceQueueTestContext *ctx, char *errorMsg, int e
     // The queue should still work even with minimal threads
     MockCommandResult result;
     MockCommandParams params = {.value = 42};
-    
+
     error = DeviceQueue_CommandBlocking(ctx->queueManager, MOCK_CMD_SET_VALUE,
-                                      &params, DEVICE_PRIORITY_HIGH, &result, 1000);
+                                      &params, DEVICE_PRIORITY_HIGH, &result, 1000, NULL, NULL);
     
     if (error != SUCCESS) {
         snprintf(errorMsg, errorMsgSize, "Command failed with tiny thread pool: %s", 
@@ -3143,7 +3143,7 @@ int Test_SetLogDevice(DeviceQueueTestContext *ctx, char *errorMsg, int errorMsgS
     // Execute a command to generate log messages
     MockCommandResult result;
     int error = DeviceQueue_CommandBlocking(ctx->queueManager, MOCK_CMD_TEST_CONNECTION,
-                                          NULL, DEVICE_PRIORITY_HIGH, &result, 1000);
+                                          NULL, DEVICE_PRIORITY_HIGH, &result, 1000, NULL, NULL);
     
     if (error != SUCCESS) {
         snprintf(errorMsg, errorMsgSize, "Command failed after setting log device");
@@ -3155,7 +3155,7 @@ int Test_SetLogDevice(DeviceQueueTestContext *ctx, char *errorMsg, int errorMsgS
     
     // Execute another command
     error = DeviceQueue_CommandBlocking(ctx->queueManager, MOCK_CMD_GET_VALUE,
-                                      NULL, DEVICE_PRIORITY_NORMAL, &result, 1000);
+                                      NULL, DEVICE_PRIORITY_NORMAL, &result, 1000, NULL, NULL);
     
     if (error != SUCCESS) {
         snprintf(errorMsg, errorMsgSize, "Command failed after changing log device");
