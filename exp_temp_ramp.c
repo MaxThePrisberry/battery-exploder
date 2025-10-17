@@ -45,6 +45,8 @@ static int SaveExperimentSettings(TempRampExperimentContext *ctx);
 static int ReachInitialTemperature(TempRampExperimentContext *ctx);
 static int StabilizeAtInitialTemperature(TempRampExperimentContext *ctx);
 static int RunTemperatureRampWithEIS(TempRampExperimentContext *ctx);
+static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx);
+static int PerformEISMeasurementWithRampControl(TempRampExperimentContext *ctx);
 static int HoldAtFinalTemperature(TempRampExperimentContext *ctx);
 
 static int UpdateTemperatureSetpoint(TempRampExperimentContext *ctx, double newSetpoint);
@@ -121,6 +123,10 @@ int CVICALLBACK StartTempRampExperimentCallback(int panel, int control, int even
     GetCtrlVal(panel, RUNAWAY_RAMP_RATE_RWY, &g_experimentContext.params.rampRate);
     GetCtrlVal(panel, RUNAWAY_NUM_EIS_INTERVAL_RWY, &g_experimentContext.params.eisInterval);
     GetCtrlVal(panel, RUNAWAY_CBX_CONT_TRAMP_EIS, &g_experimentContext.params.continueRampDuringEIS);
+
+    // Default to using new ramp-soak implementation
+    // TODO: Add UI control for this parameter
+    g_experimentContext.params.useRampSoak = 1;
     
     // Validate parameters
     if (!ENABLE_DTB) {
@@ -137,7 +143,7 @@ int CVICALLBACK StartTempRampExperimentCallback(int panel, int control, int even
         g_systemBusy = 0;
         CmtReleaseLock(g_busyLock);
         MessagePopup("Invalid Temperature", 
-                     "Initial temperature must be between 5°C and 100°C.");
+                     "Initial temperature must be between 5ï¿½C and 100ï¿½C.");
         return 0;
     }
     
@@ -146,7 +152,7 @@ int CVICALLBACK StartTempRampExperimentCallback(int panel, int control, int even
         g_systemBusy = 0;
         CmtReleaseLock(g_busyLock);
         MessagePopup("Invalid Temperature", 
-                     "Final temperature must be between 5°C and 100°C.");
+                     "Final temperature must be between 5ï¿½C and 100ï¿½C.");
         return 0;
     }
     
@@ -164,7 +170,7 @@ int CVICALLBACK StartTempRampExperimentCallback(int panel, int control, int even
         g_systemBusy = 0;
         CmtReleaseLock(g_busyLock);
         MessagePopup("Invalid Ramp Rate", 
-                     "Ramp rate must be between 0.1 and 10.0 °C/min.");
+                     "Ramp rate must be between 0.1 and 10.0 ï¿½C/min.");
         return 0;
     }
     
@@ -283,26 +289,28 @@ static int TempRampExperimentThread(void *functionData) {
         "TEMPERATURE RAMP EIS EXPERIMENT\n"
         "================================\n\n"
         "PARAMETERS:\n"
-        "• Initial Temperature: %.1f °C\n"
-        "• Final Temperature: %.1f °C\n"
-        "• Ramp Rate: %.1f °C/min\n"
-        "• EIS Interval: %.1f minutes\n"
-        "• Ramp Mode: %s during EIS\n\n"
+        "ï¿½ Initial Temperature: %.1f ï¿½C\n"
+        "ï¿½ Final Temperature: %.1f ï¿½C\n"
+        "ï¿½ Ramp Rate: %.1f ï¿½C/min\n"
+        "ï¿½ EIS Interval: %.1f minutes\n"
+        "ï¿½ Ramp Mode: %s during EIS\n"
+        "ï¿½ Implementation: %s\n\n"
         "EXPERIMENT SEQUENCE:\n"
-        "1. Reach %.1f °C and stabilize\n"
-        "2. Ramp to %.1f °C at %.1f °C/min\n"
+        "1. Reach %.1f ï¿½C and stabilize\n"
+        "2. Ramp to %.1f ï¿½C at %.1f ï¿½C/min\n"
         "3. EIS measurements every %.1f min\n"
-        "4. Hold at %.1f °C briefly\n\n"
+        "4. Hold at %.1f ï¿½C briefly\n\n"
         "ESTIMATED:\n"
-        "• Ramp Duration: %.1f minutes\n"
-        "• Expected Measurements: ~%d\n"
-        "• Total Time: %.1f minutes\n\n"
+        "ï¿½ Ramp Duration: %.1f minutes\n"
+        "ï¿½ Expected Measurements: ~%d\n"
+        "ï¿½ Total Time: %.1f minutes\n\n"
         "Continue with experiment?",
         ctx->params.initialTemp,
         ctx->params.finalTemp,
         ctx->params.rampRate,
         ctx->params.eisInterval,
         ctx->params.continueRampDuringEIS ? "CONTINUE" : "PAUSE",
+        ctx->params.useRampSoak ? "DTB Ramp-Soak" : "Manual Ramping",
         ctx->params.initialTemp,
         ctx->params.finalTemp,
         ctx->params.rampRate,
@@ -378,10 +386,18 @@ static int TempRampExperimentThread(void *functionData) {
     // PHASE 3: Temperature Ramp with EIS Measurements
     LogMessage("=== PHASE 3: Temperature Ramp with EIS Measurements ===");
     ctx->state = TEMP_RAMP_STATE_RAMPING;
-    SetCtrlVal(ctx->tabPanelHandle, ctx->statusControl, 
+    SetCtrlVal(ctx->tabPanelHandle, ctx->statusControl,
                "Running temperature ramp...");
-    
-    result = RunTemperatureRampWithEIS(ctx);
+
+    // Choose implementation based on useRampSoak parameter
+    if (ctx->params.useRampSoak) {
+        LogMessage("Using new DTB ramp-soak implementation");
+        result = RunTemperatureRampWithEIS_V2(ctx);
+    } else {
+        LogMessage("Using legacy manual ramping implementation");
+        result = RunTemperatureRampWithEIS(ctx);
+    }
+
     if (result != SUCCESS || CheckCancellation(ctx)) {
         if (!CheckCancellation(ctx)) {
             ctx->state = TEMP_RAMP_STATE_ERROR;
@@ -456,7 +472,7 @@ cleanup:
  ******************************************************************************/
 
 static int ReachInitialTemperature(TempRampExperimentContext *ctx) {
-    LogMessage("Setting DTB target to %.1f °C", ctx->params.initialTemp);
+    LogMessage("Setting DTB target to %.1f ï¿½C", ctx->params.initialTemp);
     
     int result = UpdateTemperatureSetpoint(ctx, ctx->params.initialTemp);
     if (result != SUCCESS) {
@@ -475,7 +491,7 @@ static int ReachInitialTemperature(TempRampExperimentContext *ctx) {
     double lastCheckTime = startTime;
     double lastLogTime = startTime;
     
-    LogMessage("Waiting for temperature to reach %.1f °C...", ctx->params.initialTemp);
+    LogMessage("Waiting for temperature to reach %.1f ï¿½C...", ctx->params.initialTemp);
     
     while (1) {
         if (CheckCancellation(ctx)) {
@@ -499,7 +515,7 @@ static int ReachInitialTemperature(TempRampExperimentContext *ctx) {
             
             double tempDiff = fabs(ctx->currentTemperature - ctx->params.initialTemp);
             
-            LogMessage("Current temperature: %.1f °C (target: %.1f °C, diff: %.1f °C)", 
+            LogMessage("Current temperature: %.1f ï¿½C (target: %.1f ï¿½C, diff: %.1f ï¿½C)", 
                       ctx->currentTemperature, ctx->params.initialTemp, tempDiff);
             
             if (tempDiff <= TEMP_RAMP_TOLERANCE) {
@@ -510,7 +526,7 @@ static int ReachInitialTemperature(TempRampExperimentContext *ctx) {
             
             char statusMsg[MEDIUM_BUFFER_SIZE];
             snprintf(statusMsg, sizeof(statusMsg), 
-                     "Reaching initial temp: %.1f/%.1f °C", 
+                     "Reaching initial temp: %.1f/%.1f ï¿½C", 
                      ctx->currentTemperature, ctx->params.initialTemp);
             SetCtrlVal(ctx->tabPanelHandle, ctx->statusControl, statusMsg);
             
@@ -528,7 +544,7 @@ static int ReachInitialTemperature(TempRampExperimentContext *ctx) {
 }
 
 static int StabilizeAtInitialTemperature(TempRampExperimentContext *ctx) {
-    LogMessage("Stabilizing at %.1f °C for %.0f seconds...", 
+    LogMessage("Stabilizing at %.1f ï¿½C for %.0f seconds...", 
                ctx->params.initialTemp, TEMP_RAMP_STABILIZE_TIME);
     
     double startTime = Timer();
@@ -556,7 +572,7 @@ static int StabilizeAtInitialTemperature(TempRampExperimentContext *ctx) {
             double remainingTime = TEMP_RAMP_STABILIZE_TIME - elapsedTime;
             char statusMsg[MEDIUM_BUFFER_SIZE];
             snprintf(statusMsg, sizeof(statusMsg), 
-                     "Stabilizing: %.1f °C (%.0f sec remaining)", 
+                     "Stabilizing: %.1f ï¿½C (%.0f sec remaining)", 
                      tempData.dtbAverageTemperature, remainingTime);
             SetCtrlVal(ctx->tabPanelHandle, ctx->statusControl, statusMsg);
             
@@ -577,16 +593,16 @@ static int RunTemperatureRampWithEIS(TempRampExperimentContext *ctx) {
     double rampDuration = (ctx->params.finalTemp - ctx->params.initialTemp) / 
                          ctx->params.rampRate;  // minutes
     
-    LogMessage("Starting temperature ramp from %.1f to %.1f °C", 
+    LogMessage("Starting temperature ramp from %.1f to %.1f ï¿½C", 
                ctx->params.initialTemp, ctx->params.finalTemp);
-    LogMessage("Ramp rate: %.1f °C/min, Duration: %.1f minutes", 
+    LogMessage("Ramp rate: %.1f ï¿½C/min, Duration: %.1f minutes", 
                ctx->params.rampRate, rampDuration);
     LogMessage("EIS measurements every %.1f minutes", ctx->params.eisInterval);
     LogMessage("Ramp mode: %s during EIS measurements", 
                ctx->params.continueRampDuringEIS ? "CONTINUE" : "PAUSE");
     
     // Perform initial EIS measurement
-    LogMessage("Taking initial EIS measurement at %.1f °C", ctx->currentTemperature);
+    LogMessage("Taking initial EIS measurement at %.1f ï¿½C", ctx->currentTemperature);
     
     // Set state for temperature monitor thread to work correctly
     ctx->state = TEMP_RAMP_STATE_EIS_MEASUREMENT;
@@ -654,7 +670,7 @@ static int RunTemperatureRampWithEIS(TempRampExperimentContext *ctx) {
             
             char statusMsg[MEDIUM_BUFFER_SIZE];
             snprintf(statusMsg, sizeof(statusMsg), 
-                     "Ramping: %.1f °C (target: %.1f °C, ramp time: %.1f min)", 
+                     "Ramping: %.1f ï¿½C (target: %.1f ï¿½C, ramp time: %.1f min)", 
                      tempData.dtbAverageTemperature, targetTemp, elapsedRampTime);
             SetCtrlVal(ctx->tabPanelHandle, ctx->statusControl, statusMsg);
             SetCtrlVal(ctx->tabPanelHandle, ctx->outputControl, tempData.dtbAverageTemperature);
@@ -671,7 +687,7 @@ static int RunTemperatureRampWithEIS(TempRampExperimentContext *ctx) {
             TempRampTempData tempData;
             ReadAllTemperatures(ctx, &tempData, currentTime - ctx->experimentStartTime);
             
-            LogMessage("Current temperature: %.1f °C, Target: %.1f °C", 
+            LogMessage("Current temperature: %.1f ï¿½C, Target: %.1f ï¿½C", 
                       tempData.dtbAverageTemperature, targetTemp);
             
             ctx->state = TEMP_RAMP_STATE_EIS_MEASUREMENT;
@@ -706,7 +722,7 @@ static int RunTemperatureRampWithEIS(TempRampExperimentContext *ctx) {
             LogMessage("Final temperature reached");
             
             // One final EIS measurement
-            LogMessage("Taking final EIS measurement at %.1f °C", ctx->params.finalTemp);
+            LogMessage("Taking final EIS measurement at %.1f ï¿½C", ctx->params.finalTemp);
             ctx->state = TEMP_RAMP_STATE_EIS_MEASUREMENT;
             
             eisStartTime = Timer();
@@ -733,44 +749,288 @@ static int RunTemperatureRampWithEIS(TempRampExperimentContext *ctx) {
 }
 
 static int HoldAtFinalTemperature(TempRampExperimentContext *ctx) {
-    LogMessage("Holding at %.1f °C for %.0f seconds...", 
+    LogMessage("Holding at %.1f ï¿½C for %.0f seconds...",
                ctx->params.finalTemp, TEMP_RAMP_HOLD_TIME);
-    
+
     double startTime = Timer();
     double lastLogTime = startTime;
-    
+
     while (1) {
         if (CheckCancellation(ctx)) {
             return ERR_CANCELLED;
         }
-        
+
         double currentTime = Timer();
         double elapsedTime = currentTime - startTime;
-        
+
         if (elapsedTime >= TEMP_RAMP_HOLD_TIME) {
             LogMessage("Final temperature hold completed");
             return SUCCESS;
         }
-        
+
         if ((currentTime - lastLogTime) >= 10.0) {
             TempRampTempData tempData;
             ReadAllTemperatures(ctx, &tempData, currentTime - ctx->experimentStartTime);
             LogTemperatureDataPoint(ctx, &tempData);
             UpdateTemperaturePlot(ctx, &tempData);
-            
+
             double remainingTime = TEMP_RAMP_HOLD_TIME - elapsedTime;
             char statusMsg[MEDIUM_BUFFER_SIZE];
-            snprintf(statusMsg, sizeof(statusMsg), 
-                     "Holding at final temp: %.1f °C (%.0f sec remaining)", 
+            snprintf(statusMsg, sizeof(statusMsg),
+                     "Holding at final temp: %.1f ï¿½C (%.0f sec remaining)",
                      tempData.dtbAverageTemperature, remainingTime);
             SetCtrlVal(ctx->tabPanelHandle, ctx->statusControl, statusMsg);
-            
+
             lastLogTime = currentTime;
         }
-        
+
         ProcessSystemEvents();
         Delay(1.0);
     }
+}
+
+/******************************************************************************
+ * New DTB Ramp-Soak Based Implementation (V2)
+ ******************************************************************************/
+
+/**
+ * Helper function to perform EIS measurement with DTB ramp control
+ * Handles pause/resume of DTB program during EIS if configured
+ */
+static int PerformEISMeasurementWithRampControl(TempRampExperimentContext *ctx) {
+    double eisStartTime = Timer();
+
+    // If pause mode enabled, hold the DTB program
+    if (!ctx->params.continueRampDuringEIS) {
+        LogMessage("Pausing DTB ramp for EIS measurement");
+
+        // Hold program for all DTB devices
+        for (int i = 0; i < DTB_NUM_DEVICES; i++) {
+            int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
+            int result = DTB_HoldProgramQueued(slaveAddress, DEVICE_PRIORITY_NORMAL);
+            if (result != DTB_SUCCESS) {
+                LogWarning("Failed to hold DTB program for device %d: %s",
+                          slaveAddress, DTB_GetErrorString(result));
+            }
+        }
+    }
+
+    // Perform EIS measurement (existing code)
+    int result = PerformEISMeasurement(ctx);
+
+    double eisEndTime = Timer();
+    double eisDuration = eisEndTime - eisStartTime;
+
+    // Resume ramp if it was paused
+    if (!ctx->params.continueRampDuringEIS) {
+        LogMessage("Resuming DTB ramp");
+
+        // Resume program for all DTB devices
+        for (int i = 0; i < DTB_NUM_DEVICES; i++) {
+            int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
+            int resumeResult = DTB_ResumeProgramQueued(slaveAddress, DEVICE_PRIORITY_NORMAL);
+            if (resumeResult != DTB_SUCCESS) {
+                LogWarning("Failed to resume DTB program for device %d: %s",
+                          slaveAddress, DTB_GetErrorString(resumeResult));
+            }
+        }
+
+        // Track total pause time
+        ctx->totalEISTime += eisDuration;
+        LogMessage("EIS measurement took %.1f seconds (ramp paused, total pause: %.1f min)",
+                  eisDuration, ctx->totalEISTime / 60.0);
+    } else {
+        LogMessage("EIS measurement took %.1f seconds (ramp continued)", eisDuration);
+    }
+
+    return result;
+}
+
+/**
+ * Run temperature ramp with EIS measurements using DTB ramp-soak feature
+ * This is the new simplified implementation that uses DTB's built-in ramping
+ */
+static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
+    int result;
+
+    // Calculate ramp parameters
+    double tempRange = ctx->params.finalTemp - ctx->params.initialTemp;
+    int rampMinutes = (int)((tempRange / ctx->params.rampRate) + 0.5);
+
+    LogMessage("=== Using DTB Ramp-Soak Implementation ===");
+    LogMessage("Configuring DTB ramp: %.1f -> %.1f ï¿½C over %d minutes",
+               ctx->params.initialTemp, ctx->params.finalTemp, rampMinutes);
+
+    // Configure simple ramp on all DTB devices
+    // Pattern 0: Simple ramp with no hold at end (soakTime = 0)
+    for (int i = 0; i < DTB_NUM_DEVICES; i++) {
+        int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
+
+        result = DTB_SetSimpleRampQueued(
+            slaveAddress,                // Slave address
+            0,                           // Pattern number (use pattern 0)
+            ctx->params.initialTemp,     // Start temperature
+            ctx->params.finalTemp,       // End temperature
+            rampMinutes,                 // Ramp duration in minutes
+            0,                           // Soak time (0 = no hold at end)
+            DEVICE_PRIORITY_NORMAL
+        );
+
+        if (result != DTB_SUCCESS) {
+            LogError("Failed to set simple ramp for DTB device %d: %s",
+                    slaveAddress, DTB_GetErrorString(result));
+            return result;
+        }
+
+        LogMessage("DTB device %d ramp configured", slaveAddress);
+    }
+
+    // Set start pattern and begin ramp for all devices
+    for (int i = 0; i < DTB_NUM_DEVICES; i++) {
+        int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
+
+        result = DTB_SetStartPatternQueued(slaveAddress, 0, DEVICE_PRIORITY_NORMAL);
+        if (result != DTB_SUCCESS) {
+            LogError("Failed to set start pattern for DTB device %d: %s",
+                    slaveAddress, DTB_GetErrorString(result));
+            return result;
+        }
+
+        result = DTB_StartProgramQueued(slaveAddress, DEVICE_PRIORITY_NORMAL);
+        if (result != DTB_SUCCESS) {
+            LogError("Failed to start program for DTB device %d: %s",
+                    slaveAddress, DTB_GetErrorString(result));
+            return result;
+        }
+
+        LogMessage("DTB device %d ramp program started", slaveAddress);
+    }
+
+    // Initialize timing
+    ctx->rampStartTime = Timer() - ctx->experimentStartTime;
+    ctx->lastEISTime = ctx->rampStartTime;
+    ctx->lastTempLogTime = Timer();
+    ctx->totalEISTime = 0.0;
+
+    LogMessage("Temperature ramp started from %.1f to %.1f ï¿½C",
+               ctx->params.initialTemp, ctx->params.finalTemp);
+    LogMessage("Ramp rate: %.1f ï¿½C/min, Duration: %d minutes",
+               ctx->params.rampRate, rampMinutes);
+    LogMessage("EIS measurements every %.1f minutes", ctx->params.eisInterval);
+    LogMessage("Ramp mode: %s during EIS measurements",
+               ctx->params.continueRampDuringEIS ? "CONTINUE" : "PAUSE");
+
+    // Perform initial EIS measurement
+    LogMessage("Taking initial EIS measurement at %.1f ï¿½C", ctx->currentTemperature);
+    ctx->state = TEMP_RAMP_STATE_EIS_MEASUREMENT;
+
+    result = PerformEISMeasurementWithRampControl(ctx);
+
+    ctx->state = TEMP_RAMP_STATE_RAMPING;
+
+    if (result != SUCCESS) {
+        LogWarning("Initial EIS measurement failed, continuing anyway");
+    }
+
+    // Main monitoring loop
+    while (!ctx->finalTempReached) {
+        if (CheckCancellation(ctx)) {
+            // Stop the program on all devices
+            for (int i = 0; i < DTB_NUM_DEVICES; i++) {
+                int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
+                DTB_StopProgramQueued(slaveAddress, DEVICE_PRIORITY_NORMAL);
+            }
+            return ERR_CANCELLED;
+        }
+
+        double currentTime = Timer();
+        double elapsedTime = (currentTime - ctx->experimentStartTime - ctx->rampStartTime) / 60.0;  // minutes
+
+        // Read and log temperatures periodically
+        if ((currentTime - ctx->lastTempLogTime) >= 10.0) {
+            TempRampTempData tempData;
+            ReadAllTemperatures(ctx, &tempData, currentTime - ctx->experimentStartTime);
+            LogTemperatureDataPoint(ctx, &tempData);
+            UpdateTemperaturePlot(ctx, &tempData);
+
+            char statusMsg[MEDIUM_BUFFER_SIZE];
+            snprintf(statusMsg, sizeof(statusMsg),
+                     "Ramping: %.1f ï¿½C (ramp time: %.1f min)",
+                     tempData.dtbAverageTemperature, elapsedTime);
+            SetCtrlVal(ctx->tabPanelHandle, ctx->statusControl, statusMsg);
+            SetCtrlVal(ctx->tabPanelHandle, ctx->outputControl, tempData.dtbAverageTemperature);
+
+            ctx->lastTempLogTime = currentTime;
+        }
+
+        // Check program status from first DTB device
+        DTB_ProgramStatus progStatus;
+        result = DTB_GetProgramStatusQueued(DTB1_SLAVE_ADDRESS, &progStatus, DEVICE_PRIORITY_NORMAL);
+
+        if (result == DTB_SUCCESS) {
+            if (progStatus.state == DTB_PROG_STATE_COMPLETED) {
+                LogMessage("DTB ramp program completed");
+                ctx->finalTempReached = 1;
+                break;
+            } else if (progStatus.state == DTB_PROG_STATE_STOPPED) {
+                LogWarning("DTB program stopped unexpectedly");
+                return ERR_OPERATION_FAILED;
+            }
+        }
+
+        // Check if time for EIS measurement
+        double timeSinceLastEIS = (currentTime - ctx->experimentStartTime - ctx->lastEISTime) / 60.0;  // minutes
+
+        if (timeSinceLastEIS >= ctx->params.eisInterval) {
+            LogMessage("Time for EIS measurement (%.1f minutes elapsed since last)", timeSinceLastEIS);
+
+            TempRampTempData tempData;
+            ReadAllTemperatures(ctx, &tempData, currentTime - ctx->experimentStartTime);
+
+            LogMessage("Current temperature: %.1f ï¿½C", tempData.dtbAverageTemperature);
+
+            ctx->state = TEMP_RAMP_STATE_EIS_MEASUREMENT;
+
+            result = PerformEISMeasurementWithRampControl(ctx);
+
+            if (CheckCancellation(ctx)) {
+                // Stop the program on all devices
+                for (int i = 0; i < DTB_NUM_DEVICES; i++) {
+                    int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
+                    DTB_StopProgramQueued(slaveAddress, DEVICE_PRIORITY_NORMAL);
+                }
+                return ERR_CANCELLED;
+            }
+
+            if (result != SUCCESS) {
+                LogWarning("EIS measurement failed, continuing ramp");
+            }
+
+            ctx->state = TEMP_RAMP_STATE_RAMPING;
+            ctx->lastEISTime = currentTime - ctx->experimentStartTime;
+        }
+
+        ProcessSystemEvents();
+        Delay(1.0);
+    }
+
+    // Final EIS measurement at end temperature
+    LogMessage("Taking final EIS measurement at %.1f ï¿½C", ctx->params.finalTemp);
+    ctx->state = TEMP_RAMP_STATE_EIS_MEASUREMENT;
+
+    result = PerformEISMeasurementWithRampControl(ctx);
+
+    if (result != SUCCESS) {
+        LogWarning("Final EIS measurement failed");
+    }
+
+    // Stop the program on all devices (cleanup)
+    for (int i = 0; i < DTB_NUM_DEVICES; i++) {
+        int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
+        DTB_StopProgramQueued(slaveAddress, DEVICE_PRIORITY_NORMAL);
+    }
+
+    return SUCCESS;
 }
 
 /******************************************************************************
@@ -813,7 +1073,7 @@ static int ReadAllTemperatures(TempRampExperimentContext *ctx, TempRampTempData 
             
             tempData->dtbAverageTemperature = tempSum / numDevices;
             snprintf(tempData->status, sizeof(tempData->status), 
-                     "DTB Avg: %.1f°C (%d devices)", tempData->dtbAverageTemperature, numDevices);
+                     "DTB Avg: %.1fï¿½C (%d devices)", tempData->dtbAverageTemperature, numDevices);
         } else {
             strcpy(tempData->status, "DTB: Error");
         }
@@ -886,7 +1146,7 @@ static int CVICALLBACK TemperatureMonitorThread(void *functionData) {
             // Update setpoint if it changed significantly
             if (fabs(targetTemp - ctx->targetTemperature) > 0.1) {
                 UpdateTemperatureSetpoint(ctx, targetTemp);
-                LogDebug("Setpoint updated by monitor: %.1f °C (measured: %.1f °C)", 
+                LogDebug("Setpoint updated by monitor: %.1f ï¿½C (measured: %.1f ï¿½C)", 
                         targetTemp, tempData.dtbAverageTemperature);
             }
         }
@@ -944,7 +1204,7 @@ static int PerformEISMeasurement(TempRampExperimentContext *ctx) {
     
     char statusMsg[MEDIUM_BUFFER_SIZE];
     snprintf(statusMsg, sizeof(statusMsg), 
-             "EIS measurement at %.1f °C...", measurement->temperature);
+             "EIS measurement at %.1f ï¿½C...", measurement->temperature);
     SetCtrlVal(ctx->tabPanelHandle, ctx->statusControl, statusMsg);
     
     // Start dedicated temperature monitoring thread for continuous updates during EIS
@@ -971,7 +1231,7 @@ static int PerformEISMeasurement(TempRampExperimentContext *ctx) {
     }
     
     if (result != SUCCESS) {
-        LogError("EIS measurement failed at %.1f °C", measurement->temperature);
+        LogError("EIS measurement failed at %.1f ï¿½C", measurement->temperature);
         return result;
     }
     
@@ -984,7 +1244,7 @@ static int PerformEISMeasurement(TempRampExperimentContext *ctx) {
     
     ctx->eisMeasurementCount++;
     
-    LogMessage("EIS measurement %d completed at %.1f °C (OCV: %.3f V)", 
+    LogMessage("EIS measurement %d completed at %.1f ï¿½C (OCV: %.3f V)", 
                measurement->measurementIndex + 1, measurement->temperature, measurement->ocvVoltage);
     
     return SUCCESS;
@@ -1304,7 +1564,7 @@ static int SafeDisconnectAllDevices(TempRampExperimentContext *ctx) {
 
 static int ConfigureExperimentGraphs(TempRampExperimentContext *ctx) {
     ConfigureGraph(ctx->mainPanelHandle, ctx->graphTempHandle, 
-                   "Temperature vs Time", "Time (min)", "Temperature (°C)", 
+                   "Temperature vs Time", "Time (min)", "Temperature (ï¿½C)", 
                    ctx->params.initialTemp - 5.0, 
                    ctx->params.finalTemp + 5.0);
     
@@ -1345,7 +1605,7 @@ static void UpdateNyquistPlot(TempRampExperimentContext *ctx, TempRampEISMeasure
            VAL_SOLID_CIRCLE, VAL_SOLID, 1, VAL_GREEN);
     
     char title[MEDIUM_BUFFER_SIZE];
-    snprintf(title, sizeof(title), "Nyquist Plot - %.1f°C", measurement->temperature);
+    snprintf(title, sizeof(title), "Nyquist Plot - %.1fï¿½C", measurement->temperature);
     SetCtrlAttribute(ctx->mainPanelHandle, ctx->graphNyquistHandle, ATTR_LABEL_TEXT, title);
     
     free(negZImag);
@@ -1480,9 +1740,12 @@ static int SaveExperimentSettings(TempRampExperimentContext *ctx) {
     WriteINIDouble(file, "Final_Temperature_C", ctx->params.finalTemp, 1);
     WriteINIDouble(file, "Ramp_Rate_C_per_min", ctx->params.rampRate, 1);
     WriteINIDouble(file, "EIS_Interval_min", ctx->params.eisInterval, 1);
-    WriteINIValue(file, "Continue_Ramp_During_EIS", "%d (%s)", 
+    WriteINIValue(file, "Continue_Ramp_During_EIS", "%d (%s)",
                  ctx->params.continueRampDuringEIS,
                  ctx->params.continueRampDuringEIS ? "Continue" : "Pause");
+    WriteINIValue(file, "Use_DTB_Ramp_Soak", "%d (%s)",
+                 ctx->params.useRampSoak,
+                 ctx->params.useRampSoak ? "New Implementation" : "Legacy Implementation");
     fprintf(file, "\n");
     
     WriteINISection(file, "Device_Enable_Flags");

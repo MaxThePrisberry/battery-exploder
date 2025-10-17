@@ -24,7 +24,7 @@
  ******************************************************************************/
 
 // Temperature Control Constants
-#define TEMP_RAMP_TOLERANCE             1.0     // °C tolerance for reaching target
+#define TEMP_RAMP_TOLERANCE             1.0     // ï¿½C tolerance for reaching target
 #define TEMP_RAMP_CHECK_INTERVAL        5.0     // Seconds between temperature checks
 #define TEMP_RAMP_STABILIZE_TIME        60     // Seconds to stabilize at initial temp
 #define TEMP_RAMP_HOLD_TIME             60     // Seconds to hold at final temp
@@ -65,22 +65,23 @@ typedef enum {
 
 // Experiment parameters
 typedef struct {
-    double initialTemp;          // Starting temperature (°C)
-    double finalTemp;            // Final temperature (°C)
-    double rampRate;             // Heating rate (°C/min)
+    double initialTemp;          // Starting temperature (ï¿½C)
+    double finalTemp;            // Final temperature (ï¿½C)
+    double rampRate;             // Heating rate (ï¿½C/min)
     double eisInterval;          // Time between EIS measurements (minutes)
     int continueRampDuringEIS;   // 1 = continue ramping during EIS, 0 = pause ramp
+    int useRampSoak;             // 1 = use DTB ramp-soak (new), 0 = manual ramping (legacy)
 } TempRampExperimentParams;
 
 // Temperature data point
 typedef struct {
     double timestamp;                        // Time since experiment start (s)
-    double dtbTemperatures[DTB_NUM_DEVICES]; // All DTB temperatures (°C)
-    double dtbAverageTemperature;            // Average DTB temperature (°C)
+    double dtbTemperatures[DTB_NUM_DEVICES]; // All DTB temperatures (ï¿½C)
+    double dtbAverageTemperature;            // Average DTB temperature (ï¿½C)
     int dtbDeviceCount;                      // Number of DTB devices
-    double dtbSetpoint;                      // DTB setpoint (°C)
-    double tc0Temperature;                   // Thermocouple 0 (°C)
-    double tc1Temperature;                   // Thermocouple 1 (°C)
+    double dtbSetpoint;                      // DTB setpoint (ï¿½C)
+    double tc0Temperature;                   // Thermocouple 0 (ï¿½C)
+    double tc1Temperature;                   // Thermocouple 1 (ï¿½C)
     char status[128];                        // Status message
 } TempRampTempData;
 
@@ -88,7 +89,7 @@ typedef struct {
 typedef struct {
     double timestamp;                        // Time since experiment start (s)
     double alicatMassFLow[ALICAT_NUM_DEVICES]; // All ALICAT mass flow rates (check headers for unit)
-    double alicatTemperature[ALICAT_NUM_DEVICES]; // All ALICAT temperature (°C)
+    double alicatTemperature[ALICAT_NUM_DEVICES]; // All ALICAT temperature (ï¿½C)
     int alicatDeviceCount;                      // Number of DTB devices
     double alicatSetpoint[ALICAT_NUM_DEVICES];  // ALICAT setpoint (check headers for unit)
     char status[128];                        // Status message
@@ -97,7 +98,7 @@ typedef struct {
 // EIS measurement data
 typedef struct {
     int measurementIndex;        // Sequential measurement number
-    double temperature;          // Temperature when measured (°C)
+    double temperature;          // Temperature when measured (ï¿½C)
     double timestamp;            // Time since experiment start (s)
     double ocvVoltage;          // Open circuit voltage (V)
     TempRampTempData tempData;  // Temperature readings
