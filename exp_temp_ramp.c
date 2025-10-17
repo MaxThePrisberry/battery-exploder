@@ -24,13 +24,14 @@ static TempRampExperimentContext g_experimentContext = {0};
 static CmtThreadFunctionID g_experimentThreadId = 0;
 
 // Controls to be dimmed during experiment
-static const int numControls = 5;
-static const int controls[5] = {
+static const int numControls = 6;
+static const int controls[6] = {
     RUNAWAY_INITIAL_TEMP_RWY,
     RUNAWAY_FINAL_TEMP_RWY,
     RUNAWAY_RAMP_RATE_RWY,
     RUNAWAY_NUM_EIS_INTERVAL_RWY,
-    RUNAWAY_CBX_CONT_TRAMP_EIS
+    RUNAWAY_CBX_CONT_TRAMP_EIS,
+	RUNAWAY_RING_RAMP_MODE,
 };
 
 /******************************************************************************
@@ -123,10 +124,7 @@ int CVICALLBACK StartTempRampExperimentCallback(int panel, int control, int even
     GetCtrlVal(panel, RUNAWAY_RAMP_RATE_RWY, &g_experimentContext.params.rampRate);
     GetCtrlVal(panel, RUNAWAY_NUM_EIS_INTERVAL_RWY, &g_experimentContext.params.eisInterval);
     GetCtrlVal(panel, RUNAWAY_CBX_CONT_TRAMP_EIS, &g_experimentContext.params.continueRampDuringEIS);
-
-    // Default to using new ramp-soak implementation
-    // TODO: Add UI control for this parameter
-    g_experimentContext.params.useRampSoak = 1;
+	GetCtrlVal(panel, RUNAWAY_RING_RAMP_MODE, &g_experimentContext.params.useRampSoak);
     
     // Validate parameters
     if (!ENABLE_DTB) {

@@ -1,0 +1,109 @@
+[INFO] Status module state: UNINITIALIZED -> INITIALIZING
+[INFO] Device states initialized (DTB devices: 2)
+[INFO] Status monitoring module initialized
+[INFO] Controls module initialized with 2 DTB devices
+[INFO] Controls module initialized for ALICAT Mass Flow Controller
+[INFO] Starting device status monitoring...
+[INFO] Status module state: INITIALIZING -> RUNNING
+[INFO] Status monitoring started successfully
+[INFO] Starting controls module - syncing with device states...
+[INFO] Status timer thread started
+[INFO] [TNY] Completed transaction 1
+[INFO] PSB remote mode: ON
+[INFO] DTB1 state: Running, setpoint: 25.0°C
+[INFO] DTB2 state: Running, setpoint: 25.0°C
+[INFO] Controls module started
+[WARN] DTB(slave 2) status callback timed out after 5976.6 ms
+[WARN] DTB(slave 2) status update timed out
+[WARN] DTB(slave 3) status callback timed out after 5976.5 ms
+[WARN] DTB(slave 3) status update timed out
+[WARN] DTB(slave 2) status callback timed out after 5976.8 ms
+[WARN] DTB(slave 2) status update timed out
+[WARN] DTB(slave 2) status callback timed out after 5976.8 ms
+[WARN] DTB(slave 2) status update timed out
+[INFO] All required devices verified
+[INFO] === Starting Temperature Ramp EIS Experiment ===
+[INFO] Created experiment file system: c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\data\temp_ramp_20251017_143054
+[INFO] Settings saved: c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\data\temp_ramp_20251017_143054\experiment_settings.ini
+[INFO] Initializing relay states...
+[INFO] === PHASE 1: Reaching Initial Temperature ===
+[INFO] Setting DTB target to 30.0 ï¿½C
+[INFO] [DTB] Setting setpoint to 30.0ï¿½C for all 2 DTB devices...
+[INFO] [DTB] Setting setpoint: 30.0ï¿½C
+[INFO] [DTB] Setting setpoint: 30.0ï¿½C
+[INFO] [DTB] Successfully set setpoint for all DTB devices
+[INFO] [DTB] Setting run/stop to RUN for all 2 DTB devices...
+[INFO] [DTB] Setting Run/Stop: RUN
+[INFO] [DTB] Setting Run/Stop: RUN
+[INFO] [DTB] Successfully set run/stop for all DTB devices
+[INFO] Waiting for temperature to reach 30.0 ï¿½C...
+[WARN] DTB(slave 2) status callback timed out after 5976.7 ms
+[WARN] DTB(slave 2) status update timed out
+[WARN] DTB(slave 3) status callback timed out after 5976.7 ms
+[WARN] DTB(slave 3) status update timed out
+[WARN] DTB(slave 2) status callback timed out after 5980.2 ms
+[WARN] DTB(slave 2) status update timed out
+[INFO] Current temperature: 24.9 ï¿½C (target: 30.0 ï¿½C, diff: 5.1 ï¿½C)
+[WARN] DTB(slave 3) status callback timed out after 5976.6 ms
+[WARN] DTB(slave 3) status update timed out
+[WARN] DTB(slave 2) status callback timed out after 6970.3 ms
+[WARN] DTB(slave 2) status update timed out
+[INFO] Current temperature: 24.9 ï¿½C (target: 30.0 ï¿½C, diff: 5.1 ï¿½C)
+[WARN] DTB(slave 3) status callback timed out after 5976.4 ms
+[WARN] DTB(slave 3) status update timed out
+[INFO] Current temperature: 25.1 ï¿½C (target: 30.0 ï¿½C, diff: 4.9 ï¿½C)
+[WARN] DTB(slave 2) status callback timed out after 7946.3 ms
+[WARN] DTB(slave 2) status update timed out
+[WARN] DTB(slave 3) status callback timed out after 5976.6 ms
+[WARN] DTB(slave 3) status update timed out
+[WARN] DTB(slave 2) status callback timed out after 5979.5 ms
+[WARN] DTB(slave 2) status update timed out
+[INFO] Current temperature: 25.4 ï¿½C (target: 30.0 ï¿½C, diff: 4.6 ï¿½C)
+[WARN] DTB(slave 3) status callback timed out after 5954.2 ms
+[WARN] DTB(slave 3) status update timed out
+[WARN] DTB(slave 2) status callback timed out after 5979.5 ms
+[WARN] DTB(slave 2) status update timed out
+[WARN] DTB(slave 3) status callback timed out after 5979.6 ms
+[WARN] DTB(slave 3) status update timed out
+[INFO] Current temperature: 25.9 ï¿½C (target: 30.0 ï¿½C, diff: 4.1 ï¿½C)
+[WARN] DTB(slave 2) status callback timed out after 5976.7 ms
+[WARN] DTB(slave 2) status update timed out
+[WARN] DTB(slave 3) status callback timed out after 6970.2 ms
+[WARN] DTB(slave 3) status update timed out
+[INFO] Current temperature: 26.4 ï¿½C (target: 30.0 ï¿½C, diff: 3.6 ï¿½C)
+[WARN] DTB(slave 2) status callback timed out after 5976.7 ms
+[WARN] DTB(slave 2) status update timed out
+[WARN] DTB(slave 3) status callback timed out after 5976.7 ms
+[WARN] DTB(slave 3) status update timed out
+[INFO] Current temperature: 27.0 ï¿½C (target: 30.0 ï¿½C, diff: 3.0 ï¿½C)
+[WARN] DTB(slave 2) status callback timed out after 5976.5 ms
+[WARN] DTB(slave 2) status update timed out
+[WARN] DTB(slave 3) status callback timed out after 6969.8 ms
+[WARN] DTB(slave 3) status update timed out
+[INFO] Current temperature: 27.3 ï¿½C (target: 30.0 ï¿½C, diff: 2.7 ï¿½C)
+[WARN] DTB(slave 2) status callback timed out after 5976.6 ms
+[WARN] DTB(slave 2) status update timed out
+[INFO] Current temperature: 27.6 ï¿½C (target: 30.0 ï¿½C, diff: 2.4 ï¿½C)
+[WARN] DTB(slave 3) status callback timed out after 7950.4 ms
+[WARN] DTB(slave 3) status update timed out
+[INFO] Current temperature: 27.9 ï¿½C (target: 30.0 ï¿½C, diff: 2.1 ï¿½C)
+[WARN] DTB(slave 2) status callback timed out after 7946.5 ms
+[WARN] DTB(slave 2) status update timed out
+[WARN] DTB(slave 2) status callback timed out after 5978.3 ms
+[WARN] DTB(slave 2) status update timed out
+[WARN] DTB(slave 3) status callback timed out after 5978.2 ms
+[WARN] DTB(slave 3) status update timed out
+[INFO] Current temperature: 28.1 ï¿½C (target: 30.0 ï¿½C, diff: 1.9 ï¿½C)
+[WARN] DTB(slave 3) status callback timed out after 5976.6 ms
+[WARN] DTB(slave 3) status update timed out
+[WARN] DTB(slave 2) status callback timed out after 5979.2 ms
+[WARN] DTB(slave 2) status update timed out
+[INFO] Current temperature: 28.4 ï¿½C (target: 30.0 ï¿½C, diff: 1.6 ï¿½C)
+[WARN] DTB(slave 3) status callback timed out after 5954.2 ms
+[WARN] DTB(slave 3) status update timed out
+[WARN] DTB(slave 2) status callback timed out after 5979.5 ms
+[WARN] DTB(slave 2) status update timed out
+[WARN] DTB(slave 3) status callback timed out after 6970.1 ms
+[WARN] DTB(slave 3) status update timed out
+[INFO] Current temperature: 28.6 ï¿½C (target: 30.0 ï¿½C, diff: 1.4 ï¿½C)
+[INFO] User requested to stop temperature ramp experiment
