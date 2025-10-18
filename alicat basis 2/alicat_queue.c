@@ -1145,7 +1145,3 @@ int ALICAT_QueueCancelByType(ALICAT_QueueManager *mgr, ALICAT_CommandType type) 
 int ALICAT_QueueCancelByAge(ALICAT_QueueManager *mgr, double ageSeconds) {
     return DeviceQueue_CancelByAge(mgr, ageSeconds);
 }
-
-int ALICAT_QueueCancelAll(ALICAT_QueueManager *mgr) {
-    return DeviceQueue_CancelAll(mgr);
-}
