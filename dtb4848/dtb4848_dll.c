@@ -1537,7 +1537,9 @@ int DTB_SetSimpleRamp(DTB_Handle *handle, int patternNumber,
     pattern.steps[1].timeMinutes = soakTimeMinutes;
 
     // Set metadata
-    pattern.actualStepCount = 2;  // Execute steps 0-1 (2 steps)
+    // IMPORTANT: actualStepCount=N means execute steps 0 through N (N+1 total steps)
+    // So actualStepCount=1 executes steps 0 and 1 (2 steps)
+    pattern.actualStepCount = 1;  // Execute steps 0-1 (2 steps: step 0 and step 1)
     pattern.cycleCount = 0;       // No additional cycles
     pattern.linkPattern = DTB_LINK_PATTERN_END;  // End after this pattern
 
