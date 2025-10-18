@@ -884,6 +884,15 @@ static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
         LogMessage("DTB device %d ramp configured", slaveAddress);
     }
 
+    // CRITICAL: Set DTB setpoint to start temperature before starting program
+    // The DTB ramp-soak program requires the current setpoint to match the start temperature
+    LogMessage("Setting DTB setpoint to start temperature: %.1f °C", ctx->params.initialTemp);
+    result = UpdateTemperatureSetpoint(ctx, ctx->params.initialTemp);
+    if (result != SUCCESS) {
+        LogError("Failed to set initial setpoint before starting program");
+        return result;
+    }
+
     // Set start pattern and begin ramp for all devices
     for (int i = 0; i < DTB_NUM_DEVICES; i++) {
         int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
@@ -1143,21 +1152,26 @@ static int CVICALLBACK TemperatureMonitorThread(void *functionData) {
         UpdateTemperaturePlot(ctx, &tempData);
         
         // If continuing ramp during EIS, update the temperature setpoint
-        if (ctx->params.continueRampDuringEIS && ctx->state == TEMP_RAMP_STATE_EIS_MEASUREMENT) {
+        // IMPORTANT: Only do this in manual ramping mode. In ramp-soak mode, the DTB program
+        // controls the setpoint autonomously and manual updates will cause Modbus exception 0x03
+        if (ctx->params.continueRampDuringEIS &&
+            ctx->state == TEMP_RAMP_STATE_EIS_MEASUREMENT &&
+            !ctx->params.useRampSoak) {
+
             double rawElapsedTime = (currentTime - ctx->experimentStartTime - ctx->rampStartTime);
             double elapsedRampTime = rawElapsedTime / 60.0;  // minutes
-            
+
             double targetTemp = ctx->params.initialTemp + (elapsedRampTime * ctx->params.rampRate);
-            
+
             // Don't exceed final temperature
             if (targetTemp > ctx->params.finalTemp) {
                 targetTemp = ctx->params.finalTemp;
             }
-            
+
             // Update setpoint if it changed significantly
             if (fabs(targetTemp - ctx->targetTemperature) > 0.1) {
                 UpdateTemperatureSetpoint(ctx, targetTemp);
-                LogDebug("Setpoint updated by monitor: %.1f �C (measured: %.1f �C)", 
+                LogDebug("Setpoint updated by monitor: %.1f �C (measured: %.1f �C)",
                         targetTemp, tempData.dtbAverageTemperature);
             }
         }
