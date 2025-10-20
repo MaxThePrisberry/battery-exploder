@@ -940,6 +940,10 @@ static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
         LogWarning("Initial EIS measurement failed, continuing anyway");
     }
 
+    // Calculate expected program completion time
+    // The DTB doesn't report completion via Modbus, so we use time-based detection
+    double expectedRampDuration = rampMinutes * 60.0;  // Convert to seconds
+
     // Main monitoring loop
     while (!ctx->finalTempReached) {
         if (CheckCancellation(ctx)) {
@@ -954,6 +958,22 @@ static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
         double currentTime = Timer();
         double elapsedTime = (currentTime - ctx->experimentStartTime - ctx->rampStartTime) / 60.0;  // minutes
 
+        // Time-based completion detection (with pause compensation)
+        double effectiveElapsedTime;
+        if (ctx->params.continueRampDuringEIS) {
+            effectiveElapsedTime = (currentTime - ctx->experimentStartTime - ctx->rampStartTime);
+        } else {
+            effectiveElapsedTime = (currentTime - ctx->experimentStartTime - ctx->rampStartTime - ctx->totalEISTime);
+        }
+
+        // Check if ramp should be complete (with 30 second tolerance)
+        if (effectiveElapsedTime >= (expectedRampDuration - 30.0)) {
+            LogMessage("DTB ramp program duration reached (%.1f minutes elapsed)",
+                      effectiveElapsedTime / 60.0);
+            ctx->finalTempReached = 1;
+            break;
+        }
+
         // Read and log temperatures periodically
         if ((currentTime - ctx->lastTempLogTime) >= 10.0) {
             TempRampTempData tempData;
@@ -962,25 +982,22 @@ static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
             UpdateTemperaturePlot(ctx, &tempData);
 
             char statusMsg[MEDIUM_BUFFER_SIZE];
+            double remainingTime = (expectedRampDuration - effectiveElapsedTime) / 60.0;
             snprintf(statusMsg, sizeof(statusMsg),
-                     "Ramping: %.1f �C (ramp time: %.1f min)",
-                     tempData.dtbAverageTemperature, elapsedTime);
+                     "Ramping: %.1f �C (%.1f/%.1f min, %.1f min remaining)",
+                     tempData.dtbAverageTemperature, elapsedTime, (double)rampMinutes, remainingTime);
             SetCtrlVal(ctx->tabPanelHandle, ctx->statusControl, statusMsg);
             SetCtrlVal(ctx->tabPanelHandle, ctx->outputControl, tempData.dtbAverageTemperature);
 
             ctx->lastTempLogTime = currentTime;
         }
 
-        // Check program status from first DTB device
+        // Check program status to detect unexpected stops
         DTB_ProgramStatus progStatus;
         result = DTB_GetProgramStatusQueued(DTB1_SLAVE_ADDRESS, &progStatus, DEVICE_PRIORITY_NORMAL);
 
         if (result == DTB_SUCCESS) {
-            if (progStatus.state == DTB_PROG_STATE_COMPLETED) {
-                LogMessage("DTB ramp program completed");
-                ctx->finalTempReached = 1;
-                break;
-            } else if (progStatus.state == DTB_PROG_STATE_STOPPED) {
+            if (progStatus.state == DTB_PROG_STATE_STOPPED) {
                 LogWarning("DTB program stopped unexpectedly");
                 return ERR_OPERATION_FAILED;
             }
