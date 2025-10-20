@@ -1,0 +1,32 @@
+[EIS_Measurement_Information]
+Measurement_Index=1
+Timestamp=2025-10-20 10:12:44
+Elapsed_Time_s=533.9
+Temperature_C=47.5
+OCV_Voltage_V=3.7002
+DTB_Setpoint_C=25.0
+TC0_Temperature_C=2286.4
+TC1_Temperature_C=19.1
+Retry_Count=0
+
+[EIS_Configuration]
+OCV_Duration_s=10.0
+GEIS_Initial_Freq_Hz=10000
+GEIS_Final_Freq_Hz=0.1
+GEIS_Freq_Points=11
+GEIS_Amplitude_A=0.500
+GEIS_Average_N=2
+
+[Impedance_Data]
+# Frequency_Hz,Z_Real_Ohm,Z_Imag_Ohm,Z_Mag_Ohm,Phase_Deg
+1.002e+04,3.637375e-02,3.056100e-02,4.750815e-02,4.004e+01
+3.160e+03,3.492672e-02,9.546548e-03,3.620790e-02,1.529e+01
+1.002e+03,3.550407e-02,1.868737e-03,3.555321e-02,3.013e+00
+3.155e+02,3.679139e-02,-8.101473e-04,3.680031e-02,-1.261e+00
+1.002e+02,3.834599e-02,-1.464963e-03,3.837396e-02,-2.188e+00
+3.167e+01,3.967951e-02,-1.224044e-03,3.969839e-02,-1.767e+00
+1.002e+01,4.027004e-02,-5.907264e-04,4.027437e-02,-8.404e-01
+3.160e+00,4.038612e-02,-3.525314e-04,4.038766e-02,-5.001e-01
+9.965e-01,4.057537e-02,-4.176332e-04,4.057752e-02,-5.897e-01
+3.154e-01,4.083927e-02,-7.566585e-04,4.084628e-02,-1.061e+00
+1.002e-01,4.134230e-02,-1.365062e-03,4.136483e-02,-1.891e+00
