@@ -1083,6 +1083,11 @@ static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
                 int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
                 DTB_StopProgramQueued(slaveAddress, DEVICE_PRIORITY_NORMAL);
             }
+            // Reset control method back to PID mode
+            for (int i = 0; i < DTB_NUM_DEVICES; i++) {
+                int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
+                DTB_SetControlMethodQueued(slaveAddress, CONTROL_METHOD_PID, DEVICE_PRIORITY_NORMAL);
+            }
             return ERR_CANCELLED;
         }
 
@@ -1155,6 +1160,11 @@ static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
                     int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
                     DTB_StopProgramQueued(slaveAddress, DEVICE_PRIORITY_NORMAL);
                 }
+                // Reset control method back to PID mode
+                for (int i = 0; i < DTB_NUM_DEVICES; i++) {
+                    int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
+                    DTB_SetControlMethodQueued(slaveAddress, CONTROL_METHOD_PID, DEVICE_PRIORITY_NORMAL);
+                }
                 return ERR_CANCELLED;
             }
 
@@ -1184,6 +1194,19 @@ static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
     for (int i = 0; i < DTB_NUM_DEVICES; i++) {
         int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
         DTB_StopProgramQueued(slaveAddress, DEVICE_PRIORITY_NORMAL);
+    }
+
+    // Reset control method back to PID mode for all devices
+    // This is CRITICAL - if we don't reset from CONTROL_METHOD_PID_PROG (3) back to
+    // CONTROL_METHOD_PID (0), subsequent experiments will fail with Modbus exception 0x03
+    // because the DTB won't accept setpoint commands while in Program Control Mode
+    for (int i = 0; i < DTB_NUM_DEVICES; i++) {
+        int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
+        int result = DTB_SetControlMethodQueued(slaveAddress, CONTROL_METHOD_PID, DEVICE_PRIORITY_NORMAL);
+        if (result != DTB_SUCCESS) {
+            LogWarning("Failed to reset control method for DTB slave %d: %s",
+                      slaveAddress, DTB_GetErrorString(result));
+        }
     }
 
     return SUCCESS;
@@ -1717,16 +1740,28 @@ static int SwitchToBioLogic(TempRampExperimentContext *ctx) {
 
 static int SafeDisconnectAllDevices(TempRampExperimentContext *ctx) {
     LogMessage("Disconnecting all devices...");
-    
+
     BIO_StopChannelQueued(ctx->biologicID, 0, DEVICE_PRIORITY_NORMAL);
-    
+
     if (ENABLE_DTB) {
         DTB_SetRunStopAllQueued(0, DEVICE_PRIORITY_NORMAL);
+
+        // Reset DTB control method back to PID mode for all devices
+        // This ensures that even if the experiment is cancelled or encounters an error,
+        // the DTB controllers are left in a state that allows subsequent experiments to run
+        for (int i = 0; i < DTB_NUM_DEVICES; i++) {
+            int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
+            int result = DTB_SetControlMethodQueued(slaveAddress, CONTROL_METHOD_PID, DEVICE_PRIORITY_NORMAL);
+            if (result != DTB_SUCCESS) {
+                LogWarning("Failed to reset control method for DTB slave %d: %s",
+                          slaveAddress, DTB_GetErrorString(result));
+            }
+        }
     }
-    
+
     TNY_SetPinQueued(TNY_PSB_PIN, TNY_STATE_DISCONNECTED, DEVICE_PRIORITY_NORMAL);
     TNY_SetPinQueued(TNY_BIOLOGIC_PIN, TNY_STATE_DISCONNECTED, DEVICE_PRIORITY_NORMAL);
-    
+
     LogMessage("Devices disconnected");
     return SUCCESS;
 }
