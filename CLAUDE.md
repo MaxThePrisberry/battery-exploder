@@ -209,11 +209,28 @@ Each **step** contains:
 
 #### Example Usage
 
-**Simple 2-step ramp:**
+**Simple ramp using DTB_SetSimpleRamp:**
 ```c
-// Create a simple ramp from 25°C to 100°C over 60 minutes
-int result = DTB_SetSimpleRamp(&handle, 25.0, 100.0, 60);
+// Create a ramp from 25°C to 100°C over 60 minutes with no soak
+// This creates a 3-step pattern internally:
+//   Step 0: 25°C for 0 min (baseline)
+//   Step 1: 100°C for 60 min (controlled ramp)
+//   Step 2: 100°C for 0 min (no soak)
+int result = DTB_SetSimpleRamp(&handle,
+                               0,      // patternNumber
+                               25.0,   // startTemp
+                               100.0,  // endTemp
+                               60,     // rampTimeMinutes
+                               0);     // soakTimeMinutes
+
+// With soak time - pattern becomes:
+//   Step 0: 25°C for 0 min (baseline)
+//   Step 1: 100°C for 60 min (controlled ramp)
+//   Step 2: 100°C for 30 min (soak at final temp)
+int result = DTB_SetSimpleRamp(&handle, 0, 25.0, 100.0, 60, 30);
 ```
+
+**Important:** The DTB controller interprets Step 0 as SOAK mode by default. To achieve a proper controlled ramp, `DTB_SetSimpleRamp` creates a 3-step pattern with Step 0 establishing the baseline temperature, Step 1 performing the actual ramp, and Step 2 providing optional soak time. This ensures the ramp proceeds at the exact rate calculated from (endTemp - startTemp) / rampTimeMinutes.
 
 **Complex multi-step pattern:**
 ```c
@@ -307,7 +324,9 @@ int DTB_GetProgramStatus(DTB_Handle *handle, DTB_ProgramStatus *status);
 
 **Convenience Functions:**
 ```c
-int DTB_SetSimpleRamp(DTB_Handle *handle, double startTemp, double endTemp, int durationMinutes);
+int DTB_SetSimpleRamp(DTB_Handle *handle, int patternNumber,
+                      double startTemp, double endTemp,
+                      int rampTimeMinutes, int soakTimeMinutes);
 ```
 
 #### Queued Wrapper Functions (dtb4848_queue.h/c)

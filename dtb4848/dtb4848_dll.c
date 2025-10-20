@@ -1528,18 +1528,25 @@ int DTB_SetSimpleRamp(DTB_Handle *handle, int patternNumber,
     DTB_Pattern pattern;
     memset(&pattern, 0, sizeof(DTB_Pattern));
 
-    // Step 0: Ramp from startTemp to endTemp
-    pattern.steps[0].temperature = endTemp;
-    pattern.steps[0].timeMinutes = rampTimeMinutes;
+    // Step 0: Establish baseline at startTemp (required for proper RAMP behavior)
+    // DTB treats Step 0 as SOAK by default. This step establishes the starting temperature.
+    pattern.steps[0].temperature = startTemp;
+    pattern.steps[0].timeMinutes = 0;  // Minimal time, just establish baseline
 
-    // Step 1: Soak at endTemp
+    // Step 1: Ramp to endTemp (RAMP mode because endTemp != startTemp)
+    // DTB will take exactly rampTimeMinutes to go from startTemp to endTemp
     pattern.steps[1].temperature = endTemp;
-    pattern.steps[1].timeMinutes = soakTimeMinutes;
+    pattern.steps[1].timeMinutes = rampTimeMinutes;
+
+    // Step 2: Optional soak at endTemp
+    pattern.steps[2].temperature = endTemp;
+    pattern.steps[2].timeMinutes = soakTimeMinutes;
 
     // Set metadata
     // IMPORTANT: actualStepCount=N means execute steps 0 through N (N+1 total steps)
-    // So actualStepCount=1 executes steps 0 and 1 (2 steps)
-    pattern.actualStepCount = 1;  // Execute steps 0-1 (2 steps: step 0 and step 1)
+    // If no soak: actualStepCount=1 executes steps 0-1 (baseline + ramp)
+    // If soak: actualStepCount=2 executes steps 0-2 (baseline + ramp + soak)
+    pattern.actualStepCount = (soakTimeMinutes > 0) ? 2 : 1;
     pattern.cycleCount = 0;       // No additional cycles
     pattern.linkPattern = DTB_LINK_PATTERN_END;  // End after this pattern
 
@@ -1550,9 +1557,8 @@ int DTB_SetSimpleRamp(DTB_Handle *handle, int patternNumber,
         return result;
     }
 
-    // Set the current temperature as starting point
-    // (User should set setpoint to startTemp before starting program)
-    LogMessageEx(LOG_DEVICE_DTB, "Simple ramp configured. Set setpoint to %.1f°C before starting.", startTemp);
+    LogMessageEx(LOG_DEVICE_DTB, "Simple ramp configured: Step 0 (baseline: %.1f°C), Step 1 (ramp to %.1f°C in %d min), Step 2 (soak for %d min)",
+                 startTemp, endTemp, rampTimeMinutes, soakTimeMinutes);
 
     return DTB_SUCCESS;
 }
