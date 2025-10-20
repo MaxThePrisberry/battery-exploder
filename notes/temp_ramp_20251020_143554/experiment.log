@@ -1,0 +1,149 @@
+2025-10-20 14:35:54 [INFO] Settings saved: c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\data\temp_ramp_20251020_143554\experiment_settings.ini
+2025-10-20 14:35:54 [INFO] Initializing relay states...
+2025-10-20 14:35:55 [INFO] === PHASE 1: Reaching Initial Temperature ===
+2025-10-20 14:35:55 [INFO] Setting DTB target to 25.0 �C
+2025-10-20 14:35:55 [INFO] [DTB] Setting setpoint to 25.0�C for all 2 DTB devices...
+2025-10-20 14:35:55 [INFO] [DTB] Setting setpoint: 25.0�C
+2025-10-20 14:35:55 [INFO] [DTB] Setting setpoint: 25.0�C
+2025-10-20 14:35:55 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-20 14:35:55 [INFO] [DTB] Setting run/stop to RUN for all 2 DTB devices...
+2025-10-20 14:35:56 [INFO] [DTB] Setting Run/Stop: RUN
+2025-10-20 14:35:56 [INFO] [DTB] Setting Run/Stop: RUN
+2025-10-20 14:35:57 [INFO] [DTB] Successfully set run/stop for all DTB devices
+2025-10-20 14:35:57 [INFO] Waiting for temperature to reach 25.0 �C...
+2025-10-20 14:36:12 [INFO] Current temperature: 22.2 �C (target: 25.0 �C, diff: 2.8 �C)
+2025-10-20 14:36:19 [WARN] DTB(slave 3) status callback timed out after 5977.0 ms
+2025-10-20 14:36:19 [WARN] DTB(slave 3) status update timed out
+2025-10-20 14:36:22 [INFO] Current temperature: 22.4 �C (target: 25.0 �C, diff: 2.6 �C)
+2025-10-20 14:36:29 [WARN] DTB(slave 3) status callback timed out after 5977.2 ms
+2025-10-20 14:36:29 [WARN] DTB(slave 3) status update timed out
+2025-10-20 14:36:32 [INFO] Current temperature: 22.6 �C (target: 25.0 �C, diff: 2.4 �C)
+2025-10-20 14:36:38 [WARN] DTB(slave 3) status callback timed out after 5976.4 ms
+2025-10-20 14:36:38 [WARN] DTB(slave 3) status update timed out
+2025-10-20 14:36:41 [INFO] Current temperature: 22.9 �C (target: 25.0 �C, diff: 2.1 �C)
+2025-10-20 14:36:48 [WARN] DTB(slave 3) status callback timed out after 5977.1 ms
+2025-10-20 14:36:48 [WARN] DTB(slave 3) status update timed out
+2025-10-20 14:36:51 [INFO] Current temperature: 23.1 �C (target: 25.0 �C, diff: 1.9 �C)
+2025-10-20 14:37:02 [INFO] Current temperature: 23.3 �C (target: 25.0 �C, diff: 1.7 �C)
+2025-10-20 14:37:12 [INFO] Current temperature: 23.6 �C (target: 25.0 �C, diff: 1.4 �C)
+2025-10-20 14:37:22 [INFO] Current temperature: 23.8 �C (target: 25.0 �C, diff: 1.2 �C)
+2025-10-20 14:37:32 [INFO] Current temperature: 23.9 �C (target: 25.0 �C, diff: 1.1 �C)
+2025-10-20 14:37:42 [INFO] Current temperature: 24.1 �C (target: 25.0 �C, diff: 0.9 �C)
+2025-10-20 14:37:42 [INFO] Initial temperature reached
+2025-10-20 14:37:42 [INFO] === PHASE 2: Stabilizing at Initial Temperature ===
+2025-10-20 14:37:42 [INFO] Stabilizing at 25.0 �C for 0 seconds...
+2025-10-20 14:38:10 [WARN] DTB(slave 3) status callback timed out after 5976.9 ms
+2025-10-20 14:38:10 [WARN] DTB(slave 3) status update timed out
+2025-10-20 14:38:32 [WARN] DTB(slave 3) status callback timed out after 5976.9 ms
+2025-10-20 14:38:32 [WARN] DTB(slave 3) status update timed out
+2025-10-20 14:38:47 [INFO] Temperature stabilization completed
+2025-10-20 14:38:47 [INFO] === PHASE 3: Temperature Ramp with EIS Measurements ===
+2025-10-20 14:38:47 [INFO] Using new DTB ramp-soak implementation
+2025-10-20 14:38:47 [INFO] === Using DTB Ramp-Soak Implementation ===
+2025-10-20 14:38:47 [INFO] Configuring DTB ramp: 25.0 -> 50.0 �C over 10 minutes
+2025-10-20 14:38:47 [INFO] [DTB] Setting simple ramp in Pattern 0: 25.0°C to 50.0°C over 10 min, soak 0 min
+2025-10-20 14:38:47 [INFO] [DTB] Setting Pattern 0 (complete configuration)
+2025-10-20 14:38:47 [INFO] [DTB] Setting Pattern 0, Step 0: 25.0°C for 1 minutes
+2025-10-20 14:38:47 [INFO] [DTB] Setting Pattern 0, Step 1: 50.0°C for 10 minutes
+2025-10-20 14:38:48 [INFO] [DTB] Pattern 0: setting actual step count to 1
+2025-10-20 14:38:48 [INFO] [DTB] Pattern 0: setting cycle count to 0
+2025-10-20 14:38:49 [INFO] [DTB] Pattern 0: setting link pattern to 8 (END)
+2025-10-20 14:38:49 [INFO] [DTB] Pattern 0 configured: 1 steps, 0 cycles, link=8
+2025-10-20 14:38:49 [INFO] [DTB] Simple ramp configured: Step 0 (baseline: 25.0°C, 1 min), Step 1 (ramp to 50.0°C in 10 min), Step 2 (soak for 0 min)
+2025-10-20 14:38:49 [INFO] DTB device 2 ramp configured
+2025-10-20 14:38:49 [INFO] [DTB] Setting simple ramp in Pattern 0: 25.0°C to 50.0°C over 10 min, soak 0 min
+2025-10-20 14:38:49 [INFO] [DTB] Setting Pattern 0 (complete configuration)
+2025-10-20 14:38:49 [INFO] [DTB] Setting Pattern 0, Step 0: 25.0°C for 1 minutes
+2025-10-20 14:38:50 [INFO] [DTB] Setting Pattern 0, Step 1: 50.0°C for 10 minutes
+2025-10-20 14:38:50 [INFO] [DTB] Pattern 0: setting actual step count to 1
+2025-10-20 14:38:51 [INFO] [DTB] Pattern 0: setting cycle count to 0
+2025-10-20 14:38:51 [INFO] [DTB] Pattern 0: setting link pattern to 8 (END)
+2025-10-20 14:38:51 [INFO] [DTB] Pattern 0 configured: 1 steps, 0 cycles, link=8
+2025-10-20 14:38:51 [INFO] [DTB] Simple ramp configured: Step 0 (baseline: 25.0°C, 1 min), Step 1 (ramp to 50.0°C in 10 min), Step 2 (soak for 0 min)
+2025-10-20 14:38:51 [INFO] DTB device 3 ramp configured
+2025-10-20 14:38:51 [INFO] Setting DTB setpoint to start temperature: 25.0 °C
+2025-10-20 14:38:51 [INFO] [DTB] Setting setpoint to 25.0�C for all 2 DTB devices...
+2025-10-20 14:38:51 [INFO] [DTB] Setting setpoint: 25.0�C
+2025-10-20 14:38:52 [INFO] [DTB] Setting setpoint: 25.0�C
+2025-10-20 14:38:52 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-20 14:38:52 [INFO] [DTB] Setting start pattern: 0
+2025-10-20 14:38:53 [INFO] [DTB] Starting program execution...
+2025-10-20 14:38:53 [INFO] [DTB] Setting control method: 3
+2025-10-20 14:38:53 [INFO] [DTB] Program started successfully
+2025-10-20 14:38:53 [INFO] DTB device 2 ramp program started
+2025-10-20 14:38:54 [WARN] DTB(slave 2) status callback timed out after 5976.7 ms
+2025-10-20 14:38:54 [INFO] [DTB] Setting start pattern: 0
+2025-10-20 14:38:54 [WARN] DTB(slave 2) status update timed out
+2025-10-20 14:38:54 [WARN] DTB(slave 3) status callback timed out after 5976.7 ms
+2025-10-20 14:38:54 [WARN] DTB(slave 3) status update timed out
+2025-10-20 14:38:54 [INFO] [DTB] Starting program execution...
+2025-10-20 14:38:54 [INFO] [DTB] Setting control method: 3
+2025-10-20 14:38:55 [INFO] [DTB] Program started successfully
+2025-10-20 14:38:55 [INFO] DTB device 3 ramp program started
+2025-10-20 14:38:55 [INFO] Temperature ramp started from 25.0 to 50.0 �C
+2025-10-20 14:38:55 [INFO] Ramp rate: 2.5 �C/min, Duration: 10 minutes
+2025-10-20 14:38:55 [INFO] EIS measurements every 4.0 minutes
+2025-10-20 14:38:55 [INFO] Ramp mode: CONTINUE during EIS measurements
+2025-10-20 14:38:55 [INFO] Taking initial EIS measurement at 24.1 �C
+2025-10-20 14:39:05 [INFO] Switching to BioLogic...
+2025-10-20 14:39:05 [INFO] Switched to BioLogic
+2025-10-20 14:41:24 [INFO] EIS measurement 1 completed at 24.8 �C (OCV: 3.699 V)
+2025-10-20 14:41:24 [INFO] EIS measurement took 149.3 seconds (ramp continued)
+2025-10-20 14:41:41 [WARN] DTB(slave 3) status callback timed out after 5977.2 ms
+2025-10-20 14:41:41 [WARN] DTB(slave 3) status update timed out
+2025-10-20 14:42:15 [WARN] DTB(slave 3) status callback timed out after 5976.8 ms
+2025-10-20 14:42:15 [WARN] DTB(slave 3) status update timed out
+2025-10-20 14:42:36 [WARN] DTB(slave 3) status callback timed out after 5976.9 ms
+2025-10-20 14:42:36 [WARN] DTB(slave 3) status update timed out
+2025-10-20 14:42:58 [WARN] DTB(slave 3) status callback timed out after 5976.7 ms
+2025-10-20 14:42:58 [WARN] DTB(slave 3) status update timed out
+2025-10-20 14:43:13 [INFO] Time for EIS measurement (4.1 minutes elapsed since last)
+2025-10-20 14:43:22 [INFO] Current temperature: 28.4 �C
+2025-10-20 14:43:31 [INFO] Switching to BioLogic...
+2025-10-20 14:43:31 [INFO] Switched to BioLogic
+2025-10-20 14:45:50 [INFO] EIS measurement 2 completed at 28.8 �C (OCV: 3.699 V)
+2025-10-20 14:45:50 [INFO] EIS measurement took 148.3 seconds (ramp continued)
+2025-10-20 14:45:57 [WARN] DTB(slave 3) status callback timed out after 5976.8 ms
+2025-10-20 14:45:57 [WARN] DTB(slave 3) status update timed out
+2025-10-20 14:46:19 [WARN] DTB(slave 3) status callback timed out after 5976.8 ms
+2025-10-20 14:46:19 [WARN] DTB(slave 3) status update timed out
+2025-10-20 14:46:41 [WARN] DTB(slave 3) status callback timed out after 5976.9 ms
+2025-10-20 14:46:41 [WARN] DTB(slave 3) status update timed out
+2025-10-20 14:47:03 [WARN] DTB(slave 3) status callback timed out after 5993.1 ms
+2025-10-20 14:47:03 [WARN] DTB(slave 3) status update timed out
+2025-10-20 14:47:18 [INFO] Time for EIS measurement (4.1 minutes elapsed since last)
+2025-10-20 14:47:27 [INFO] Current temperature: 37.0 �C
+2025-10-20 14:47:36 [INFO] Switching to BioLogic...
+2025-10-20 14:47:36 [INFO] Switched to BioLogic
+2025-10-20 14:49:55 [INFO] EIS measurement 3 completed at 37.5 �C (OCV: 3.700 V)
+2025-10-20 14:49:55 [INFO] EIS measurement took 148.4 seconds (ramp continued)
+2025-10-20 14:49:56 [INFO] DTB ramp program duration reached (11.0 minutes elapsed)
+2025-10-20 14:49:56 [INFO] Taking final EIS measurement at 50.0 �C
+2025-10-20 14:50:02 [WARN] DTB(slave 3) status callback timed out after 5976.8 ms
+2025-10-20 14:50:02 [WARN] DTB(slave 3) status update timed out
+2025-10-20 14:50:05 [INFO] Switching to BioLogic...
+2025-10-20 14:50:05 [INFO] Switched to BioLogic
+2025-10-20 14:52:24 [INFO] EIS measurement 4 completed at 42.6 �C (OCV: 3.700 V)
+2025-10-20 14:52:24 [INFO] EIS measurement took 148.2 seconds (ramp continued)
+2025-10-20 14:52:24 [INFO] [DTB] Stopping program execution...
+2025-10-20 14:52:25 [INFO] [DTB] Program stopped
+2025-10-20 14:52:25 [INFO] [DTB] Stopping program execution...
+2025-10-20 14:52:26 [INFO] [DTB] Program stopped
+2025-10-20 14:52:26 [INFO] === PHASE 4: Holding at Final Temperature ===
+2025-10-20 14:52:26 [INFO] Holding at 50.0 �C for 0 seconds...
+2025-10-20 14:52:53 [WARN] DTB(slave 3) status callback timed out after 5976.5 ms
+2025-10-20 14:52:53 [WARN] DTB(slave 3) status update timed out
+2025-10-20 14:53:15 [WARN] DTB(slave 3) status callback timed out after 5976.8 ms
+2025-10-20 14:53:15 [WARN] DTB(slave 3) status update timed out
+2025-10-20 14:53:30 [INFO] Final temperature hold completed
+2025-10-20 14:53:30 [INFO] === TEMPERATURE RAMP EXPERIMENT COMPLETED SUCCESSFULLY ===
+2025-10-20 14:53:30 [INFO] Total experiment time: 17.6 minutes
+2025-10-20 14:53:30 [INFO] EIS measurements taken: 4
+2025-10-20 14:53:30 [INFO] Summary written: c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\data\temp_ramp_20251020_143554\summary.txt
+2025-10-20 14:53:30 [INFO] Cleaning up experiment...
+2025-10-20 14:53:30 [INFO] Disconnecting all devices...
+2025-10-20 14:53:30 [INFO] [DTB] Setting run/stop to STOP for all 2 DTB devices...
+2025-10-20 14:53:30 [INFO] [DTB] Setting Run/Stop: STOP
+2025-10-20 14:53:31 [INFO] [DTB] Setting Run/Stop: STOP
+2025-10-20 14:53:31 [INFO] [DTB] Successfully set run/stop for all DTB devices
+2025-10-20 14:53:31 [INFO] Devices disconnected
