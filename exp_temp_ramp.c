@@ -886,7 +886,7 @@ static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
 
     // CRITICAL: Set DTB setpoint to start temperature before starting program
     // The DTB ramp-soak program requires the current setpoint to match the start temperature
-    LogMessage("Setting DTB setpoint to start temperature: %.1f °C", ctx->params.initialTemp);
+    LogMessage("Setting DTB setpoint to start temperature: %.1f deg C", ctx->params.initialTemp);
     result = UpdateTemperatureSetpoint(ctx, ctx->params.initialTemp);
     if (result != SUCCESS) {
         LogError("Failed to set initial setpoint before starting program");

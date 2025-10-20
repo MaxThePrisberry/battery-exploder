@@ -204,18 +204,18 @@ Each **pattern** contains:
 - **Link pattern** (0-7 to chain, 8 for end)
 
 Each **step** contains:
-- **Temperature setpoint** (in °C)
+- **Temperature setpoint** (in deg C)
 - **Time duration** (0-900 minutes)
 
 #### Example Usage
 
 **Simple ramp using DTB_SetSimpleRamp:**
 ```c
-// Create a ramp from 25°C to 100°C over 60 minutes with no soak
+// Create a ramp from 25 deg C to 100 deg C over 60 minutes with no soak
 // This creates a 3-step pattern internally:
-//   Step 0: 25°C for 1 min (baseline - establishes starting point)
-//   Step 1: 100°C for 60 min (controlled ramp at exact rate)
-//   Step 2: 100°C for 0 min (no soak)
+//   Step 0: 25 deg C for 1 min (baseline - establishes starting point)
+//   Step 1: 100 deg C for 60 min (controlled ramp at exact rate)
+//   Step 2: 100 deg C for 0 min (no soak)
 int result = DTB_SetSimpleRamp(&handle,
                                0,      // patternNumber
                                25.0,   // startTemp
@@ -224,9 +224,9 @@ int result = DTB_SetSimpleRamp(&handle,
                                0);     // soakTimeMinutes
 
 // With soak time - pattern becomes:
-//   Step 0: 25°C for 1 min (baseline)
-//   Step 1: 100°C for 60 min (controlled ramp)
-//   Step 2: 100°C for 30 min (soak at final temp)
+//   Step 0: 25 deg C for 1 min (baseline)
+//   Step 1: 100 deg C for 60 min (controlled ramp)
+//   Step 2: 100 deg C for 30 min (soak at final temp)
 int result = DTB_SetSimpleRamp(&handle, 0, 25.0, 100.0, 60, 30);
 ```
 
@@ -245,13 +245,13 @@ pattern.actualStepCount = 3;
 pattern.cycleCount = 2;  // Repeat twice
 pattern.linkPattern = DTB_LINK_PATTERN_END;  // No chaining
 
-pattern.steps[0].temperature = 25.0;
+pattern.steps[0].temperature = 25.0;  // deg C
 pattern.steps[0].timeMinutes = 10;
 
-pattern.steps[1].temperature = 50.0;
+pattern.steps[1].temperature = 50.0;  // deg C
 pattern.steps[1].timeMinutes = 30;
 
-pattern.steps[2].temperature = 75.0;
+pattern.steps[2].temperature = 75.0;  // deg C
 pattern.steps[2].timeMinutes = 20;
 
 // Set the pattern
@@ -264,22 +264,22 @@ DTB_StartProgram(&handle);
 
 **Pattern chaining:**
 ```c
-// Pattern 0: Heat to 50°C
+// Pattern 0: Heat to 50 deg C
 DTB_Pattern pattern0 = {0};
 pattern0.actualStepCount = 1;
 pattern0.cycleCount = 1;
 pattern0.linkPattern = 1;  // Link to pattern 1
-pattern0.steps[0].temperature = 50.0;
+pattern0.steps[0].temperature = 50.0;  // deg C
 pattern0.steps[0].timeMinutes = 30;
 
-// Pattern 1: Hold at 50°C, then cool to 25°C
+// Pattern 1: Hold at 50 deg C, then cool to 25 deg C
 DTB_Pattern pattern1 = {0};
 pattern1.actualStepCount = 2;
 pattern1.cycleCount = 1;
 pattern1.linkPattern = DTB_LINK_PATTERN_END;  // End of sequence
-pattern1.steps[0].temperature = 50.0;
+pattern1.steps[0].temperature = 50.0;  // deg C
 pattern1.steps[0].timeMinutes = 60;
-pattern1.steps[1].temperature = 25.0;
+pattern1.steps[1].temperature = 25.0;  // deg C
 pattern1.steps[1].timeMinutes = 45;
 
 // Configure both patterns
@@ -374,7 +374,7 @@ This ensures that all steps, cycle count, and link pattern are set together in a
 ```c
 // Individual temperature/time step
 typedef struct {
-    double temperature;    // Temperature setpoint (°C)
+    double temperature;    // Temperature setpoint (deg C)
     int timeMinutes;      // Duration at this temperature (0-900 min)
 } DTB_Step;
 
@@ -519,7 +519,7 @@ LogErrorEx(LOG_DEVICE_BIO, "Failed to load technique: %s", errorStr);
 
 // General logging
 LogMessage("Experiment started successfully");
-LogWarning("Battery temperature elevated: %.1f°C", temp);
+LogWarning("Battery temperature elevated: %.1f deg C", temp);
 ```
 
 ## Adding New Devices

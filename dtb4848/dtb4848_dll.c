@@ -1124,7 +1124,7 @@ int DTB_SetStep(DTB_Handle *handle, int patternNumber, int stepNumber,
         return DTB_ERROR_INVALID_PARAM;
     }
 
-    LogMessageEx(LOG_DEVICE_DTB, "Setting Pattern %d, Step %d: %.1f°C for %d minutes",
+    LogMessageEx(LOG_DEVICE_DTB, "Setting Pattern %d, Step %d: %.1f deg C for %d minutes",
                  patternNumber, stepNumber, temperature, timeMinutes);
 
     int result;
@@ -1522,7 +1522,7 @@ int DTB_SetSimpleRamp(DTB_Handle *handle, int patternNumber,
         return DTB_ERROR_INVALID_PARAM;
     }
 
-    LogMessageEx(LOG_DEVICE_DTB, "Setting simple ramp in Pattern %d: %.1f°C to %.1f°C over %d min, soak %d min",
+    LogMessageEx(LOG_DEVICE_DTB, "Setting simple ramp in Pattern %d: %.1f deg C to %.1f deg C over %d min, soak %d min",
                  patternNumber, startTemp, endTemp, rampTimeMinutes, soakTimeMinutes);
 
     DTB_Pattern pattern;
@@ -1558,7 +1558,7 @@ int DTB_SetSimpleRamp(DTB_Handle *handle, int patternNumber,
         return result;
     }
 
-    LogMessageEx(LOG_DEVICE_DTB, "Simple ramp configured: Step 0 (baseline: %.1f°C, 1 min), Step 1 (ramp to %.1f°C in %d min), Step 2 (soak for %d min)",
+    LogMessageEx(LOG_DEVICE_DTB, "Simple ramp configured: Step 0 (baseline: %.1f deg C, 1 min), Step 1 (ramp to %.1f deg C in %d min), Step 2 (soak for %d min)",
                  startTemp, endTemp, rampTimeMinutes, soakTimeMinutes);
 
     return DTB_SUCCESS;
