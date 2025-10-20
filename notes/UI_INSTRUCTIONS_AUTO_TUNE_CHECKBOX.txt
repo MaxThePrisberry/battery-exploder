@@ -1,0 +1,89 @@
+================================================================================
+UI INSTRUCTIONS: Adding Auto-Tune Checkbox to Temperature Ramp Experiment
+================================================================================
+
+The code has been modified to support auto-tuning before temperature ramp
+experiments. To complete the implementation, you need to add a checkbox control
+to the UI in LabWindows/CVI.
+
+STEPS TO ADD THE CHECKBOX:
+================================================================================
+
+1. Open BatteryExploder.uir in LabWindows/CVI 2020
+
+2. Navigate to the Temperature Ramp experiment tab (RUNAWAY panel)
+
+3. Add a new CHECKBOX control with the following properties:
+   - Control Name: RUNAWAY_CBX_AUTO_TUNE
+   - Label Text: "Auto-Tune PID Before Ramp"
+   - Default Value: 0 (unchecked)
+   - Position: Place it near the other checkboxes (e.g., below RUNAWAY_CBX_CONT_TRAMP_EIS)
+
+4. Optional: Add a text label next to it explaining:
+   "Automatically optimize DTB PID parameters before starting the temperature ramp.
+    This takes 5-15 minutes but may improve ramp rate accuracy."
+
+5. Save the .uir file
+
+WHAT THE AUTO-TUNING DOES:
+================================================================================
+
+When the checkbox is enabled (checked):
+- Before the temperature ramp starts, the DTB controllers will automatically
+  tune their PID parameters (P, I, D values)
+- The tuning target is set to the midpoint between initial and final temperature
+- The AT LED on the DTB will flash during tuning
+- Auto-tuning typically takes 5-15 minutes to complete
+- After tuning, the optimized PID parameters are used for the temperature ramp
+- This should result in more accurate ramp rates
+
+When the checkbox is disabled (unchecked):
+- The experiment proceeds normally without auto-tuning
+- Default PID parameters are used (current behavior)
+
+TESTING:
+================================================================================
+
+1. After adding the checkbox, build the project in LabWindows/CVI
+2. Run the application
+3. Check that the checkbox appears on the Temperature Ramp tab
+4. Try running an experiment with auto-tuning enabled
+5. Verify the logs show:
+   - "=== PHASE 0: Auto-Tuning PID Parameters ==="
+   - "Auto-tuning started for DTB device X (AT LED should be flashing)"
+   - "Auto-tuning completed for all DTB devices after X.X minutes"
+
+CODE CHANGES MADE:
+================================================================================
+
+Files Modified:
+- exp_temp_ramp.h: Added autoTuneBeforeRamp field to TempRampExperimentParams
+- exp_temp_ramp.h: Added TEMP_RAMP_STATE_AUTO_TUNING state
+- exp_temp_ramp.c: Added GetCtrlVal call to read checkbox value
+- exp_temp_ramp.c: Added auto-tuning parameter to confirmation dialog
+- exp_temp_ramp.c: Added auto-tuning parameter to settings file
+- exp_temp_ramp.c: Implemented PerformAutoTuning() function
+- exp_temp_ramp.c: Added auto-tuning phase to experiment state machine
+
+Control Name Required:
+- RUNAWAY_CBX_AUTO_TUNE (must match exactly in .uir file)
+
+TROUBLESHOOTING:
+================================================================================
+
+If you get a compile error about RUNAWAY_CBX_AUTO_TUNE not being defined:
+- Make sure you added the checkbox with the exact name "RUNAWAY_CBX_AUTO_TUNE"
+- Rebuild the project to regenerate the control ID definitions
+
+If auto-tuning never completes:
+- Check that the DTB is in PID control mode (not ON/OFF or Manual)
+- Verify the DTB is properly connected and responding
+- Check the AT LED on the front panel (should flash during tuning)
+- Try increasing the maxAutoTuneTime in PerformAutoTuning() if needed
+
+If ramp rate is still inaccurate after auto-tuning:
+- Auto-tuning may need to be run at different temperatures
+- Consider manually adjusting PID parameters if auto-tuning doesn't help
+- Check for thermal load issues or hardware limitations
+
+================================================================================

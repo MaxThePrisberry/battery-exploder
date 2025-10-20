@@ -53,6 +53,7 @@
 typedef enum {
     TEMP_RAMP_STATE_IDLE = 0,
     TEMP_RAMP_STATE_PREPARING,
+    TEMP_RAMP_STATE_AUTO_TUNING,
     TEMP_RAMP_STATE_REACHING_INITIAL_TEMP,
     TEMP_RAMP_STATE_STABILIZING_INITIAL,
     TEMP_RAMP_STATE_RAMPING,
@@ -65,12 +66,13 @@ typedef enum {
 
 // Experiment parameters
 typedef struct {
-    double initialTemp;          // Starting temperature (�C)
-    double finalTemp;            // Final temperature (�C)
-    double rampRate;             // Heating rate (�C/min)
+    double initialTemp;          // Starting temperature (deg C)
+    double finalTemp;            // Final temperature (deg C)
+    double rampRate;             // Heating rate (deg C/min)
     double eisInterval;          // Time between EIS measurements (minutes)
     int continueRampDuringEIS;   // 1 = continue ramping during EIS, 0 = pause ramp
     int useRampSoak;             // 1 = use DTB ramp-soak (new), 0 = manual ramping (legacy)
+    int autoTuneBeforeRamp;      // 1 = run auto-tuning before ramp, 0 = skip auto-tuning
 } TempRampExperimentParams;
 
 // Temperature data point

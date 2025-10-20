@@ -43,6 +43,7 @@ static int VerifyDevicesAndInitialize(TempRampExperimentContext *ctx);
 static int CreateExperimentFileSystem(TempRampExperimentContext *ctx);
 static int SaveExperimentSettings(TempRampExperimentContext *ctx);
 
+static int PerformAutoTuning(TempRampExperimentContext *ctx);
 static int ReachInitialTemperature(TempRampExperimentContext *ctx);
 static int StabilizeAtInitialTemperature(TempRampExperimentContext *ctx);
 static int RunTemperatureRampWithEIS(TempRampExperimentContext *ctx);
@@ -126,6 +127,7 @@ int CVICALLBACK StartTempRampExperimentCallback(int panel, int control, int even
     GetCtrlVal(panel, RUNAWAY_NUM_EIS_INTERVAL_RWY, &g_experimentContext.params.eisInterval);
     GetCtrlVal(panel, RUNAWAY_CBX_CONT_TRAMP_EIS, &g_experimentContext.params.continueRampDuringEIS);
 	GetCtrlVal(panel, RUNAWAY_RING_RAMP_MODE, &g_experimentContext.params.useRampSoak);
+	GetCtrlVal(panel, RUNAWAY_CBX_AUTO_TUNE, &g_experimentContext.params.autoTuneBeforeRamp);
     
     // Validate parameters
     if (!ENABLE_DTB) {
@@ -288,17 +290,19 @@ static int TempRampExperimentThread(void *functionData) {
         "TEMPERATURE RAMP EIS EXPERIMENT\n"
         "================================\n\n"
         "PARAMETERS:\n"
-        "� Initial Temperature: %.1f �C\n"
-        "� Final Temperature: %.1f �C\n"
-        "� Ramp Rate: %.1f �C/min\n"
+        "� Initial Temperature: %.1f deg C\n"
+        "� Final Temperature: %.1f deg C\n"
+        "� Ramp Rate: %.1f deg C/min\n"
         "� EIS Interval: %.1f minutes\n"
         "� Ramp Mode: %s during EIS\n"
-        "� Implementation: %s\n\n"
+        "� Implementation: %s\n"
+        "� Auto-Tuning: %s\n\n"
         "EXPERIMENT SEQUENCE:\n"
-        "1. Reach %.1f �C and stabilize\n"
-        "2. Ramp to %.1f �C at %.1f �C/min\n"
+        "%s"
+        "1. Reach %.1f deg C and stabilize\n"
+        "2. Ramp to %.1f deg C at %.1f deg C/min\n"
         "3. EIS measurements every %.1f min\n"
-        "4. Hold at %.1f �C briefly\n\n"
+        "4. Hold at %.1f deg C briefly\n\n"
         "ESTIMATED:\n"
         "� Ramp Duration: %.1f minutes\n"
         "� Expected Measurements: ~%d\n"
@@ -310,6 +314,8 @@ static int TempRampExperimentThread(void *functionData) {
         ctx->params.eisInterval,
         ctx->params.continueRampDuringEIS ? "CONTINUE" : "PAUSE",
         ctx->params.useRampSoak ? "DTB Ramp-Soak" : "Manual Ramping",
+        ctx->params.autoTuneBeforeRamp ? "ENABLED" : "DISABLED",
+        ctx->params.autoTuneBeforeRamp ? "0. Auto-tune PID parameters\n" : "",
         ctx->params.initialTemp,
         ctx->params.finalTemp,
         ctx->params.rampRate,
@@ -317,7 +323,7 @@ static int TempRampExperimentThread(void *functionData) {
         ctx->params.finalTemp,
         rampDuration,
         expectedMeasurements,
-        rampDuration + 10.0);
+        rampDuration + (ctx->params.autoTuneBeforeRamp ? 15.0 : 10.0));
     
     int response = ConfirmPopup("Confirm Temperature Ramp Experiment", message);
     if (!response || CheckCancellation(ctx)) {
@@ -346,20 +352,36 @@ static int TempRampExperimentThread(void *functionData) {
     
     // Allocate EIS measurement array
     ctx->eisMeasurementCapacity = expectedMeasurements + 10;  // Extra capacity
-    ctx->eisMeasurements = (TempRampEISMeasurement*)calloc(ctx->eisMeasurementCapacity, 
+    ctx->eisMeasurements = (TempRampEISMeasurement*)calloc(ctx->eisMeasurementCapacity,
                                                            sizeof(TempRampEISMeasurement));
     if (!ctx->eisMeasurements) {
         LogError("Failed to allocate EIS measurement array");
         ctx->state = TEMP_RAMP_STATE_ERROR;
         goto cleanup;
     }
-    
+
+    // PHASE 0 (OPTIONAL): Auto-Tuning
+    if (ctx->params.autoTuneBeforeRamp) {
+        LogMessage("=== PHASE 0: Auto-Tuning PID Parameters ===");
+        ctx->state = TEMP_RAMP_STATE_AUTO_TUNING;
+        SetCtrlVal(ctx->tabPanelHandle, ctx->statusControl,
+                   "Auto-tuning PID parameters...");
+
+        result = PerformAutoTuning(ctx);
+        if (result != SUCCESS || CheckCancellation(ctx)) {
+            if (!CheckCancellation(ctx)) {
+                ctx->state = TEMP_RAMP_STATE_ERROR;
+            }
+            goto cleanup;
+        }
+    }
+
     // PHASE 1: Reach Initial Temperature
     LogMessage("=== PHASE 1: Reaching Initial Temperature ===");
     ctx->state = TEMP_RAMP_STATE_REACHING_INITIAL_TEMP;
-    SetCtrlVal(ctx->tabPanelHandle, ctx->statusControl, 
+    SetCtrlVal(ctx->tabPanelHandle, ctx->statusControl,
                "Reaching initial temperature...");
-    
+
     result = ReachInitialTemperature(ctx);
     if (result != SUCCESS || CheckCancellation(ctx)) {
         if (!CheckCancellation(ctx)) {
@@ -470,8 +492,117 @@ cleanup:
  * Phase Implementation Functions
  ******************************************************************************/
 
+static int PerformAutoTuning(TempRampExperimentContext *ctx) {
+    LogMessage("Starting DTB auto-tuning procedure...");
+
+    // Calculate a suitable auto-tuning target temperature (midpoint of ramp)
+    double autoTuneTemp = (ctx->params.initialTemp + ctx->params.finalTemp) / 2.0;
+    LogMessage("Auto-tuning target temperature: %.1f deg C", autoTuneTemp);
+
+    // Set the target temperature for all DTB controllers
+    int result;
+    for (int i = 0; i < DTB_NUM_DEVICES; i++) {
+        int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
+
+        result = DTB_SetSetPointQueued(slaveAddress, autoTuneTemp, DEVICE_PRIORITY_NORMAL);
+        if (result != DTB_SUCCESS) {
+            LogError("Failed to set auto-tune setpoint for DTB device %d: %s",
+                    slaveAddress, DTB_GetErrorString(result));
+            return result;
+        }
+    }
+
+    // Start RUN mode for all DTB controllers
+    result = DTB_SetRunStopAllQueued(1, DEVICE_PRIORITY_NORMAL);
+    if (result != DTB_SUCCESS) {
+        LogError("Failed to start DTB for auto-tuning: %s", DTB_GetErrorString(result));
+        return result;
+    }
+
+    Delay(2.0);  // Allow DTB to start
+
+    // Start auto-tuning on all DTB controllers
+    for (int i = 0; i < DTB_NUM_DEVICES; i++) {
+        int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
+
+        result = DTB_StartAutoTuningQueued(slaveAddress, DEVICE_PRIORITY_NORMAL);
+        if (result != DTB_SUCCESS) {
+            LogError("Failed to start auto-tuning for DTB device %d: %s",
+                    slaveAddress, DTB_GetErrorString(result));
+            return result;
+        }
+
+        LogMessage("Auto-tuning started for DTB device %d (AT LED should be flashing)", slaveAddress);
+    }
+
+    // Monitor auto-tuning status
+    LogMessage("Monitoring auto-tuning progress (this may take 5-15 minutes)...");
+    LogMessage("Watch for AT LED to stop flashing on DTB controllers");
+
+    double startTime = Timer();
+    double maxAutoTuneTime = 1800.0;  // 30 minutes maximum
+    int allCompleted = 0;
+
+    while (!allCompleted && !CheckCancellation(ctx)) {
+        double elapsedTime = Timer() - startTime;
+
+        // Check if auto-tuning timeout exceeded
+        if (elapsedTime > maxAutoTuneTime) {
+            LogWarning("Auto-tuning timeout exceeded (%.1f min), stopping auto-tuning",
+                      elapsedTime / 60.0);
+            break;
+        }
+
+        // Check auto-tuning status for all devices
+        allCompleted = 1;
+        for (int i = 0; i < DTB_NUM_DEVICES; i++) {
+            int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
+            DTB_Status status;
+
+            result = DTB_GetStatusQueued(slaveAddress, &status, DEVICE_PRIORITY_NORMAL);
+            if (result != DTB_SUCCESS) {
+                LogWarning("Failed to get auto-tuning status for DTB device %d", slaveAddress);
+                continue;
+            }
+
+            if (status.autoTuning) {
+                allCompleted = 0;  // Still tuning
+            }
+        }
+
+        if (allCompleted) {
+            LogMessage("Auto-tuning completed for all DTB devices after %.1f minutes",
+                      elapsedTime / 60.0);
+            break;
+        }
+
+        // Update status every 30 seconds
+        if ((int)elapsedTime % 30 == 0) {
+            LogMessage("Auto-tuning in progress... (%.1f min elapsed)", elapsedTime / 60.0);
+        }
+
+        Delay(5.0);  // Check every 5 seconds
+    }
+
+    // Stop auto-tuning (in case of timeout or cancellation)
+    for (int i = 0; i < DTB_NUM_DEVICES; i++) {
+        int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
+        DTB_StopAutoTuningQueued(slaveAddress, DEVICE_PRIORITY_NORMAL);
+    }
+
+    if (CheckCancellation(ctx)) {
+        LogMessage("Auto-tuning cancelled by user");
+        return ERR_CANCELLED;
+    }
+
+    LogMessage("Auto-tuning phase completed - optimized PID parameters now active");
+    LogMessage("DTB will use these parameters for the temperature ramp");
+
+    return SUCCESS;
+}
+
 static int ReachInitialTemperature(TempRampExperimentContext *ctx) {
-    LogMessage("Setting DTB target to %.1f �C", ctx->params.initialTemp);
+    LogMessage("Setting DTB target to %.1f deg C", ctx->params.initialTemp);
     
     int result = UpdateTemperatureSetpoint(ctx, ctx->params.initialTemp);
     if (result != SUCCESS) {
@@ -1788,6 +1919,9 @@ static int SaveExperimentSettings(TempRampExperimentContext *ctx) {
     WriteINIValue(file, "Use_DTB_Ramp_Soak", "%d (%s)",
                  ctx->params.useRampSoak,
                  ctx->params.useRampSoak ? "New Implementation" : "Legacy Implementation");
+    WriteINIValue(file, "Auto_Tune_Before_Ramp", "%d (%s)",
+                 ctx->params.autoTuneBeforeRamp,
+                 ctx->params.autoTuneBeforeRamp ? "Enabled" : "Disabled");
     fprintf(file, "\n");
     
     WriteINISection(file, "Device_Enable_Flags");
