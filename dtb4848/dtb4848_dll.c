@@ -1530,8 +1530,9 @@ int DTB_SetSimpleRamp(DTB_Handle *handle, int patternNumber,
 
     // Step 0: Establish baseline at startTemp (required for proper RAMP behavior)
     // DTB treats Step 0 as SOAK by default. This step establishes the starting temperature.
+    // IMPORTANT: Use 1 minute minimum - DTB may not handle 0-minute steps properly
     pattern.steps[0].temperature = startTemp;
-    pattern.steps[0].timeMinutes = 0;  // Minimal time, just establish baseline
+    pattern.steps[0].timeMinutes = 1;  // 1 minute to establish baseline
 
     // Step 1: Ramp to endTemp (RAMP mode because endTemp != startTemp)
     // DTB will take exactly rampTimeMinutes to go from startTemp to endTemp
@@ -1557,7 +1558,7 @@ int DTB_SetSimpleRamp(DTB_Handle *handle, int patternNumber,
         return result;
     }
 
-    LogMessageEx(LOG_DEVICE_DTB, "Simple ramp configured: Step 0 (baseline: %.1f°C), Step 1 (ramp to %.1f°C in %d min), Step 2 (soak for %d min)",
+    LogMessageEx(LOG_DEVICE_DTB, "Simple ramp configured: Step 0 (baseline: %.1f°C, 1 min), Step 1 (ramp to %.1f°C in %d min), Step 2 (soak for %d min)",
                  startTemp, endTemp, rampTimeMinutes, soakTimeMinutes);
 
     return DTB_SUCCESS;

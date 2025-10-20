@@ -213,8 +213,8 @@ Each **step** contains:
 ```c
 // Create a ramp from 25°C to 100°C over 60 minutes with no soak
 // This creates a 3-step pattern internally:
-//   Step 0: 25°C for 0 min (baseline)
-//   Step 1: 100°C for 60 min (controlled ramp)
+//   Step 0: 25°C for 1 min (baseline - establishes starting point)
+//   Step 1: 100°C for 60 min (controlled ramp at exact rate)
 //   Step 2: 100°C for 0 min (no soak)
 int result = DTB_SetSimpleRamp(&handle,
                                0,      // patternNumber
@@ -224,13 +224,18 @@ int result = DTB_SetSimpleRamp(&handle,
                                0);     // soakTimeMinutes
 
 // With soak time - pattern becomes:
-//   Step 0: 25°C for 0 min (baseline)
+//   Step 0: 25°C for 1 min (baseline)
 //   Step 1: 100°C for 60 min (controlled ramp)
 //   Step 2: 100°C for 30 min (soak at final temp)
 int result = DTB_SetSimpleRamp(&handle, 0, 25.0, 100.0, 60, 30);
 ```
 
-**Important:** The DTB controller interprets Step 0 as SOAK mode by default. To achieve a proper controlled ramp, `DTB_SetSimpleRamp` creates a 3-step pattern with Step 0 establishing the baseline temperature, Step 1 performing the actual ramp, and Step 2 providing optional soak time. This ensures the ramp proceeds at the exact rate calculated from (endTemp - startTemp) / rampTimeMinutes.
+**Important:** The DTB controller interprets Step 0 as SOAK mode by default. To achieve a proper controlled ramp, `DTB_SetSimpleRamp` creates a 3-step pattern with:
+- **Step 0:** Establishes baseline at startTemp (1 minute SOAK)
+- **Step 1:** Performs the actual RAMP to endTemp (exactly rampTimeMinutes)
+- **Step 2:** Optional SOAK at endTemp (soakTimeMinutes)
+
+Step 0 uses 1 minute minimum because the DTB may not handle 0-minute steps properly. This ensures clean progression through the pattern and precise ramp rate control during Step 1.
 
 **Complex multi-step pattern:**
 ```c

@@ -1517,7 +1517,7 @@ static int SaveEISMeasurementData(TempRampExperimentContext *ctx, TempRampEISMea
     WriteINIDouble(file, "Elapsed_Time_s", measurement->timestamp, 1);
     WriteINIDouble(file, "Temperature_C", measurement->temperature, 1);
     WriteINIDouble(file, "OCV_Voltage_V", measurement->ocvVoltage, 4);
-    WriteINIDouble(file, "DTB_Setpoint_C", measurement->tempData.dtbSetpoint, 1);
+    WriteINIDouble(file, "DTB_Setpoint_C", measurement->tempData.dtbSetpoint, 1);  // Note: Not used during program mode
     WriteINIDouble(file, "TC0_Temperature_C", measurement->tempData.tc0Temperature, 1);
     WriteINIDouble(file, "TC1_Temperature_C", measurement->tempData.tc1Temperature, 1);
     WriteINIValue(file, "Retry_Count", "%d", measurement->retryCount);
@@ -1749,7 +1749,7 @@ static int CreateExperimentFileSystem(TempRampExperimentContext *ctx) {
         return ERR_BASE_FILE;
     }
     
-    fprintf(ctx->temperatureLogFile, "Time_s,DTB_Avg_C,DTB_Setpoint_C,TC0_C,TC1_C\n");
+    fprintf(ctx->temperatureLogFile, "Time_s,DTB_Avg_C,DTB_Setpoint_Reg_C,TC0_C,TC1_C\n");  // DTB_Setpoint_Reg_C is not used during program mode
     fflush(ctx->temperatureLogFile);
     
     LogMessage("Created experiment file system: %s", ctx->experimentDirectory);
