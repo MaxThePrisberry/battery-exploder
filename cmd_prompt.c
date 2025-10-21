@@ -277,15 +277,147 @@ static int DTBCommandManager(CommandContext *ctx) {
 		LogPromptTextbox(CMD_OUTPUT, "Setup command success.");
 	} else if (strcmp(ctx->command, "AT") == 0) {
 		int error = DTB_StartAutoTuningQueued(slaveAddress, DEVICE_PRIORITY_HIGH);
-		
+
 		if (error != SUCCESS) {
 			char message[1024];
 			snprintf(message, 1024, "Autotune command failed: %d : %s", error, GetErrorString(error));
 			LogPromptTextbox(CMD_ERROR, message);
 			return -1;
 		}
-		
+
 		LogPromptTextbox(CMD_OUTPUT, "Autotune command success.");
+	} else if (strncmp(ctx->command, "PID", 3) == 0) {
+		// PID commands: PID?, PIDP<val>, PIDI<val>, PIDD<val>, PIDX<val>
+
+		if (strcmp(ctx->command, "PID?") == 0) {
+			// Read and display PID parameters
+			DTB_PIDParams pidParams;
+			int error = DTB_GetPIDParamsQueued(slaveAddress, 0, &pidParams, DEVICE_PRIORITY_HIGH);
+
+			if (error != SUCCESS) {
+				char message[1024];
+				snprintf(message, 1024, "Failed to read PID parameters: %d : %s", error, GetErrorString(error));
+				LogPromptTextbox(CMD_ERROR, message);
+				return -1;
+			}
+
+			char message[1024];
+			snprintf(message, 1024, "PID: P %.1f, I %.0f s, D %.0f s, ID %.1f%%",
+			        pidParams.proportionalBand, pidParams.integralTime,
+			        pidParams.derivativeTime, pidParams.integralDefault);
+			LogPromptTextbox(CMD_OUTPUT, message);
+
+		} else if (ctx->commandLength >= 5 && ctx->command[3] == 'P') {
+			// Set proportional band: PIDP<value>
+			double value = atof(&ctx->command[4]);
+
+			// Read current parameters
+			DTB_PIDParams pidParams;
+			int error = DTB_GetPIDParamsQueued(slaveAddress, 0, &pidParams, DEVICE_PRIORITY_HIGH);
+			if (error != SUCCESS) {
+				LogPromptTextbox(CMD_ERROR, "Failed to read current PID parameters");
+				return -1;
+			}
+
+			// Update proportional band
+			pidParams.proportionalBand = value;
+			error = DTB_SetPIDParamsQueued(slaveAddress, 0, &pidParams, DEVICE_PRIORITY_HIGH);
+
+			if (error != SUCCESS) {
+				char message[1024];
+				snprintf(message, 1024, "Failed to set PID parameters: %d : %s", error, GetErrorString(error));
+				LogPromptTextbox(CMD_ERROR, message);
+				return -1;
+			}
+
+			char message[1024];
+			snprintf(message, 1024, "Proportional band set to %.1f", value);
+			LogPromptTextbox(CMD_OUTPUT, message);
+
+		} else if (ctx->commandLength >= 5 && ctx->command[3] == 'I') {
+			// Set integral time: PIDI<value>
+			double value = atof(&ctx->command[4]);
+
+			// Read current parameters
+			DTB_PIDParams pidParams;
+			int error = DTB_GetPIDParamsQueued(slaveAddress, 0, &pidParams, DEVICE_PRIORITY_HIGH);
+			if (error != SUCCESS) {
+				LogPromptTextbox(CMD_ERROR, "Failed to read current PID parameters");
+				return -1;
+			}
+
+			// Update integral time
+			pidParams.integralTime = value;
+			error = DTB_SetPIDParamsQueued(slaveAddress, 0, &pidParams, DEVICE_PRIORITY_HIGH);
+
+			if (error != SUCCESS) {
+				char message[1024];
+				snprintf(message, 1024, "Failed to set PID parameters: %d : %s", error, GetErrorString(error));
+				LogPromptTextbox(CMD_ERROR, message);
+				return -1;
+			}
+
+			char message[1024];
+			snprintf(message, 1024, "Integral time set to %.0f s", value);
+			LogPromptTextbox(CMD_OUTPUT, message);
+
+		} else if (ctx->commandLength >= 5 && ctx->command[3] == 'D') {
+			// Set derivative time: PIDD<value>
+			double value = atof(&ctx->command[4]);
+
+			// Read current parameters
+			DTB_PIDParams pidParams;
+			int error = DTB_GetPIDParamsQueued(slaveAddress, 0, &pidParams, DEVICE_PRIORITY_HIGH);
+			if (error != SUCCESS) {
+				LogPromptTextbox(CMD_ERROR, "Failed to read current PID parameters");
+				return -1;
+			}
+
+			// Update derivative time
+			pidParams.derivativeTime = value;
+			error = DTB_SetPIDParamsQueued(slaveAddress, 0, &pidParams, DEVICE_PRIORITY_HIGH);
+
+			if (error != SUCCESS) {
+				char message[1024];
+				snprintf(message, 1024, "Failed to set PID parameters: %d : %s", error, GetErrorString(error));
+				LogPromptTextbox(CMD_ERROR, message);
+				return -1;
+			}
+
+			char message[1024];
+			snprintf(message, 1024, "Derivative time set to %.0f s", value);
+			LogPromptTextbox(CMD_OUTPUT, message);
+
+		} else if (ctx->commandLength >= 5 && ctx->command[3] == 'X') {
+			// Set integral default: PIDX<value>
+			double value = atof(&ctx->command[4]);
+
+			// Read current parameters
+			DTB_PIDParams pidParams;
+			int error = DTB_GetPIDParamsQueued(slaveAddress, 0, &pidParams, DEVICE_PRIORITY_HIGH);
+			if (error != SUCCESS) {
+				LogPromptTextbox(CMD_ERROR, "Failed to read current PID parameters");
+				return -1;
+			}
+
+			// Update integral default
+			pidParams.integralDefault = value;
+			error = DTB_SetPIDParamsQueued(slaveAddress, 0, &pidParams, DEVICE_PRIORITY_HIGH);
+
+			if (error != SUCCESS) {
+				char message[1024];
+				snprintf(message, 1024, "Failed to set PID parameters: %d : %s", error, GetErrorString(error));
+				LogPromptTextbox(CMD_ERROR, message);
+				return -1;
+			}
+
+			char message[1024];
+			snprintf(message, 1024, "Integral default set to %.1f%%", value);
+			LogPromptTextbox(CMD_OUTPUT, message);
+
+		} else {
+			LogPromptTextbox(CMD_ERROR, "Invalid PID command. Use: PID?, PIDP<val>, PIDI<val>, PIDD<val>, or PIDX<val>");
+		}
 	} else {
 		LogPromptTextbox(CMD_ERROR, "Invalid DTB command.");
 	}

@@ -372,11 +372,17 @@ static int DTB_AdapterExecuteCommand(void *deviceContext, int commandType, void 
             break;
 
         case DTB_CMD_GET_PID_PARAMS:
-            cmdResult->errorCode = DTB_GetPIDParams(handle, 
+            cmdResult->errorCode = DTB_GetPIDParams(handle,
                 cmdParams->getPidParams.pidNumber,
                 &cmdResult->data.pidParams);
             break;
-            
+
+        case DTB_CMD_SET_PID_PARAMS:
+            cmdResult->errorCode = DTB_SetPIDParams(handle,
+                cmdParams->setPidParams.pidNumber,
+                &cmdParams->setPidParams.pidParams);
+            break;
+
         case DTB_CMD_GET_ALARM_STATUS:
             cmdResult->errorCode = DTB_GetAlarmStatus(handle, &cmdResult->data.alarmActive);
             break;
@@ -1130,17 +1136,31 @@ int DTB_GetTemperatureQuickQueued(int slaveAddress, double *temperature, double 
 int DTB_GetPIDParamsQueued(int slaveAddress, int pidNumber, DTB_PIDParams *pidParams, DevicePriority priority) {
     if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
     if (!pidParams) return ERR_NULL_POINTER;
-    
+
     DTBCommandParams params = {.getPidParams = {slaveAddress, pidNumber}};
     DTBCommandResult result;
-    
+
     int error = DTB_QueueCommandBlocking(g_dtbQueueManager, DTB_CMD_GET_PID_PARAMS,
                                        &params, priority, &result,
                                        DTB_QUEUE_COMMAND_TIMEOUT_MS);
-    
+
     if (error == DTB_SUCCESS) {
         *pidParams = result.data.pidParams;
     }
+    return error;
+}
+
+int DTB_SetPIDParamsQueued(int slaveAddress, int pidNumber, const DTB_PIDParams *pidParams, DevicePriority priority) {
+    if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
+    if (!pidParams) return ERR_NULL_POINTER;
+
+    DTBCommandParams params = {.setPidParams = {slaveAddress, pidNumber, *pidParams}};
+    DTBCommandResult result;
+
+    int error = DTB_QueueCommandBlocking(g_dtbQueueManager, DTB_CMD_SET_PID_PARAMS,
+                                       &params, priority, &result,
+                                       DTB_QUEUE_COMMAND_TIMEOUT_MS);
+
     return error;
 }
 
@@ -1888,6 +1908,7 @@ int DTB_QueueGetCommandDelay(DTBCommandType type) {
         case DTB_CMD_SET_TEMPERATURE_LIMITS:
         case DTB_CMD_SET_ALARM_LIMITS:
         case DTB_CMD_SET_FRONT_PANEL_LOCK:
+        case DTB_CMD_SET_PID_PARAMS:
             return DTB_DELAY_AFTER_WRITE_REGISTER;
 
         case DTB_CMD_FACTORY_RESET:

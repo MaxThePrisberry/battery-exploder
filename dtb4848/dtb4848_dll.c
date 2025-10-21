@@ -671,6 +671,43 @@ int DTB_GetPIDParams(DTB_Handle *handle, int pidNumber, DTB_PIDParams *params) {
     return DTB_SUCCESS;
 }
 
+int DTB_SetPIDParams(DTB_Handle *handle, int pidNumber, const DTB_PIDParams *params) {
+    if (!handle || !handle->isConnected || !params) return DTB_ERROR_INVALID_PARAM;
+    if (pidNumber < 0 || pidNumber > 3) return DTB_ERROR_INVALID_PARAM;
+
+    // Note: DTB4848 only has global PID parameters, not separate sets
+    // This function writes the PID parameters
+
+    int result;
+    unsigned short value;
+
+    // Write proportional band (scaled by 10)
+    value = (unsigned short)(params->proportionalBand * 10.0 + 0.5);
+    result = DTB_WriteRegister(handle, REG_PROPORTIONAL_BAND, value);
+    if (result != DTB_SUCCESS) return result;
+
+    // Write integral time (seconds, no scaling)
+    value = (unsigned short)(params->integralTime + 0.5);
+    result = DTB_WriteRegister(handle, REG_INTEGRAL_TIME, value);
+    if (result != DTB_SUCCESS) return result;
+
+    // Write derivative time (seconds, no scaling)
+    value = (unsigned short)(params->derivativeTime + 0.5);
+    result = DTB_WriteRegister(handle, REG_DERIVATIVE_TIME, value);
+    if (result != DTB_SUCCESS) return result;
+
+    // Write integral default (scaled by 10)
+    value = (unsigned short)(params->integralDefault * 10.0 + 0.5);
+    result = DTB_WriteRegister(handle, REG_INTEGRAL_DEFAULT, value);
+    if (result != DTB_SUCCESS) return result;
+
+    LogMessageEx(LOG_DEVICE_DTB, "PID parameters set: P %.1f, I %.0f s, D %.0f s, ID %.1f%%",
+                 params->proportionalBand, params->integralTime,
+                 params->derivativeTime, params->integralDefault);
+
+    return DTB_SUCCESS;
+}
+
 /******************************************************************************
  * Alarm Functions
  ******************************************************************************/

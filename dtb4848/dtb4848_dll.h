@@ -273,6 +273,7 @@ int DTB_GetStatus(DTB_Handle *handle, DTB_Status *status);
 int DTB_GetProcessValue(DTB_Handle *handle, double *temperature);
 int DTB_GetSetPoint(DTB_Handle *handle, double *setPoint);
 int DTB_GetPIDParams(DTB_Handle *handle, int pidNumber, DTB_PIDParams *params);
+int DTB_SetPIDParams(DTB_Handle *handle, int pidNumber, const DTB_PIDParams *params);
 
 // Alarm Functions
 int DTB_GetAlarmStatus(DTB_Handle *handle, int *alarmActive);

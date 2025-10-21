@@ -59,6 +59,7 @@ typedef enum {
     // Configuration commands
     DTB_CMD_SET_CONTROL_METHOD,
     DTB_CMD_SET_PID_MODE,
+    DTB_CMD_SET_PID_PARAMS,
     DTB_CMD_SET_SENSOR_TYPE,
     DTB_CMD_SET_TEMPERATURE_LIMITS,
     DTB_CMD_SET_ALARM_LIMITS,
@@ -132,6 +133,7 @@ typedef union {
     struct { int slaveAddress; } configureDefault;
     struct { int slaveAddress; } factoryReset;
     struct { int slaveAddress; int pidNumber; } getPidParams;
+    struct { int slaveAddress; int pidNumber; DTB_PIDParams pidParams; } setPidParams;
     struct { int slaveAddress; int lockMode; } frontPanelLock;
     struct { int slaveAddress; int mode; } heatingCooling;
     struct { int slaveAddress; } getStatus;
@@ -308,6 +310,7 @@ int DTB_GetProcessValueQueued(int slaveAddress, double *temperature, DevicePrior
 int DTB_GetSetPointQueued(int slaveAddress, double *setPoint, DevicePriority priority);
 int DTB_GetTemperatureQuickQueued(int slaveAddress, double *temperature, double *setPoint, DevicePriority priority);
 int DTB_GetPIDParamsQueued(int slaveAddress, int pidNumber, DTB_PIDParams *params, DevicePriority priority);
+int DTB_SetPIDParamsQueued(int slaveAddress, int pidNumber, const DTB_PIDParams *params, DevicePriority priority);
 int DTB_GetAlarmStatusQueued(int slaveAddress, int *alarmActive, DevicePriority priority);
 
 // Alarm functions
