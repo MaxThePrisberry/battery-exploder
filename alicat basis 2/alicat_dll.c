@@ -35,7 +35,7 @@ static const char* gasNames[] = {
 static const char* flowUnitNames[] = {
     "SCCM", "NCCM", "SLPM", "NLPM", "SmL/s", "NmL/s",
     "SmL/m", "NmL/m", "SL/h", "NL/h", "SCCS", "NCCS",
-    "Sm³/h", "Nm³/h", "Sm³/d", "Nm³/d", "SCIM",
+    "Smï¿½/h", "Nmï¿½/h", "Smï¿½/d", "Nmï¿½/d", "SCIM",
     "SCFM", "SCFH", "SCFD"
 };
 
@@ -532,7 +532,7 @@ int ALICAT_SetSetpointSource(ALICAT_Handle *handle, int source) {
 int ALICAT_SetPIDParams(ALICAT_Handle *handle, const ALICAT_PIDParams *params) {
     if (!handle || !handle->isConnected || !params) return ALICAT_ERROR_INVALID_PARAM;
     
-    LogMessageEx(LOG_DEVICE_ALICAT, "Setting PID parameters: P=%u, I=%u",
+    LogMessageEx(LOG_DEVICE_ALICAT, "Setting PID parameters: P %u, I %u",
                  params->pGain, params->iGain);
     
     unsigned short values[2] = {params->pGain, params->iGain};
@@ -551,7 +551,7 @@ int ALICAT_SetFlowAveraging(ALICAT_Handle *handle, int averagingMs) {
 int ALICAT_SetRefTemperature(ALICAT_Handle *handle, double tempC) {
     if (!handle || !handle->isConnected) return ALICAT_ERROR_NOT_CONNECTED;
     
-    LogMessageEx(LOG_DEVICE_ALICAT, "Setting reference temperature: %.1f °C", tempC);
+    LogMessageEx(LOG_DEVICE_ALICAT, "Setting reference temperature: %.1f ï¿½C", tempC);
     
     unsigned short value = (unsigned short)(tempC * TEMP_SCALE_FACTOR);
     return ALICAT_WriteRegister(handle, REG_REF_TEMPERATURE, value);
@@ -662,7 +662,7 @@ void ALICAT_PrintStatus(const ALICAT_Status *status) {
     LogMessageEx(LOG_DEVICE_ALICAT, "=== ALICAT Status ===");
     LogMessageEx(LOG_DEVICE_ALICAT, "Flow Rate: %.3f", status->flowRate);
     LogMessageEx(LOG_DEVICE_ALICAT, "Setpoint: %.3f", status->setpoint);
-    LogMessageEx(LOG_DEVICE_ALICAT, "Temperature: %.1f °C", status->temperature);
+    LogMessageEx(LOG_DEVICE_ALICAT, "Temperature: %.1f ï¿½C", status->temperature);
     LogMessageEx(LOG_DEVICE_ALICAT, "Total Volume: %.3f", status->totalVolume);
     LogMessageEx(LOG_DEVICE_ALICAT, "Valve Drive: %.1f%%", status->valveDrive);
     LogMessageEx(LOG_DEVICE_ALICAT, "Selected Gas: %s", ALICAT_GetGasName(status->selectedGas));

@@ -831,7 +831,7 @@ int DTB_GetFrontPanelLock(DTB_Handle *handle, int *lockMode) {
                 break;
         }
         
-        LogMessageEx(LOG_DEVICE_DTB, "Front panel lock status: %s (value=%d)", 
+        LogMessageEx(LOG_DEVICE_DTB, "Front panel lock status: %s (value %d)",
                      modeStr, *lockMode);
     }
     
@@ -1218,7 +1218,7 @@ int DTB_SetPattern(DTB_Handle *handle, int patternNumber, const DTB_Pattern *pat
     result = DTB_SetLinkPattern(handle, patternNumber, pattern->linkPattern);
     if (result != DTB_SUCCESS) return result;
 
-    LogMessageEx(LOG_DEVICE_DTB, "Pattern %d configured: %d steps, %d cycles, link=%d",
+    LogMessageEx(LOG_DEVICE_DTB, "Pattern %d configured: %d steps, %d cycles, link %d",
                  patternNumber, pattern->actualStepCount, pattern->cycleCount, pattern->linkPattern);
 
     return DTB_SUCCESS;

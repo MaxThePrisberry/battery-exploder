@@ -105,7 +105,7 @@ static int ComparePatterns(const DTB_Pattern *pattern1, const DTB_Pattern *patte
 }
 
 static void PrintPattern(const DTB_Pattern *pattern, int patternNumber) {
-    LogMessage("Pattern %d: %d steps, %d cycles, link=%d",
+    LogMessage("Pattern %d: %d steps, %d cycles, link %d",
                patternNumber, pattern->actualStepCount,
                pattern->cycleCount, pattern->linkPattern);
     for (int i = 0; i < pattern->actualStepCount; i++) {
