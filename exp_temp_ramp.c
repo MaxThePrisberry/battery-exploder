@@ -1985,7 +1985,7 @@ static int CreateExperimentFileSystem(TempRampExperimentContext *ctx) {
         return ERR_BASE_FILE;
     }
     
-    fprintf(ctx->temperatureLogFile, "Time_s,DTB_Avg_C,DTB_Setpoint_Reg_C,TC0_C,TC1_C\n");  // DTB_Setpoint_Reg_C is not used during program mode
+    fprintf(ctx->temperatureLogFile, "Time_s,DTB_Avg_C,DTB_Setpoint_C,TC0_C,TC1_C\n");
     fflush(ctx->temperatureLogFile);
     
     LogMessage("Created experiment file system: %s", ctx->experimentDirectory);
