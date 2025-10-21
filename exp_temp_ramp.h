@@ -30,6 +30,10 @@
 #define TEMP_RAMP_HOLD_TIME             60     // Seconds to hold at final temp
 #define TEMP_RAMP_TIMEOUT_SEC           3600    // Max wait for initial temperature
 
+// Temperature-based termination constants
+#define TEMP_RAMP_OVERSHOOT_FACTOR      1.25    // 25% safety margin for early termination
+#define TEMP_TARGET_TOLERANCE           0.5     // �C undershoot tolerance for termination
+
 // EIS Configuration
 #define TEMP_RAMP_MAX_EIS_RETRY         2       // Retry failed measurements
 #define TEMP_RAMP_EIS_RETRY_DELAY       5.0     // Seconds between retries

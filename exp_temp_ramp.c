@@ -52,6 +52,7 @@ static int PerformEISMeasurementWithRampControl(TempRampExperimentContext *ctx);
 static int HoldAtFinalTemperature(TempRampExperimentContext *ctx);
 
 static int UpdateTemperatureSetpoint(TempRampExperimentContext *ctx, double newSetpoint);
+static int StopRampAndSwitchToSetpointHold(TempRampExperimentContext *ctx);
 static int ReadAllTemperatures(TempRampExperimentContext *ctx, TempRampTempData *tempData, double timestamp);
 static int LogTemperatureDataPoint(TempRampExperimentContext *ctx, TempRampTempData *tempData);
 static bool CheckExperimentCancellation(void *userData);
@@ -983,16 +984,21 @@ static int PerformEISMeasurementWithRampControl(TempRampExperimentContext *ctx) 
 static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
     int result;
 
-    // Calculate ramp parameters
+    // Calculate ramp parameters with overshoot for temperature-based termination
     double tempRange = ctx->params.finalTemp - ctx->params.initialTemp;
-    int rampMinutes = (int)((tempRange / ctx->params.rampRate) + 0.5);
+    double inflatedTempRange = tempRange * TEMP_RAMP_OVERSHOOT_FACTOR;
+    double inflatedEndTemp = ctx->params.initialTemp + inflatedTempRange;
+    int inflatedRampMinutes = (int)((inflatedTempRange / ctx->params.rampRate) + 0.5);
 
     LogMessage("=== Using DTB Ramp-Soak Implementation ===");
-    LogMessage("Configuring DTB ramp: %.1f -> %.1f �C over %d minutes",
-               ctx->params.initialTemp, ctx->params.finalTemp, rampMinutes);
+    LogMessage("Configuring DTB ramp: %.1f -> %.1f �C (target: %.1f �C) over %d minutes",
+               ctx->params.initialTemp, inflatedEndTemp, ctx->params.finalTemp, inflatedRampMinutes);
+    LogMessage("Using %.0f%% overshoot safety margin for temperature-based early termination",
+               (TEMP_RAMP_OVERSHOOT_FACTOR - 1.0) * 100.0);
 
-    // Configure simple ramp on all DTB devices
+    // Configure simple ramp on all DTB devices with inflated endpoint
     // Pattern 0: Simple ramp with no hold at end (soakTime = 0)
+    // Using inflated end temperature provides safety margin for early termination
     for (int i = 0; i < DTB_NUM_DEVICES; i++) {
         int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
 
@@ -1000,8 +1006,8 @@ static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
             slaveAddress,                // Slave address
             0,                           // Pattern number (use pattern 0)
             ctx->params.initialTemp,     // Start temperature
-            ctx->params.finalTemp,       // End temperature
-            rampMinutes,                 // Ramp duration in minutes
+            inflatedEndTemp,             // End temperature (inflated for safety)
+            inflatedRampMinutes,         // Ramp duration in minutes (inflated)
             0,                           // Soak time (0 = no hold at end)
             DEVICE_PRIORITY_NORMAL
         );
@@ -1051,13 +1057,14 @@ static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
     ctx->lastTempLogTime = Timer();
     ctx->totalEISTime = 0.0;
 
-    LogMessage("Temperature ramp started from %.1f to %.1f �C",
-               ctx->params.initialTemp, ctx->params.finalTemp);
-    LogMessage("Ramp rate: %.1f �C/min, Duration: %d minutes",
-               ctx->params.rampRate, rampMinutes);
+    LogMessage("Temperature ramp started from %.1f to %.1f �C (target: %.1f �C)",
+               ctx->params.initialTemp, inflatedEndTemp, ctx->params.finalTemp);
+    LogMessage("Ramp rate: %.1f �C/min, Inflated duration: %d minutes",
+               ctx->params.rampRate, inflatedRampMinutes);
     LogMessage("EIS measurements every %.1f minutes", ctx->params.eisInterval);
     LogMessage("Ramp mode: %s during EIS measurements",
                ctx->params.continueRampDuringEIS ? "CONTINUE" : "PAUSE");
+    LogMessage("Will terminate early when target %.1f �C is reached", ctx->params.finalTemp);
 
     // Perform initial EIS measurement
     LogMessage("Taking initial EIS measurement at %.1f �C", ctx->currentTemperature);
@@ -1071,9 +1078,9 @@ static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
         LogWarning("Initial EIS measurement failed, continuing anyway");
     }
 
-    // Calculate expected program completion time
+    // Calculate expected program completion time (inflated - used as safety timeout)
     // The DTB doesn't report completion via Modbus, so we use time-based detection
-    double expectedRampDuration = rampMinutes * 60.0;  // Convert to seconds
+    double expectedRampDuration = inflatedRampMinutes * 60.0;  // Convert to seconds
 
     // Main monitoring loop
     while (!ctx->finalTempReached) {
@@ -1117,11 +1124,32 @@ static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
             LogTemperatureDataPoint(ctx, &tempData);
             UpdateTemperaturePlot(ctx, &tempData);
 
+            // Check if ANY device has reached target temperature (Option A: most conservative)
+            int targetReached = 0;
+            for (int i = 0; i < tempData.dtbDeviceCount; i++) {
+                if (tempData.dtbTemperatures[i] >= (ctx->params.finalTemp - TEMP_TARGET_TOLERANCE)) {
+                    targetReached = 1;
+                    LogMessage("DTB device %d reached target: %.2f deg C (target: %.2f deg C)",
+                              i+1, tempData.dtbTemperatures[i], ctx->params.finalTemp);
+                    break;
+                }
+            }
+
+            // If target reached, stop ramp and switch to setpoint hold
+            if (targetReached && !ctx->finalTempReached) {
+                result = StopRampAndSwitchToSetpointHold(ctx);
+                if (result != SUCCESS) {
+                    LogWarning("Failed to transition to setpoint hold, continuing");
+                }
+                // finalTempReached is set by StopRampAndSwitchToSetpointHold()
+                // This will cause the loop to exit and proceed to final EIS measurement
+            }
+
             char statusMsg[MEDIUM_BUFFER_SIZE];
             double remainingTime = (expectedRampDuration - effectiveElapsedTime) / 60.0;
             snprintf(statusMsg, sizeof(statusMsg),
                      "Ramping: %.1f �C (%.1f/%.1f min, %.1f min remaining)",
-                     tempData.dtbAverageTemperature, elapsedTime, (double)rampMinutes, remainingTime);
+                     tempData.dtbAverageTemperature, elapsedTime, (double)inflatedRampMinutes, remainingTime);
             SetCtrlVal(ctx->tabPanelHandle, ctx->statusControl, statusMsg);
             SetCtrlVal(ctx->tabPanelHandle, ctx->outputControl, tempData.dtbAverageTemperature);
 
@@ -1222,8 +1250,50 @@ static int UpdateTemperatureSetpoint(TempRampExperimentContext *ctx, double newS
         LogError("Failed to update temperature setpoint: %s", DTB_GetErrorString(result));
         return result;
     }
-    
+
     ctx->targetTemperature = newSetpoint;
+    return SUCCESS;
+}
+
+static int StopRampAndSwitchToSetpointHold(TempRampExperimentContext *ctx) {
+    LogMessage("Terminating ramp program early - target %.1f deg C reached", ctx->params.finalTemp);
+
+    // Stop ramp-soak program on all DTB devices
+    for (int i = 0; i < DTB_NUM_DEVICES; i++) {
+        int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
+        int result = DTB_StopProgramQueued(slaveAddress, DEVICE_PRIORITY_HIGH);
+        if (result != DTB_SUCCESS) {
+            LogWarning("Failed to stop DTB %d program: %s", i+1, DTB_GetErrorString(result));
+        }
+    }
+
+    // Switch back to normal PID control
+    for (int i = 0; i < DTB_NUM_DEVICES; i++) {
+        int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
+        int result = DTB_SetControlMethodQueued(slaveAddress, CONTROL_METHOD_PID, DEVICE_PRIORITY_HIGH);
+        if (result != DTB_SUCCESS) {
+            LogWarning("Failed to set DTB %d control method: %s", i+1, DTB_GetErrorString(result));
+        }
+    }
+
+    // Set explicit setpoint at target temperature
+    for (int i = 0; i < DTB_NUM_DEVICES; i++) {
+        int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
+        int result = DTB_SetSetpointQueued(slaveAddress, ctx->params.finalTemp, DEVICE_PRIORITY_HIGH);
+        if (result != DTB_SUCCESS) {
+            LogWarning("Failed to set DTB %d setpoint: %s", i+1, DTB_GetErrorString(result));
+        }
+    }
+
+    // Ensure heating is enabled
+    int result = DTB_SetRunStopAllQueued(1, DEVICE_PRIORITY_HIGH);
+    if (result != DTB_SUCCESS) {
+        LogWarning("Failed to enable DTB heating: %s", DTB_GetErrorString(result));
+    }
+
+    ctx->finalTempReached = 1;
+    LogMessage("Now holding at %.1f deg C using setpoint control", ctx->params.finalTemp);
+
     return SUCCESS;
 }
 
