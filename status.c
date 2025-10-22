@@ -372,14 +372,29 @@ static int CVICALLBACK Status_TimerThread(void *functionData) {
 
 		    // Read voltage from NI 9202 channel 0 (slot 1) for UI display
 		    // NOTE: Requires PANEL_NUM_CH0_VOLTAGE control to be added to UI
+		    // Only attempt to read if current slot was successfully initialized
 		    #ifdef PANEL_NUM_CH0_VOLTAGE
-		    double voltage;
-		    if (CDAQ_ReadVoltage(0, &voltage) == SUCCESS) {
-		        UIUpdateData* voltageData = malloc(sizeof(UIUpdateData));
-		        if (voltageData) {
-		            voltageData->control = PANEL_NUM_CH0_VOLTAGE;
-		            voltageData->dblValue = voltage;
-		            PostDeferredCall(DeferredNumericUpdate, voltageData);
+		    static int currentSlotAvailable = -1;  // -1 = unknown, 0 = unavailable, 1 = available
+
+		    // Check initialization status once
+		    if (currentSlotAvailable == -1) {
+		        // Try a test read to see if slot is initialized
+		        double testVoltage;
+		        currentSlotAvailable = (CDAQ_ReadVoltage(0, &testVoltage) == SUCCESS) ? 1 : 0;
+		        if (!currentSlotAvailable) {
+		            LogWarning("cDAQ current slot (NI 9202) not available for voltage monitoring");
+		        }
+		    }
+
+		    if (currentSlotAvailable) {
+		        double voltage;
+		        if (CDAQ_ReadVoltage(0, &voltage) == SUCCESS) {
+		            UIUpdateData* voltageData = malloc(sizeof(UIUpdateData));
+		            if (voltageData) {
+		                voltageData->control = PANEL_NUM_CH0_VOLTAGE;
+		                voltageData->dblValue = voltage;
+		                PostDeferredCall(DeferredNumericUpdate, voltageData);
+		            }
 		        }
 		    }
 		    #endif

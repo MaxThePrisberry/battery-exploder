@@ -398,11 +398,11 @@ static int CDAQ_CreateCurrentSlotTask(TaskHandle *taskHandle) {
 
         // Create voltage channel with ±10V range (NI 9202 range)
         // Actual signal will be 1-5V for 4-20mA with 250Ω shunt
-        // Using RSE (Referenced Single-Ended) for single-ended voltage measurements
+        // NI 9202 only supports Differential mode (measures AI+ minus AI-)
         result = DAQmxCreateAIVoltageChan(*taskHandle,
                                          channelName,
                                          "",
-                                         DAQmx_Val_RSE,           // Referenced Single-Ended mode
+                                         DAQmx_Val_Diff,          // Differential mode (AI+ to AI-)
                                          CDAQ_VOLTAGE_RANGE_MIN,  // -10V
                                          CDAQ_VOLTAGE_RANGE_MAX,  // +10V
                                          DAQmx_Val_Volts,
