@@ -12,6 +12,7 @@
 #include "controls.h"
 #include "teensy_queue.h"
 #include "dtb4848_queue.h"
+#include "cdaq_utils.h"
 
 /******************************************************************************
  * Static Functions
@@ -438,12 +439,119 @@ static int ControlsCommandManager(CommandContext *ctx) {
 }
 
 static int DAQCommandManager(CommandContext *ctx) {
-	if (0) {
-		// Insert command logic here
-	} else {
-		LogPromptTextbox(CMD_ERROR, "Invalid DAQ command.");
+	char message[1024];
+	int error;
+
+	// DAQALL - Read all 16 current channels
+	if (strcmp(ctx->command, "ALL") == 0) {
+		double currents[CDAQ_CHANNELS_PER_SLOT];
+		int num_read;
+
+		error = CDAQ_ReadCurrentArray(currents, &num_read);
+		if (error != SUCCESS) {
+			snprintf(message, sizeof(message), "Failed to read current array: %d : %s",
+			        error, GetErrorString(error));
+			LogPromptTextbox(CMD_ERROR, message);
+			return -1;
+		}
+
+		// Output all channels in a compact format
+		char output[1024];
+		int pos = 0;
+		for (int i = 0; i < num_read; i++) {
+			const char *status;
+			if (currents[i] < 3.5) {
+				status = "FAULT";
+			} else if (currents[i] > 20.5) {
+				status = "OVER";
+			} else if (currents[i] < 4.5) {
+				status = "LOW";
+			} else if (currents[i] > 19.5) {
+				status = "HIGH";
+			} else {
+				status = "OK";
+			}
+
+			pos += snprintf(output + pos, sizeof(output) - pos,
+			               "CH%d: %.2f mA (%s)  ", i, currents[i], status);
+
+			// Output every 4 channels on a separate line
+			if ((i + 1) % 4 == 0 || i == num_read - 1) {
+				LogPromptTextbox(CMD_OUTPUT, output);
+				pos = 0;
+			}
+		}
+
+		return 0;
 	}
-	
+
+	// DAQV<channel> - Read voltage (diagnostic mode)
+	if (ctx->command[0] == 'V' && ctx->commandLength > 1) {
+		int channel = atoi(&ctx->command[1]);
+
+		if (channel < 0 || channel >= CDAQ_CHANNELS_PER_SLOT) {
+			snprintf(message, sizeof(message), "Invalid channel %d (must be 0-15)", channel);
+			LogPromptTextbox(CMD_ERROR, message);
+			return -1;
+		}
+
+		double voltage;
+		error = CDAQ_ReadVoltage(channel, &voltage);
+		if (error != SUCCESS) {
+			snprintf(message, sizeof(message), "Failed to read voltage: %d : %s",
+			        error, GetErrorString(error));
+			LogPromptTextbox(CMD_ERROR, message);
+			return -1;
+		}
+
+		snprintf(message, sizeof(message), "Channel %d: %.4f V", channel, voltage);
+		LogPromptTextbox(CMD_OUTPUT, message);
+
+		return 0;
+	}
+
+	// DAQ<channel> - Read single channel current
+	if (isdigit(ctx->command[0])) {
+		int channel = atoi(ctx->command);
+
+		if (channel < 0 || channel >= CDAQ_CHANNELS_PER_SLOT) {
+			snprintf(message, sizeof(message), "Invalid channel %d (must be 0-15)", channel);
+			LogPromptTextbox(CMD_ERROR, message);
+			return -1;
+		}
+
+		double current_mA;
+		error = CDAQ_ReadCurrent(channel, &current_mA);
+		if (error != SUCCESS) {
+			snprintf(message, sizeof(message), "Failed to read current: %d : %s",
+			        error, GetErrorString(error));
+			LogPromptTextbox(CMD_ERROR, message);
+			return -1;
+		}
+
+		// Determine status
+		const char *status;
+		if (current_mA < 3.5) {
+			status = "FAULT";
+		} else if (current_mA > 20.5) {
+			status = "OVER-RANGE";
+		} else if (current_mA < 4.5) {
+			status = "LOW";
+		} else if (current_mA > 19.5) {
+			status = "HIGH";
+		} else {
+			status = "OK";
+		}
+
+		snprintf(message, sizeof(message), "Channel %d: %.3f mA (%s)",
+		        channel, current_mA, status);
+		LogPromptTextbox(CMD_OUTPUT, message);
+
+		return 0;
+	}
+
+	// Invalid command
+	LogPromptTextbox(CMD_ERROR, "Invalid DAQ command. Use: DAQ<0-15>, DAQALL, or DAQV<0-15>");
 	return 0;
 }
 							

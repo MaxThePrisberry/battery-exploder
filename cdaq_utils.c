@@ -1,8 +1,11 @@
 /******************************************************************************
  * cdaq_utils.c
- * 
+ *
  * cDAQ Utilities Module Implementation
- * Handles NI cDAQ slots 2 and 3 for thermocouple monitoring
+ * Handles NI cDAQ slots:
+ *   - Slot 1: NI 9202 for 4-20mA current sensors (voltage measurement)
+ *   - Slot 2: NI 9213 for thermocouples
+ *   - Slot 3: NI 9213 for thermocouples
  ******************************************************************************/
 
 #include "cdaq_utils.h"
@@ -12,15 +15,18 @@
  * Module State
  ******************************************************************************/
 static struct {
-    TaskHandle slot2TaskHandle;
-    TaskHandle slot3TaskHandle;
-    int initialized;
+    TaskHandle slot1TaskHandle;  // NI 9202 voltage/current inputs
+    TaskHandle slot2TaskHandle;  // NI 9213 thermocouples
+    TaskHandle slot3TaskHandle;  // NI 9213 thermocouples
+    int initialized;             // Slots 2 & 3 (thermocouples)
+    int currentSlotInitialized;  // Slot 1 (4-20mA)
 } g_cdaq = {0};
 
 /******************************************************************************
  * Internal Function Prototypes
  ******************************************************************************/
 static int CDAQ_CreateSlotTask(int slot, TaskHandle *taskHandle);
+static int CDAQ_CreateCurrentSlotTask(TaskHandle *taskHandle);
 
 /******************************************************************************
  * Public Function Implementation
@@ -58,23 +64,59 @@ int CDAQ_Initialize(void) {
 
 void CDAQ_Cleanup(void) {
     LogMessage("Cleaning up cDAQ module...");
-    
+
     if (g_cdaq.slot2TaskHandle != 0) {
         DAQmxStopTask(g_cdaq.slot2TaskHandle);
         DAQmxClearTask(g_cdaq.slot2TaskHandle);
         g_cdaq.slot2TaskHandle = 0;
         LogMessage("Cleaned up cDAQ slot 2 task");
     }
-    
+
     if (g_cdaq.slot3TaskHandle != 0) {
         DAQmxStopTask(g_cdaq.slot3TaskHandle);
         DAQmxClearTask(g_cdaq.slot3TaskHandle);
         g_cdaq.slot3TaskHandle = 0;
         LogMessage("Cleaned up cDAQ slot 3 task");
     }
-    
+
     g_cdaq.initialized = 0;
     LogMessage("cDAQ module cleaned up");
+}
+
+int CDAQ_InitializeCurrentSlot(void) {
+    if (g_cdaq.currentSlotInitialized) {
+        LogWarning("cDAQ current slot (slot 1) already initialized");
+        return SUCCESS;
+    }
+
+    LogMessage("Initializing cDAQ slot 1 for 4-20mA current sensors (NI 9202)...");
+
+    int result = CDAQ_CreateCurrentSlotTask(&g_cdaq.slot1TaskHandle);
+    if (result != SUCCESS) {
+        LogError("Failed to initialize cDAQ current slot (slot 1)");
+        return result;
+    }
+
+    LogMessage("cDAQ slot 1 initialized with %d voltage channels (4-20mA mode)", CDAQ_CHANNELS_PER_SLOT);
+    LogMessage("Shunt resistor: %.1f ohms, Range: %.1f-%.1fV (4-20mA)",
+               CDAQ_CURRENT_SHUNT_RESISTOR, CDAQ_CURRENT_MIN_V, CDAQ_CURRENT_MAX_V);
+
+    g_cdaq.currentSlotInitialized = 1;
+    return SUCCESS;
+}
+
+void CDAQ_CleanupCurrentSlot(void) {
+    LogMessage("Cleaning up cDAQ current slot...");
+
+    if (g_cdaq.slot1TaskHandle != 0) {
+        DAQmxStopTask(g_cdaq.slot1TaskHandle);
+        DAQmxClearTask(g_cdaq.slot1TaskHandle);
+        g_cdaq.slot1TaskHandle = 0;
+        LogMessage("Cleaned up cDAQ slot 1 task");
+    }
+
+    g_cdaq.currentSlotInitialized = 0;
+    LogMessage("cDAQ current slot cleaned up");
 }
 
 int CDAQ_ReadTC(int slot, int tc_number, double *temperature) {
@@ -152,6 +194,96 @@ int CDAQ_ReadTCArray(int slot, double *temperatures, int *num_read) {
     return SUCCESS;
 }
 
+int CDAQ_ReadCurrent(int channel, double *current_mA) {
+    if (!g_cdaq.currentSlotInitialized) {
+        LogError("cDAQ current slot not initialized");
+        return ERR_NOT_INITIALIZED;
+    }
+
+    if (!current_mA) {
+        return ERR_NULL_POINTER;
+    }
+
+    if (channel < 0 || channel >= CDAQ_CHANNELS_PER_SLOT) {
+        LogError("Channel number %d out of range (0-%d)",
+                channel, CDAQ_CHANNELS_PER_SLOT - 1);
+        return ERR_INVALID_PARAMETER;
+    }
+
+    // Read voltage from the channel
+    double voltage;
+    int result = CDAQ_ReadVoltage(channel, &voltage);
+    if (result != SUCCESS) {
+        return result;
+    }
+
+    // Convert voltage to current: I = V / R, then to milliamps
+    double current_A = voltage / CDAQ_CURRENT_SHUNT_RESISTOR;
+    *current_mA = current_A * 1000.0;
+
+    return SUCCESS;
+}
+
+int CDAQ_ReadCurrentArray(double *currents_mA, int *num_read) {
+    if (!g_cdaq.currentSlotInitialized) {
+        LogError("cDAQ current slot not initialized");
+        return ERR_NOT_INITIALIZED;
+    }
+
+    if (!currents_mA || !num_read) {
+        return ERR_NULL_POINTER;
+    }
+
+    // Read all voltage channels
+    float64 data[CDAQ_CHANNELS_PER_SLOT];
+    int32 result = DAQmxReadAnalogF64(g_cdaq.slot1TaskHandle, 1, CDAQ_READ_TIMEOUT,
+                                     DAQmx_Val_GroupByChannel, data, CDAQ_CHANNELS_PER_SLOT,
+                                     NULL, NULL);
+    if (result != 0) {
+        LogError("Failed to read voltage array from slot 1: %d", result);
+        return ERR_OPERATION_FAILED;
+    }
+
+    // Convert all voltage readings to current (milliamps)
+    for (int i = 0; i < CDAQ_CHANNELS_PER_SLOT; i++) {
+        double current_A = data[i] / CDAQ_CURRENT_SHUNT_RESISTOR;
+        currents_mA[i] = current_A * 1000.0;
+    }
+
+    *num_read = CDAQ_CHANNELS_PER_SLOT;
+    return SUCCESS;
+}
+
+int CDAQ_ReadVoltage(int channel, double *voltage) {
+    if (!g_cdaq.currentSlotInitialized) {
+        LogError("cDAQ current slot not initialized");
+        return ERR_NOT_INITIALIZED;
+    }
+
+    if (!voltage) {
+        return ERR_NULL_POINTER;
+    }
+
+    if (channel < 0 || channel >= CDAQ_CHANNELS_PER_SLOT) {
+        LogError("Channel number %d out of range (0-%d)",
+                channel, CDAQ_CHANNELS_PER_SLOT - 1);
+        return ERR_INVALID_PARAMETER;
+    }
+
+    // Read all channels and return the requested one
+    float64 data[CDAQ_CHANNELS_PER_SLOT];
+    int32 result = DAQmxReadAnalogF64(g_cdaq.slot1TaskHandle, 1, CDAQ_READ_TIMEOUT,
+                                     DAQmx_Val_GroupByChannel, data, CDAQ_CHANNELS_PER_SLOT,
+                                     NULL, NULL);
+    if (result != 0) {
+        LogError("Failed to read voltage data from slot 1: %d", result);
+        return ERR_OPERATION_FAILED;
+    }
+
+    *voltage = data[channel];
+    return SUCCESS;
+}
+
 /******************************************************************************
  * Internal Function Implementation
  ******************************************************************************/
@@ -193,6 +325,54 @@ static int CDAQ_CreateSlotTask(int slot, TaskHandle *taskHandle) {
         *taskHandle = 0;
         return ERR_OPERATION_FAILED;
     }
-    
+
+    return SUCCESS;
+}
+
+static int CDAQ_CreateCurrentSlotTask(TaskHandle *taskHandle) {
+    // Create task name
+    char taskName[64];
+    snprintf(taskName, sizeof(taskName), "Current_Slot_1");
+
+    // Create DAQmx task
+    int32 result = DAQmxCreateTask(taskName, taskHandle);
+    if (result != 0) {
+        LogError("Failed to create cDAQ task for slot 1 (current): %d", result);
+        return ERR_OPERATION_FAILED;
+    }
+
+    // Add voltage input channels (0-15) for NI 9202
+    // These will measure voltage from 4-20mA sensors with shunt resistors
+    for (int i = 0; i < CDAQ_CHANNELS_PER_SLOT; i++) {
+        char channelName[64];
+        snprintf(channelName, sizeof(channelName), "cDAQ1Mod1/ai%d", i);
+
+        // Create voltage channel with ±10V range (NI 9202 range)
+        // Actual signal will be 1-5V for 4-20mA with 250Ω shunt
+        result = DAQmxCreateAIVoltageChan(*taskHandle,
+                                         channelName,
+                                         "",
+                                         DAQmx_Val_Cfg_Default,  // Terminal configuration
+                                         CDAQ_VOLTAGE_RANGE_MIN,  // -10V
+                                         CDAQ_VOLTAGE_RANGE_MAX,  // +10V
+                                         DAQmx_Val_Volts,
+                                         NULL);
+        if (result != 0) {
+            LogError("Failed to create voltage channel %s: %d", channelName, result);
+            DAQmxClearTask(*taskHandle);
+            *taskHandle = 0;
+            return ERR_OPERATION_FAILED;
+        }
+    }
+
+    // Start the task
+    result = DAQmxStartTask(*taskHandle);
+    if (result != 0) {
+        LogError("Failed to start cDAQ task for slot 1 (current): %d", result);
+        DAQmxClearTask(*taskHandle);
+        *taskHandle = 0;
+        return ERR_OPERATION_FAILED;
+    }
+
     return SUCCESS;
 }

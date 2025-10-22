@@ -60,11 +60,21 @@ int main (int argc, char *argv[]) {
 	// Initialize cDAQ module if enabled
 	if (ENABLE_CDAQ) {
 	    LogMessage("Initializing cDAQ module...");
+
+	    // Initialize thermocouple slots (2 and 3)
 	    int result = CDAQ_Initialize();
 	    if (result == SUCCESS) {
-	        LogMessage("cDAQ module initialized successfully");
+	        LogMessage("cDAQ thermocouple slots initialized successfully");
 	    } else {
-	        LogError("Failed to initialize cDAQ module: %s", GetErrorString(result));
+	        LogError("Failed to initialize cDAQ thermocouple slots: %s", GetErrorString(result));
+	    }
+
+	    // Initialize current sensor slot (1) for 4-20mA measurements
+	    result = CDAQ_InitializeCurrentSlot();
+	    if (result == SUCCESS) {
+	        LogMessage("cDAQ current sensor slot initialized successfully (4-20mA)");
+	    } else {
+	        LogError("Failed to initialize cDAQ current slot: %s", GetErrorString(result));
 	    }
 	}
 	
@@ -374,7 +384,8 @@ int CVICALLBACK PanelCallback(int panel, int event, void *callbackData,
 			// Clean up cDAQ module
 			if (ENABLE_CDAQ) {
 			    LogMessage("Cleaning up cDAQ module...");
-			    CDAQ_Cleanup();
+			    CDAQ_CleanupCurrentSlot();  // Clean up current sensor slot first
+			    CDAQ_Cleanup();             // Then clean up thermocouple slots
 			}
             
             // Shutdown PSB queue manager

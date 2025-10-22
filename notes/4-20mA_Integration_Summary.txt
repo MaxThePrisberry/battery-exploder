@@ -1,0 +1,263 @@
+================================================================================
+4-20mA CURRENT SENSOR INTEGRATION - SUMMARY
+================================================================================
+
+Date: 2025-10-21
+Hardware: NI 9202 (slot 1) with 250Ω shunt resistors for 4-20mA sensors
+Integration: Complete and ready to test
+
+================================================================================
+FILES MODIFIED/CREATED
+================================================================================
+
+MODIFIED FILES:
+  ✓ cdaq_utils.h               - Added current sensor API and configuration
+  ✓ cdaq_utils.c               - Implemented 4-20mA measurement functions
+  ✓ cmd_prompt.c               - Added DAQ commands to debug console
+  ✓ BatteryExploder.c          - Added initialization and cleanup
+
+NEW FILES:
+  ✓ tests/cdaq_current_test.c          - Standalone test program
+  ✓ tests/cdaq_current_test.h          - Test program header
+  ✓ tests/cdaq_current_test_README.md  - Standalone test documentation
+  ✓ notes/DAQ_Commands_Reference.txt   - DAQ command reference guide
+  ✓ notes/4-20mA_Integration_Summary.txt (this file)
+
+================================================================================
+IMPLEMENTATION DETAILS
+================================================================================
+
+1. HARDWARE CONFIGURATION
+   - Module:     NI 9202 voltage input (±10V, 16 channels)
+   - Slot:       Slot 1 of cDAQ-9178 chassis
+   - Shunt:      250Ω precision resistors
+   - Range:      1V (4mA) to 5V (20mA)
+   - Conversion: Current = Voltage / 250Ω
+
+2. API FUNCTIONS (cdaq_utils.h/c)
+   ✓ CDAQ_InitializeCurrentSlot()      - Initialize slot 1
+   ✓ CDAQ_CleanupCurrentSlot()         - Cleanup slot 1
+   ✓ CDAQ_ReadCurrent(channel, mA)     - Read single channel (mA)
+   ✓ CDAQ_ReadCurrentArray(mA[], num)  - Read all 16 channels (mA)
+   ✓ CDAQ_ReadVoltage(channel, V)      - Read raw voltage (diagnostic)
+
+3. GUI COMMANDS (cmd_prompt.c)
+   ✓ DAQ<0-15>    - Read single channel current
+   ✓ DAQALL       - Read all 16 channels
+   ✓ DAQV<0-15>   - Read raw voltage (diagnostic)
+
+4. INITIALIZATION (BatteryExploder.c:72-78)
+   ✓ CDAQ_InitializeCurrentSlot() called during startup
+   ✓ Error handling and logging implemented
+
+5. CLEANUP (BatteryExploder.c:387-388)
+   ✓ CDAQ_CleanupCurrentSlot() called during shutdown
+   ✓ Proper cleanup order maintained
+
+================================================================================
+TESTING CHECKLIST
+================================================================================
+
+HARDWARE VERIFICATION:
+  ☐ NI 9202 is installed in slot 1 of cDAQ-9178
+  ☐ cDAQ chassis is powered on
+  ☐ USB/network connection to cDAQ is established
+  ☐ 250Ω shunt resistors are installed correctly
+  ☐ 4-20mA sensors are wired: (+) → shunt → AI+, (−) → AI−
+  ☐ Sensor loop power supply is ON (typically 24VDC)
+
+SOFTWARE VERIFICATION:
+  ☐ Build BatteryExploder project in LabWindows/CVI 2020
+  ☐ Verify no compilation errors
+  ☐ Launch Battery Exploder application
+  ☐ Check log for "cDAQ current sensor slot initialized successfully"
+  ☐ Open debug console (cmd_prompt)
+  ☐ Test DAQ commands
+
+FUNCTIONAL TESTING:
+  ☐ Test single channel:     DAQ0
+  ☐ Test all channels:        DAQALL
+  ☐ Test voltage diagnostic:  DAQV0
+  ☐ Verify status indicators: OK, LOW, HIGH, FAULT, OVER
+  ☐ Verify readings match expected sensor values
+  ☐ Test with multiple sensors on different channels
+
+================================================================================
+USAGE EXAMPLES
+================================================================================
+
+IN GUI DEBUG CONSOLE:
+
+  Read channel 5:
+    [<<---] DAQ5
+    [--->>] Channel 5: 12.345 mA (OK)
+
+  Read all channels:
+    [<<---] DAQALL
+    [--->>] CH0: 12.34 mA (OK)  CH1: 4.12 mA (LOW) ...
+    [--->>] CH4: 8.76 mA (OK)  CH5: 16.54 mA (OK) ...
+    [--->>] ...
+
+  Diagnostic voltage check:
+    [<<---] DAQV5
+    [--->>] Channel 5: 3.0862 V
+
+IN EXPERIMENT CODE:
+
+  #include "cdaq_utils.h"
+
+  // Read single channel
+  double current_mA;
+  if (CDAQ_ReadCurrent(0, &current_mA) == SUCCESS) {
+      LogMessage("Sensor current: %.2f mA", current_mA);
+  }
+
+  // Read all channels
+  double currents[16];
+  int num_read;
+  if (CDAQ_ReadCurrentArray(currents, &num_read) == SUCCESS) {
+      for (int i = 0; i < num_read; i++) {
+          LogMessage("Channel %d: %.2f mA", i, currents[i]);
+      }
+  }
+
+  // Convert to process variable (e.g., 0-100% scale)
+  double percent = ((current_mA - 4.0) / 16.0) * 100.0;
+
+================================================================================
+STATUS INDICATORS
+================================================================================
+
+  OK          - 4.5 to 19.5 mA   (Normal range)
+  LOW         - 4.0 to 4.5 mA    (Near minimum)
+  HIGH        - 19.5 to 20.0 mA  (Near maximum)
+  FAULT       - < 3.5 mA         (Open circuit / disconnected)
+  OVER        - > 20.5 mA        (Over-range / wiring fault)
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+INITIALIZATION ERRORS:
+
+  Error: "Failed to initialize cDAQ current slot"
+
+  Causes:
+    • NI 9202 not in slot 1
+    • cDAQ chassis not connected
+    • NI-DAQmx drivers not installed
+
+  Solutions:
+    • Verify hardware installation
+    • Check NI MAX for device visibility
+    • Reinstall NI-DAQmx drivers if needed
+
+READING ERRORS:
+
+  Error: "Failed to read current"
+
+  Causes:
+    • cDAQ not initialized
+    • Hardware disconnected
+    • Invalid channel number
+
+  Solutions:
+    • Check initialization log messages
+    • Verify ENABLE_CDAQ is set to 1
+    • Use channel 0-15 only
+
+FAULT STATUS READINGS:
+
+  All channels show FAULT (< 3.5 mA)
+
+  Causes:
+    • Sensors not powered
+    • Open circuit in wiring
+    • Shunt resistor not connected
+
+  Solutions:
+    • Check 24VDC loop power supply
+    • Verify wiring continuity
+    • Measure voltage with multimeter
+
+INCORRECT VOLTAGE/CURRENT:
+
+  Voltage doesn't match expected 1-5V range
+
+  Causes:
+    • Wrong shunt resistor value
+    • Incorrect CDAQ_CURRENT_SHUNT_RESISTOR setting
+    • Wiring error
+
+  Solutions:
+    • Verify shunt is 250Ω
+    • Check cdaq_utils.h configuration
+    • Verify wiring diagram
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+1. BUILD AND TEST
+   ☐ Build project in LabWindows/CVI 2020
+   ☐ Launch Battery Exploder
+   ☐ Verify initialization in log
+   ☐ Test DAQ commands in debug console
+
+2. VALIDATE HARDWARE
+   ☐ Use DAQV commands to verify voltages (1-5V expected)
+   ☐ Manually calculate: I = V / 250Ω
+   ☐ Compare with DAQ readings
+
+3. INTEGRATE INTO EXPERIMENTS
+   ☐ Add current sensor logging to temperature ramp experiments
+   ☐ Create process variable conversions for specific sensors
+   ☐ Add current monitoring to status display
+
+4. OPTIONAL ENHANCEMENTS
+   ☐ Add current sensor readings to main UI status panel
+   ☐ Create real-time plotting for current sensors
+   ☐ Add data logging to CSV files
+   ☐ Implement alarm thresholds for FAULT/OVER conditions
+
+================================================================================
+ADDITIONAL NOTES
+================================================================================
+
+• The NI 9202 uses VOLTAGE measurement, not direct current measurement
+• Shunt resistor converts 4-20mA to 1-5V (V = I × R)
+• Software performs automatic I = V / R conversion
+• All 16 channels can be used independently
+• Readings are on-demand (software-timed), not continuous sampling
+• Compatible with standard 4-20mA industrial sensors
+
+• If using different shunt resistor:
+  - Update CDAQ_CURRENT_SHUNT_RESISTOR in cdaq_utils.h
+  - Update CDAQ_CURRENT_MIN_V and CDAQ_CURRENT_MAX_V accordingly
+  - Example: 500Ω → 2-10V range
+
+• Process variable conversion formula:
+  PV = ((I_mA - 4) / 16) × (Max - Min) + Min
+
+  Examples:
+    0-100%:    PV = ((I_mA - 4) / 16) × 100
+    0-500°C:   PV = ((I_mA - 4) / 16) × 500
+    50-250PSI: PV = ((I_mA - 4) / 16) × 200 + 50
+
+================================================================================
+REFERENCES
+================================================================================
+
+• NI 9202 Manual: National Instruments website
+• DAQmx C API Reference: NI-DAQmx Help
+• 4-20mA Loop Standard: ISA-50.00.01-1975 (R2012)
+• Example Code: C:\Users\Public\Documents\National Instruments\
+               NI-DAQ\Examples\DAQmx ANSI C\Analog In\Measure Current\
+
+================================================================================
+AUTHORS
+================================================================================
+
+Maxwell Prisbrey, Nicolas Rasmont, Gabriel Meier
+
+================================================================================

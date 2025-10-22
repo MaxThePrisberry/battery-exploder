@@ -1,0 +1,198 @@
+================================================================================
+DAQ COMMAND PROMPT REFERENCE
+================================================================================
+
+The DAQ commands provide access to 4-20mA current sensors connected to the
+NI 9202 module (slot 1) through the Battery Exploder GUI debug console.
+
+================================================================================
+HARDWARE CONFIGURATION
+================================================================================
+
+Module:     NI 9202 (slot 1 of cDAQ-9178)
+Channels:   16 analog voltage inputs (0-15)
+Shunt:      250Ω resistors (converts 4-20mA to 1-5V)
+Range:      4mA (1V) to 20mA (5V)
+
+================================================================================
+INITIALIZATION
+================================================================================
+
+Before using DAQ commands, ensure cDAQ slot 1 is initialized:
+
+1. In BatteryExploder.c main() or initialization function, add:
+
+   #if ENABLE_CDAQ
+       if (CDAQ_InitializeCurrentSlot() != SUCCESS) {
+           LogError("Failed to initialize cDAQ current sensors");
+       }
+   #endif
+
+2. In cleanup/shutdown, add:
+
+   #if ENABLE_CDAQ
+       CDAQ_CleanupCurrentSlot();
+   #endif
+
+================================================================================
+AVAILABLE COMMANDS
+================================================================================
+
+┌──────────────────────────────────────────────────────────────────────────┐
+│ Command         │ Description                                            │
+├──────────────────────────────────────────────────────────────────────────┤
+│ DAQ<channel>    │ Read current from single channel (0-15)                │
+│                 │ Example: DAQ0, DAQ5, DAQ15                             │
+├──────────────────────────────────────────────────────────────────────────┤
+│ DAQALL          │ Read current from all 16 channels                      │
+│                 │ Displays 4 channels per line                           │
+├──────────────────────────────────────────────────────────────────────────┤
+│ DAQV<channel>   │ Read raw voltage from channel (diagnostic)             │
+│                 │ Example: DAQV0, DAQV5, DAQV15                          │
+└──────────────────────────────────────────────────────────────────────────┘
+
+================================================================================
+USAGE EXAMPLES
+================================================================================
+
+┌─ Single Channel Read ─────────────────────────────────────────────────────┐
+│ [<<---] DAQ0                                                               │
+│ [--->>] Channel 0: 12.345 mA (OK)                                          │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ All Channels Read ───────────────────────────────────────────────────────┐
+│ [<<---] DAQALL                                                             │
+│ [--->>] CH0: 12.34 mA (OK)  CH1: 4.12 mA (LOW)  CH2: 19.87 mA (HIGH) ...  │
+│ [--->>] CH4: 8.76 mA (OK)  CH5: 16.54 mA (OK)  CH6: 3.21 mA (FAULT) ...   │
+│ [--->>] ...                                                                │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ Voltage Read (Diagnostic) ───────────────────────────────────────────────┐
+│ [<<---] DAQV0                                                              │
+│ [--->>] Channel 0: 3.0862 V                                                │
+│                                                                            │
+│ Verify: 3.0862V / 250Ω = 12.345 mA ✓                                      │
+└────────────────────────────────────────────────────────────────────────────┘
+
+================================================================================
+STATUS INDICATORS
+================================================================================
+
+┌──────────────┬──────────────────┬──────────────────────────────────────────┐
+│ Status       │ Current Range    │ Description                              │
+├──────────────┼──────────────────┼──────────────────────────────────────────┤
+│ OK           │ 4.5 - 19.5 mA    │ Normal operating range                   │
+├──────────────┼──────────────────┼──────────────────────────────────────────┤
+│ LOW          │ 4.0 - 4.5 mA     │ At lower threshold (near 4mA)            │
+├──────────────┼──────────────────┼──────────────────────────────────────────┤
+│ HIGH         │ 19.5 - 20.0 mA   │ At upper threshold (near 20mA)           │
+├──────────────┼──────────────────┼──────────────────────────────────────────┤
+│ FAULT        │ < 3.5 mA         │ Open circuit or sensor disconnected      │
+├──────────────┼──────────────────┼──────────────────────────────────────────┤
+│ OVER         │ > 20.5 mA        │ Sensor over-range or wiring fault        │
+└──────────────┴──────────────────┴──────────────────────────────────────────┘
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+┌─ Error: "Failed to read current" ─────────────────────────────────────────┐
+│ Possible causes:                                                           │
+│   • cDAQ current slot not initialized                                      │
+│   • NI 9202 not installed in slot 1                                        │
+│   • cDAQ chassis disconnected or powered off                               │
+│   • NI-DAQmx driver issue                                                  │
+│                                                                            │
+│ Solution:                                                                  │
+│   • Check CDAQ_InitializeCurrentSlot() is called during startup            │
+│   • Verify hardware connections                                            │
+│   • Check NI MAX for device visibility                                     │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ Readings show FAULT status ──────────────────────────────────────────────┐
+│ Possible causes:                                                           │
+│   • 4-20mA sensor not powered                                              │
+│   • Open circuit in wiring                                                 │
+│   • Shunt resistor not connected                                           │
+│   • Sensor malfunction                                                     │
+│                                                                            │
+│ Solution:                                                                  │
+│   • Check sensor power supply (typically 24VDC)                            │
+│   • Verify wiring continuity                                               │
+│   • Measure voltage with multimeter (should be 1-5V)                       │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ Voltage seems incorrect ─────────────────────────────────────────────────┐
+│ Possible causes:                                                           │
+│   • Wrong shunt resistor value                                             │
+│   • Shunt resistor not in series with current loop                         │
+│   • Incorrect wiring                                                       │
+│                                                                            │
+│ Solution:                                                                  │
+│   • Verify shunt is 250Ω (±1% tolerance)                                   │
+│   • Check CDAQ_CURRENT_SHUNT_RESISTOR in cdaq_utils.h matches actual value │
+│   • Use DAQV command to verify voltage, calculate: I = V / 250             │
+└────────────────────────────────────────────────────────────────────────────┘
+
+================================================================================
+PROCESS VARIABLE CONVERSION
+================================================================================
+
+If your 4-20mA sensor represents a process variable (temperature, pressure, etc.),
+convert the current reading using:
+
+  Process Value = ((I_mA - 4) / 16) × (Max - Min) + Min
+
+Examples:
+
+  • 0-100% scale:
+    Percent = ((I_mA - 4) / 16) × 100
+
+  • 0-500°C temperature:
+    Temp = ((I_mA - 4) / 16) × 500
+
+  • 50-250 PSI pressure:
+    Pressure = ((I_mA - 4) / 16) × 200 + 50
+
+Current Reading Examples:
+  • 4.0 mA  → 0% / 0°C / 50 PSI
+  • 12.0 mA → 50% / 250°C / 150 PSI
+  • 20.0 mA → 100% / 500°C / 250 PSI
+
+================================================================================
+INTEGRATION WITH EXPERIMENTS
+================================================================================
+
+You can call cDAQ functions directly in your experiment code:
+
+  #include "cdaq_utils.h"
+
+  // Read single channel
+  double current_mA;
+  if (CDAQ_ReadCurrent(0, &current_mA) == SUCCESS) {
+      LogMessage("Sensor current: %.2f mA", current_mA);
+  }
+
+  // Read all channels
+  double currents[16];
+  int num_read;
+  if (CDAQ_ReadCurrentArray(currents, &num_read) == SUCCESS) {
+      for (int i = 0; i < num_read; i++) {
+          LogMessage("Channel %d: %.2f mA", i, currents[i]);
+      }
+  }
+
+================================================================================
+RELATED DOCUMENTATION
+================================================================================
+
+• cdaq_utils.h              - API function declarations
+• cdaq_utils.c              - Implementation
+• cmd_prompt.c:441-556      - DAQ command implementation
+• tests/cdaq_current_test.c - Standalone test program (optional)
+
+================================================================================
+AUTHORS
+================================================================================
+
+Maxwell Prisbrey, Nicolas Rasmont, Gabriel Meier
