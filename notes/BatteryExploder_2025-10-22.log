@@ -1,0 +1,260 @@
+
+=== Battery Tester Log Started: 2025-10-22 13:58:58 ===
+Log file location: c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\BatteryExploder.log
+2025-10-22 13:58:58 [INFO] Initializing cDAQ module...
+2025-10-22 13:58:58 [INFO] Initializing cDAQ thermocouple slots 2 and 3...
+2025-10-22 13:58:59 [INFO] cDAQ slot 2 initialized with 16 thermocouples
+2025-10-22 13:59:00 [INFO] cDAQ slot 3 initialized with 16 thermocouples
+2025-10-22 13:59:00 [INFO] cDAQ module initialized successfully
+2025-10-22 13:59:00 [INFO] cDAQ thermocouple slots initialized successfully
+2025-10-22 13:59:00 [INFO] Initializing cDAQ slot 1 for 4-20mA current sensors (NI 9202)...
+2025-10-22 13:59:00 [ERROR] Failed to create voltage channel cDAQ1Mod1/ai0: -200077
+2025-10-22 13:59:00 [ERROR] Failed to initialize cDAQ current slot (slot 1)
+2025-10-22 13:59:00 [ERROR] Failed to initialize cDAQ current slot: Operation failed
+2025-10-22 13:59:00 [INFO] Initializing PSB queue manager on COM3...
+2025-10-22 13:59:00 [INFO] Attempting to connect to PSB 10000...
+2025-10-22 13:59:00 [INFO] [PSB] Connecting to PSB on COM3...
+2025-10-22 13:59:00 [INFO] [PSB] Initializing on COM3, slave 1, 9600 baud
+2025-10-22 13:59:00 [INFO] [PSB] Successfully initialized
+2025-10-22 13:59:00 [INFO] [PSB] Setting remote mode: ON
+2025-10-22 13:59:00 [INFO] [PSB] Setting output: OFF
+2025-10-22 13:59:01 [INFO] Successfully connected to PSB 10000
+2025-10-22 13:59:01 [INFO] PSB 10000 queue manager initialized
+2025-10-22 13:59:01 [INFO] PSB queue manager initialized and connected on COM3
+2025-10-22 13:59:01 [INFO] Initializing PSB to safe state...
+2025-10-22 13:59:01 [INFO] PSB 10000 queue processing thread started
+2025-10-22 13:59:01 [INFO] [PSB] Setting PSB safe limits...
+2025-10-22 13:59:01 [INFO] [PSB] Setting min voltage: 0.00V
+2025-10-22 13:59:01 [INFO] [PSB] Setting max voltage: 61.20V
+2025-10-22 13:59:01 [INFO] [PSB] Setting min current: 0.00A
+2025-10-22 13:59:01 [INFO] [PSB] Setting max current: 61.20A
+2025-10-22 13:59:01 [INFO] [PSB] Setting sink max current: 61.20A
+2025-10-22 13:59:01 [INFO] [PSB] Setting sink min current: 0.00A
+2025-10-22 13:59:02 [INFO] [PSB] Setting max power: 1224.00W
+2025-10-22 13:59:02 [INFO] [PSB] Setting sink max power: 1224.00W
+2025-10-22 13:59:02 [INFO] [PSB] PSB safe limits set successfully
+2025-10-22 13:59:02 [INFO] [PSB] Zeroing all PSB values...
+2025-10-22 13:59:02 [INFO] [PSB] Setting output: OFF
+2025-10-22 13:59:02 [INFO] [PSB] Setting voltage: 0.00V (0x0000)
+2025-10-22 13:59:03 [INFO] [PSB] Setting current: 0.00A (0x0000)
+2025-10-22 13:59:03 [INFO] [PSB] Setting power: 0.00W (0x0000)
+2025-10-22 13:59:03 [INFO] [PSB] Setting sink current: 0.00A (0x0000)
+2025-10-22 13:59:03 [INFO] [PSB] Setting sink power: 0.00W (0x0000)
+2025-10-22 13:59:04 [INFO] [PSB] All PSB values zeroed successfully
+2025-10-22 13:59:04 [INFO] PSB initialization complete
+2025-10-22 13:59:04 [INFO] Initializing BioLogic queue manager...
+2025-10-22 13:59:04 [INFO] Attempting to connect to BioLogic SP-150e...
+2025-10-22 13:59:04 [ERROR] Failed to load the EClib.dll. Attempted dll path: c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\EClib.dll
+2025-10-22 13:59:04 [INFO] [BIO] EClib.dll loaded successfully
+2025-10-22 13:59:04 [INFO] [BIO] EClib version: 6.11.1.0
+2025-10-22 13:59:07 [INFO] [BIO] Successfully connected to BioLogic SP-150e (ID: 1)
+2025-10-22 13:59:07 [INFO] [BIO]   Device Code: 36
+2025-10-22 13:59:07 [INFO] [BIO]   Firmware Version: 1160
+2025-10-22 13:59:07 [INFO] [BIO]   Channels: 1
+2025-10-22 13:59:08 [INFO] [BIO] Scanning for plugged channels...
+2025-10-22 13:59:08 [INFO] [BIO]   Channel 0: PLUGGED
+2025-10-22 13:59:08 [INFO] [BIO] Loading firmware...
+2025-10-22 13:59:08 [INFO] [BIO] Firmware loaded successfully
+2025-10-22 13:59:08 [INFO] Successfully connected to BioLogic SP-150e
+2025-10-22 13:59:08 [INFO] BioLogic SP-150e queue manager initialized
+2025-10-22 13:59:08 [INFO] BioLogic SP-150e queue processing thread started
+2025-10-22 13:59:08 [INFO] BioLogic queue manager initialized
+2025-10-22 13:59:08 [INFO] Initializing DTB queue manager on COM5 with 2 devices...
+2025-10-22 13:59:08 [INFO] [DTB] DTB_QueueInit: Will initialize slave address 2
+2025-10-22 13:59:08 [INFO] [DTB] DTB_QueueInit: Will initialize slave address 3
+2025-10-22 13:59:08 [INFO] Attempting to connect to DTB 4848...
+2025-10-22 13:59:08 [INFO] [DTB] Connecting to DTB slave 2 on COM5...
+2025-10-22 13:59:08 [INFO] [DTB] Initializing on COM5, slave 2, 9600 baud
+2025-10-22 13:59:08 [INFO] [DTB] Successfully initialized
+2025-10-22 13:59:08 [INFO] [DTB] Successfully connected to DTB slave 2
+2025-10-22 13:59:08 [INFO] [DTB] Connecting to DTB slave 3 on COM5...
+2025-10-22 13:59:08 [INFO] [DTB] Initializing on COM5, slave 3, 9600 baud
+2025-10-22 13:59:08 [INFO] [DTB] Successfully initialized
+2025-10-22 13:59:08 [INFO] [DTB] Successfully connected to DTB slave 3
+2025-10-22 13:59:08 [INFO] [DTB] Connected to 2 of 2 DTB devices
+2025-10-22 13:59:09 [INFO] Successfully connected to DTB 4848
+2025-10-22 13:59:09 [INFO] DTB 4848 queue manager initialized
+2025-10-22 13:59:09 [INFO] [DTB] DTB_QueueInit: Successfully created queue manager for 2 devices
+2025-10-22 13:59:09 [INFO] DTB queue manager initialized and connected on COM5
+2025-10-22 13:59:09 [INFO] Enabling DTB write access for all devices...
+2025-10-22 13:59:09 [INFO] [DTB] Enabling write access for all 2 DTB devices...
+2025-10-22 13:59:09 [INFO] [DTB] DTB 4848 queue processing thread started
+2025-10-22 13:59:09 [INFO] [DTB] Enabling write access...
+2025-10-22 13:59:09 [INFO] [DTB] Write access enabled
+2025-10-22 13:59:09 [INFO] [DTB] Enabling write access...
+2025-10-22 13:59:09 [INFO] [DTB] Write access enabled
+2025-10-22 13:59:10 [INFO] [DTB] Successfully enabled write access for all DTB devices
+2025-10-22 13:59:10 [INFO] DTB write access enabled successfully for all devices
+2025-10-22 13:59:10 [INFO] Configuring all DTB4848 devices for K-type thermocouple with PID control...
+2025-10-22 13:59:10 [INFO] [DTB] Write access status: ENABLED
+2025-10-22 13:59:10 [INFO] DTB slave 2 write access currently: ENABLED
+2025-10-22 13:59:10 [INFO] [DTB] Configuring DTB4848...
+2025-10-22 13:59:10 [INFO] [DTB] Setting sensor type: 0
+2025-10-22 13:59:10 [INFO] [DTB] Setting heating/cooling mode: 0
+2025-10-22 13:59:11 [INFO] [DTB] Setting control method: 0
+2025-10-22 13:59:11 [INFO] [DTB] Setting PID mode: 4 (AUTO)
+2025-10-22 13:59:12 [INFO] [DTB] Configuration complete
+2025-10-22 13:59:12 [INFO] DTB4848 slave 2 configured successfully
+2025-10-22 13:59:12 [INFO] [DTB] Write access status: ENABLED
+2025-10-22 13:59:12 [INFO] DTB slave 3 write access currently: ENABLED
+2025-10-22 13:59:12 [INFO] [DTB] Configuring DTB4848...
+2025-10-22 13:59:12 [INFO] [DTB] Setting sensor type: 0
+2025-10-22 13:59:13 [INFO] [DTB] Setting heating/cooling mode: 0
+2025-10-22 13:59:14 [INFO] [DTB] Setting control method: 0
+2025-10-22 13:59:14 [INFO] [DTB] Setting PID mode: 4 (AUTO)
+2025-10-22 13:59:14 [INFO] [DTB] Configuration complete
+2025-10-22 13:59:14 [INFO] DTB4848 slave 3 configured successfully
+2025-10-22 13:59:14 [INFO] DTB initialization complete
+2025-10-22 13:59:14 [INFO] Initializing ALICAT queue manager on COM7 with 1 devices...
+2025-10-22 13:59:14 [INFO] [ALI] ALICAT_QueueInit: Will initialize address 1
+2025-10-22 13:59:14 [INFO] Attempting to connect to ALICAT BASIS 2...
+2025-10-22 13:59:14 [INFO] [ALI] Connecting to ALICAT address 1 on COM7...
+2025-10-22 13:59:14 [INFO] [ALI] Initializing on COM7, address 1, 38400 baud
+2025-10-22 13:59:14 [INFO] [ALI] Serial Number: B036829     
+2025-10-22 13:59:14 [INFO] [ALI] Successfully initialized
+2025-10-22 13:59:14 [INFO] [ALI] Successfully connected to ALICAT address 1
+2025-10-22 13:59:14 [INFO] [ALI] Connected to 1 of 1 ALICAT devices
+2025-10-22 13:59:14 [INFO] Successfully connected to ALICAT BASIS 2
+2025-10-22 13:59:14 [INFO] ALICAT BASIS 2 queue manager initialized
+2025-10-22 13:59:14 [INFO] [ALI] ALICAT_QueueInit: Successfully created queue manager for 1 devices
+2025-10-22 13:59:14 [INFO] ALICAT queue manager initialized and connected on COM7
+2025-10-22 13:59:14 [INFO] ALICAT BASIS 2 queue processing thread started
+2025-10-22 13:59:14 [INFO] Configuring all ALICAT devices with default settings...
+2025-10-22 13:59:14 [INFO] [ALI] Configuring ALICAT...
+2025-10-22 13:59:14 [INFO] [ALI] Setting gas type: 0 (Air)
+2025-10-22 13:59:15 [INFO] [ALI] Setting setpoint source: 2
+2025-10-22 13:59:15 [INFO] [ALI] Setting reference temperature: 25.0 �C
+2025-10-22 13:59:15 [INFO] [ALI] Setting flow averaging: 100 ms
+2025-10-22 13:59:15 [INFO] [ALI] Setting autotare: ENABLED
+2025-10-22 13:59:15 [INFO] [ALI] Setting PID parameters: P 500, I 5000
+2025-10-22 13:59:15 [INFO] [ALI] Configuration complete
+2025-10-22 13:59:15 [INFO] ALICAT address 1 configured successfully
+2025-10-22 13:59:15 [INFO] [ALI] Setting gas type: 3 (Nitrogen)
+2025-10-22 13:59:15 [INFO] ALICAT address 1 gas set to Nitrogen
+2025-10-22 13:59:15 [INFO] Taring ALICAT address 1...
+2025-10-22 13:59:15 [INFO] [ALI] Performing tare...
+2025-10-22 13:59:15 [INFO] ALICAT address 1 tared successfully
+2025-10-22 13:59:16 [INFO] ALICAT initialization complete
+2025-10-22 13:59:16 [INFO] Initializing Teensy queue manager on COM6...
+2025-10-22 13:59:16 [INFO] Attempting to connect to Teensy...
+2025-10-22 13:59:16 [INFO] [TNY] Connecting to Teensy on COM6...
+2025-10-22 13:59:16 [INFO] [TNY] Initializing Teensy on COM6 at 9600 baud
+2025-10-22 13:59:16 [INFO] [TNY] Successfully connected to Teensy on COM6
+2025-10-22 13:59:16 [INFO] Successfully connected to Teensy
+2025-10-22 13:59:16 [INFO] Teensy queue manager initialized
+2025-10-22 13:59:16 [INFO] Teensy queue processing thread started
+2025-10-22 13:59:16 [INFO] Teensy queue manager initialized and connected on COM6
+2025-10-22 13:59:16 [INFO] [TNY] Initializing 2 pins (2 low, 0 high)
+2025-10-22 13:59:16 [INFO] Committed transaction 1 with 2 commands to normal priority queue
+2025-10-22 13:59:16 [INFO] [TNY] Pin initialization transaction committed
+2025-10-22 13:59:16 [INFO] [TNY] Starting transaction 1 with 2 commands
+2025-10-22 13:59:16 [INFO] Status module state: UNINITIALIZED -> INITIALIZING
+2025-10-22 13:59:16 [INFO] Device states initialized (DTB devices: 2)
+2025-10-22 13:59:16 [INFO] Status monitoring module initialized
+2025-10-22 13:59:16 [INFO] Controls module initialized with 2 DTB devices
+2025-10-22 13:59:16 [INFO] Controls module initialized for ALICAT Mass Flow Controller
+2025-10-22 13:59:16 [INFO] Starting device status monitoring...
+2025-10-22 13:59:16 [INFO] Status module state: INITIALIZING -> RUNNING
+2025-10-22 13:59:16 [INFO] Status timer thread started
+2025-10-22 13:59:16 [INFO] Status monitoring started successfully
+2025-10-22 13:59:16 [INFO] Starting controls module - syncing with device states...
+2025-10-22 13:59:16 [INFO] [TNY] Completed transaction 1
+2025-10-22 13:59:16 [INFO] PSB remote mode: ON
+2025-10-22 13:59:18 [ERROR] cDAQ current slot not initialized
+2025-10-22 13:59:20 [ERROR] cDAQ current slot not initialized
+2025-10-22 13:59:22 [INFO] Controls module started
+2025-10-22 13:59:22 [ERROR] cDAQ current slot not initialized
+2025-10-22 13:59:24 [ERROR] cDAQ current slot not initialized
+2025-10-22 13:59:26 [ERROR] cDAQ current slot not initialized
+2025-10-22 13:59:28 [ERROR] cDAQ current slot not initialized
+2025-10-22 13:59:30 [ERROR] cDAQ current slot not initialized
+2025-10-22 13:59:32 [ERROR] cDAQ current slot not initialized
+2025-10-22 13:59:34 [ERROR] cDAQ current slot not initialized
+2025-10-22 13:59:36 [ERROR] cDAQ current slot not initialized
+2025-10-22 13:59:38 [ERROR] cDAQ current slot not initialized
+2025-10-22 13:59:40 [ERROR] cDAQ current slot not initialized
+2025-10-22 13:59:42 [ERROR] cDAQ current slot not initialized
+2025-10-22 13:59:44 [ERROR] cDAQ current slot not initialized
+2025-10-22 13:59:46 [ERROR] cDAQ current slot not initialized
+2025-10-22 13:59:48 [ERROR] cDAQ current slot not initialized
+2025-10-22 13:59:50 [ERROR] cDAQ current slot not initialized
+2025-10-22 13:59:52 [ERROR] cDAQ current slot not initialized
+2025-10-22 13:59:54 [ERROR] cDAQ current slot not initialized
+2025-10-22 13:59:56 [ERROR] cDAQ current slot not initialized
+2025-10-22 13:59:58 [ERROR] cDAQ current slot not initialized
+2025-10-22 13:59:59 [INFO] ========================================
+2025-10-22 13:59:59 [INFO] Shutting down Battery Tester application
+2025-10-22 13:59:59 [INFO] ========================================
+2025-10-22 13:59:59 [INFO] [TNY] Setting 2 pins
+2025-10-22 13:59:59 [INFO] Stopping status monitoring...
+2025-10-22 13:59:59 [INFO] Stopping device status monitoring...
+2025-10-22 13:59:59 [INFO] Status module state: RUNNING -> STOPPING
+2025-10-22 14:00:00 [ERROR] cDAQ current slot not initialized
+2025-10-22 14:00:00 [INFO] Status timer thread stopped
+2025-10-22 14:00:00 [INFO] Status module state: STOPPING -> STOPPED
+2025-10-22 14:00:00 [INFO] Status monitoring stopped
+2025-10-22 14:00:00 [INFO] Cleaning up cDAQ module...
+2025-10-22 14:00:00 [INFO] Cleaning up cDAQ current slot...
+2025-10-22 14:00:00 [INFO] cDAQ current slot cleaned up
+2025-10-22 14:00:00 [INFO] Cleaning up cDAQ module...
+2025-10-22 14:00:01 [INFO] Cleaned up cDAQ slot 2 task
+2025-10-22 14:00:02 [INFO] Cleaned up cDAQ slot 3 task
+2025-10-22 14:00:02 [INFO] cDAQ module cleaned up
+2025-10-22 14:00:02 [INFO] Shutting down PSB queue manager...
+2025-10-22 14:00:02 [INFO] [PSB] Shutting down PSB 10000 queue manager...
+2025-10-22 14:00:02 [INFO] [PSB] Waiting for processing thread to complete...
+2025-10-22 14:00:02 [INFO] [PSB] All queues empty, processing thread exiting
+2025-10-22 14:00:02 [INFO] [PSB] PSB 10000 queue processing thread stopped
+2025-10-22 14:00:02 [INFO] [PSB] Setting output: OFF
+2025-10-22 14:00:02 [INFO] [PSB] Setting remote mode: OFF
+2025-10-22 14:00:02 [INFO] [PSB] Closing connection on COM3
+2025-10-22 14:00:02 [INFO] [PSB] Disconnected from PSB 10000
+2025-10-22 14:00:02 [INFO] Device queue manager shut down
+2025-10-22 14:00:02 [INFO] Shutting down BioLogic queue manager...
+2025-10-22 14:00:02 [INFO] [BIO] Shutting down BioLogic SP-150e queue manager...
+2025-10-22 14:00:02 [INFO] [BIO] Waiting for processing thread to complete...
+2025-10-22 14:00:02 [INFO] [BIO] All queues empty, processing thread exiting
+2025-10-22 14:00:02 [INFO] [BIO] BioLogic SP-150e queue processing thread stopped
+2025-10-22 14:00:02 [INFO] [BIO] Disconnected from BioLogic SP-150e
+2025-10-22 14:00:02 [INFO] Device queue manager shut down
+2025-10-22 14:00:02 [INFO] Shutting down DTB queue manager...
+2025-10-22 14:00:02 [INFO] [DTB] Shutting down DTB 4848 queue manager...
+2025-10-22 14:00:02 [INFO] [DTB] Waiting for processing thread to complete...
+2025-10-22 14:00:02 [INFO] [DTB] All queues empty, processing thread exiting
+2025-10-22 14:00:02 [INFO] [DTB] DTB 4848 queue processing thread stopped
+2025-10-22 14:00:02 [INFO] [DTB] Stopping DTB slave 2...
+2025-10-22 14:00:02 [INFO] [DTB] Setting Run/Stop: STOP
+2025-10-22 14:00:03 [INFO] [DTB] Stopping DTB slave 3...
+2025-10-22 14:00:03 [INFO] [DTB] Setting Run/Stop: STOP
+2025-10-22 14:00:03 [INFO] [DTB] Closing COM5
+2025-10-22 14:00:03 [INFO] [DTB] Disconnected all DTB devices from COM5
+2025-10-22 14:00:03 [INFO] [DTB] Disconnected from DTB 4848
+2025-10-22 14:00:03 [INFO] Device queue manager shut down
+2025-10-22 14:00:03 [INFO] Shutting down Alicat queue manager...
+2025-10-22 14:00:03 [INFO] [ALI] Shutting down ALICAT BASIS 2 queue manager...
+2025-10-22 14:00:03 [INFO] [ALI] Waiting for processing thread to complete...
+2025-10-22 14:00:03 [INFO] [ALI] All queues empty, processing thread exiting
+2025-10-22 14:00:03 [INFO] [ALI] ALICAT BASIS 2 queue processing thread stopped
+2025-10-22 14:00:03 [INFO] [ALI] Stopping ALICAT address 1...
+2025-10-22 14:00:03 [INFO] [ALI] Setting setpoint: 0.000
+2025-10-22 14:00:03 [INFO] [ALI] Disconnecting from COM7
+2025-10-22 14:00:03 [INFO] [ALI] Disconnected all ALICAT devices from COM7
+2025-10-22 14:00:03 [INFO] [ALI] Disconnected from ALICAT BASIS 2
+2025-10-22 14:00:03 [INFO] Device queue manager shut down
+2025-10-22 14:00:03 [INFO] Shutting down Teensy queue manager...
+2025-10-22 14:00:03 [INFO] [TNY] Shutting down Teensy queue manager...
+2025-10-22 14:00:03 [INFO] [TNY] Waiting for processing thread to complete...
+2025-10-22 14:00:03 [INFO] [TNY] All queues empty, processing thread exiting
+2025-10-22 14:00:03 [INFO] [TNY] Teensy queue processing thread stopped
+2025-10-22 14:00:03 [INFO] [TNY] Closing connection on COM6
+2025-10-22 14:00:03 [INFO] [TNY] Disconnected from Teensy
+2025-10-22 14:00:03 [INFO] Device queue manager shut down
+2025-10-22 14:00:04 [INFO] Cleaning up controls module...
+2025-10-22 14:00:04 [INFO] Controls module cleaned up
+2025-10-22 14:00:04 [INFO] Cleaning up status monitoring...
+2025-10-22 14:00:04 [INFO] Status module state: STOPPED -> UNINITIALIZED
+2025-10-22 14:00:04 [INFO] Status module cleaned up
+2025-10-22 14:00:04 [INFO] Shutting down thread pool...
+2025-10-22 14:00:04 [INFO] Cleanup complete. Exiting application.
+2025-10-22 14:00:04 [INFO] ========================================
+=== Battery Tester Log Ended: 2025-10-22 14:00:04 ===
