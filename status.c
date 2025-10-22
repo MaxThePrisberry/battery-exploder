@@ -360,7 +360,7 @@ static int CVICALLBACK Status_TimerThread(void *functionData) {
 		            PostDeferredCall(DeferredNumericUpdate, tcData);
 		        }
 		    }
-		    
+
 		    if (CDAQ_ReadTC(2, 1, &temp) == SUCCESS) {
 		        UIUpdateData* tcData = malloc(sizeof(UIUpdateData));
 		        if (tcData) {
@@ -369,6 +369,20 @@ static int CVICALLBACK Status_TimerThread(void *functionData) {
 		            PostDeferredCall(DeferredNumericUpdate, tcData);
 		        }
 		    }
+
+		    // Read voltage from NI 9202 channel 0 (slot 1) for UI display
+		    // NOTE: Requires PANEL_NUM_CH0_VOLTAGE control to be added to UI
+		    #ifdef PANEL_NUM_CH0_VOLTAGE
+		    double voltage;
+		    if (CDAQ_ReadVoltage(0, &voltage) == SUCCESS) {
+		        UIUpdateData* voltageData = malloc(sizeof(UIUpdateData));
+		        if (voltageData) {
+		            voltageData->control = PANEL_NUM_CH0_VOLTAGE;
+		            voltageData->dblValue = voltage;
+		            PostDeferredCall(DeferredNumericUpdate, voltageData);
+		        }
+		    }
+		    #endif
 		}
         
         // Sleep for timer interval
