@@ -234,30 +234,35 @@ int CDAQ_ReadCurrentArray(double *currents_mA, int *num_read) {
         return ERR_NULL_POINTER;
     }
 
-    // Read all available voltage samples from buffer (prevents overrun)
-    // Using -1 (DAQmx_Val_Auto) reads all available samples
-    float64 data[CDAQ_CHANNELS_PER_SLOT * 1000];  // Large buffer for all available samples
+    // Read 100 samples per channel for averaging (finite sampling mode)
+    // Data organized as: [ch0_s0, ch1_s0, ..., ch15_s0, ch0_s1, ch1_s1, ..., ch15_s1, ...]
+    #define SAMPLES_TO_READ 100
+    float64 data[CDAQ_CHANNELS_PER_SLOT * SAMPLES_TO_READ];
     int32 samplesRead = 0;
-    int32 result = DAQmxReadAnalogF64(g_cdaq.slot1TaskHandle, -1, CDAQ_READ_TIMEOUT,
-                                     DAQmx_Val_GroupByChannel, data,
-                                     CDAQ_CHANNELS_PER_SLOT * 1000,
+    int32 result = DAQmxReadAnalogF64(g_cdaq.slot1TaskHandle, SAMPLES_TO_READ, CDAQ_READ_TIMEOUT,
+                                     DAQmx_Val_GroupByScanNumber, data,
+                                     CDAQ_CHANNELS_PER_SLOT * SAMPLES_TO_READ,
                                      &samplesRead, NULL);
     if (result != 0) {
         LogError("Failed to read voltage array from slot 1: %d", result);
         return ERR_OPERATION_FAILED;
     }
 
-    // Use the most recent sample (last sample read)
-    // Data is organized as: [ch0_samp0, ch0_samp1, ..., ch1_samp0, ch1_samp1, ...]
-    int lastSampleIdx = samplesRead - 1;
-    for (int i = 0; i < CDAQ_CHANNELS_PER_SLOT; i++) {
-        double voltage = data[i * samplesRead + lastSampleIdx];
-        double current_A = voltage / CDAQ_CURRENT_SHUNT_RESISTOR;
-        currents_mA[i] = current_A * 1000.0;
+    // Average all samples for each channel
+    // Data is [ch0_s0, ch1_s0, ..., ch15_s0, ch0_s1, ch1_s1, ..., ch15_s1, ...]
+    for (int ch = 0; ch < CDAQ_CHANNELS_PER_SLOT; ch++) {
+        double sum = 0.0;
+        for (int s = 0; s < samplesRead; s++) {
+            sum += data[s * CDAQ_CHANNELS_PER_SLOT + ch];
+        }
+        double avgVoltage = sum / samplesRead;
+        double current_A = avgVoltage / CDAQ_CURRENT_SHUNT_RESISTOR;
+        currents_mA[ch] = current_A * 1000.0;
     }
 
     *num_read = CDAQ_CHANNELS_PER_SLOT;
     return SUCCESS;
+    #undef SAMPLES_TO_READ
 }
 
 int CDAQ_ReadVoltage(int channel, double *voltage) {
@@ -276,25 +281,30 @@ int CDAQ_ReadVoltage(int channel, double *voltage) {
         return ERR_INVALID_PARAMETER;
     }
 
-    // Read all available samples from buffer (prevents overrun)
-    // Using -1 (DAQmx_Val_Auto) reads all available samples
-    float64 data[CDAQ_CHANNELS_PER_SLOT * 1000];  // Large buffer for all available samples
+    // Read 100 samples per channel for averaging (finite sampling mode)
+    // Data organized as: [ch0_s0, ch1_s0, ..., ch15_s0, ch0_s1, ch1_s1, ..., ch15_s1, ...]
+    #define SAMPLES_TO_READ 100
+    float64 data[CDAQ_CHANNELS_PER_SLOT * SAMPLES_TO_READ];
     int32 samplesRead = 0;
-    int32 result = DAQmxReadAnalogF64(g_cdaq.slot1TaskHandle, -1, CDAQ_READ_TIMEOUT,
-                                     DAQmx_Val_GroupByChannel, data,
-                                     CDAQ_CHANNELS_PER_SLOT * 1000,
+    int32 result = DAQmxReadAnalogF64(g_cdaq.slot1TaskHandle, SAMPLES_TO_READ, CDAQ_READ_TIMEOUT,
+                                     DAQmx_Val_GroupByScanNumber, data,
+                                     CDAQ_CHANNELS_PER_SLOT * SAMPLES_TO_READ,
                                      &samplesRead, NULL);
     if (result != 0) {
         LogError("Failed to read voltage data from slot 1: %d", result);
         return ERR_OPERATION_FAILED;
     }
 
-    // Use the most recent sample (last sample read) for the requested channel
-    // Data is organized as: [ch0_samp0, ch0_samp1, ..., ch1_samp0, ch1_samp1, ...]
-    int lastSampleIdx = samplesRead - 1;
-    *voltage = data[channel * samplesRead + lastSampleIdx];
+    // Average all samples for the requested channel
+    // Data is [ch0_s0, ch1_s0, ..., ch15_s0, ch0_s1, ch1_s1, ..., ch15_s1, ...]
+    double sum = 0.0;
+    for (int s = 0; s < samplesRead; s++) {
+        sum += data[s * CDAQ_CHANNELS_PER_SLOT + channel];
+    }
+    *voltage = sum / samplesRead;
 
     return SUCCESS;
+    #undef SAMPLES_TO_READ
 }
 
 /******************************************************************************
@@ -378,15 +388,15 @@ static int CDAQ_CreateCurrentSlotTask(TaskHandle *taskHandle) {
         }
     }
 
-    // Configure sample clock timing
-    // NI 9202 requires explicit timing configuration
-    // Using continuous sampling mode with onboard clock
+    // Configure sample clock timing for on-demand acquisition
+    // NI 9202 requires timing configuration even for finite samples
+    // Using finite sampling mode - each read will acquire fresh samples
     result = DAQmxCfgSampClkTiming(*taskHandle,
                                   "",                          // Use onboard clock
                                   CDAQ_CURRENT_SAMPLE_RATE,    // Sample rate (Hz)
                                   DAQmx_Val_Rising,            // Active edge
-                                  DAQmx_Val_ContSamps,         // Continuous samples
-                                  1000);                       // Samples per channel buffer
+                                  DAQmx_Val_FiniteSamps,       // Finite samples per read
+                                  100);                        // Samples per channel per read
     if (result != 0) {
         LogError("Failed to configure timing for slot 1 (current): %d", result);
         DAQmxClearTask(*taskHandle);
