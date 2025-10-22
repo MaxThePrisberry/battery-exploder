@@ -365,6 +365,22 @@ static int CDAQ_CreateCurrentSlotTask(TaskHandle *taskHandle) {
         }
     }
 
+    // Configure sample clock timing
+    // NI 9202 requires explicit timing configuration
+    // Using continuous sampling mode with onboard clock
+    result = DAQmxCfgSampClkTiming(*taskHandle,
+                                  "",                          // Use onboard clock
+                                  CDAQ_CURRENT_SAMPLE_RATE,    // Sample rate (Hz)
+                                  DAQmx_Val_Rising,            // Active edge
+                                  DAQmx_Val_ContSamps,         // Continuous samples
+                                  1000);                       // Samples per channel buffer
+    if (result != 0) {
+        LogError("Failed to configure timing for slot 1 (current): %d", result);
+        DAQmxClearTask(*taskHandle);
+        *taskHandle = 0;
+        return ERR_OPERATION_FAILED;
+    }
+
     // Start the task
     result = DAQmxStartTask(*taskHandle);
     if (result != 0) {

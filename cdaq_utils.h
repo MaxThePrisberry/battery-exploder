@@ -29,6 +29,7 @@
 #define CDAQ_CURRENT_MAX_V 5.0             // 20mA * 250Ω = 5V
 #define CDAQ_VOLTAGE_RANGE_MIN -10.0       // NI 9202 range
 #define CDAQ_VOLTAGE_RANGE_MAX 10.0        // NI 9202 range
+#define CDAQ_CURRENT_SAMPLE_RATE 1000.0    // Hz (NI 9202 requires sample clock)
 
 /******************************************************************************
  * Public Function Declarations
