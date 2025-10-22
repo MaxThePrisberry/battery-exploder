@@ -1279,7 +1279,7 @@ static int StopRampAndSwitchToSetpointHold(TempRampExperimentContext *ctx) {
     // Set explicit setpoint at target temperature
     for (int i = 0; i < DTB_NUM_DEVICES; i++) {
         int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
-        int result = DTB_SetSetpointQueued(slaveAddress, ctx->params.finalTemp, DEVICE_PRIORITY_HIGH);
+        int result = DTB_SetSetPointQueued(slaveAddress, ctx->params.finalTemp, DEVICE_PRIORITY_HIGH);
         if (result != DTB_SUCCESS) {
             LogWarning("Failed to set DTB %d setpoint: %s", i+1, DTB_GetErrorString(result));
         }
