@@ -66,13 +66,14 @@
 #define  PANEL_TOGGLE_TEENSY              51      /* control type: binary, callback function: TestTeensyCallback */
 #define  PANEL_STR_CMD_PROMPT_INPUT       52      /* control type: string, callback function: CmdPromptInputCallback */
 #define  PANEL_NUM_TC0                    53      /* control type: numeric, callback function: (none) */
-#define  PANEL_NUM_TC1                    54      /* control type: numeric, callback function: (none) */
-#define  PANEL_DEC_TMPCTRL                55      /* control type: deco, callback function: (none) */
-#define  PANEL_DEC_BIO_GRAPH              56      /* control type: deco, callback function: (none) */
-#define  PANEL_DEC_CMDPROMPT              57      /* control type: deco, callback function: (none) */
-#define  PANEL_MASS_FLOW                  58      /* control type: deco, callback function: (none) */
-#define  PANEL_DEC_TCS                    59      /* control type: deco, callback function: (none) */
-#define  PANEL_MFLOW_DIAL                 60      /* control type: scale, callback function: (none) */
+#define  PANEL_NUM_CH0_VOLTAGE            54      /* control type: numeric, callback function: (none) */
+#define  PANEL_NUM_TC1                    55      /* control type: numeric, callback function: (none) */
+#define  PANEL_DEC_TMPCTRL                56      /* control type: deco, callback function: (none) */
+#define  PANEL_DEC_BIO_GRAPH              57      /* control type: deco, callback function: (none) */
+#define  PANEL_DEC_CMDPROMPT              58      /* control type: deco, callback function: (none) */
+#define  PANEL_MASS_FLOW                  59      /* control type: deco, callback function: (none) */
+#define  PANEL_DEC_TCS                    60      /* control type: deco, callback function: (none) */
+#define  PANEL_MFLOW_DIAL                 61      /* control type: scale, callback function: (none) */
 
 #define  PANEL_LOAD                       2
 #define  PANEL_LOAD_IMG_LOGO              2       /* control type: picture, callback function: (none) */
