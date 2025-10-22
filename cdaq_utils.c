@@ -234,19 +234,25 @@ int CDAQ_ReadCurrentArray(double *currents_mA, int *num_read) {
         return ERR_NULL_POINTER;
     }
 
-    // Read all voltage channels
-    float64 data[CDAQ_CHANNELS_PER_SLOT];
-    int32 result = DAQmxReadAnalogF64(g_cdaq.slot1TaskHandle, 1, CDAQ_READ_TIMEOUT,
-                                     DAQmx_Val_GroupByChannel, data, CDAQ_CHANNELS_PER_SLOT,
-                                     NULL, NULL);
+    // Read all available voltage samples from buffer (prevents overrun)
+    // Using -1 (DAQmx_Val_Auto) reads all available samples
+    float64 data[CDAQ_CHANNELS_PER_SLOT * 1000];  // Large buffer for all available samples
+    int32 samplesRead = 0;
+    int32 result = DAQmxReadAnalogF64(g_cdaq.slot1TaskHandle, -1, CDAQ_READ_TIMEOUT,
+                                     DAQmx_Val_GroupByChannel, data,
+                                     CDAQ_CHANNELS_PER_SLOT * 1000,
+                                     &samplesRead, NULL);
     if (result != 0) {
         LogError("Failed to read voltage array from slot 1: %d", result);
         return ERR_OPERATION_FAILED;
     }
 
-    // Convert all voltage readings to current (milliamps)
+    // Use the most recent sample (last sample read)
+    // Data is organized as: [ch0_samp0, ch0_samp1, ..., ch1_samp0, ch1_samp1, ...]
+    int lastSampleIdx = samplesRead - 1;
     for (int i = 0; i < CDAQ_CHANNELS_PER_SLOT; i++) {
-        double current_A = data[i] / CDAQ_CURRENT_SHUNT_RESISTOR;
+        double voltage = data[i * samplesRead + lastSampleIdx];
+        double current_A = voltage / CDAQ_CURRENT_SHUNT_RESISTOR;
         currents_mA[i] = current_A * 1000.0;
     }
 
@@ -270,17 +276,24 @@ int CDAQ_ReadVoltage(int channel, double *voltage) {
         return ERR_INVALID_PARAMETER;
     }
 
-    // Read all channels and return the requested one
-    float64 data[CDAQ_CHANNELS_PER_SLOT];
-    int32 result = DAQmxReadAnalogF64(g_cdaq.slot1TaskHandle, 1, CDAQ_READ_TIMEOUT,
-                                     DAQmx_Val_GroupByChannel, data, CDAQ_CHANNELS_PER_SLOT,
-                                     NULL, NULL);
+    // Read all available samples from buffer (prevents overrun)
+    // Using -1 (DAQmx_Val_Auto) reads all available samples
+    float64 data[CDAQ_CHANNELS_PER_SLOT * 1000];  // Large buffer for all available samples
+    int32 samplesRead = 0;
+    int32 result = DAQmxReadAnalogF64(g_cdaq.slot1TaskHandle, -1, CDAQ_READ_TIMEOUT,
+                                     DAQmx_Val_GroupByChannel, data,
+                                     CDAQ_CHANNELS_PER_SLOT * 1000,
+                                     &samplesRead, NULL);
     if (result != 0) {
         LogError("Failed to read voltage data from slot 1: %d", result);
         return ERR_OPERATION_FAILED;
     }
 
-    *voltage = data[channel];
+    // Use the most recent sample (last sample read) for the requested channel
+    // Data is organized as: [ch0_samp0, ch0_samp1, ..., ch1_samp0, ch1_samp1, ...]
+    int lastSampleIdx = samplesRead - 1;
+    *voltage = data[channel * samplesRead + lastSampleIdx];
+
     return SUCCESS;
 }
 
