@@ -458,9 +458,16 @@ static void CVICALLBACK DeferredAlarmPopup(void *data) {
 }
 
 static void PlayAlarmSound(void) {
-    // Play system beep multiple times
+    // Play LOUD warning sound using Windows MessageBeep
+    // MB_ICONEXCLAMATION produces a much louder, more urgent sound than Beep()
     for (int i = 0; i < PRESSURE_ALARM_SOUND_BEEPS; i++) {
-        Beep();
-        Delay(0.3);  // 300ms between beeps
+        MessageBeep(MB_ICONEXCLAMATION);  // System exclamation sound (LOUD)
+        Delay(0.5);  // 500ms between beeps
+    }
+
+    // Follow up with additional critical warning sound
+    for (int i = 0; i < 3; i++) {
+        MessageBeep(MB_ICONHAND);  // Critical stop sound (VERY LOUD)
+        Delay(0.3);
     }
 }

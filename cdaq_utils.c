@@ -294,28 +294,16 @@ int CDAQ_ReadVoltage(int channel, double *voltage) {
         return ERR_INVALID_PARAMETER;
     }
 
-    // Finite sampling mode requires stopping and starting the task for each read
-    int32 result = DAQmxStopTask(g_cdaq.slot1TaskHandle);
-    if (result != 0) {
-        LogError("Failed to stop task before read (slot 1): %d", result);
-        return ERR_OPERATION_FAILED;
-    }
-
-    result = DAQmxStartTask(g_cdaq.slot1TaskHandle);
-    if (result != 0) {
-        LogError("Failed to restart task for read (slot 1): %d", result);
-        return ERR_OPERATION_FAILED;
-    }
-
-    // Read 100 samples per channel for averaging (finite sampling mode)
+    // Read from continuously running task - no need to stop/start
+    // Read 100 samples per channel for averaging
     // Data organized as: [ch0_s0, ch1_s0, ..., ch15_s0, ch0_s1, ch1_s1, ..., ch15_s1, ...]
     #define SAMPLES_TO_READ 100
     float64 data[CDAQ_CHANNELS_PER_SLOT * SAMPLES_TO_READ];
     int32 samplesRead = 0;
-    result = DAQmxReadAnalogF64(g_cdaq.slot1TaskHandle, SAMPLES_TO_READ, CDAQ_READ_TIMEOUT,
-                                DAQmx_Val_GroupByScanNumber, data,
-                                CDAQ_CHANNELS_PER_SLOT * SAMPLES_TO_READ,
-                                &samplesRead, NULL);
+    int32 result = DAQmxReadAnalogF64(g_cdaq.slot1TaskHandle, SAMPLES_TO_READ, CDAQ_READ_TIMEOUT,
+                                      DAQmx_Val_GroupByScanNumber, data,
+                                      CDAQ_CHANNELS_PER_SLOT * SAMPLES_TO_READ,
+                                      &samplesRead, NULL);
     if (result != 0) {
         LogError("Failed to read voltage data from slot 1: %d", result);
         return ERR_OPERATION_FAILED;
@@ -415,15 +403,15 @@ static int CDAQ_CreateCurrentSlotTask(TaskHandle *taskHandle) {
         }
     }
 
-    // Configure sample clock timing for on-demand acquisition
-    // NI 9202 requires timing configuration even for finite samples
-    // Using finite sampling mode - each read will acquire fresh samples
+    // Configure sample clock timing for continuous acquisition
+    // NI 9202 continuous sampling - task stays running, just read from buffer
+    // This avoids the overhead and errors from stopping/starting task on every read
     result = DAQmxCfgSampClkTiming(*taskHandle,
                                   "",                          // Use onboard clock
                                   CDAQ_CURRENT_SAMPLE_RATE,    // Sample rate (Hz)
                                   DAQmx_Val_Rising,            // Active edge
-                                  DAQmx_Val_FiniteSamps,       // Finite samples per read
-                                  100);                        // Samples per channel per read
+                                  DAQmx_Val_ContSamps,         // Continuous sampling
+                                  1000);                       // Buffer size (samples per channel)
     if (result != 0) {
         LogError("Failed to configure timing for slot 1 (current): %d", result);
         DAQmxClearTask(*taskHandle);
