@@ -8,8 +8,14 @@
 #include "pressure_safety.h"
 #include "cdaq_utils.h"
 #include "logging.h"
+#include <windows.h>     // For Windows API Beep(frequency, duration)
 #include <toolbox.h>
 #include <userint.h>
+
+// Ensure we use Windows API Beep, not CVI Beep (if CVI defines it as macro)
+#ifdef Beep
+#undef Beep
+#endif
 
 /******************************************************************************
  * Module State
