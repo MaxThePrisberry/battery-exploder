@@ -295,17 +295,30 @@ int CDAQ_ReadVoltage(int channel, double *voltage) {
     }
 
     // Read from continuously running task - no need to stop/start
-    // Read 100 samples per channel for averaging
+    // For continuous sampling, use -1 to read all available samples (up to buffer size)
+    // At 1000 Hz, we'll typically get 100-200 samples in 0.1-0.2 seconds between reads
     // Data organized as: [ch0_s0, ch1_s0, ..., ch15_s0, ch0_s1, ch1_s1, ..., ch15_s1, ...]
-    #define SAMPLES_TO_READ 100
-    float64 data[CDAQ_CHANNELS_PER_SLOT * SAMPLES_TO_READ];
+    #define MAX_SAMPLES_TO_READ 500
+    float64 data[CDAQ_CHANNELS_PER_SLOT * MAX_SAMPLES_TO_READ];
     int32 samplesRead = 0;
-    int32 result = DAQmxReadAnalogF64(g_cdaq.slot1TaskHandle, SAMPLES_TO_READ, CDAQ_READ_TIMEOUT,
-                                      DAQmx_Val_GroupByScanNumber, data,
-                                      CDAQ_CHANNELS_PER_SLOT * SAMPLES_TO_READ,
-                                      &samplesRead, NULL);
+
+    // Use -1 to read all available samples (non-blocking for continuous mode)
+    int32 result = DAQmxReadAnalogF64(g_cdaq.slot1TaskHandle,
+                                      -1,                              // Read all available samples
+                                      CDAQ_READ_TIMEOUT,
+                                      DAQmx_Val_GroupByScanNumber,
+                                      data,
+                                      CDAQ_CHANNELS_PER_SLOT * MAX_SAMPLES_TO_READ,
+                                      &samplesRead,
+                                      NULL);
     if (result != 0) {
         LogError("Failed to read voltage data from slot 1: %d", result);
+        return ERR_OPERATION_FAILED;
+    }
+
+    // Check that we got some samples
+    if (samplesRead == 0) {
+        LogError("No samples available from slot 1");
         return ERR_OPERATION_FAILED;
     }
 
@@ -318,7 +331,7 @@ int CDAQ_ReadVoltage(int channel, double *voltage) {
     *voltage = sum / samplesRead;
 
     return SUCCESS;
-    #undef SAMPLES_TO_READ
+    #undef MAX_SAMPLES_TO_READ
 }
 
 /******************************************************************************
