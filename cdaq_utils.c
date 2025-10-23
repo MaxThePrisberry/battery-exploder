@@ -109,7 +109,8 @@ void CDAQ_CleanupCurrentSlot(void) {
     LogMessage("Cleaning up cDAQ current slot...");
 
     if (g_cdaq.slot1TaskHandle != 0) {
-        // For on-demand mode, task is never started, so just clear it
+        // Stop task if running, then clear it
+        DAQmxStopTask(g_cdaq.slot1TaskHandle);
         DAQmxClearTask(g_cdaq.slot1TaskHandle);
         g_cdaq.slot1TaskHandle = 0;
         LogMessage("Cleaned up cDAQ slot 1 task");
@@ -294,26 +295,38 @@ int CDAQ_ReadVoltage(int channel, double *voltage) {
         return ERR_INVALID_PARAMETER;
     }
 
-    // On-demand sampling: acquire samples when we call read
-    // Read multiple samples for averaging to reduce noise
+    // Finite sampling mode: start task, read samples, task auto-stops
+    // Read 10 samples for averaging to reduce noise
     // Data organized as: [ch0_s0, ch1_s0, ..., ch15_s0, ch0_s1, ch1_s1, ..., ch15_s1, ...]
     #define SAMPLES_TO_AVERAGE 10  // Average 10 samples for noise reduction
     float64 data[CDAQ_CHANNELS_PER_SLOT * SAMPLES_TO_AVERAGE];
     int32 samplesRead = 0;
 
-    // On-demand read: DAQmx will acquire the samples when we call this
-    int32 result = DAQmxReadAnalogF64(g_cdaq.slot1TaskHandle,
-                                      SAMPLES_TO_AVERAGE,           // Number of samples to acquire
-                                      CDAQ_READ_TIMEOUT,
-                                      DAQmx_Val_GroupByScanNumber,
-                                      data,
-                                      CDAQ_CHANNELS_PER_SLOT * SAMPLES_TO_AVERAGE,
-                                      &samplesRead,
-                                      NULL);
+    // Start task (will acquire finite samples and auto-stop)
+    int32 result = DAQmxStartTask(g_cdaq.slot1TaskHandle);
     if (result != 0) {
-        LogError("Failed to read voltage data from slot 1: %d", result);
+        LogError("Failed to start task for slot 1 read: %d", result);
         return ERR_OPERATION_FAILED;
     }
+
+    // Read the samples (acquisition happens now)
+    result = DAQmxReadAnalogF64(g_cdaq.slot1TaskHandle,
+                                SAMPLES_TO_AVERAGE,           // Number of samples to acquire
+                                CDAQ_READ_TIMEOUT,
+                                DAQmx_Val_GroupByScanNumber,
+                                data,
+                                CDAQ_CHANNELS_PER_SLOT * SAMPLES_TO_AVERAGE,
+                                &samplesRead,
+                                NULL);
+    if (result != 0) {
+        LogError("Failed to read voltage data from slot 1: %d", result);
+        DAQmxStopTask(g_cdaq.slot1TaskHandle);  // Clean up on error
+        return ERR_OPERATION_FAILED;
+    }
+
+    // Task automatically stops after finite samples acquired
+    // Explicitly stop to ensure clean state for next read
+    DAQmxStopTask(g_cdaq.slot1TaskHandle);
 
     // Check that we got the expected number of samples
     if (samplesRead != SAMPLES_TO_AVERAGE) {
@@ -417,10 +430,21 @@ static int CDAQ_CreateCurrentSlotTask(TaskHandle *taskHandle) {
         }
     }
 
-    // For slow measurements (pressure sensor read once per second),
-    // use on-demand sampling - no timing configuration needed
-    // This is simpler, more reliable, and appropriate for this use case
-    // Task doesn't need to be started for on-demand reads
+    // Configure finite sampling mode for averaging reads
+    // This acquires fresh samples on each read call
+    // Using a moderate sample rate suitable for slow measurements
+    result = DAQmxCfgSampClkTiming(*taskHandle,
+                                  "",                          // Use onboard clock
+                                  1000.0,                      // Sample rate (Hz) - moderate rate
+                                  DAQmx_Val_Rising,            // Active edge
+                                  DAQmx_Val_FiniteSamps,       // Finite samples mode
+                                  10);                         // Samples per channel per read
+    if (result != 0) {
+        LogError("Failed to configure timing for slot 1 (current): %d", result);
+        DAQmxClearTask(*taskHandle);
+        *taskHandle = 0;
+        return ERR_OPERATION_FAILED;
+    }
 
     return SUCCESS;
 }
