@@ -109,7 +109,7 @@ void CDAQ_CleanupCurrentSlot(void) {
     LogMessage("Cleaning up cDAQ current slot...");
 
     if (g_cdaq.slot1TaskHandle != 0) {
-        DAQmxStopTask(g_cdaq.slot1TaskHandle);
+        // For on-demand mode, task is never started, so just clear it
         DAQmxClearTask(g_cdaq.slot1TaskHandle);
         g_cdaq.slot1TaskHandle = 0;
         LogMessage("Cleaned up cDAQ slot 1 task");
@@ -294,21 +294,20 @@ int CDAQ_ReadVoltage(int channel, double *voltage) {
         return ERR_INVALID_PARAMETER;
     }
 
-    // Read from continuously running task - no need to stop/start
-    // For continuous sampling, use -1 to read all available samples (up to buffer size)
-    // At 1000 Hz, we'll typically get 100-200 samples in 0.1-0.2 seconds between reads
+    // On-demand sampling: acquire samples when we call read
+    // Read multiple samples for averaging to reduce noise
     // Data organized as: [ch0_s0, ch1_s0, ..., ch15_s0, ch0_s1, ch1_s1, ..., ch15_s1, ...]
-    #define MAX_SAMPLES_TO_READ 500
-    float64 data[CDAQ_CHANNELS_PER_SLOT * MAX_SAMPLES_TO_READ];
+    #define SAMPLES_TO_AVERAGE 10  // Average 10 samples for noise reduction
+    float64 data[CDAQ_CHANNELS_PER_SLOT * SAMPLES_TO_AVERAGE];
     int32 samplesRead = 0;
 
-    // Use -1 to read all available samples (non-blocking for continuous mode)
+    // On-demand read: DAQmx will acquire the samples when we call this
     int32 result = DAQmxReadAnalogF64(g_cdaq.slot1TaskHandle,
-                                      -1,                              // Read all available samples
+                                      SAMPLES_TO_AVERAGE,           // Number of samples to acquire
                                       CDAQ_READ_TIMEOUT,
                                       DAQmx_Val_GroupByScanNumber,
                                       data,
-                                      CDAQ_CHANNELS_PER_SLOT * MAX_SAMPLES_TO_READ,
+                                      CDAQ_CHANNELS_PER_SLOT * SAMPLES_TO_AVERAGE,
                                       &samplesRead,
                                       NULL);
     if (result != 0) {
@@ -316,10 +315,12 @@ int CDAQ_ReadVoltage(int channel, double *voltage) {
         return ERR_OPERATION_FAILED;
     }
 
-    // Check that we got some samples
-    if (samplesRead == 0) {
-        LogError("No samples available from slot 1");
-        return ERR_OPERATION_FAILED;
+    // Check that we got the expected number of samples
+    if (samplesRead != SAMPLES_TO_AVERAGE) {
+        LogWarning("Expected %d samples but got %d from slot 1", SAMPLES_TO_AVERAGE, samplesRead);
+        if (samplesRead == 0) {
+            return ERR_OPERATION_FAILED;
+        }
     }
 
     // Average all samples for the requested channel
@@ -331,7 +332,7 @@ int CDAQ_ReadVoltage(int channel, double *voltage) {
     *voltage = sum / samplesRead;
 
     return SUCCESS;
-    #undef MAX_SAMPLES_TO_READ
+    #undef SAMPLES_TO_AVERAGE
 }
 
 /******************************************************************************
@@ -416,30 +417,10 @@ static int CDAQ_CreateCurrentSlotTask(TaskHandle *taskHandle) {
         }
     }
 
-    // Configure sample clock timing for continuous acquisition
-    // NI 9202 continuous sampling - task stays running, just read from buffer
-    // This avoids the overhead and errors from stopping/starting task on every read
-    result = DAQmxCfgSampClkTiming(*taskHandle,
-                                  "",                          // Use onboard clock
-                                  CDAQ_CURRENT_SAMPLE_RATE,    // Sample rate (Hz)
-                                  DAQmx_Val_Rising,            // Active edge
-                                  DAQmx_Val_ContSamps,         // Continuous sampling
-                                  1000);                       // Buffer size (samples per channel)
-    if (result != 0) {
-        LogError("Failed to configure timing for slot 1 (current): %d", result);
-        DAQmxClearTask(*taskHandle);
-        *taskHandle = 0;
-        return ERR_OPERATION_FAILED;
-    }
-
-    // Start the task
-    result = DAQmxStartTask(*taskHandle);
-    if (result != 0) {
-        LogError("Failed to start cDAQ task for slot 1 (current): %d", result);
-        DAQmxClearTask(*taskHandle);
-        *taskHandle = 0;
-        return ERR_OPERATION_FAILED;
-    }
+    // For slow measurements (pressure sensor read once per second),
+    // use on-demand sampling - no timing configuration needed
+    // This is simpler, more reliable, and appropriate for this use case
+    // Task doesn't need to be started for on-demand reads
 
     return SUCCESS;
 }
