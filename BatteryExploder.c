@@ -14,6 +14,7 @@
 #include "alicat_queue.h"
 #include "teensy_queue.h"
 #include "cdaq_utils.h"
+#include "pressure_safety.h"
 #include "logging.h"
 #include "status.h"
 #include "controls.h"
@@ -75,6 +76,15 @@ int main (int argc, char *argv[]) {
 	        LogMessage("cDAQ current sensor slot initialized successfully (4-20mA)");
 	    } else {
 	        LogError("Failed to initialize cDAQ current slot: %s", GetErrorString(result));
+	    }
+
+	    // Initialize pressure safety monitoring (uses cDAQ NI 9202 slot 1, channel 0)
+	    LogMessage("Initializing pressure safety monitoring...");
+	    result = PressureSafety_Initialize();
+	    if (result == SUCCESS) {
+	        LogMessage("Pressure safety monitoring initialized successfully");
+	    } else {
+	        LogError("Failed to initialize pressure safety monitoring: %s", GetErrorString(result));
 	    }
 	}
 	
@@ -381,6 +391,12 @@ int CVICALLBACK PanelCallback(int panel, int event, void *callbackData,
             ProcessSystemEvents();
             Delay(0.2);
 			
+			// Clean up pressure safety monitoring
+			if (ENABLE_CDAQ) {
+			    LogMessage("Cleaning up pressure safety monitoring...");
+			    PressureSafety_Cleanup();
+			}
+
 			// Clean up cDAQ module
 			if (ENABLE_CDAQ) {
 			    LogMessage("Cleaning up cDAQ module...");

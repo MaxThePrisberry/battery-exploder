@@ -11,6 +11,7 @@
 #include "logging.h"
 #include "status.h"
 #include "battery_utils.h"
+#include "pressure_safety.h"
 #include <ansi_c.h>
 #include <analysis.h>
 #include <utility.h>
@@ -78,6 +79,10 @@ static int ConfigureExperimentGraphs(TempRampExperimentContext *ctx);
 static int WriteComprehensiveResults(TempRampExperimentContext *ctx);
 static void CleanupExperiment(TempRampExperimentContext *ctx);
 static int CheckCancellation(TempRampExperimentContext *ctx);
+
+// Pressure safety callbacks
+static void OnVentilationLost(ExperimentPhase phase, double temperature, double pressure);
+static void OnVentilationRestored(double pressure);
 
 /******************************************************************************
  * Public Functions Implementation
@@ -350,7 +355,44 @@ static int TempRampExperimentThread(void *functionData) {
     LogMessage("Initializing relay states...");
     TNY_SetPinQueued(TNY_PSB_PIN, TNY_STATE_DISCONNECTED, DEVICE_PRIORITY_NORMAL);
     TNY_SetPinQueued(TNY_BIOLOGIC_PIN, TNY_STATE_DISCONNECTED, DEVICE_PRIORITY_NORMAL);
-    
+
+    // Check ventilation pre-start conditions (CRITICAL SAFETY CHECK)
+    if (ENABLE_CDAQ) {
+        LogMessage("Checking fume hood ventilation conditions...");
+        double pressureVoltage;
+        if (!PressureSafety_CheckStartConditions(&pressureVoltage)) {
+            LogError("Cannot start experiment: Ventilation not adequate (%.2f V)", pressureVoltage);
+            char ventMsg[512];
+            snprintf(ventMsg, sizeof(ventMsg),
+                    "Fume hood ventilation is not adequate.\n\n"
+                    "Please ensure the extraction system is running\n"
+                    "and pressure sensor is reading correctly.\n\n"
+                    "Current pressure reading: %.2f V\n"
+                    "Required minimum: %.2f V",
+                    pressureVoltage, PRESSURE_THRESHOLD_OK_MIN);
+            MessagePopup("Experiment Start Failed", ventMsg);
+            ctx->state = TEMP_RAMP_STATE_ERROR;
+            goto cleanup;
+        }
+        LogMessage("Ventilation check PASSED (%.2f V) - safe to start", pressureVoltage);
+
+        // Start pressure safety monitoring
+        LogMessage("Starting pressure safety monitoring...");
+        result = PressureSafety_StartMonitoring(ctx->params.initialTemp,
+                                               OnVentilationLost,
+                                               OnVentilationRestored);
+        if (result != SUCCESS) {
+            LogError("Failed to start pressure safety monitoring: %s", GetErrorString(result));
+            MessagePopup("Warning",
+                        "Failed to start pressure safety monitoring.\n"
+                        "Experiment will continue without pressure monitoring.\n\n"
+                        "Press OK to continue or Cancel to abort.");
+            // Note: We don't abort here, just warn the user
+        } else {
+            LogMessage("Pressure safety monitoring active");
+        }
+    }
+
     // Allocate EIS measurement array
     ctx->eisMeasurementCapacity = expectedMeasurements + 10;  // Extra capacity
     ctx->eisMeasurements = (TempRampEISMeasurement*)calloc(ctx->eisMeasurementCapacity,
@@ -1345,6 +1387,12 @@ static int ReadAllTemperatures(TempRampExperimentContext *ctx, TempRampTempData 
     if (ENABLE_CDAQ) {
         CDAQ_ReadTC(2, 0, &tempData->tc0Temperature);
         CDAQ_ReadTC(2, 1, &tempData->tc1Temperature);
+
+        // Update pressure safety monitoring with current battery temperature
+        // Use DTB average temperature as the reference for phase determination
+        if (tempData->dtbDeviceCount > 0) {
+            PressureSafety_UpdateTemperature(tempData->dtbAverageTemperature);
+        }
     } else {
         tempData->tc0Temperature = 0.0;
         tempData->tc1Temperature = 0.0;
@@ -2112,7 +2160,13 @@ static int WriteComprehensiveResults(TempRampExperimentContext *ctx) {
 
 static void CleanupExperiment(TempRampExperimentContext *ctx) {
     LogMessage("Cleaning up experiment...");
-    
+
+    // Stop pressure safety monitoring
+    if (ENABLE_CDAQ) {
+        LogMessage("Stopping pressure safety monitoring...");
+        PressureSafety_StopMonitoring();
+    }
+
     SafeDisconnectAllDevices(ctx);
     
     ClearExternalLogFile();
@@ -2158,7 +2212,39 @@ static void CleanupExperiment(TempRampExperimentContext *ctx) {
 }
 
 static int CheckCancellation(TempRampExperimentContext *ctx) {
-    return (ctx->cancelRequested || ctx->emergencyStop || 
+    return (ctx->cancelRequested || ctx->emergencyStop ||
             ctx->state == TEMP_RAMP_STATE_CANCELLED ||
             ctx->state == TEMP_RAMP_STATE_ERROR);
+}
+
+/******************************************************************************
+ * Pressure Safety Callbacks
+ ******************************************************************************/
+
+static void OnVentilationLost(ExperimentPhase phase, double temperature, double pressure) {
+    LogError("***** VENTILATION LOST *****");
+    LogError("Phase: %s", PressureSafety_PhaseToString(phase));
+    LogError("Temperature: %.1f deg C", temperature);
+    LogError("Pressure: %.2f V", pressure);
+
+    if (phase == PHASE_SAFE) {
+        // Safe phase - stop experiment immediately
+        LogError("SAFE PHASE: Stopping experiment due to ventilation loss");
+        LogError("It is safe to stop the experiment at this temperature");
+
+        // Set cancel flag to stop experiment
+        g_experimentContext.cancelRequested = 1;
+        g_experimentContext.state = TEMP_RAMP_STATE_CANCELLED;
+    } else {
+        // Critical phase - continue experiment but log warning
+        LogError("CRITICAL PHASE: Experiment will CONTINUE despite ventilation loss");
+        LogError("Stopping at this temperature could be more dangerous than continuing");
+        LogError("Alarm has been sounded - PERSONNEL SHOULD EVACUATE");
+    }
+}
+
+static void OnVentilationRestored(double pressure) {
+    LogMessage("*** Ventilation restored ***");
+    LogMessage("Pressure: %.2f V", pressure);
+    LogMessage("Experiment will continue normally");
 }
