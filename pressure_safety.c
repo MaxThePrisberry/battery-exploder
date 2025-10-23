@@ -458,16 +458,28 @@ static void CVICALLBACK DeferredAlarmPopup(void *data) {
 }
 
 static void PlayAlarmSound(void) {
-    // Play LOUD warning sound using Windows MessageBeep
-    // MB_ICONEXCLAMATION produces a much louder, more urgent sound than Beep()
+    // Create an urgent siren-like alarm using alternating frequencies
+    // This is MUCH louder and more attention-grabbing than MessageBeep
+
+    // Phase 1: Rapid alternating siren pattern (very urgent)
     for (int i = 0; i < PRESSURE_ALARM_SOUND_BEEPS; i++) {
-        MessageBeep(MB_ICONEXCLAMATION);  // System exclamation sound (LOUD)
-        Delay(0.5);  // 500ms between beeps
+        Beep(PRESSURE_ALARM_BEEP_FREQ_HZ, PRESSURE_ALARM_BEEP_DURATION_MS);       // 1000 Hz for 200ms
+        Beep(1500, PRESSURE_ALARM_BEEP_DURATION_MS);                              // 1500 Hz for 200ms (creates siren effect)
     }
 
-    // Follow up with additional critical warning sound
+    Delay(0.3);  // Brief pause
+
+    // Phase 2: Lower frequency warning (deeper, more ominous)
     for (int i = 0; i < 3; i++) {
-        MessageBeep(MB_ICONHAND);  // Critical stop sound (VERY LOUD)
-        Delay(0.3);
+        Beep(800, 400);   // 800 Hz for 400ms (deeper tone)
+        Delay(0.2);       // Short gap between beeps
+    }
+
+    Delay(0.3);  // Brief pause
+
+    // Phase 3: Final rapid high-pitched alert
+    for (int i = 0; i < 5; i++) {
+        Beep(2000, 150);  // 2000 Hz for 150ms (very high pitched, very urgent)
+        Delay(0.1);
     }
 }
