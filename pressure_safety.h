@@ -37,8 +37,8 @@
 
 // Alarm configuration
 #define PRESSURE_ALARM_SOUND_BEEPS      5      // Number of beeps for alarm
-#define PRESSURE_ALARM_BEEP_FREQ_HZ     1000   // Beep frequency in Hz
-#define PRESSURE_ALARM_BEEP_DURATION_MS 200    // Duration of each beep
+#define PRESSURE_ALARM_BEEP_FREQ_HZ     2000   // Beep frequency in Hz
+#define PRESSURE_ALARM_BEEP_DURATION_MS 500    // Duration of each beep
 
 /******************************************************************************
  * Type Definitions

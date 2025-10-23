@@ -470,22 +470,7 @@ static void PlayAlarmSound(void) {
     // Phase 1: Rapid alternating siren pattern (very urgent)
     for (int i = 0; i < PRESSURE_ALARM_SOUND_BEEPS; i++) {
         Beep(PRESSURE_ALARM_BEEP_FREQ_HZ, PRESSURE_ALARM_BEEP_DURATION_MS);       // 1000 Hz for 200ms
-        Beep(1500, PRESSURE_ALARM_BEEP_DURATION_MS);                              // 1500 Hz for 200ms (creates siren effect)
+        Beep(PRESSURE_ALARM_BEEP_FREQ_HZ+500, PRESSURE_ALARM_BEEP_DURATION_MS);                              // 1500 Hz for 200ms (creates siren effect)
     }
 
-    Delay(0.3);  // Brief pause
-
-    // Phase 2: Lower frequency warning (deeper, more ominous)
-    for (int i = 0; i < 3; i++) {
-        Beep(800, 400);   // 800 Hz for 400ms (deeper tone)
-        Delay(0.2);       // Short gap between beeps
-    }
-
-    Delay(0.3);  // Brief pause
-
-    // Phase 3: Final rapid high-pitched alert
-    for (int i = 0; i < 5; i++) {
-        Beep(2000, 150);  // 2000 Hz for 150ms (very high pitched, very urgent)
-        Delay(0.1);
-    }
 }
