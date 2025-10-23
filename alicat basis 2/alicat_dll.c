@@ -551,7 +551,7 @@ int ALICAT_SetFlowAveraging(ALICAT_Handle *handle, int averagingMs) {
 int ALICAT_SetRefTemperature(ALICAT_Handle *handle, double tempC) {
     if (!handle || !handle->isConnected) return ALICAT_ERROR_NOT_CONNECTED;
     
-    LogMessageEx(LOG_DEVICE_ALICAT, "Setting reference temperature: %.1f �C", tempC);
+    LogMessageEx(LOG_DEVICE_ALICAT, "Setting reference temperature: %.1f deg C", tempC);
     
     unsigned short value = (unsigned short)(tempC * TEMP_SCALE_FACTOR);
     return ALICAT_WriteRegister(handle, REG_REF_TEMPERATURE, value);
@@ -662,7 +662,7 @@ void ALICAT_PrintStatus(const ALICAT_Status *status) {
     LogMessageEx(LOG_DEVICE_ALICAT, "=== ALICAT Status ===");
     LogMessageEx(LOG_DEVICE_ALICAT, "Flow Rate: %.3f", status->flowRate);
     LogMessageEx(LOG_DEVICE_ALICAT, "Setpoint: %.3f", status->setpoint);
-    LogMessageEx(LOG_DEVICE_ALICAT, "Temperature: %.1f �C", status->temperature);
+    LogMessageEx(LOG_DEVICE_ALICAT, "Temperature: %.1f deg C", status->temperature);
     LogMessageEx(LOG_DEVICE_ALICAT, "Total Volume: %.3f", status->totalVolume);
     LogMessageEx(LOG_DEVICE_ALICAT, "Valve Drive: %.1f%%", status->valveDrive);
     LogMessageEx(LOG_DEVICE_ALICAT, "Selected Gas: %s", ALICAT_GetGasName(status->selectedGas));

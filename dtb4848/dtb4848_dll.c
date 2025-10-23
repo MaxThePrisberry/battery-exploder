@@ -493,12 +493,12 @@ int DTB_SetSetPoint(DTB_Handle *handle, double temperature) {
     
     // Validate temperature range for K-type
     if (temperature < K_TYPE_MIN_TEMP || temperature > K_TYPE_MAX_TEMP) {
-        LogErrorEx(LOG_DEVICE_DTB, "Temperature %.1f�C out of range (%.1f to %.1f)",
+        LogErrorEx(LOG_DEVICE_DTB, "Temperature %.1fdeg C out of range (%.1f to %.1f)",
                    temperature, K_TYPE_MIN_TEMP, K_TYPE_MAX_TEMP);
         return DTB_ERROR_INVALID_PARAM;
     }
     
-    LogMessageEx(LOG_DEVICE_DTB, "Setting setpoint: %.1f�C", temperature);
+    LogMessageEx(LOG_DEVICE_DTB, "Setting setpoint: %.1fdeg C", temperature);
     
     // Temperature is stored as value * 10 (one decimal place)
     short tempValue = (short)(temperature * 10);
@@ -1109,8 +1109,8 @@ void DTB_PrintStatus(const DTB_Status *status) {
     if (!status) return;
     
     LogMessageEx(LOG_DEVICE_DTB, "=== DTB Status ===");
-    LogMessageEx(LOG_DEVICE_DTB, "Process Value: %.1f �C", status->processValue);
-    LogMessageEx(LOG_DEVICE_DTB, "Set Point: %.1f �C", status->setPoint);
+    LogMessageEx(LOG_DEVICE_DTB, "Process Value: %.1f deg C", status->processValue);
+    LogMessageEx(LOG_DEVICE_DTB, "Set Point: %.1f deg C", status->setPoint);
     LogMessageEx(LOG_DEVICE_DTB, "Output: %s", status->outputEnabled ? "RUN" : "STOP");
     LogMessageEx(LOG_DEVICE_DTB, "Output 1: %s", status->output1State ? "ON" : "OFF");
     LogMessageEx(LOG_DEVICE_DTB, "Output 2: %s", status->output2State ? "ON" : "OFF");

@@ -150,7 +150,7 @@ int CVICALLBACK StartTempRampExperimentCallback(int panel, int control, int even
         g_systemBusy = 0;
         CmtReleaseLock(g_busyLock);
         MessagePopup("Invalid Temperature", 
-                     "Initial temperature must be between 5�C and 100�C.");
+                     "Initial temperature must be between 5deg C and 100deg C.");
         return 0;
     }
     
@@ -159,7 +159,7 @@ int CVICALLBACK StartTempRampExperimentCallback(int panel, int control, int even
         g_systemBusy = 0;
         CmtReleaseLock(g_busyLock);
         MessagePopup("Invalid Temperature", 
-                     "Final temperature must be between 5�C and 100�C.");
+                     "Final temperature must be between 5deg C and 100deg C.");
         return 0;
     }
     
@@ -177,7 +177,7 @@ int CVICALLBACK StartTempRampExperimentCallback(int panel, int control, int even
         g_systemBusy = 0;
         CmtReleaseLock(g_busyLock);
         MessagePopup("Invalid Ramp Rate", 
-                     "Ramp rate must be between 0.1 and 10.0 �C/min.");
+                     "Ramp rate must be between 0.1 and 10.0 deg C/min.");
         return 0;
     }
     
@@ -296,13 +296,13 @@ static int TempRampExperimentThread(void *functionData) {
         "TEMPERATURE RAMP EIS EXPERIMENT\n"
         "================================\n\n"
         "PARAMETERS:\n"
-        "� Initial Temperature: %.1f deg C\n"
-        "� Final Temperature: %.1f deg C\n"
-        "� Ramp Rate: %.1f deg C/min\n"
-        "� EIS Interval: %.1f minutes\n"
-        "� Ramp Mode: %s during EIS\n"
-        "� Implementation: %s\n"
-        "� Auto-Tuning: %s\n\n"
+        "Initial Temperature: %.1f deg C\n"
+        "Final Temperature: %.1f deg C\n"
+        "Ramp Rate: %.1f deg C/min\n"
+        "EIS Interval: %.1f minutes\n"
+        "Ramp Mode: %s during EIS\n"
+        "Implementation: %s\n"
+        "Auto-Tuning: %s\n\n"
         "EXPERIMENT SEQUENCE:\n"
         "%s"
         "1. Reach %.1f deg C and stabilize\n"
@@ -310,9 +310,9 @@ static int TempRampExperimentThread(void *functionData) {
         "3. EIS measurements every %.1f min\n"
         "4. Hold at %.1f deg C briefly\n\n"
         "ESTIMATED:\n"
-        "� Ramp Duration: %.1f minutes\n"
-        "� Expected Measurements: ~%d\n"
-        "� Total Time: %.1f minutes\n\n"
+        "Ramp Duration: %.1f minutes\n"
+        "Expected Measurements: ~%d\n"
+        "Total Time: %.1f minutes\n\n"
         "Continue with experiment?",
         ctx->params.initialTemp,
         ctx->params.finalTemp,
@@ -664,7 +664,7 @@ static int ReachInitialTemperature(TempRampExperimentContext *ctx) {
     double lastCheckTime = startTime;
     double lastLogTime = startTime;
     
-    LogMessage("Waiting for temperature to reach %.1f �C...", ctx->params.initialTemp);
+    LogMessage("Waiting for temperature to reach %.1f deg C...", ctx->params.initialTemp);
     
     while (1) {
         if (CheckCancellation(ctx)) {
@@ -688,7 +688,7 @@ static int ReachInitialTemperature(TempRampExperimentContext *ctx) {
             
             double tempDiff = fabs(ctx->currentTemperature - ctx->params.initialTemp);
             
-            LogMessage("Current temperature: %.1f �C (target: %.1f �C, diff: %.1f �C)", 
+            LogMessage("Current temperature: %.1f deg C (target: %.1f deg C, diff: %.1f deg C)", 
                       ctx->currentTemperature, ctx->params.initialTemp, tempDiff);
             
             if (tempDiff <= TEMP_RAMP_TOLERANCE) {
@@ -699,7 +699,7 @@ static int ReachInitialTemperature(TempRampExperimentContext *ctx) {
             
             char statusMsg[MEDIUM_BUFFER_SIZE];
             snprintf(statusMsg, sizeof(statusMsg), 
-                     "Reaching initial temp: %.1f/%.1f �C", 
+                     "Reaching initial temp: %.1f/%.1f deg C", 
                      ctx->currentTemperature, ctx->params.initialTemp);
             SetCtrlVal(ctx->tabPanelHandle, ctx->statusControl, statusMsg);
             
@@ -717,7 +717,7 @@ static int ReachInitialTemperature(TempRampExperimentContext *ctx) {
 }
 
 static int StabilizeAtInitialTemperature(TempRampExperimentContext *ctx) {
-    LogMessage("Stabilizing at %.1f �C for %.0f seconds...", 
+    LogMessage("Stabilizing at %.1f deg C for %.0f seconds...", 
                ctx->params.initialTemp, TEMP_RAMP_STABILIZE_TIME);
     
     double startTime = Timer();
@@ -745,7 +745,7 @@ static int StabilizeAtInitialTemperature(TempRampExperimentContext *ctx) {
             double remainingTime = TEMP_RAMP_STABILIZE_TIME - elapsedTime;
             char statusMsg[MEDIUM_BUFFER_SIZE];
             snprintf(statusMsg, sizeof(statusMsg), 
-                     "Stabilizing: %.1f �C (%.0f sec remaining)", 
+                     "Stabilizing: %.1f deg C (%.0f sec remaining)", 
                      tempData.dtbAverageTemperature, remainingTime);
             SetCtrlVal(ctx->tabPanelHandle, ctx->statusControl, statusMsg);
             
@@ -766,16 +766,16 @@ static int RunTemperatureRampWithEIS(TempRampExperimentContext *ctx) {
     double rampDuration = (ctx->params.finalTemp - ctx->params.initialTemp) / 
                          ctx->params.rampRate;  // minutes
     
-    LogMessage("Starting temperature ramp from %.1f to %.1f �C", 
+    LogMessage("Starting temperature ramp from %.1f to %.1f deg C", 
                ctx->params.initialTemp, ctx->params.finalTemp);
-    LogMessage("Ramp rate: %.1f �C/min, Duration: %.1f minutes", 
+    LogMessage("Ramp rate: %.1f deg C/min, Duration: %.1f minutes", 
                ctx->params.rampRate, rampDuration);
     LogMessage("EIS measurements every %.1f minutes", ctx->params.eisInterval);
     LogMessage("Ramp mode: %s during EIS measurements", 
                ctx->params.continueRampDuringEIS ? "CONTINUE" : "PAUSE");
     
     // Perform initial EIS measurement
-    LogMessage("Taking initial EIS measurement at %.1f �C", ctx->currentTemperature);
+    LogMessage("Taking initial EIS measurement at %.1f deg C", ctx->currentTemperature);
     
     // Set state for temperature monitor thread to work correctly
     ctx->state = TEMP_RAMP_STATE_EIS_MEASUREMENT;
@@ -843,7 +843,7 @@ static int RunTemperatureRampWithEIS(TempRampExperimentContext *ctx) {
             
             char statusMsg[MEDIUM_BUFFER_SIZE];
             snprintf(statusMsg, sizeof(statusMsg), 
-                     "Ramping: %.1f �C (target: %.1f �C, ramp time: %.1f min)", 
+                     "Ramping: %.1f deg C (target: %.1f deg C, ramp time: %.1f min)", 
                      tempData.dtbAverageTemperature, targetTemp, elapsedRampTime);
             SetCtrlVal(ctx->tabPanelHandle, ctx->statusControl, statusMsg);
             SetCtrlVal(ctx->tabPanelHandle, ctx->outputControl, tempData.dtbAverageTemperature);
@@ -860,7 +860,7 @@ static int RunTemperatureRampWithEIS(TempRampExperimentContext *ctx) {
             TempRampTempData tempData;
             ReadAllTemperatures(ctx, &tempData, currentTime - ctx->experimentStartTime);
             
-            LogMessage("Current temperature: %.1f �C, Target: %.1f �C", 
+            LogMessage("Current temperature: %.1f deg C, Target: %.1f deg C", 
                       tempData.dtbAverageTemperature, targetTemp);
             
             ctx->state = TEMP_RAMP_STATE_EIS_MEASUREMENT;
@@ -895,7 +895,7 @@ static int RunTemperatureRampWithEIS(TempRampExperimentContext *ctx) {
             LogMessage("Final temperature reached");
             
             // One final EIS measurement
-            LogMessage("Taking final EIS measurement at %.1f �C", ctx->params.finalTemp);
+            LogMessage("Taking final EIS measurement at %.1f deg C", ctx->params.finalTemp);
             ctx->state = TEMP_RAMP_STATE_EIS_MEASUREMENT;
             
             eisStartTime = Timer();
@@ -922,7 +922,7 @@ static int RunTemperatureRampWithEIS(TempRampExperimentContext *ctx) {
 }
 
 static int HoldAtFinalTemperature(TempRampExperimentContext *ctx) {
-    LogMessage("Holding at %.1f �C for %.0f seconds...",
+    LogMessage("Holding at %.1f deg C for %.0f seconds...",
                ctx->params.finalTemp, TEMP_RAMP_HOLD_TIME);
 
     double startTime = Timer();
@@ -950,7 +950,7 @@ static int HoldAtFinalTemperature(TempRampExperimentContext *ctx) {
             double remainingTime = TEMP_RAMP_HOLD_TIME - elapsedTime;
             char statusMsg[MEDIUM_BUFFER_SIZE];
             snprintf(statusMsg, sizeof(statusMsg),
-                     "Holding at final temp: %.1f �C (%.0f sec remaining)",
+                     "Holding at final temp: %.1f deg C (%.0f sec remaining)",
                      tempData.dtbAverageTemperature, remainingTime);
             SetCtrlVal(ctx->tabPanelHandle, ctx->statusControl, statusMsg);
 
@@ -1033,7 +1033,7 @@ static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
     int inflatedRampMinutes = (int)((inflatedTempRange / ctx->params.rampRate) + 0.5);
 
     LogMessage("=== Using DTB Ramp-Soak Implementation ===");
-    LogMessage("Configuring DTB ramp: %.1f -> %.1f �C (target: %.1f �C) over %d minutes",
+    LogMessage("Configuring DTB ramp: %.1f -> %.1f deg C (target: %.1f deg C) over %d minutes",
                ctx->params.initialTemp, inflatedEndTemp, ctx->params.finalTemp, inflatedRampMinutes);
     LogMessage("Using %.0f%% overshoot safety margin for temperature-based early termination",
                (TEMP_RAMP_OVERSHOOT_FACTOR - 1.0) * 100.0);
@@ -1099,17 +1099,17 @@ static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
     ctx->lastTempLogTime = Timer();
     ctx->totalEISTime = 0.0;
 
-    LogMessage("Temperature ramp started from %.1f to %.1f �C (target: %.1f �C)",
+    LogMessage("Temperature ramp started from %.1f to %.1f deg C (target: %.1f deg C)",
                ctx->params.initialTemp, inflatedEndTemp, ctx->params.finalTemp);
-    LogMessage("Ramp rate: %.1f �C/min, Inflated duration: %d minutes",
+    LogMessage("Ramp rate: %.1f deg C/min, Inflated duration: %d minutes",
                ctx->params.rampRate, inflatedRampMinutes);
     LogMessage("EIS measurements every %.1f minutes", ctx->params.eisInterval);
     LogMessage("Ramp mode: %s during EIS measurements",
                ctx->params.continueRampDuringEIS ? "CONTINUE" : "PAUSE");
-    LogMessage("Will terminate early when target %.1f �C is reached", ctx->params.finalTemp);
+    LogMessage("Will terminate early when target %.1f deg C is reached", ctx->params.finalTemp);
 
     // Perform initial EIS measurement
-    LogMessage("Taking initial EIS measurement at %.1f �C", ctx->currentTemperature);
+    LogMessage("Taking initial EIS measurement at %.1f deg C", ctx->currentTemperature);
     ctx->state = TEMP_RAMP_STATE_EIS_MEASUREMENT;
 
     result = PerformEISMeasurementWithRampControl(ctx);
@@ -1190,7 +1190,7 @@ static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
             char statusMsg[MEDIUM_BUFFER_SIZE];
             double remainingTime = (expectedRampDuration - effectiveElapsedTime) / 60.0;
             snprintf(statusMsg, sizeof(statusMsg),
-                     "Ramping: %.1f �C (%.1f/%.1f min, %.1f min remaining)",
+                     "Ramping: %.1f deg C (%.1f/%.1f min, %.1f min remaining)",
                      tempData.dtbAverageTemperature, elapsedTime, (double)inflatedRampMinutes, remainingTime);
             SetCtrlVal(ctx->tabPanelHandle, ctx->statusControl, statusMsg);
             SetCtrlVal(ctx->tabPanelHandle, ctx->outputControl, tempData.dtbAverageTemperature);
@@ -1218,7 +1218,7 @@ static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
             TempRampTempData tempData;
             ReadAllTemperatures(ctx, &tempData, currentTime - ctx->experimentStartTime);
 
-            LogMessage("Current temperature: %.1f �C", tempData.dtbAverageTemperature);
+            LogMessage("Current temperature: %.1f deg C", tempData.dtbAverageTemperature);
 
             ctx->state = TEMP_RAMP_STATE_EIS_MEASUREMENT;
 
@@ -1251,7 +1251,7 @@ static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
     }
 
     // Final EIS measurement at end temperature
-    LogMessage("Taking final EIS measurement at %.1f �C", ctx->params.finalTemp);
+    LogMessage("Taking final EIS measurement at %.1f deg C", ctx->params.finalTemp);
     ctx->state = TEMP_RAMP_STATE_EIS_MEASUREMENT;
 
     result = PerformEISMeasurementWithRampControl(ctx);
@@ -1373,7 +1373,7 @@ static int ReadAllTemperatures(TempRampExperimentContext *ctx, TempRampTempData 
 
             tempData->dtbAverageTemperature = tempSum / numDevices;
             snprintf(tempData->status, sizeof(tempData->status),
-                     "DTB Avg: %.1f�C (%d devices)", tempData->dtbAverageTemperature, numDevices);
+                     "DTB Avg: %.1fdeg C (%d devices)", tempData->dtbAverageTemperature, numDevices);
         } else if (result == ERR_CANCELLED) {
             strcpy(tempData->status, "DTB: Cancelled");
             return ERR_CANCELLED;
@@ -1460,7 +1460,7 @@ static int CVICALLBACK TemperatureMonitorThread(void *functionData) {
             // Update setpoint if it changed significantly
             if (fabs(targetTemp - ctx->targetTemperature) > 0.1) {
                 UpdateTemperatureSetpoint(ctx, targetTemp);
-                LogDebug("Setpoint updated by monitor: %.1f �C (measured: %.1f �C)",
+                LogDebug("Setpoint updated by monitor: %.1f deg C (measured: %.1f deg C)",
                         targetTemp, tempData.dtbAverageTemperature);
             }
         }
@@ -1518,7 +1518,7 @@ static int PerformEISMeasurement(TempRampExperimentContext *ctx) {
     
     char statusMsg[MEDIUM_BUFFER_SIZE];
     snprintf(statusMsg, sizeof(statusMsg), 
-             "EIS measurement at %.1f �C...", measurement->temperature);
+             "EIS measurement at %.1f deg C...", measurement->temperature);
     SetCtrlVal(ctx->tabPanelHandle, ctx->statusControl, statusMsg);
     
     // Start dedicated temperature monitoring thread for continuous updates during EIS
@@ -1545,7 +1545,7 @@ static int PerformEISMeasurement(TempRampExperimentContext *ctx) {
     }
     
     if (result != SUCCESS) {
-        LogError("EIS measurement failed at %.1f �C", measurement->temperature);
+        LogError("EIS measurement failed at %.1f deg C", measurement->temperature);
         return result;
     }
     
@@ -1558,7 +1558,7 @@ static int PerformEISMeasurement(TempRampExperimentContext *ctx) {
     
     ctx->eisMeasurementCount++;
     
-    LogMessage("EIS measurement %d completed at %.1f �C (OCV: %.3f V)", 
+    LogMessage("EIS measurement %d completed at %.1f deg C (OCV: %.3f V)", 
                measurement->measurementIndex + 1, measurement->temperature, measurement->ocvVoltage);
     
     return SUCCESS;
@@ -1890,7 +1890,7 @@ static int SafeDisconnectAllDevices(TempRampExperimentContext *ctx) {
 
 static int ConfigureExperimentGraphs(TempRampExperimentContext *ctx) {
     ConfigureGraph(ctx->mainPanelHandle, ctx->graphTempHandle, 
-                   "Temperature vs Time", "Time (min)", "Temperature (�C)", 
+                   "Temperature vs Time", "Time (min)", "Temperature (deg C)", 
                    ctx->params.initialTemp - 5.0, 
                    ctx->params.finalTemp + 5.0);
     
@@ -1931,7 +1931,7 @@ static void UpdateNyquistPlot(TempRampExperimentContext *ctx, TempRampEISMeasure
            VAL_SOLID_CIRCLE, VAL_SOLID, 1, VAL_GREEN);
     
     char title[MEDIUM_BUFFER_SIZE];
-    snprintf(title, sizeof(title), "Nyquist Plot - %.1f�C", measurement->temperature);
+    snprintf(title, sizeof(title), "Nyquist Plot - %.1fdeg C", measurement->temperature);
     SetCtrlAttribute(ctx->mainPanelHandle, ctx->graphNyquistHandle, ATTR_LABEL_TEXT, title);
     
     free(negZImag);
@@ -2232,19 +2232,21 @@ static void OnVentilationLost(ExperimentPhase phase, double temperature, double 
         LogError("SAFE PHASE: Stopping experiment due to ventilation loss");
         LogError("It is safe to stop the experiment at this temperature");
 
-        // Set cancel flag to stop experiment
-        g_experimentContext.cancelRequested = 1;
-        g_experimentContext.state = TEMP_RAMP_STATE_CANCELLED;
+
     } else {
-        // Critical phase - continue experiment but log warning
-        LogError("CRITICAL PHASE: Experiment will CONTINUE despite ventilation loss");
-        LogError("Stopping at this temperature could be more dangerous than continuing");
-        LogError("Alarm has been sounded - PERSONNEL SHOULD EVACUATE");
+        // Critical phase - 
+        LogError("CRITICAL PHASE: ventilation has been lost while the battery is unsafe!");
+        LogError("Alarm has been sounded - PERSONNEL SHOULD RE-ESTABLISH VENTILATION IMMEDIATELY OR EVACUATE");
+		LogError("Stopping experiment due to ventilation loss");
+		
     }
+	
+	// Set cancel flag to stop experiment
+    g_experimentContext.cancelRequested = 1;
+    g_experimentContext.state = TEMP_RAMP_STATE_CANCELLED;
 }
 
 static void OnVentilationRestored(double pressure) {
     LogMessage("*** Ventilation restored ***");
     LogMessage("Pressure: %.2f V", pressure);
-    LogMessage("Experiment will continue normally");
 }

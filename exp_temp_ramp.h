@@ -24,7 +24,7 @@
  ******************************************************************************/
 
 // Temperature Control Constants
-#define TEMP_RAMP_TOLERANCE             1.0     // �C tolerance for reaching target
+#define TEMP_RAMP_TOLERANCE             1.0     // deg C tolerance for reaching target
 #define TEMP_RAMP_CHECK_INTERVAL        5.0     // Seconds between temperature checks
 #define TEMP_RAMP_STABILIZE_TIME        60     // Seconds to stabilize at initial temp
 #define TEMP_RAMP_HOLD_TIME             60     // Seconds to hold at final temp
@@ -32,7 +32,7 @@
 
 // Temperature-based termination constants
 #define TEMP_RAMP_OVERSHOOT_FACTOR      1.25    // 25% safety margin for early termination
-#define TEMP_TARGET_TOLERANCE           0.5     // �C undershoot tolerance for termination
+#define TEMP_TARGET_TOLERANCE           0.5     // deg C undershoot tolerance for termination
 
 // EIS Configuration
 #define TEMP_RAMP_MAX_EIS_RETRY         2       // Retry failed measurements
@@ -82,12 +82,12 @@ typedef struct {
 // Temperature data point
 typedef struct {
     double timestamp;                        // Time since experiment start (s)
-    double dtbTemperatures[DTB_NUM_DEVICES]; // All DTB temperatures (�C)
-    double dtbAverageTemperature;            // Average DTB temperature (�C)
+    double dtbTemperatures[DTB_NUM_DEVICES]; // All DTB temperatures (deg C)
+    double dtbAverageTemperature;            // Average DTB temperature (deg C)
     int dtbDeviceCount;                      // Number of DTB devices
-    double dtbSetpoint;                      // DTB setpoint (�C)
-    double tc0Temperature;                   // Thermocouple 0 (�C)
-    double tc1Temperature;                   // Thermocouple 1 (�C)
+    double dtbSetpoint;                      // DTB setpoint (deg C)
+    double tc0Temperature;                   // Thermocouple 0 (deg C)
+    double tc1Temperature;                   // Thermocouple 1 (deg C)
     char status[128];                        // Status message
 } TempRampTempData;
 
@@ -95,7 +95,7 @@ typedef struct {
 typedef struct {
     double timestamp;                        // Time since experiment start (s)
     double alicatMassFLow[ALICAT_NUM_DEVICES]; // All ALICAT mass flow rates (check headers for unit)
-    double alicatTemperature[ALICAT_NUM_DEVICES]; // All ALICAT temperature (�C)
+    double alicatTemperature[ALICAT_NUM_DEVICES]; // All ALICAT temperature (deg C)
     int alicatDeviceCount;                      // Number of DTB devices
     double alicatSetpoint[ALICAT_NUM_DEVICES];  // ALICAT setpoint (check headers for unit)
     char status[128];                        // Status message
@@ -104,7 +104,7 @@ typedef struct {
 // EIS measurement data
 typedef struct {
     int measurementIndex;        // Sequential measurement number
-    double temperature;          // Temperature when measured (�C)
+    double temperature;          // Temperature when measured (deg C)
     double timestamp;            // Time since experiment start (s)
     double ocvVoltage;          // Open circuit voltage (V)
     TempRampTempData tempData;  // Temperature readings

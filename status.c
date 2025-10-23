@@ -725,7 +725,7 @@ static void DTBStatusCallback(CommandID cmdId, DTBCommandType type,
             UpdateDeviceLED(deviceIndex, CONN_STATE_CONNECTED);
             UpdateDeviceStatus(deviceIndex, "DTB Connected");
 
-            LogDebugEx(LOG_DEVICE_DTB, "DTB slave %d quick read: Temp=%.1f�C, SP=%.1f�C",
+            LogDebugEx(LOG_DEVICE_DTB, "DTB slave %d quick read: Temp=%.1fdeg C, SP=%.1fdeg C",
                       slaveAddress, temperature, setpoint);
         }
         // Handle full status read (for compatibility)
@@ -745,7 +745,7 @@ static void DTBStatusCallback(CommandID cmdId, DTBCommandType type,
             const char* statusMsg = status->outputEnabled ? "DTB Running" : "DTB Connected - Stopped";
             UpdateDeviceStatus(deviceIndex, statusMsg);
 
-            LogDebugEx(LOG_DEVICE_DTB, "DTB slave %d status updated: Temp=%.1f�C, Output=%s",
+            LogDebugEx(LOG_DEVICE_DTB, "DTB slave %d status updated: Temp=%.1fdeg C, Output=%s",
                       slaveAddress, status->processValue, status->outputEnabled ? "ON" : "OFF");
         }
     } else {
