@@ -1680,7 +1680,7 @@ int DTB_SetSetPointAllQueued(double temperature, DevicePriority priority) {
     int allSuccess = DTB_SUCCESS;
     int failureCount = 0;
     
-    LogMessageEx(LOG_DEVICE_DTB, "Setting setpoint to %.1fdeg C for all %d DTB devices...", 
+    LogMessageEx(LOG_DEVICE_DTB, "Setting setpoint to %.1f deg C for all %d DTB devices...", 
                  temperature, ctx->numDevices);
     
     for (int i = 0; i < ctx->numDevices; i++) {

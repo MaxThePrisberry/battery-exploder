@@ -86,7 +86,7 @@ int PressureSafety_Initialize(void);
 
 /**
  * Start pressure monitoring for an experiment
- * @param initialTemp - Initial battery temperature (deg C)
+ * @param initialTemp - Initial battery temperature ( deg C)
  * @param onVentLost - Callback when ventilation is lost (can be NULL)
  * @param onVentRestored - Callback when ventilation restored (can be NULL)
  * @return SUCCESS or error code
@@ -104,7 +104,7 @@ int PressureSafety_StopMonitoring(void);
 /**
  * Update the current battery temperature (call during experiment)
  * This determines which phase the experiment is in
- * @param temperature - Current battery temperature (deg C)
+ * @param temperature - Current battery temperature ( deg C)
  * @return SUCCESS or error code
  */
 int PressureSafety_UpdateTemperature(double temperature);

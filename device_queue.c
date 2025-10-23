@@ -518,7 +518,7 @@ static int EnqueueCommand(DeviceQueueManager *mgr, QueuedCommand *cmd, DevicePri
         // Calculate backoff delay with jitter
         int delayMs = DEVICE_QUEUE_BASE_RETRY_DELAY_MS << attempt;
         delayMs = MIN(delayMs, DEVICE_QUEUE_MAX_RETRY_DELAY_MS);
-        delayMs += (rand() % (delayMs / 2 + 1)) - (delayMs / 4);  // �25% jitter
+        delayMs += (rand() % (delayMs / 2 + 1)) - (delayMs / 4);  // 25% jitter
         delayMs = MAX(delayMs, 1);
         
         // Check if we have time for delay

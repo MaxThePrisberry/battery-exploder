@@ -493,12 +493,12 @@ int DTB_SetSetPoint(DTB_Handle *handle, double temperature) {
     
     // Validate temperature range for K-type
     if (temperature < K_TYPE_MIN_TEMP || temperature > K_TYPE_MAX_TEMP) {
-        LogErrorEx(LOG_DEVICE_DTB, "Temperature %.1fdeg C out of range (%.1f to %.1f)",
+        LogErrorEx(LOG_DEVICE_DTB, "Temperature %.1f deg C out of range (%.1f to %.1f)",
                    temperature, K_TYPE_MIN_TEMP, K_TYPE_MAX_TEMP);
         return DTB_ERROR_INVALID_PARAM;
     }
     
-    LogMessageEx(LOG_DEVICE_DTB, "Setting setpoint: %.1fdeg C", temperature);
+    LogMessageEx(LOG_DEVICE_DTB, "Setting setpoint: %.1f deg C", temperature);
     
     // Temperature is stored as value * 10 (one decimal place)
     short tempValue = (short)(temperature * 10);

@@ -183,7 +183,7 @@ int PressureSafety_UpdateTemperature(double temperature) {
 
         if (g_pressureSafety.state.phase == PHASE_CRITICAL) {
             LogWarning("CRITICAL PHASE ENTERED - Thermal runaway may occur");
-            LogWarning("If ventilation is lost, alarm will sound but experiment will continue");
+            LogWarning("If ventilation is lost, alarm will sound");
         }
     }
 

@@ -150,7 +150,7 @@ int CVICALLBACK StartTempRampExperimentCallback(int panel, int control, int even
         g_systemBusy = 0;
         CmtReleaseLock(g_busyLock);
         MessagePopup("Invalid Temperature", 
-                     "Initial temperature must be between 5deg C and 100deg C.");
+                     "Initial temperature must be between 5 deg C and 100 deg C.");
         return 0;
     }
     
@@ -159,7 +159,7 @@ int CVICALLBACK StartTempRampExperimentCallback(int panel, int control, int even
         g_systemBusy = 0;
         CmtReleaseLock(g_busyLock);
         MessagePopup("Invalid Temperature", 
-                     "Final temperature must be between 5deg C and 100deg C.");
+                     "Final temperature must be between 5 deg C and 100 deg C.");
         return 0;
     }
     
@@ -1373,7 +1373,7 @@ static int ReadAllTemperatures(TempRampExperimentContext *ctx, TempRampTempData 
 
             tempData->dtbAverageTemperature = tempSum / numDevices;
             snprintf(tempData->status, sizeof(tempData->status),
-                     "DTB Avg: %.1fdeg C (%d devices)", tempData->dtbAverageTemperature, numDevices);
+                     "DTB Avg: %.1f deg C (%d devices)", tempData->dtbAverageTemperature, numDevices);
         } else if (result == ERR_CANCELLED) {
             strcpy(tempData->status, "DTB: Cancelled");
             return ERR_CANCELLED;
@@ -1890,7 +1890,7 @@ static int SafeDisconnectAllDevices(TempRampExperimentContext *ctx) {
 
 static int ConfigureExperimentGraphs(TempRampExperimentContext *ctx) {
     ConfigureGraph(ctx->mainPanelHandle, ctx->graphTempHandle, 
-                   "Temperature vs Time", "Time (min)", "Temperature (deg C)", 
+                   "Temperature vs Time", "Time (min)", "Temperature ( deg C)", 
                    ctx->params.initialTemp - 5.0, 
                    ctx->params.finalTemp + 5.0);
     
@@ -1931,7 +1931,7 @@ static void UpdateNyquistPlot(TempRampExperimentContext *ctx, TempRampEISMeasure
            VAL_SOLID_CIRCLE, VAL_SOLID, 1, VAL_GREEN);
     
     char title[MEDIUM_BUFFER_SIZE];
-    snprintf(title, sizeof(title), "Nyquist Plot - %.1fdeg C", measurement->temperature);
+    snprintf(title, sizeof(title), "Nyquist Plot - %.1f deg C", measurement->temperature);
     SetCtrlAttribute(ctx->mainPanelHandle, ctx->graphNyquistHandle, ATTR_LABEL_TEXT, title);
     
     free(negZImag);

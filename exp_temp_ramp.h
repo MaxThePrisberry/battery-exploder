@@ -70,9 +70,9 @@ typedef enum {
 
 // Experiment parameters
 typedef struct {
-    double initialTemp;          // Starting temperature (deg C)
-    double finalTemp;            // Final temperature (deg C)
-    double rampRate;             // Heating rate (deg C/min)
+    double initialTemp;          // Starting temperature ( deg C)
+    double finalTemp;            // Final temperature ( deg C)
+    double rampRate;             // Heating rate ( deg C/min)
     double eisInterval;          // Time between EIS measurements (minutes)
     int continueRampDuringEIS;   // 1 = continue ramping during EIS, 0 = pause ramp
     int useRampSoak;             // 1 = use DTB ramp-soak (new), 0 = manual ramping (legacy)
@@ -82,12 +82,12 @@ typedef struct {
 // Temperature data point
 typedef struct {
     double timestamp;                        // Time since experiment start (s)
-    double dtbTemperatures[DTB_NUM_DEVICES]; // All DTB temperatures (deg C)
-    double dtbAverageTemperature;            // Average DTB temperature (deg C)
+    double dtbTemperatures[DTB_NUM_DEVICES]; // All DTB temperatures ( deg C)
+    double dtbAverageTemperature;            // Average DTB temperature ( deg C)
     int dtbDeviceCount;                      // Number of DTB devices
-    double dtbSetpoint;                      // DTB setpoint (deg C)
-    double tc0Temperature;                   // Thermocouple 0 (deg C)
-    double tc1Temperature;                   // Thermocouple 1 (deg C)
+    double dtbSetpoint;                      // DTB setpoint ( deg C)
+    double tc0Temperature;                   // Thermocouple 0 ( deg C)
+    double tc1Temperature;                   // Thermocouple 1 ( deg C)
     char status[128];                        // Status message
 } TempRampTempData;
 
@@ -95,7 +95,7 @@ typedef struct {
 typedef struct {
     double timestamp;                        // Time since experiment start (s)
     double alicatMassFLow[ALICAT_NUM_DEVICES]; // All ALICAT mass flow rates (check headers for unit)
-    double alicatTemperature[ALICAT_NUM_DEVICES]; // All ALICAT temperature (deg C)
+    double alicatTemperature[ALICAT_NUM_DEVICES]; // All ALICAT temperature ( deg C)
     int alicatDeviceCount;                      // Number of DTB devices
     double alicatSetpoint[ALICAT_NUM_DEVICES];  // ALICAT setpoint (check headers for unit)
     char status[128];                        // Status message
@@ -104,7 +104,7 @@ typedef struct {
 // EIS measurement data
 typedef struct {
     int measurementIndex;        // Sequential measurement number
-    double temperature;          // Temperature when measured (deg C)
+    double temperature;          // Temperature when measured ( deg C)
     double timestamp;            // Time since experiment start (s)
     double ocvVoltage;          // Open circuit voltage (V)
     TempRampTempData tempData;  // Temperature readings
