@@ -302,6 +302,10 @@ int CDAQ_ReadVoltage(int channel, double *voltage) {
     float64 data[CDAQ_CHANNELS_PER_SLOT * SAMPLES_TO_AVERAGE];
     int32 samplesRead = 0;
 
+    // Ensure task is stopped before starting (prevents error -200479)
+    // Safe to call even if task is already stopped
+    DAQmxStopTask(g_cdaq.slot1TaskHandle);
+
     // Start task (will acquire finite samples and auto-stop)
     int32 result = DAQmxStartTask(g_cdaq.slot1TaskHandle);
     if (result != 0) {
