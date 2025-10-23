@@ -21,13 +21,13 @@
 
 // Pressure differential thresholds (Volts from NI 9202 channel 0)
 // TODO: Calibrate these values based on your differential pressure sensor
-#define PRESSURE_THRESHOLD_OK_MIN       2.0    // Minimum voltage for "ventilation OK"
-#define PRESSURE_THRESHOLD_LOST_MAX     1.5    // Maximum voltage for "ventilation LOST"
+#define PRESSURE_THRESHOLD_OK_MIN       2.95    // Minimum voltage for "ventilation OK"
+#define PRESSURE_THRESHOLD_LOST_MAX     2.85    // Maximum voltage for "ventilation LOST"
 // Hysteresis: System needs to drop below LOST_MAX to trigger alarm,
 //             but must rise above OK_MIN to clear alarm
 
 // Temperature thresholds (degrees C)
-#define PRESSURE_SAFE_TEMP_THRESHOLD    80.0   // Below this = SAFE phase
+#define PRESSURE_SAFE_TEMP_THRESHOLD    30.0   // Below this = SAFE phase
                                                 // At/above this = CRITICAL phase
 
 // Monitoring configuration

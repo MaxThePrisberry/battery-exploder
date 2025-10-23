@@ -1,0 +1,695 @@
+
+=== Battery Tester Log Started: 2025-10-23 10:06:04 ===
+Log file location: c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\BatteryExploder.log
+2025-10-23 10:06:04 [INFO] Initializing cDAQ module...
+2025-10-23 10:06:04 [INFO] Initializing cDAQ thermocouple slots 2 and 3...
+2025-10-23 10:06:06 [INFO] cDAQ slot 2 initialized with 16 thermocouples
+2025-10-23 10:06:07 [INFO] cDAQ slot 3 initialized with 16 thermocouples
+2025-10-23 10:06:07 [INFO] cDAQ module initialized successfully
+2025-10-23 10:06:07 [INFO] cDAQ thermocouple slots initialized successfully
+2025-10-23 10:06:07 [INFO] Initializing cDAQ slot 1 for 4-20mA current sensors (NI 9202)...
+2025-10-23 10:06:07 [INFO] cDAQ slot 1 initialized with 16 voltage channels (4-20mA mode)
+2025-10-23 10:06:07 [INFO] Shunt resistor: 250.0 ohms, Range: 1.0-5.0V (4-20mA)
+2025-10-23 10:06:07 [INFO] cDAQ current sensor slot initialized successfully (4-20mA)
+2025-10-23 10:06:07 [INFO] Initializing pressure safety monitoring...
+2025-10-23 10:06:07 [INFO] Initializing pressure safety monitoring module...
+2025-10-23 10:06:07 [INFO] Pressure safety module initialized
+2025-10-23 10:06:07 [INFO] Pressure safety monitoring initialized successfully
+2025-10-23 10:06:07 [INFO] Initializing PSB queue manager on COM3...
+2025-10-23 10:06:07 [INFO] Attempting to connect to PSB 10000...
+2025-10-23 10:06:07 [INFO] [PSB] Connecting to PSB on COM3...
+2025-10-23 10:06:07 [INFO] [PSB] Initializing on COM3, slave 1, 9600 baud
+2025-10-23 10:06:07 [INFO] [PSB] Successfully initialized
+2025-10-23 10:06:07 [INFO] [PSB] Setting remote mode: ON
+2025-10-23 10:06:07 [INFO] [PSB] Setting output: OFF
+2025-10-23 10:06:07 [INFO] Successfully connected to PSB 10000
+2025-10-23 10:06:07 [INFO] PSB 10000 queue manager initialized
+2025-10-23 10:06:07 [INFO] PSB queue manager initialized and connected on COM3
+2025-10-23 10:06:07 [INFO] Initializing PSB to safe state...
+2025-10-23 10:06:07 [INFO] [PSB] Setting PSB safe limits...
+2025-10-23 10:06:07 [INFO] [PSB] PSB 10000 queue processing thread started
+2025-10-23 10:06:07 [INFO] [PSB] Setting min voltage: 0.00V
+2025-10-23 10:06:07 [INFO] [PSB] Setting max voltage: 61.20V
+2025-10-23 10:06:08 [INFO] [PSB] Setting min current: 0.00A
+2025-10-23 10:06:08 [INFO] [PSB] Setting max current: 61.20A
+2025-10-23 10:06:08 [INFO] [PSB] Setting sink max current: 61.20A
+2025-10-23 10:06:08 [INFO] [PSB] Setting sink min current: 0.00A
+2025-10-23 10:06:08 [INFO] [PSB] Setting max power: 1224.00W
+2025-10-23 10:06:08 [INFO] [PSB] Setting sink max power: 1224.00W
+2025-10-23 10:06:08 [INFO] [PSB] PSB safe limits set successfully
+2025-10-23 10:06:08 [INFO] [PSB] Zeroing all PSB values...
+2025-10-23 10:06:08 [INFO] [PSB] Setting output: OFF
+2025-10-23 10:06:09 [INFO] [PSB] Setting voltage: 0.00V (0x0000)
+2025-10-23 10:06:09 [INFO] [PSB] Setting current: 0.00A (0x0000)
+2025-10-23 10:06:10 [INFO] [PSB] Setting power: 0.00W (0x0000)
+2025-10-23 10:06:10 [INFO] [PSB] Setting sink current: 0.00A (0x0000)
+2025-10-23 10:06:10 [INFO] [PSB] Setting sink power: 0.00W (0x0000)
+2025-10-23 10:06:10 [INFO] [PSB] All PSB values zeroed successfully
+2025-10-23 10:06:10 [INFO] PSB initialization complete
+2025-10-23 10:06:10 [INFO] Initializing BioLogic queue manager...
+2025-10-23 10:06:10 [INFO] Attempting to connect to BioLogic SP-150e...
+2025-10-23 10:06:10 [ERROR] Failed to load the EClib.dll. Attempted dll path: c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\EClib.dll
+2025-10-23 10:06:10 [INFO] [BIO] EClib.dll loaded successfully
+2025-10-23 10:06:10 [INFO] [BIO] EClib version: 6.11.1.0
+2025-10-23 10:06:14 [INFO] [BIO] Successfully connected to BioLogic SP-150e (ID: 1)
+2025-10-23 10:06:14 [INFO] [BIO]   Device Code: 36
+2025-10-23 10:06:14 [INFO] [BIO]   Firmware Version: 1160
+2025-10-23 10:06:14 [INFO] [BIO]   Channels: 1
+2025-10-23 10:06:15 [INFO] [BIO] Scanning for plugged channels...
+2025-10-23 10:06:15 [INFO] [BIO]   Channel 0: PLUGGED
+2025-10-23 10:06:15 [INFO] [BIO] Loading firmware...
+2025-10-23 10:06:15 [INFO] [BIO] Firmware loaded successfully
+2025-10-23 10:06:15 [INFO] Successfully connected to BioLogic SP-150e
+2025-10-23 10:06:15 [INFO] BioLogic SP-150e queue manager initialized
+2025-10-23 10:06:15 [INFO] BioLogic SP-150e queue processing thread started
+2025-10-23 10:06:15 [INFO] BioLogic queue manager initialized
+2025-10-23 10:06:15 [INFO] Initializing DTB queue manager on COM5 with 2 devices...
+2025-10-23 10:06:15 [INFO] [DTB] DTB_QueueInit: Will initialize slave address 2
+2025-10-23 10:06:15 [INFO] [DTB] DTB_QueueInit: Will initialize slave address 3
+2025-10-23 10:06:15 [INFO] Attempting to connect to DTB 4848...
+2025-10-23 10:06:15 [INFO] [DTB] Connecting to DTB slave 2 on COM5...
+2025-10-23 10:06:15 [INFO] [DTB] Initializing on COM5, slave 2, 9600 baud
+2025-10-23 10:06:15 [INFO] [DTB] Successfully initialized
+2025-10-23 10:06:15 [INFO] [DTB] Successfully connected to DTB slave 2
+2025-10-23 10:06:15 [INFO] [DTB] Connecting to DTB slave 3 on COM5...
+2025-10-23 10:06:15 [INFO] [DTB] Initializing on COM5, slave 3, 9600 baud
+2025-10-23 10:06:15 [INFO] [DTB] Successfully initialized
+2025-10-23 10:06:15 [INFO] [DTB] Successfully connected to DTB slave 3
+2025-10-23 10:06:15 [INFO] [DTB] Connected to 2 of 2 DTB devices
+2025-10-23 10:06:15 [INFO] Successfully connected to DTB 4848
+2025-10-23 10:06:15 [INFO] DTB 4848 queue manager initialized
+2025-10-23 10:06:15 [INFO] DTB 4848 queue processing thread started
+2025-10-23 10:06:15 [INFO] [DTB] DTB_QueueInit: Successfully created queue manager for 2 devices
+2025-10-23 10:06:15 [INFO] DTB queue manager initialized and connected on COM5
+2025-10-23 10:06:15 [INFO] Enabling DTB write access for all devices...
+2025-10-23 10:06:15 [INFO] [DTB] Enabling write access for all 2 DTB devices...
+2025-10-23 10:06:15 [INFO] [DTB] Enabling write access...
+2025-10-23 10:06:16 [INFO] [DTB] Write access enabled
+2025-10-23 10:06:16 [INFO] [DTB] Enabling write access...
+2025-10-23 10:06:16 [INFO] [DTB] Write access enabled
+2025-10-23 10:06:16 [INFO] [DTB] Successfully enabled write access for all DTB devices
+2025-10-23 10:06:16 [INFO] DTB write access enabled successfully for all devices
+2025-10-23 10:06:16 [INFO] Configuring all DTB4848 devices for K-type thermocouple with PID control...
+2025-10-23 10:06:17 [INFO] [DTB] Write access status: ENABLED
+2025-10-23 10:06:17 [INFO] DTB slave 2 write access currently: ENABLED
+2025-10-23 10:06:17 [INFO] [DTB] Configuring DTB4848...
+2025-10-23 10:06:17 [INFO] [DTB] Setting sensor type: 0
+2025-10-23 10:06:17 [INFO] [DTB] Setting heating/cooling mode: 0
+2025-10-23 10:06:18 [INFO] [DTB] Setting control method: 0
+2025-10-23 10:06:18 [INFO] [DTB] Setting PID mode: 4 (AUTO)
+2025-10-23 10:06:18 [INFO] [DTB] Configuration complete
+2025-10-23 10:06:19 [INFO] DTB4848 slave 2 configured successfully
+2025-10-23 10:06:19 [INFO] [DTB] Write access status: ENABLED
+2025-10-23 10:06:19 [INFO] DTB slave 3 write access currently: ENABLED
+2025-10-23 10:06:19 [INFO] [DTB] Configuring DTB4848...
+2025-10-23 10:06:19 [INFO] [DTB] Setting sensor type: 0
+2025-10-23 10:06:19 [INFO] [DTB] Setting heating/cooling mode: 0
+2025-10-23 10:06:20 [INFO] [DTB] Setting control method: 0
+2025-10-23 10:06:21 [INFO] [DTB] Setting PID mode: 4 (AUTO)
+2025-10-23 10:06:21 [INFO] [DTB] Configuration complete
+2025-10-23 10:06:21 [INFO] DTB4848 slave 3 configured successfully
+2025-10-23 10:06:21 [INFO] DTB initialization complete
+2025-10-23 10:06:21 [INFO] Initializing ALICAT queue manager on COM7 with 1 devices...
+2025-10-23 10:06:21 [INFO] [ALI] ALICAT_QueueInit: Will initialize address 1
+2025-10-23 10:06:21 [INFO] Attempting to connect to ALICAT BASIS 2...
+2025-10-23 10:06:21 [INFO] [ALI] Connecting to ALICAT address 1 on COM7...
+2025-10-23 10:06:21 [INFO] [ALI] Initializing on COM7, address 1, 38400 baud
+2025-10-23 10:06:21 [INFO] [ALI] Serial Number: B036829     
+2025-10-23 10:06:21 [INFO] [ALI] Successfully initialized
+2025-10-23 10:06:21 [INFO] [ALI] Successfully connected to ALICAT address 1
+2025-10-23 10:06:21 [INFO] [ALI] Connected to 1 of 1 ALICAT devices
+2025-10-23 10:06:21 [INFO] Successfully connected to ALICAT BASIS 2
+2025-10-23 10:06:21 [INFO] ALICAT BASIS 2 queue manager initialized
+2025-10-23 10:06:21 [INFO] ALICAT BASIS 2 queue processing thread started
+2025-10-23 10:06:21 [INFO] [ALI] ALICAT_QueueInit: Successfully created queue manager for 1 devices
+2025-10-23 10:06:21 [INFO] ALICAT queue manager initialized and connected on COM7
+2025-10-23 10:06:21 [INFO] Configuring all ALICAT devices with default settings...
+2025-10-23 10:06:21 [INFO] [ALI] Configuring ALICAT...
+2025-10-23 10:06:21 [INFO] [ALI] Setting gas type: 0 (Air)
+2025-10-23 10:06:21 [INFO] [ALI] Setting setpoint source: 2
+2025-10-23 10:06:21 [INFO] [ALI] Setting reference temperature: 25.0 �C
+2025-10-23 10:06:21 [INFO] [ALI] Setting flow averaging: 100 ms
+2025-10-23 10:06:21 [INFO] [ALI] Setting autotare: ENABLED
+2025-10-23 10:06:22 [INFO] [ALI] Setting PID parameters: P 500, I 5000
+2025-10-23 10:06:22 [INFO] [ALI] Configuration complete
+2025-10-23 10:06:22 [INFO] ALICAT address 1 configured successfully
+2025-10-23 10:06:22 [INFO] [ALI] Setting gas type: 3 (Nitrogen)
+2025-10-23 10:06:22 [INFO] ALICAT address 1 gas set to Nitrogen
+2025-10-23 10:06:22 [INFO] Taring ALICAT address 1...
+2025-10-23 10:06:22 [INFO] [ALI] Performing tare...
+2025-10-23 10:06:22 [INFO] ALICAT address 1 tared successfully
+2025-10-23 10:06:22 [INFO] ALICAT initialization complete
+2025-10-23 10:06:22 [INFO] Initializing Teensy queue manager on COM6...
+2025-10-23 10:06:22 [INFO] Attempting to connect to Teensy...
+2025-10-23 10:06:22 [INFO] [TNY] Connecting to Teensy on COM6...
+2025-10-23 10:06:22 [INFO] [TNY] Initializing Teensy on COM6 at 9600 baud
+2025-10-23 10:06:22 [INFO] [TNY] Successfully connected to Teensy on COM6
+2025-10-23 10:06:22 [INFO] Successfully connected to Teensy
+2025-10-23 10:06:22 [INFO] Teensy queue manager initialized
+2025-10-23 10:06:22 [INFO] Teensy queue manager initialized and connected on COM6
+2025-10-23 10:06:22 [INFO] Teensy queue processing thread started
+2025-10-23 10:06:22 [INFO] [TNY] Initializing 2 pins (2 low, 0 high)
+2025-10-23 10:06:22 [INFO] Committed transaction 1 with 2 commands to normal priority queue
+2025-10-23 10:06:22 [INFO] [TNY] Pin initialization transaction committed
+2025-10-23 10:06:22 [INFO] [TNY] Starting transaction 1 with 2 commands
+2025-10-23 10:06:22 [INFO] Status module state: UNINITIALIZED -> INITIALIZING
+2025-10-23 10:06:22 [INFO] Device states initialized (DTB devices: 2)
+2025-10-23 10:06:22 [INFO] Status monitoring module initialized
+2025-10-23 10:06:22 [INFO] Controls module initialized with 2 DTB devices
+2025-10-23 10:06:22 [INFO] Controls module initialized for ALICAT Mass Flow Controller
+2025-10-23 10:06:22 [INFO] Starting device status monitoring...
+2025-10-23 10:06:22 [INFO] Status module state: INITIALIZING -> RUNNING
+2025-10-23 10:06:22 [INFO] Status timer thread started
+2025-10-23 10:06:22 [INFO] Status monitoring started successfully
+2025-10-23 10:06:22 [INFO] Starting controls module - syncing with device states...
+2025-10-23 10:06:22 [INFO] [TNY] Completed transaction 1
+2025-10-23 10:06:23 [INFO] PSB remote mode: ON
+2025-10-23 10:06:28 [INFO] Controls module started
+2025-10-23 10:06:57 [INFO] All required devices verified
+2025-10-23 10:06:57 [INFO] === Starting Temperature Ramp EIS Experiment ===
+2025-10-23 10:06:58 [INFO] Created experiment file system: c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\data\temp_ramp_20251023_100658
+2025-10-23 10:06:58 [INFO] Settings saved: c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\data\temp_ramp_20251023_100658\experiment_settings.ini
+2025-10-23 10:06:58 [INFO] Initializing relay states...
+2025-10-23 10:06:58 [INFO] Checking fume hood ventilation conditions...
+2025-10-23 10:06:59 [INFO] Pre-start check: Ventilation OK (2.99 V)
+2025-10-23 10:06:59 [INFO] Ventilation check PASSED (2.99 V) - safe to start
+2025-10-23 10:06:59 [INFO] Starting pressure safety monitoring...
+2025-10-23 10:06:59 [INFO] Starting pressure safety monitoring...
+2025-10-23 10:06:59 [INFO]   Initial temperature: 25.0 °C
+2025-10-23 10:06:59 [INFO]   Safe temperature threshold: 30.0 °C
+2025-10-23 10:06:59 [INFO]   Pressure OK threshold: > 2.95 V
+2025-10-23 10:06:59 [INFO]   Pressure LOST threshold: < 2.85 V
+2025-10-23 10:06:59 [INFO]   Starting phase: SAFE
+2025-10-23 10:06:59 [INFO] Pressure safety monitoring started
+2025-10-23 10:06:59 [INFO] Pressure monitoring thread started
+2025-10-23 10:06:59 [INFO] Pressure safety monitoring active
+2025-10-23 10:06:59 [INFO] === PHASE 1: Reaching Initial Temperature ===
+2025-10-23 10:06:59 [INFO] Setting DTB target to 25.0 deg C
+2025-10-23 10:06:59 [INFO] [DTB] Setting setpoint to 25.0�C for all 2 DTB devices...
+2025-10-23 10:06:59 [INFO] [DTB] Setting setpoint: 25.0�C
+2025-10-23 10:07:00 [INFO] [DTB] Setting setpoint: 25.0�C
+2025-10-23 10:07:00 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-23 10:07:00 [INFO] [DTB] Setting run/stop to RUN for all 2 DTB devices...
+2025-10-23 10:07:00 [INFO] [DTB] Setting Run/Stop: RUN
+2025-10-23 10:07:01 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:07:01 [INFO] [DTB] Setting Run/Stop: RUN
+2025-10-23 10:07:01 [INFO] [DTB] Successfully set run/stop for all DTB devices
+2025-10-23 10:07:01 [INFO] Waiting for temperature to reach 25.0 �C...
+2025-10-23 10:07:08 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:07:15 [INFO] Current temperature: 19.0 �C (target: 25.0 �C, diff: 6.0 �C)
+2025-10-23 10:07:19 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:07:24 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:07:25 [INFO] Current temperature: 19.0 �C (target: 25.0 �C, diff: 6.0 �C)
+2025-10-23 10:07:27 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:07:36 [INFO] Current temperature: 19.2 �C (target: 25.0 �C, diff: 5.8 �C)
+2025-10-23 10:07:38 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:07:41 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:07:42 [ERROR] VENTILATION LOST! Phase: SAFE, Temp: 19.2 °C, Pressure: 2.03 V
+2025-10-23 10:07:42 [ERROR] ***** VENTILATION LOST *****
+2025-10-23 10:07:42 [ERROR] Phase: SAFE
+2025-10-23 10:07:42 [ERROR] Temperature: 19.2 deg C
+2025-10-23 10:07:42 [ERROR] Pressure: 2.03 V
+2025-10-23 10:07:42 [ERROR] SAFE PHASE: Stopping experiment due to ventilation loss
+2025-10-23 10:07:42 [ERROR] It is safe to stop the experiment at this temperature
+2025-10-23 10:07:42 [ERROR] SAFE PHASE: Experiment should be STOPPED
+2025-10-23 10:07:42 [WARN] [DTB] Status query cancelled during device 3 query
+2025-10-23 10:07:42 [INFO] Current temperature: 0.0 �C (target: 25.0 �C, diff: 25.0 �C)
+2025-10-23 10:07:44 [INFO] Cleaning up experiment...
+2025-10-23 10:07:44 [INFO] Stopping pressure safety monitoring...
+2025-10-23 10:07:44 [INFO] Stopping pressure safety monitoring...
+2025-10-23 10:07:45 [INFO] Pressure monitoring thread stopped
+2025-10-23 10:07:45 [INFO] Pressure safety monitoring stopped
+2025-10-23 10:07:45 [INFO] Disconnecting all devices...
+2025-10-23 10:07:45 [INFO] [DTB] Setting run/stop to STOP for all 2 DTB devices...
+2025-10-23 10:07:45 [INFO] [DTB] Setting Run/Stop: STOP
+2025-10-23 10:07:46 [INFO] [DTB] Setting Run/Stop: STOP
+2025-10-23 10:07:46 [INFO] [DTB] Successfully set run/stop for all DTB devices
+2025-10-23 10:07:47 [INFO] [DTB] Setting control method: 0
+2025-10-23 10:07:47 [INFO] [DTB] Setting control method: 0
+2025-10-23 10:07:48 [INFO] Devices disconnected
+2025-10-23 10:07:48 [INFO] Cleanup completed
+2025-10-23 10:08:29 [INFO] All required devices verified
+2025-10-23 10:08:29 [INFO] === Starting Temperature Ramp EIS Experiment ===
+2025-10-23 10:08:30 [INFO] Created experiment file system: c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\data\temp_ramp_20251023_100830
+2025-10-23 10:08:30 [INFO] Settings saved: c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\data\temp_ramp_20251023_100830\experiment_settings.ini
+2025-10-23 10:08:30 [INFO] Initializing relay states...
+2025-10-23 10:08:31 [INFO] Checking fume hood ventilation conditions...
+2025-10-23 10:08:31 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:08:31 [ERROR] Failed to read pressure sensor for start condition check
+2025-10-23 10:08:31 [ERROR] Cannot start experiment: Ventilation not adequate (0.00 V)
+2025-10-23 10:08:38 [INFO] Cleaning up experiment...
+2025-10-23 10:08:38 [INFO] Stopping pressure safety monitoring...
+2025-10-23 10:08:38 [INFO] Disconnecting all devices...
+2025-10-23 10:08:38 [INFO] [DTB] Setting run/stop to STOP for all 2 DTB devices...
+2025-10-23 10:08:39 [INFO] [DTB] Setting Run/Stop: STOP
+2025-10-23 10:08:40 [INFO] [DTB] Setting Run/Stop: STOP
+2025-10-23 10:08:40 [INFO] [DTB] Successfully set run/stop for all DTB devices
+2025-10-23 10:08:40 [INFO] [DTB] Setting control method: 0
+2025-10-23 10:08:41 [INFO] [DTB] Setting control method: 0
+2025-10-23 10:08:41 [INFO] Devices disconnected
+2025-10-23 10:08:41 [INFO] Cleanup completed
+2025-10-23 10:08:45 [INFO] All required devices verified
+2025-10-23 10:08:45 [INFO] === Starting Temperature Ramp EIS Experiment ===
+2025-10-23 10:08:46 [INFO] Created experiment file system: c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\data\temp_ramp_20251023_100846
+2025-10-23 10:08:46 [INFO] Settings saved: c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\data\temp_ramp_20251023_100846\experiment_settings.ini
+2025-10-23 10:08:46 [INFO] Initializing relay states...
+2025-10-23 10:08:46 [INFO] Checking fume hood ventilation conditions...
+2025-10-23 10:08:47 [INFO] Pre-start check: Ventilation OK (2.99 V)
+2025-10-23 10:08:47 [INFO] Ventilation check PASSED (2.99 V) - safe to start
+2025-10-23 10:08:47 [INFO] Starting pressure safety monitoring...
+2025-10-23 10:08:47 [INFO] Starting pressure safety monitoring...
+2025-10-23 10:08:47 [INFO]   Initial temperature: 25.0 °C
+2025-10-23 10:08:47 [INFO]   Safe temperature threshold: 30.0 °C
+2025-10-23 10:08:47 [INFO]   Pressure OK threshold: > 2.95 V
+2025-10-23 10:08:47 [INFO]   Pressure LOST threshold: < 2.85 V
+2025-10-23 10:08:47 [INFO]   Starting phase: SAFE
+2025-10-23 10:08:47 [INFO] Pressure safety monitoring started
+2025-10-23 10:08:47 [INFO] Pressure safety monitoring active
+2025-10-23 10:08:47 [INFO] === PHASE 1: Reaching Initial Temperature ===
+2025-10-23 10:08:47 [INFO] Setting DTB target to 25.0 deg C
+2025-10-23 10:08:47 [INFO] [DTB] Setting setpoint to 25.0�C for all 2 DTB devices...
+2025-10-23 10:08:47 [INFO] [DTB] Setting setpoint: 25.0�C
+2025-10-23 10:08:47 [INFO] Pressure monitoring thread started
+2025-10-23 10:08:47 [INFO] Ventilation restored (2.99 V)
+2025-10-23 10:08:47 [INFO] *** Ventilation restored ***
+2025-10-23 10:08:47 [INFO] Pressure: 2.99 V
+2025-10-23 10:08:47 [INFO] Experiment will continue normally
+2025-10-23 10:08:47 [INFO] [DTB] Setting setpoint: 25.0�C
+2025-10-23 10:08:48 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-23 10:08:48 [INFO] [DTB] Setting run/stop to RUN for all 2 DTB devices...
+2025-10-23 10:08:48 [INFO] [DTB] Setting Run/Stop: RUN
+2025-10-23 10:08:48 [INFO] [DTB] Setting Run/Stop: RUN
+2025-10-23 10:08:49 [INFO] [DTB] Successfully set run/stop for all DTB devices
+2025-10-23 10:08:49 [INFO] Waiting for temperature to reach 25.0 �C...
+2025-10-23 10:08:50 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:08:57 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:09:02 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:09:03 [INFO] Current temperature: 22.1 �C (target: 25.0 �C, diff: 2.9 �C)
+2025-10-23 10:09:05 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:09:13 [INFO] Current temperature: 22.1 �C (target: 25.0 �C, diff: 2.9 �C)
+2025-10-23 10:09:16 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:09:22 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:09:23 [INFO] Current temperature: 22.2 �C (target: 25.0 �C, diff: 2.8 �C)
+2025-10-23 10:09:25 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:09:34 [INFO] Current temperature: 22.4 �C (target: 25.0 �C, diff: 2.6 �C)
+2025-10-23 10:09:36 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:09:39 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:09:44 [INFO] Current temperature: 22.6 �C (target: 25.0 �C, diff: 2.4 �C)
+2025-10-23 10:09:50 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:09:54 [INFO] Current temperature: 22.8 �C (target: 25.0 �C, diff: 2.2 �C)
+2025-10-23 10:10:01 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:10:04 [INFO] Current temperature: 23.0 �C (target: 25.0 �C, diff: 2.0 �C)
+2025-10-23 10:10:05 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:10:08 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:10:13 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:10:14 [INFO] Current temperature: 23.1 �C (target: 25.0 �C, diff: 1.9 �C)
+2025-10-23 10:10:16 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:10:24 [INFO] Current temperature: 23.4 �C (target: 25.0 �C, diff: 1.6 �C)
+2025-10-23 10:10:25 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:10:33 [INFO] Current temperature: 23.5 �C (target: 25.0 �C, diff: 1.5 �C)
+2025-10-23 10:10:36 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:10:38 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:10:43 [INFO] Current temperature: 23.6 �C (target: 25.0 �C, diff: 1.4 �C)
+2025-10-23 10:10:47 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:10:54 [INFO] Current temperature: 23.8 �C (target: 25.0 �C, diff: 1.2 �C)
+2025-10-23 10:10:55 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:11:04 [INFO] Current temperature: 23.9 �C (target: 25.0 �C, diff: 1.1 �C)
+2025-10-23 10:11:06 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:11:09 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:11:14 [INFO] Current temperature: 23.9 �C (target: 25.0 �C, diff: 1.1 �C)
+2025-10-23 10:11:18 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:11:21 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:11:21 [WARN] DTB(slave 3) status callback timed out after 5592.7 ms
+2025-10-23 10:11:21 [WARN] DTB(slave 3) status update timed out
+2025-10-23 10:11:24 [INFO] Current temperature: 23.9 �C (target: 25.0 �C, diff: 1.1 �C)
+2025-10-23 10:11:25 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:11:30 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:11:33 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:11:34 [INFO] Current temperature: 24.1 �C (target: 25.0 �C, diff: 0.9 �C)
+2025-10-23 10:11:34 [INFO] Initial temperature reached
+2025-10-23 10:11:34 [INFO] === PHASE 2: Stabilizing at Initial Temperature ===
+2025-10-23 10:11:34 [INFO] Stabilizing at 25.0 �C for 0 seconds...
+2025-10-23 10:11:36 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:11:43 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:11:48 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:11:54 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:11:59 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:12:02 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:12:05 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:12:11 [WARN] DTB(slave 3) status callback timed out after 5081.9 ms
+2025-10-23 10:12:11 [WARN] DTB(slave 3) status update timed out
+2025-10-23 10:12:14 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:12:22 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:12:31 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:12:36 [INFO] Temperature stabilization completed
+2025-10-23 10:12:36 [INFO] === PHASE 3: Temperature Ramp with EIS Measurements ===
+2025-10-23 10:12:36 [INFO] Using legacy manual ramping implementation
+2025-10-23 10:12:36 [INFO] Starting temperature ramp from 25.0 to 45.0 �C
+2025-10-23 10:12:36 [INFO] Ramp rate: 2.0 �C/min, Duration: 10.0 minutes
+2025-10-23 10:12:36 [INFO] EIS measurements every 5.0 minutes
+2025-10-23 10:12:36 [INFO] Ramp mode: CONTINUE during EIS measurements
+2025-10-23 10:12:36 [INFO] Taking initial EIS measurement at 24.1 �C
+2025-10-23 10:12:40 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:12:45 [INFO] Switching to BioLogic...
+2025-10-23 10:12:45 [INFO] Switched to BioLogic
+2025-10-23 10:12:48 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:12:53 [INFO] [DTB] Setting setpoint to 25.3�C for all 2 DTB devices...
+2025-10-23 10:12:53 [INFO] [DTB] Setting setpoint: 25.3�C
+2025-10-23 10:12:54 [INFO] [DTB] Setting setpoint: 25.3�C
+2025-10-23 10:12:54 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-23 10:12:57 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:13:05 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:13:05 [WARN] DTB(slave 2) status callback timed out after 5050.2 ms
+2025-10-23 10:13:05 [WARN] DTB(slave 2) status update timed out
+2025-10-23 10:13:05 [WARN] DTB(slave 3) status callback timed out after 5050.1 ms
+2025-10-23 10:13:05 [WARN] DTB(slave 3) status update timed out
+2025-10-23 10:13:08 [INFO] [DTB] Setting setpoint to 25.8�C for all 2 DTB devices...
+2025-10-23 10:13:08 [INFO] [DTB] Setting setpoint: 25.8�C
+2025-10-23 10:13:08 [INFO] [DTB] Setting setpoint: 25.8�C
+2025-10-23 10:13:09 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-23 10:13:09 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:13:16 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:13:22 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:13:23 [INFO] [DTB] Setting setpoint to 26.3�C for all 2 DTB devices...
+2025-10-23 10:13:23 [INFO] [DTB] Setting setpoint: 26.3�C
+2025-10-23 10:13:24 [INFO] [DTB] Setting setpoint: 26.3�C
+2025-10-23 10:13:24 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-23 10:13:25 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:13:28 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:13:31 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:13:38 [INFO] [DTB] Setting setpoint to 26.8�C for all 2 DTB devices...
+2025-10-23 10:13:38 [INFO] [DTB] Setting setpoint: 26.8�C
+2025-10-23 10:13:39 [INFO] [DTB] Setting setpoint: 26.8�C
+2025-10-23 10:13:39 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-23 10:13:39 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:13:47 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:13:49 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:13:50 [WARN] DTB(slave 3) status callback timed out after 5435.5 ms
+2025-10-23 10:13:50 [WARN] DTB(slave 3) status update timed out
+2025-10-23 10:13:52 [INFO] [DTB] Setting setpoint to 27.3�C for all 2 DTB devices...
+2025-10-23 10:13:52 [INFO] [DTB] Setting setpoint: 27.3�C
+2025-10-23 10:13:53 [INFO] [DTB] Setting setpoint: 27.3�C
+2025-10-23 10:13:53 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-23 10:13:54 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:13:58 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:14:03 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:14:07 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:14:07 [INFO] [DTB] Setting setpoint to 27.8�C for all 2 DTB devices...
+2025-10-23 10:14:07 [INFO] [DTB] Setting setpoint: 27.8�C
+2025-10-23 10:14:08 [INFO] [DTB] Setting setpoint: 27.8�C
+2025-10-23 10:14:08 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-23 10:14:10 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:14:13 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:14:20 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:14:23 [INFO] [DTB] Setting setpoint to 28.3�C for all 2 DTB devices...
+2025-10-23 10:14:23 [INFO] [DTB] Setting setpoint: 28.3�C
+2025-10-23 10:14:23 [INFO] [DTB] Setting setpoint: 28.3�C
+2025-10-23 10:14:23 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-23 10:14:29 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:14:37 [INFO] [DTB] Setting setpoint to 28.8�C for all 2 DTB devices...
+2025-10-23 10:14:38 [INFO] [DTB] Setting setpoint: 28.8�C
+2025-10-23 10:14:38 [INFO] [DTB] Setting setpoint: 28.8�C
+2025-10-23 10:14:38 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-23 10:14:40 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:14:42 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:14:49 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:14:52 [INFO] [DTB] Setting setpoint to 29.3�C for all 2 DTB devices...
+2025-10-23 10:14:52 [INFO] [DTB] Setting setpoint: 29.3�C
+2025-10-23 10:14:53 [INFO] [DTB] Setting setpoint: 29.3�C
+2025-10-23 10:14:53 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-23 10:14:53 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:15:01 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:15:03 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:15:04 [WARN] DTB(slave 2) status callback timed out after 5494.5 ms
+2025-10-23 10:15:04 [WARN] DTB(slave 2) status update timed out
+2025-10-23 10:15:04 [WARN] DTB(slave 3) status callback timed out after 5494.5 ms
+2025-10-23 10:15:04 [WARN] DTB(slave 3) status update timed out
+2025-10-23 10:15:07 [INFO] [DTB] Setting setpoint to 29.7�C for all 2 DTB devices...
+2025-10-23 10:15:07 [INFO] [DTB] Setting setpoint: 29.7�C
+2025-10-23 10:15:07 [INFO] [DTB] Setting setpoint: 29.7�C
+2025-10-23 10:15:07 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-23 10:15:08 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:15:12 [INFO] EIS measurement 1 completed at 24.3 �C (OCV: 3.698 V)
+2025-10-23 10:15:12 [INFO] EIS measurement took 156.7 seconds (ramp continued)
+2025-10-23 10:15:12 [INFO] [DTB] Setting setpoint to 30.2�C for all 2 DTB devices...
+2025-10-23 10:15:12 [INFO] [DTB] Setting setpoint: 30.2�C
+2025-10-23 10:15:13 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:15:13 [INFO] [DTB] Setting setpoint: 30.2�C
+2025-10-23 10:15:13 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-23 10:15:17 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:15:20 [WARN] DTB(slave 3) status callback timed out after 7204.7 ms
+2025-10-23 10:15:20 [WARN] DTB(slave 3) status update timed out
+2025-10-23 10:15:23 [INFO] [DTB] Setting setpoint to 30.6�C for all 2 DTB devices...
+2025-10-23 10:15:23 [INFO] [DTB] Setting setpoint: 30.6�C
+2025-10-23 10:15:24 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:15:24 [INFO] [DTB] Setting setpoint: 30.6�C
+2025-10-23 10:15:24 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-23 10:15:28 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:15:34 [INFO] [DTB] Setting setpoint to 31.0�C for all 2 DTB devices...
+2025-10-23 10:15:34 [INFO] [DTB] Setting setpoint: 31.0�C
+2025-10-23 10:15:35 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:15:35 [INFO] [DTB] Setting setpoint: 31.0�C
+2025-10-23 10:15:35 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-23 10:15:39 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:15:45 [INFO] [DTB] Setting setpoint to 31.3�C for all 2 DTB devices...
+2025-10-23 10:15:45 [INFO] [DTB] Setting setpoint: 31.3�C
+2025-10-23 10:15:46 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:15:46 [INFO] [DTB] Setting setpoint: 31.3�C
+2025-10-23 10:15:46 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-23 10:15:51 [WARN] DTB(slave 3) status callback timed out after 5029.9 ms
+2025-10-23 10:15:51 [WARN] DTB(slave 3) status update timed out
+2025-10-23 10:15:53 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:15:57 [INFO] [DTB] Setting setpoint to 31.7�C for all 2 DTB devices...
+2025-10-23 10:15:57 [INFO] [DTB] Setting setpoint: 31.7�C
+2025-10-23 10:15:57 [INFO] [DTB] Setting setpoint: 31.7�C
+2025-10-23 10:15:58 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-23 10:16:02 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:16:08 [INFO] [DTB] Setting setpoint to 32.1�C for all 2 DTB devices...
+2025-10-23 10:16:08 [INFO] [DTB] Setting setpoint: 32.1�C
+2025-10-23 10:16:09 [INFO] [DTB] Setting setpoint: 32.1�C
+2025-10-23 10:16:09 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-23 10:16:11 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:16:19 [INFO] [DTB] Setting setpoint to 32.4�C for all 2 DTB devices...
+2025-10-23 10:16:19 [INFO] [DTB] Setting setpoint: 32.4�C
+2025-10-23 10:16:19 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:16:20 [INFO] [DTB] Setting setpoint: 32.4�C
+2025-10-23 10:16:20 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-23 10:16:27 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:16:31 [INFO] [DTB] Setting setpoint to 32.8�C for all 2 DTB devices...
+2025-10-23 10:16:31 [INFO] [DTB] Setting setpoint: 32.8�C
+2025-10-23 10:16:31 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:16:31 [INFO] [DTB] Setting setpoint: 32.8�C
+2025-10-23 10:16:31 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-23 10:16:34 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:16:40 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:16:41 [INFO] [DTB] Setting setpoint to 33.2�C for all 2 DTB devices...
+2025-10-23 10:16:41 [INFO] [DTB] Setting setpoint: 33.2�C
+2025-10-23 10:16:42 [INFO] [DTB] Setting setpoint: 33.2�C
+2025-10-23 10:16:42 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-23 10:16:43 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:16:47 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:16:51 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:16:52 [INFO] [DTB] Setting setpoint to 33.6�C for all 2 DTB devices...
+2025-10-23 10:16:52 [INFO] [DTB] Setting setpoint: 33.6�C
+2025-10-23 10:16:53 [INFO] [DTB] Setting setpoint: 33.6�C
+2025-10-23 10:16:53 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-23 10:16:54 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:17:04 [INFO] [DTB] Setting setpoint to 33.9�C for all 2 DTB devices...
+2025-10-23 10:17:04 [INFO] [DTB] Setting setpoint: 33.9�C
+2025-10-23 10:17:04 [INFO] [DTB] Setting setpoint: 33.9�C
+2025-10-23 10:17:05 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-23 10:17:10 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:17:15 [INFO] [DTB] Setting setpoint to 34.3�C for all 2 DTB devices...
+2025-10-23 10:17:15 [INFO] [DTB] Setting setpoint: 34.3�C
+2025-10-23 10:17:15 [INFO] [DTB] Setting setpoint: 34.3�C
+2025-10-23 10:17:16 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-23 10:17:18 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:17:24 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:17:26 [INFO] [DTB] Setting setpoint to 34.7�C for all 2 DTB devices...
+2025-10-23 10:17:26 [INFO] [DTB] Setting setpoint: 34.7�C
+2025-10-23 10:17:26 [INFO] [DTB] Setting setpoint: 34.7�C
+2025-10-23 10:17:26 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-23 10:17:29 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:17:35 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:17:36 [INFO] Experiment phase transition: SAFE -> CRITICAL (T = 30.0 °C)
+2025-10-23 10:17:36 [WARN] CRITICAL PHASE ENTERED - Thermal runaway may occur
+2025-10-23 10:17:36 [WARN] If ventilation is lost, alarm will sound but experiment will continue
+2025-10-23 10:17:37 [INFO] [DTB] Setting setpoint to 35.0�C for all 2 DTB devices...
+2025-10-23 10:17:37 [INFO] [DTB] Setting setpoint: 35.0�C
+2025-10-23 10:17:37 [INFO] [DTB] Setting setpoint: 35.0�C
+2025-10-23 10:17:38 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-23 10:17:38 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:17:47 [INFO] Time for EIS measurement (5.0 minutes elapsed since last)
+2025-10-23 10:17:49 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:17:51 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:17:55 [INFO] Current temperature: 30.5 �C, Target: 35.0 �C
+2025-10-23 10:18:00 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:18:05 [INFO] Switching to BioLogic...
+2025-10-23 10:18:05 [INFO] Switched to BioLogic
+2025-10-23 10:18:08 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:18:13 [INFO] [DTB] Setting setpoint to 36.0�C for all 2 DTB devices...
+2025-10-23 10:18:13 [INFO] [DTB] Setting setpoint: 36.0�C
+2025-10-23 10:18:14 [INFO] [DTB] Setting setpoint: 36.0�C
+2025-10-23 10:18:14 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-23 10:18:20 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:18:28 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:18:28 [INFO] [DTB] Setting setpoint to 36.5�C for all 2 DTB devices...
+2025-10-23 10:18:28 [INFO] [DTB] Setting setpoint: 36.5�C
+2025-10-23 10:18:29 [INFO] [DTB] Setting setpoint: 36.5�C
+2025-10-23 10:18:29 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-23 10:18:33 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:18:40 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:18:41 [ERROR] VENTILATION LOST! Phase: CRITICAL, Temp: 31.4 °C, Pressure: 1.64 V
+2025-10-23 10:18:41 [ERROR] ***** VENTILATION LOST *****
+2025-10-23 10:18:41 [ERROR] Phase: CRITICAL
+2025-10-23 10:18:41 [ERROR] Temperature: 31.4 deg C
+2025-10-23 10:18:41 [ERROR] Pressure: 1.64 V
+2025-10-23 10:18:41 [ERROR] CRITICAL PHASE: Experiment will CONTINUE despite ventilation loss
+2025-10-23 10:18:41 [ERROR] Stopping at this temperature could be more dangerous than continuing
+2025-10-23 10:18:41 [ERROR] Alarm has been sounded - PERSONNEL SHOULD EVACUATE
+2025-10-23 10:18:41 [ERROR] CRITICAL PHASE: SOUND ALARM - Experiment will CONTINUE
+2025-10-23 10:18:43 [INFO] [DTB] Setting setpoint to 37.0�C for all 2 DTB devices...
+2025-10-23 10:18:43 [INFO] [DTB] Setting setpoint: 37.0�C
+2025-10-23 10:18:43 [INFO] [DTB] Setting setpoint: 37.0�C
+2025-10-23 10:18:44 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-23 10:18:47 [INFO] Ventilation restored (2.98 V)
+2025-10-23 10:18:47 [INFO] *** Ventilation restored ***
+2025-10-23 10:18:47 [INFO] Pressure: 2.98 V
+2025-10-23 10:18:47 [INFO] Experiment will continue normally
+2025-10-23 10:18:49 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:18:58 [INFO] [DTB] Setting setpoint to 37.4�C for all 2 DTB devices...
+2025-10-23 10:18:58 [INFO] [DTB] Setting setpoint: 37.4�C
+2025-10-23 10:18:58 [INFO] [DTB] Setting setpoint: 37.4�C
+2025-10-23 10:18:59 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-23 10:19:00 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:19:03 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:19:10 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:19:12 [INFO] [DTB] Setting setpoint to 37.9�C for all 2 DTB devices...
+2025-10-23 10:19:12 [INFO] [DTB] Setting setpoint: 37.9�C
+2025-10-23 10:19:13 [INFO] [DTB] Setting setpoint: 37.9�C
+2025-10-23 10:19:13 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-23 10:19:14 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:19:18 [ERROR] VENTILATION LOST! Phase: CRITICAL, Temp: 32.5 °C, Pressure: 1.88 V
+2025-10-23 10:19:18 [ERROR] ***** VENTILATION LOST *****
+2025-10-23 10:19:18 [ERROR] Phase: CRITICAL
+2025-10-23 10:19:18 [ERROR] Temperature: 32.5 deg C
+2025-10-23 10:19:18 [ERROR] Pressure: 1.88 V
+2025-10-23 10:19:18 [ERROR] CRITICAL PHASE: Experiment will CONTINUE despite ventilation loss
+2025-10-23 10:19:18 [ERROR] Stopping at this temperature could be more dangerous than continuing
+2025-10-23 10:19:18 [ERROR] Alarm has been sounded - PERSONNEL SHOULD EVACUATE
+2025-10-23 10:19:18 [ERROR] CRITICAL PHASE: SOUND ALARM - Experiment will CONTINUE
+2025-10-23 10:19:21 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:19:22 [INFO] Ventilation restored (2.99 V)
+2025-10-23 10:19:22 [INFO] *** Ventilation restored ***
+2025-10-23 10:19:22 [INFO] Pressure: 2.99 V
+2025-10-23 10:19:22 [INFO] Experiment will continue normally
+2025-10-23 10:19:26 [ERROR] Failed to stop task before read (slot 1): 200010
+2025-10-23 10:19:27 [INFO] [DTB] Setting setpoint to 38.4�C for all 2 DTB devices...
+2025-10-23 10:19:27 [INFO] [DTB] Setting setpoint: 38.4�C
+2025-10-23 10:19:28 [INFO] [DTB] Setting setpoint: 38.4�C
+2025-10-23 10:19:28 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-10-23 10:19:29 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:19:34 [INFO] User requested to stop temperature ramp experiment
+2025-10-23 10:19:34 [WARN] [DTB] Status query cancelled during device 2 query
+2025-10-23 10:19:36 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:19:43 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:19:50 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:19:57 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:20:04 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:20:11 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:20:18 [ERROR] Failed to restart task for read (slot 1): -200479
+2025-10-23 10:20:21 [INFO] EIS measurement 2 completed at 30.7 �C (OCV: 3.698 V)
+2025-10-23 10:20:21 [INFO] EIS measurement took 145.8 seconds (ramp continued)
+2025-10-23 10:20:21 [INFO] Cleaning up experiment...
+2025-10-23 10:20:21 [INFO] Stopping pressure safety monitoring...
+2025-10-23 10:20:21 [INFO] Stopping pressure safety monitoring...
+2025-10-23 10:20:22 [INFO] Pressure monitoring thread stopped
+2025-10-23 10:20:22 [INFO] Pressure safety monitoring stopped
+2025-10-23 10:20:22 [INFO] Disconnecting all devices...
+2025-10-23 10:20:22 [INFO] [DTB] Setting run/stop to STOP for all 2 DTB devices...
+2025-10-23 10:20:22 [INFO] [DTB] Setting Run/Stop: STOP
+2025-10-23 10:20:23 [INFO] [DTB] Setting Run/Stop: STOP
+2025-10-23 10:20:23 [INFO] [DTB] Successfully set run/stop for all DTB devices
+2025-10-23 10:20:24 [INFO] [DTB] Setting control method: 0
+2025-10-23 10:20:24 [INFO] [DTB] Setting control method: 0
+2025-10-23 10:20:25 [INFO] Devices disconnected
+2025-10-23 10:20:25 [INFO] Cleanup completed
+2025-10-23 10:21:07 [INFO] ========================================
+2025-10-23 10:21:07 [INFO] Shutting down Battery Tester application
+2025-10-23 10:21:07 [INFO] ========================================
+2025-10-23 10:21:07 [INFO] [TNY] Setting 2 pins
+2025-10-23 10:21:08 [INFO] Stopping status monitoring...
+2025-10-23 10:21:08 [INFO] Stopping device status monitoring...
+2025-10-23 10:21:08 [INFO] Status module state: RUNNING -> STOPPING
+2025-10-23 10:21:08 [INFO] Status timer thread stopped
+2025-10-23 10:21:08 [INFO] Status module state: STOPPING -> STOPPED
+2025-10-23 10:21:08 [INFO] Status monitoring stopped
+2025-10-23 10:21:08 [INFO] Cleaning up pressure safety monitoring...
+2025-10-23 10:21:08 [INFO] Cleaning up pressure safety module...
+2025-10-23 10:21:08 [INFO] Pressure safety module cleaned up
+2025-10-23 10:21:08 [INFO] Cleaning up cDAQ module...
+2025-10-23 10:21:08 [INFO] Cleaning up cDAQ current slot...
+2025-10-23 10:21:08 [INFO] Cleaned up cDAQ slot 1 task
+2025-10-23 10:21:08 [INFO] cDAQ current slot cleaned up
+2025-10-23 10:21:08 [INFO] Cleaning up cDAQ module...
+2025-10-23 10:21:09 [INFO] Cleaned up cDAQ slot 2 task
+2025-10-23 10:21:10 [INFO] Cleaned up cDAQ slot 3 task
+2025-10-23 10:21:10 [INFO] cDAQ module cleaned up
+2025-10-23 10:21:10 [INFO] Shutting down PSB queue manager...
+2025-10-23 10:21:10 [INFO] [PSB] Shutting down PSB 10000 queue manager...
+2025-10-23 10:21:10 [INFO] [PSB] Waiting for processing thread to complete...
+2025-10-23 10:21:10 [INFO] [PSB] All queues empty, processing thread exiting
+2025-10-23 10:21:10 [INFO] [PSB] PSB 10000 queue processing thread stopped
+2025-10-23 10:21:10 [INFO] [PSB] Setting output: OFF
+2025-10-23 10:21:10 [INFO] [PSB] Setting remote mode: OFF
+2025-10-23 10:21:11 [INFO] [PSB] Closing connection on COM3
+2025-10-23 10:21:11 [INFO] [PSB] Disconnected from PSB 10000
+2025-10-23 10:21:11 [INFO] Device queue manager shut down
+2025-10-23 10:21:11 [INFO] Shutting down BioLogic queue manager...
+2025-10-23 10:21:11 [INFO] [BIO] Shutting down BioLogic SP-150e queue manager...
+2025-10-23 10:21:11 [INFO] [BIO] Waiting for processing thread to complete...
+2025-10-23 10:21:11 [INFO] [BIO] All queues empty, processing thread exiting
+2025-10-23 10:21:11 [INFO] [BIO] BioLogic SP-150e queue processing thread stopped
+2025-10-23 10:21:11 [INFO] [BIO] Disconnected from BioLogic SP-150e
+2025-10-23 10:21:11 [INFO] Device queue manager shut down
+2025-10-23 10:21:11 [INFO] Shutting down DTB queue manager...
+2025-10-23 10:21:11 [INFO] [DTB] Shutting down DTB 4848 queue manager...
+2025-10-23 10:21:11 [INFO] [DTB] Waiting for processing thread to complete...
+2025-10-23 10:21:11 [INFO] [DTB] All queues empty, processing thread exiting
+2025-10-23 10:21:11 [INFO] [DTB] DTB 4848 queue processing thread stopped
+2025-10-23 10:21:11 [INFO] [DTB] Stopping DTB slave 2...
+2025-10-23 10:21:11 [INFO] [DTB] Setting Run/Stop: STOP
+2025-10-23 10:21:11 [INFO] [DTB] Stopping DTB slave 3...
+2025-10-23 10:21:11 [INFO] [DTB] Setting Run/Stop: STOP
+2025-10-23 10:21:12 [INFO] [DTB] Closing COM5
+2025-10-23 10:21:12 [INFO] [DTB] Disconnected all DTB devices from COM5
+2025-10-23 10:21:12 [INFO] [DTB] Disconnected from DTB 4848
+2025-10-23 10:21:12 [INFO] Device queue manager shut down
+2025-10-23 10:21:12 [INFO] Shutting down Alicat queue manager...
+2025-10-23 10:21:12 [INFO] [ALI] Shutting down ALICAT BASIS 2 queue manager...
+2025-10-23 10:21:12 [INFO] [ALI] Waiting for processing thread to complete...
+2025-10-23 10:21:12 [INFO] [ALI] All queues empty, processing thread exiting
+2025-10-23 10:21:12 [INFO] [ALI] ALICAT BASIS 2 queue processing thread stopped
+2025-10-23 10:21:12 [INFO] [ALI] Stopping ALICAT address 1...
+2025-10-23 10:21:12 [INFO] [ALI] Setting setpoint: 0.000
+2025-10-23 10:21:12 [INFO] [ALI] Disconnecting from COM7
+2025-10-23 10:21:12 [INFO] [ALI] Disconnected all ALICAT devices from COM7
+2025-10-23 10:21:12 [INFO] [ALI] Disconnected from ALICAT BASIS 2
+2025-10-23 10:21:12 [INFO] Device queue manager shut down
+2025-10-23 10:21:12 [INFO] Shutting down Teensy queue manager...
+2025-10-23 10:21:12 [INFO] [TNY] Shutting down Teensy queue manager...
+2025-10-23 10:21:12 [INFO] [TNY] Waiting for processing thread to complete...
+2025-10-23 10:21:12 [INFO] [TNY] All queues empty, processing thread exiting
+2025-10-23 10:21:12 [INFO] [TNY] Teensy queue processing thread stopped
+2025-10-23 10:21:12 [INFO] [TNY] Closing connection on COM6
+2025-10-23 10:21:12 [INFO] [TNY] Disconnected from Teensy
+2025-10-23 10:21:12 [INFO] Device queue manager shut down
+2025-10-23 10:21:12 [INFO] Cleaning up controls module...
+2025-10-23 10:21:12 [INFO] Controls module cleaned up
+2025-10-23 10:21:12 [INFO] Cleaning up status monitoring...
+2025-10-23 10:21:12 [INFO] Status module state: STOPPED -> UNINITIALIZED
+2025-10-23 10:21:12 [INFO] Status module cleaned up
+2025-10-23 10:21:12 [INFO] Shutting down thread pool...
+2025-10-23 10:21:13 [INFO] Cleanup complete. Exiting application.
+2025-10-23 10:21:13 [INFO] ========================================
+=== Battery Tester Log Ended: 2025-10-23 10:21:13 ===

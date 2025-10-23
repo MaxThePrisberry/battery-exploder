@@ -137,8 +137,7 @@ int PressureSafety_StopMonitoring(void) {
     int status;
     int result = CmtWaitForThreadPoolFunctionCompletion(DEFAULT_THREAD_POOL_HANDLE,
                                                         g_pressureSafety.monitorThreadId,
-                                                        OPT_TP_PROCESS_EVENTS_WHILE_WAITING,
-                                                        5000);  // 5 second timeout
+                                                        OPT_TP_PROCESS_EVENTS_WHILE_WAITING);
     if (result < 0) {
         LogWarning("Pressure monitoring thread did not stop cleanly");
     }
