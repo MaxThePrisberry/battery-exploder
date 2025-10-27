@@ -26,9 +26,10 @@
 // Temperature Control Constants
 #define TEMP_RAMP_TOLERANCE             1.0     // deg C tolerance for reaching target
 #define TEMP_RAMP_CHECK_INTERVAL        5.0     // Seconds between temperature checks
-#define TEMP_RAMP_STABILIZE_TIME        60     // Seconds to stabilize at initial temp
-#define TEMP_RAMP_HOLD_TIME             60     // Seconds to hold at final temp
+#define TEMP_RAMP_STABILIZE_TIME        60      // Seconds to stabilize at initial temp
+#define TEMP_RAMP_HOLD_TIME             60      // Seconds to hold at final temp
 #define TEMP_RAMP_TIMEOUT_SEC           3600    // Max wait for initial temperature
+#define TEMP_RAMP_DANGEROUS_LEVEL       50.0    // deg C threshold for high-resolution logging
 
 // Temperature-based termination constants
 #define TEMP_RAMP_OVERSHOOT_FACTOR      1.25    // 25% safety margin for early termination
@@ -37,6 +38,10 @@
 // EIS Configuration
 #define TEMP_RAMP_MAX_EIS_RETRY         2       // Retry failed measurements
 #define TEMP_RAMP_EIS_RETRY_DELAY       5.0     // Seconds between retries
+
+// Logging Intervals
+#define TEMP_RAMP_LOG_INTERVAL_NORMAL   10.0    // Seconds between logs at normal temperatures
+#define TEMP_RAMP_LOG_INTERVAL_DANGER   2.0     // Seconds between logs at dangerous temperatures
 
 // File System Structure
 #define TEMP_RAMP_DATA_DIR              "data"
@@ -77,6 +82,7 @@ typedef struct {
     int continueRampDuringEIS;   // 1 = continue ramping during EIS, 0 = pause ramp
     int useRampSoak;             // 1 = use DTB ramp-soak (new), 0 = manual ramping (legacy)
     int autoTuneBeforeRamp;      // 1 = run auto-tuning before ramp, 0 = skip auto-tuning
+    int enableEIS;               // 1 = perform EIS measurements, 0 = safing mode (no EIS)
 } TempRampExperimentParams;
 
 // Temperature data point

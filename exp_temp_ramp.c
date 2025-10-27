@@ -25,14 +25,15 @@ static TempRampExperimentContext g_experimentContext = {0};
 static CmtThreadFunctionID g_experimentThreadId = 0;
 
 // Controls to be dimmed during experiment
-static const int numControls = 6;
-static const int controls[6] = {
+static const int numControls = 7;
+static const int controls[7] = {
     RUNAWAY_INITIAL_TEMP_RWY,
     RUNAWAY_FINAL_TEMP_RWY,
     RUNAWAY_RAMP_RATE_RWY,
     RUNAWAY_NUM_EIS_INTERVAL_RWY,
     RUNAWAY_CBX_CONT_TRAMP_EIS,
-	RUNAWAY_RING_RAMP_MODE,
+    RUNAWAY_RING_RAMP_MODE,
+    RUNAWAY_CBX_ENABLE_EIS,
 };
 
 /******************************************************************************
@@ -133,8 +134,9 @@ int CVICALLBACK StartTempRampExperimentCallback(int panel, int control, int even
     GetCtrlVal(panel, RUNAWAY_RAMP_RATE_RWY, &g_experimentContext.params.rampRate);
     GetCtrlVal(panel, RUNAWAY_NUM_EIS_INTERVAL_RWY, &g_experimentContext.params.eisInterval);
     GetCtrlVal(panel, RUNAWAY_CBX_CONT_TRAMP_EIS, &g_experimentContext.params.continueRampDuringEIS);
-	GetCtrlVal(panel, RUNAWAY_RING_RAMP_MODE, &g_experimentContext.params.useRampSoak);
-	GetCtrlVal(panel, RUNAWAY_CBX_AUTO_TUNE, &g_experimentContext.params.autoTuneBeforeRamp);
+    GetCtrlVal(panel, RUNAWAY_RING_RAMP_MODE, &g_experimentContext.params.useRampSoak);
+    GetCtrlVal(panel, RUNAWAY_CBX_AUTO_TUNE, &g_experimentContext.params.autoTuneBeforeRamp);
+    GetCtrlVal(panel, RUNAWAY_CBX_ENABLE_EIS, &g_experimentContext.params.enableEIS);
     
     // Validate parameters
     if (!ENABLE_DTB) {
@@ -182,13 +184,16 @@ int CVICALLBACK StartTempRampExperimentCallback(int panel, int control, int even
         return 0;
     }
     
-    if (g_experimentContext.params.eisInterval < 1.0 || g_experimentContext.params.eisInterval > 60.0) {
-        CmtGetLock(g_busyLock);
-        g_systemBusy = 0;
-        CmtReleaseLock(g_busyLock);
-        MessagePopup("Invalid EIS Interval", 
-                     "EIS measurement interval must be between 1 and 60 minutes.");
-        return 0;
+    // Only validate EIS interval if EIS is enabled
+    if (g_experimentContext.params.enableEIS) {
+        if (g_experimentContext.params.eisInterval < 1.0 || g_experimentContext.params.eisInterval > 60.0) {
+            CmtGetLock(g_busyLock);
+            g_systemBusy = 0;
+            CmtReleaseLock(g_busyLock);
+            MessagePopup("Invalid EIS Interval",
+                         "EIS measurement interval must be between 1 and 60 minutes.");
+            return 0;
+        }
     }
     
     // Verify devices
@@ -322,48 +327,74 @@ static int TempRampExperimentThread(void *functionData) {
     // Calculate experiment duration
     double tempRange = ctx->params.finalTemp - ctx->params.initialTemp;
     double rampDuration = tempRange / ctx->params.rampRate;  // minutes
-    int expectedMeasurements = (int)(rampDuration / ctx->params.eisInterval) + 2;
-    
+    int expectedMeasurements = ctx->params.enableEIS ? (int)(rampDuration / ctx->params.eisInterval) + 2 : 0;
+
+    // Build experiment title and sequence based on mode
+    const char *experimentTitle = ctx->params.enableEIS ?
+        "TEMPERATURE RAMP EIS EXPERIMENT" :
+        "BATTERY SAFING EXPERIMENT (NO EIS)";
+
+    const char *eisSequenceStep = ctx->params.enableEIS ?
+        "3. EIS measurements every %.1f min\n" :
+        "3. Continuous monitoring (NO EIS)\n";
+
     snprintf(message, sizeof(message),
-        "TEMPERATURE RAMP EIS EXPERIMENT\n"
+        "%s\n"
         "================================\n\n"
         "PARAMETERS:\n"
         "Initial Temperature: %.1f deg C\n"
         "Final Temperature: %.1f deg C\n"
         "Ramp Rate: %.1f deg C/min\n"
-        "EIS Interval: %.1f minutes\n"
+        "%s"  // EIS interval line (conditional)
         "Ramp Mode: %s during EIS\n"
         "Implementation: %s\n"
-        "Auto-Tuning: %s\n\n"
+        "Auto-Tuning: %s\n"
+        "High-Res Logging: Above %.1f deg C\n\n"
         "EXPERIMENT SEQUENCE:\n"
         "%s"
         "1. Reach %.1f deg C and stabilize\n"
         "2. Ramp to %.1f deg C at %.1f deg C/min\n"
-        "3. EIS measurements every %.1f min\n"
+        "%s"  // EIS sequence step (conditional)
         "4. Monitor cooldown back to %.1f deg C\n\n"
         "ESTIMATED:\n"
         "Ramp Duration: %.1f minutes\n"
-        "Expected Measurements: ~%d\n"
+        "%s"  // Expected measurements line (conditional)
         "Total Time: %.1f minutes\n\n"
         "Continue with experiment?",
+        experimentTitle,
         ctx->params.initialTemp,
         ctx->params.finalTemp,
         ctx->params.rampRate,
-        ctx->params.eisInterval,
+        ctx->params.enableEIS ? "EIS Interval: %.1f minutes\n" : "",
         ctx->params.continueRampDuringEIS ? "CONTINUE" : "PAUSE",
         ctx->params.useRampSoak ? "DTB Ramp-Soak" : "Manual Ramping",
         ctx->params.autoTuneBeforeRamp ? "ENABLED" : "DISABLED",
+        TEMP_RAMP_DANGEROUS_LEVEL,
         ctx->params.autoTuneBeforeRamp ? "0. Auto-tune PID parameters\n" : "",
         ctx->params.initialTemp,
         ctx->params.finalTemp,
         ctx->params.rampRate,
-        ctx->params.eisInterval,
+        eisSequenceStep,
         ctx->params.initialTemp,  // Now monitoring cooldown back to initial temp
         rampDuration,
-        expectedMeasurements,
+        ctx->params.enableEIS ? "Expected Measurements: ~%d\n" : "",
         rampDuration + (ctx->params.autoTuneBeforeRamp ? 15.0 : 10.0));
+
+    // Format the conditional parts
+    char formattedMessage[LARGE_BUFFER_SIZE];
+    if (ctx->params.enableEIS) {
+        snprintf(formattedMessage, sizeof(formattedMessage), message,
+                ctx->params.eisInterval, ctx->params.eisInterval,
+                expectedMeasurements);
+    } else {
+        snprintf(formattedMessage, sizeof(formattedMessage), message,
+                "", "");  // Empty strings for conditional parts
+    }
     
-    int response = ConfirmPopup("Confirm Temperature Ramp Experiment", message);
+    int response = ConfirmPopup(ctx->params.enableEIS ?
+                                "Confirm Temperature Ramp Experiment" :
+                                "Confirm Battery Safing Experiment",
+                                formattedMessage);
     if (!response || CheckCancellation(ctx)) {
         LogMessage("Experiment cancelled by user");
         ctx->state = TEMP_RAMP_STATE_CANCELLED;
@@ -797,29 +828,33 @@ static int RunTemperatureRampWithEIS(TempRampExperimentContext *ctx) {
                ctx->params.continueRampDuringEIS ? "CONTINUE" : "PAUSE");
     LogMessage("Will continue monitoring until temperature returns to %.1f deg C", ctx->params.initialTemp);
     
-    // Perform initial EIS measurement
-    LogMessage("Taking initial EIS measurement at %.1f deg C", ctx->currentTemperature);
-    
-    // Set state for temperature monitor thread to work correctly
-    ctx->state = TEMP_RAMP_STATE_EIS_MEASUREMENT;
-    
-    double eisStartTime = Timer();
-    int result = PerformEISMeasurement(ctx);
-    double eisEndTime = Timer();
-    double eisDuration = eisEndTime - eisStartTime;
-    
-    // Return to ramping state
-    ctx->state = TEMP_RAMP_STATE_RAMPING;
-    
-    if (!ctx->params.continueRampDuringEIS) {
-        ctx->totalEISTime += eisDuration;
-        LogMessage("EIS measurement took %.1f seconds (ramp paused)", eisDuration);
+    // Perform initial EIS measurement (if enabled)
+    if (ctx->params.enableEIS) {
+        LogMessage("Taking initial EIS measurement at %.1f deg C", ctx->currentTemperature);
+
+        // Set state for temperature monitor thread to work correctly
+        ctx->state = TEMP_RAMP_STATE_EIS_MEASUREMENT;
+
+        double eisStartTime = Timer();
+        int result = PerformEISMeasurement(ctx);
+        double eisEndTime = Timer();
+        double eisDuration = eisEndTime - eisStartTime;
+
+        // Return to ramping state
+        ctx->state = TEMP_RAMP_STATE_RAMPING;
+
+        if (!ctx->params.continueRampDuringEIS) {
+            ctx->totalEISTime += eisDuration;
+            LogMessage("EIS measurement took %.1f seconds (ramp paused)", eisDuration);
+        } else {
+            LogMessage("EIS measurement took %.1f seconds (ramp continued)", eisDuration);
+        }
+
+        if (result != SUCCESS) {
+            LogWarning("Initial EIS measurement failed, continuing anyway");
+        }
     } else {
-        LogMessage("EIS measurement took %.1f seconds (ramp continued)", eisDuration);
-    }
-    
-    if (result != SUCCESS) {
-        LogWarning("Initial EIS measurement failed, continuing anyway");
+        LogMessage("Safing mode - skipping initial EIS measurement");
     }
     
     int cooledToInitial = 0;
@@ -890,12 +925,20 @@ static int RunTemperatureRampWithEIS(TempRampExperimentContext *ctx) {
             targetTemp = ctx->params.initialTemp;
         }
         
-        // Read and log temperature
-        if ((currentTime - ctx->lastTempLogTime) >= 10.0) {
+        // Read and log temperature (adaptive resolution based on temperature)
+        // Use high-resolution logging when temperature exceeds dangerous level
+        double logInterval = (ctx->currentTemperature >= TEMP_RAMP_DANGEROUS_LEVEL) ?
+                            TEMP_RAMP_LOG_INTERVAL_DANGER :
+                            TEMP_RAMP_LOG_INTERVAL_NORMAL;
+
+        if ((currentTime - ctx->lastTempLogTime) >= logInterval) {
             TempRampTempData tempData;
             ReadAllTemperatures(ctx, &tempData, currentTime - ctx->experimentStartTime);
             LogTemperatureDataPoint(ctx, &tempData);
             UpdateTemperaturePlot(ctx, &tempData);
+
+            // Update current temperature for adaptive logging
+            ctx->currentTemperature = tempData.dtbAverageTemperature;
 
             // Check if we've cooled back to initial temperature (after reaching peak)
             if (ctx->peakTempReached) {
@@ -932,10 +975,10 @@ static int RunTemperatureRampWithEIS(TempRampExperimentContext *ctx) {
             ctx->lastTempLogTime = currentTime;
         }
         
-        // Check if time for EIS measurement (skip if runaway has been reached)
+        // Check if time for EIS measurement (skip if disabled, or runaway has been reached)
         double timeSinceLastEIS = (currentTime - ctx->experimentStartTime - ctx->lastEISTime) / 60.0;  // minutes
 
-        if (timeSinceLastEIS >= ctx->params.eisInterval && !ctx->runawayReached) {
+        if (timeSinceLastEIS >= ctx->params.eisInterval && ctx->params.enableEIS && !ctx->runawayReached) {
             LogMessage("Time for EIS measurement (%.1f minutes elapsed since last)", timeSinceLastEIS);
 
             TempRampTempData tempData;
@@ -969,18 +1012,22 @@ static int RunTemperatureRampWithEIS(TempRampExperimentContext *ctx) {
 
             ctx->state = TEMP_RAMP_STATE_RAMPING;
             ctx->lastEISTime = currentTime - ctx->experimentStartTime;
-        } else if (timeSinceLastEIS >= ctx->params.eisInterval && ctx->runawayReached) {
+        } else if (timeSinceLastEIS >= ctx->params.eisInterval && (ctx->runawayReached || !ctx->params.enableEIS)) {
             // Update last EIS time even when skipping to avoid repeated log messages
             ctx->lastEISTime = currentTime - ctx->experimentStartTime;
-            LogMessage("Skipping EIS measurement due to runaway condition");
+            if (ctx->runawayReached) {
+                LogMessage("Skipping EIS measurement due to runaway condition");
+            } else {
+                LogMessage("Skipping EIS measurement - safing mode active");
+            }
         }
         
         ProcessSystemEvents();
         Delay(1.0);
     }
 
-    // Final EIS measurement after cooldown (skip if runaway reached)
-    if (!ctx->runawayReached) {
+    // Final EIS measurement after cooldown (skip if disabled or runaway reached)
+    if (ctx->params.enableEIS && !ctx->runawayReached) {
         LogMessage("Taking final EIS measurement after cooldown to %.1f deg C", ctx->params.initialTemp);
         ctx->state = TEMP_RAMP_STATE_EIS_MEASUREMENT;
 
@@ -999,12 +1046,19 @@ static int RunTemperatureRampWithEIS(TempRampExperimentContext *ctx) {
             LogWarning("Final EIS measurement failed");
         }
     } else {
-        LogMessage("Skipping final EIS measurement due to runaway condition");
+        if (ctx->runawayReached) {
+            LogMessage("Skipping final EIS measurement due to runaway condition");
+        } else {
+            LogMessage("Skipping final EIS measurement - safing mode active");
+        }
     }
 
     LogMessage("Temperature ramp with cooldown monitoring completed successfully");
     if (ctx->runawayReached) {
         LogMessage("Experiment included runaway condition - heating was stopped early");
+    }
+    if (!ctx->params.enableEIS) {
+        LogMessage("Experiment ran in SAFING MODE - no EIS measurements performed");
     }
 
     return SUCCESS;
@@ -1197,16 +1251,20 @@ static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
                ctx->params.continueRampDuringEIS ? "CONTINUE" : "PAUSE");
     LogMessage("Will continue monitoring until temperature returns to %.1f deg C", ctx->params.initialTemp);
 
-    // Perform initial EIS measurement
-    LogMessage("Taking initial EIS measurement at %.1f deg C", ctx->currentTemperature);
-    ctx->state = TEMP_RAMP_STATE_EIS_MEASUREMENT;
+    // Perform initial EIS measurement (if enabled)
+    if (ctx->params.enableEIS) {
+        LogMessage("Taking initial EIS measurement at %.1f deg C", ctx->currentTemperature);
+        ctx->state = TEMP_RAMP_STATE_EIS_MEASUREMENT;
 
-    result = PerformEISMeasurementWithRampControl(ctx);
+        result = PerformEISMeasurementWithRampControl(ctx);
 
-    ctx->state = TEMP_RAMP_STATE_RAMPING;
+        ctx->state = TEMP_RAMP_STATE_RAMPING;
 
-    if (result != SUCCESS) {
-        LogWarning("Initial EIS measurement failed, continuing anyway");
+        if (result != SUCCESS) {
+            LogWarning("Initial EIS measurement failed, continuing anyway");
+        }
+    } else {
+        LogMessage("Safing mode - skipping initial EIS measurement");
     }
 
     // Calculate expected program completion time (inflated - used as safety timeout)
@@ -1277,12 +1335,20 @@ static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
             effectiveElapsedTime = (currentTime - ctx->experimentStartTime - ctx->rampStartTime - ctx->totalEISTime);
         }
 
-        // Read and log temperatures periodically
-        if ((currentTime - ctx->lastTempLogTime) >= 10.0) {
+        // Read and log temperatures periodically (adaptive resolution based on temperature)
+        // Use high-resolution logging when temperature exceeds dangerous level
+        double logInterval = (ctx->currentTemperature >= TEMP_RAMP_DANGEROUS_LEVEL) ?
+                            TEMP_RAMP_LOG_INTERVAL_DANGER :
+                            TEMP_RAMP_LOG_INTERVAL_NORMAL;
+
+        if ((currentTime - ctx->lastTempLogTime) >= logInterval) {
             TempRampTempData tempData;
             ReadAllTemperatures(ctx, &tempData, currentTime - ctx->experimentStartTime);
             LogTemperatureDataPoint(ctx, &tempData);
             UpdateTemperaturePlot(ctx, &tempData);
+
+            // Update current temperature for adaptive logging
+            ctx->currentTemperature = tempData.dtbAverageTemperature;
 
             // Check if ANY device has reached target temperature (Option A: most conservative)
             int targetReached = 0;
@@ -1372,10 +1438,10 @@ static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
             }
         }
 
-        // Check if time for EIS measurement (skip if runaway has been reached)
+        // Check if time for EIS measurement (skip if disabled, or runaway has been reached)
         double timeSinceLastEIS = (currentTime - ctx->experimentStartTime - ctx->lastEISTime) / 60.0;  // minutes
 
-        if (timeSinceLastEIS >= ctx->params.eisInterval && !ctx->runawayReached) {
+        if (timeSinceLastEIS >= ctx->params.eisInterval && ctx->params.enableEIS && !ctx->runawayReached) {
             LogMessage("Time for EIS measurement (%.1f minutes elapsed since last)", timeSinceLastEIS);
 
             TempRampTempData tempData;
@@ -1409,18 +1475,22 @@ static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
 
             ctx->state = TEMP_RAMP_STATE_RAMPING;
             ctx->lastEISTime = currentTime - ctx->experimentStartTime;
-        } else if (timeSinceLastEIS >= ctx->params.eisInterval && ctx->runawayReached) {
+        } else if (timeSinceLastEIS >= ctx->params.eisInterval && (ctx->runawayReached || !ctx->params.enableEIS)) {
             // Update last EIS time even when skipping to avoid repeated log messages
             ctx->lastEISTime = currentTime - ctx->experimentStartTime;
-            LogMessage("Skipping EIS measurement due to runaway condition");
+            if (ctx->runawayReached) {
+                LogMessage("Skipping EIS measurement due to runaway condition");
+            } else {
+                LogMessage("Skipping EIS measurement - safing mode active");
+            }
         }
 
         ProcessSystemEvents();
         Delay(1.0);
     }
 
-    // Final EIS measurement at end temperature (skip if runaway reached)
-    if (!ctx->runawayReached) {
+    // Final EIS measurement at end temperature (skip if disabled or runaway reached)
+    if (ctx->params.enableEIS && !ctx->runawayReached) {
         LogMessage("Taking final EIS measurement after cooldown to %.1f deg C", ctx->params.initialTemp);
         ctx->state = TEMP_RAMP_STATE_EIS_MEASUREMENT;
 
@@ -1430,7 +1500,11 @@ static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
             LogWarning("Final EIS measurement failed");
         }
     } else {
-        LogMessage("Skipping final EIS measurement due to runaway condition");
+        if (ctx->runawayReached) {
+            LogMessage("Skipping final EIS measurement due to runaway condition");
+        } else {
+            LogMessage("Skipping final EIS measurement - safing mode active");
+        }
     }
 
     // Stop the program on all devices (cleanup - may already be stopped)
@@ -1455,6 +1529,9 @@ static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
     LogMessage("Temperature ramp with cooldown monitoring completed successfully");
     if (ctx->runawayReached) {
         LogMessage("Experiment included runaway condition - heating was stopped early");
+    }
+    if (!ctx->params.enableEIS) {
+        LogMessage("Experiment ran in SAFING MODE - no EIS measurements performed");
     }
 
     return SUCCESS;

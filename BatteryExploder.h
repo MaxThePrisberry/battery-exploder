@@ -90,6 +90,8 @@
 #define  RUNAWAY_CBX_AUTO_TUNE            10      /* control type: radioButton, callback function: (none) */
 #define  RUNAWAY_CBX_CONT_TRAMP_EIS       11      /* control type: radioButton, callback function: (none) */
 #define  RUNAWAY_RING_RAMP_MODE           12      /* control type: ring, callback function: (none) */
+#define  RUNAWAY_CBX_ENABLE_EIS           13      /* control type: radioButton, callback function: (none) */
+                                                  /* NOTE: Checkbox must be added in CVI IDE and this ID updated if different */
 
 
      /* Control Arrays: */
