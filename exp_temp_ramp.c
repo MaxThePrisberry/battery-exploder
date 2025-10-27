@@ -1657,6 +1657,20 @@ static int ReadAllTemperatures(TempRampExperimentContext *ctx, TempRampTempData 
         tempData->tc1Temperature = 0.0;
     }
 
+    // Calculate actual ramp rate based on temperature change over time
+    if (ctx->previousTimestamp > 0.0 && timestamp > ctx->previousTimestamp) {
+        double deltaTemp = tempData->dtbAverageTemperature - ctx->previousTemperature;
+        double deltaTime = (timestamp - ctx->previousTimestamp) / 60.0;  // Convert to minutes
+        tempData->actualRampRate = deltaTemp / deltaTime;  // deg C/min
+    } else {
+        // First measurement - no previous data to calculate rate
+        tempData->actualRampRate = 0.0;
+    }
+
+    // Store current values for next iteration
+    ctx->previousTemperature = tempData->dtbAverageTemperature;
+    ctx->previousTimestamp = timestamp;
+
     return SUCCESS;
 }
 
@@ -1665,10 +1679,11 @@ static int LogTemperatureDataPoint(TempRampExperimentContext *ctx, TempRampTempD
         return ERR_INVALID_STATE;
     }
     
-    fprintf(ctx->temperatureLogFile, "%.3f,%.2f,%.2f,%.2f,%.2f\n",
+    fprintf(ctx->temperatureLogFile, "%.3f,%.2f,%.2f,%.3f,%.2f,%.2f\n",
             tempData->timestamp,
             tempData->dtbAverageTemperature,
             tempData->dtbSetpoint,
+            tempData->actualRampRate,
             tempData->tc0Temperature,
             tempData->tc1Temperature);
     
@@ -2292,7 +2307,7 @@ static int CreateExperimentFileSystem(TempRampExperimentContext *ctx) {
         return ERR_BASE_FILE;
     }
     
-    fprintf(ctx->temperatureLogFile, "Time_s,DTB_Avg_C,DTB_Setpoint_C,TC0_C,TC1_C\n");
+    fprintf(ctx->temperatureLogFile, "Time_s,DTB_Avg_C,DTB_Setpoint_C,Ramp_Rate_C_per_min,TC0_C,TC1_C\n");
     fflush(ctx->temperatureLogFile);
     
     LogMessage("Created experiment file system: %s", ctx->experimentDirectory);

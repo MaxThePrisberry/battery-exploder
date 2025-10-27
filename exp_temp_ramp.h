@@ -94,6 +94,7 @@ typedef struct {
     double dtbSetpoint;                      // DTB setpoint ( deg C)
     double tc0Temperature;                   // Thermocouple 0 ( deg C)
     double tc1Temperature;                   // Thermocouple 1 ( deg C)
+    double actualRampRate;                   // Actual temperature change rate ( deg C/min)
     char status[128];                        // Status message
 } TempRampTempData;
 
@@ -146,6 +147,8 @@ typedef struct {
     // Temperature tracking
     double currentTemperature;
     double targetTemperature;
+    double previousTemperature;      // Previous logged temperature for rate calculation
+    double previousTimestamp;        // Previous log timestamp for rate calculation
     int initialTempReached;
     int finalTempReached;
     int peakTempReached;             // Flag to indicate we've reached the peak and are now cooling
