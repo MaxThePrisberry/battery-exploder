@@ -83,14 +83,13 @@
 #define  RUNAWAY_INITIAL_TEMP_RWY         3       /* control type: numeric, callback function: (none) */
 #define  RUNAWAY_RAMP_RATE_RWY            4       /* control type: numeric, callback function: (none) */
 #define  RUNAWAY_NUM_EIS_INTERVAL_RWY     5       /* control type: numeric, callback function: (none) */
-#define  RUNAWAY_BTN_RWY                  6       /* control type: command, callback function: StartTempRampExperimentCallback */
-#define  RUNAWAY_STR_RWY_STATUS           7       /* control type: string, callback function: (none) */
-#define  RUNAWAY_TEMP_RAMP_NUM_OUTPUT     8       /* control type: numeric, callback function: (none) */
-#define  RUNAWAY_CBX_AUTO_TUNE            9       /* control type: radioButton, callback function: (none) */
-#define  RUNAWAY_CBX_CONT_TRAMP_EIS       10      /* control type: radioButton, callback function: (none) */
-#define  RUNAWAY_RING_RAMP_MODE           11      /* control type: ring, callback function: (none) */
-#define  RUNAWAY_BTN_SIGNAL_RUNAWAY       12      /* control type: command, callback function: SignalRunawayReachedCallback */
-                                                  /* NOTE: Button must be added in CVI IDE and this ID updated if different */
+#define  RUNAWAY_BTN_SIGNAL_RUNAWAY       6       /* control type: command, callback function: SignalRunawayReachedCallback */
+#define  RUNAWAY_BTN_RWY                  7       /* control type: command, callback function: StartTempRampExperimentCallback */
+#define  RUNAWAY_STR_RWY_STATUS           8       /* control type: string, callback function: (none) */
+#define  RUNAWAY_TEMP_RAMP_NUM_OUTPUT     9       /* control type: numeric, callback function: (none) */
+#define  RUNAWAY_CBX_AUTO_TUNE            10      /* control type: radioButton, callback function: (none) */
+#define  RUNAWAY_CBX_CONT_TRAMP_EIS       11      /* control type: radioButton, callback function: (none) */
+#define  RUNAWAY_RING_RAMP_MODE           12      /* control type: ring, callback function: (none) */
 
 
      /* Control Arrays: */
@@ -116,6 +115,7 @@ int  CVICALLBACK DTB1RunStopCallback(int panel, int control, int event, void *ca
 int  CVICALLBACK DTB2RunStopCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK PanelCallback(int panel, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK RemoteModeToggle(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
+int  CVICALLBACK SignalRunawayReachedCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK StartTempRampExperimentCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK TestALICATCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK TestBiologicCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
