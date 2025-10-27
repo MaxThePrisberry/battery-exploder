@@ -126,6 +126,7 @@ typedef struct {
     // Cancellation flags
     volatile int cancelRequested;
     volatile int emergencyStop;
+    volatile int runawayReached;     // User signal that runaway has been reached
     
     // Timing
     double experimentStartTime;
@@ -141,6 +142,7 @@ typedef struct {
     double targetTemperature;
     int initialTempReached;
     int finalTempReached;
+    int peakTempReached;             // Flag to indicate we've reached the peak and are now cooling
 	
 	// Mass flow tracking
 	double currentMassFlow;
@@ -195,6 +197,13 @@ int TempRampExperiment_Abort(void);
  * Emergency stop
  */
 int TempRampExperiment_EmergencyStop(void);
+
+/**
+ * Signal that thermal runaway has been reached (stops heating, prevents further EIS)
+ */
+int CVICALLBACK SignalRunawayReachedCallback(int panel, int control, int event,
+                                             void *callbackData, int eventData1,
+                                             int eventData2);
 
 /**
  * Cleanup module

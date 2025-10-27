@@ -117,6 +117,7 @@ int CVICALLBACK StartTempRampExperimentCallback(int panel, int control, int even
     memset(&g_experimentContext, 0, sizeof(g_experimentContext));
     g_experimentContext.cancelRequested = 0;
     g_experimentContext.emergencyStop = 0;
+    g_experimentContext.runawayReached = 0;
     g_experimentContext.state = TEMP_RAMP_STATE_PREPARING;
     g_experimentContext.mainPanelHandle = g_mainPanelHandle;
     g_experimentContext.tabPanelHandle = panel;
@@ -251,9 +252,9 @@ int TempRampExperiment_EmergencyStop(void) {
         g_experimentContext.emergencyStop = 1;
         g_experimentContext.cancelRequested = 1;
         g_experimentContext.state = TEMP_RAMP_STATE_ERROR;
-        
+
         SafeDisconnectAllDevices(&g_experimentContext);
-        
+
         if (g_experimentThreadId != 0) {
             CmtWaitForThreadPoolFunctionCompletion(g_threadPool, g_experimentThreadId,
                                                  OPT_TP_PROCESS_EVENTS_WHILE_WAITING);
@@ -261,6 +262,37 @@ int TempRampExperiment_EmergencyStop(void) {
         }
     }
     return SUCCESS;
+}
+
+int CVICALLBACK SignalRunawayReachedCallback(int panel, int control, int event,
+                                             void *callbackData, int eventData1,
+                                             int eventData2) {
+    if (event != EVENT_COMMIT) {
+        return 0;
+    }
+
+    if (!TempRampExperiment_IsRunning()) {
+        MessagePopup("Runaway Signal",
+                     "No temperature ramp experiment is currently running.");
+        return 0;
+    }
+
+    // Set the runaway flag
+    g_experimentContext.runawayReached = 1;
+
+    LogMessage("USER SIGNAL: Thermal runaway condition reached");
+    LogMessage("Heating will be stopped, further EIS measurements will be skipped");
+    LogMessage("Temperature monitoring will continue until cooldown to initial temperature");
+
+    MessagePopup("Runaway Signaled",
+                 "Runaway condition acknowledged.\n\n"
+                 "Actions:\n"
+                 "- Heating stopped (DTB set to 25 deg C)\n"
+                 "- No further EIS measurements\n"
+                 "- Temperature monitoring continues\n"
+                 "- Experiment will end when cooled to initial temp");
+
+    return 0;
 }
 
 void TempRampExperiment_Cleanup(void) {
@@ -308,7 +340,7 @@ static int TempRampExperimentThread(void *functionData) {
         "1. Reach %.1f deg C and stabilize\n"
         "2. Ramp to %.1f deg C at %.1f deg C/min\n"
         "3. EIS measurements every %.1f min\n"
-        "4. Hold at %.1f deg C briefly\n\n"
+        "4. Monitor cooldown back to %.1f deg C\n\n"
         "ESTIMATED:\n"
         "Ramp Duration: %.1f minutes\n"
         "Expected Measurements: ~%d\n"
@@ -326,7 +358,7 @@ static int TempRampExperimentThread(void *functionData) {
         ctx->params.finalTemp,
         ctx->params.rampRate,
         ctx->params.eisInterval,
-        ctx->params.finalTemp,
+        ctx->params.initialTemp,  // Now monitoring cooldown back to initial temp
         rampDuration,
         expectedMeasurements,
         rampDuration + (ctx->params.autoTuneBeforeRamp ? 15.0 : 10.0));
@@ -468,21 +500,11 @@ static int TempRampExperimentThread(void *functionData) {
         }
         goto cleanup;
     }
-    
-    // PHASE 4: Hold at Final Temperature
-    LogMessage("=== PHASE 4: Holding at Final Temperature ===");
-    ctx->state = TEMP_RAMP_STATE_HOLDING_FINAL;
-    SetCtrlVal(ctx->tabPanelHandle, ctx->statusControl, 
-               "Holding at final temperature...");
-    
-    result = HoldAtFinalTemperature(ctx);
-    if (result != SUCCESS || CheckCancellation(ctx)) {
-        if (!CheckCancellation(ctx)) {
-            ctx->state = TEMP_RAMP_STATE_ERROR;
-        }
-        goto cleanup;
-    }
-    
+
+    // Note: PHASE 4 (Hold at Final Temperature) has been removed.
+    // The experiment now continues monitoring until cooldown to initial temperature,
+    // which is handled within RunTemperatureRampWithEIS() and RunTemperatureRampWithEIS_V2()
+
     // Complete
     ctx->experimentEndTime = Timer();
     ctx->state = TEMP_RAMP_STATE_COMPLETED;
@@ -766,13 +788,14 @@ static int RunTemperatureRampWithEIS(TempRampExperimentContext *ctx) {
     double rampDuration = (ctx->params.finalTemp - ctx->params.initialTemp) / 
                          ctx->params.rampRate;  // minutes
     
-    LogMessage("Starting temperature ramp from %.1f to %.1f deg C", 
+    LogMessage("Starting temperature ramp from %.1f to %.1f deg C",
                ctx->params.initialTemp, ctx->params.finalTemp);
-    LogMessage("Ramp rate: %.1f deg C/min, Duration: %.1f minutes", 
+    LogMessage("Ramp rate: %.1f deg C/min, Duration: %.1f minutes",
                ctx->params.rampRate, rampDuration);
     LogMessage("EIS measurements every %.1f minutes", ctx->params.eisInterval);
-    LogMessage("Ramp mode: %s during EIS measurements", 
+    LogMessage("Ramp mode: %s during EIS measurements",
                ctx->params.continueRampDuringEIS ? "CONTINUE" : "PAUSE");
+    LogMessage("Will continue monitoring until temperature returns to %.1f deg C", ctx->params.initialTemp);
     
     // Perform initial EIS measurement
     LogMessage("Taking initial EIS measurement at %.1f deg C", ctx->currentTemperature);
@@ -799,39 +822,72 @@ static int RunTemperatureRampWithEIS(TempRampExperimentContext *ctx) {
         LogWarning("Initial EIS measurement failed, continuing anyway");
     }
     
-    while (1) {
+    int cooledToInitial = 0;
+    while (!cooledToInitial) {
         if (CheckCancellation(ctx)) {
             return ERR_CANCELLED;
         }
-        
+
+        // Check if user has signaled runaway condition
+        if (ctx->runawayReached && !ctx->peakTempReached) {
+            LogMessage("Runaway condition signaled - stopping heating and switching to cooldown");
+
+            // Set DTB to safe cooldown temperature (25 deg C)
+            const double COOLDOWN_SETPOINT = 25.0;
+            result = UpdateTemperatureSetpoint(ctx, COOLDOWN_SETPOINT);
+            if (result != SUCCESS) {
+                LogWarning("Failed to set cooldown setpoint");
+            }
+
+            LogMessage("DTB heating stopped, setpoint set to %.1f deg C for cooldown", COOLDOWN_SETPOINT);
+            ctx->peakTempReached = 1;  // Mark that we've reached peak and are now cooling
+        }
+
         double currentTime = Timer();
-        
-        // Calculate elapsed ramp time
-        // If pausing during EIS, subtract total EIS time
+
+        // Calculate elapsed ramp time (only if still ramping)
         double rawElapsedTime = (currentTime - ctx->experimentStartTime - ctx->rampStartTime);
         double elapsedRampTime;
-        
+
         if (ctx->params.continueRampDuringEIS) {
             elapsedRampTime = rawElapsedTime / 60.0;  // minutes
         } else {
             elapsedRampTime = (rawElapsedTime - ctx->totalEISTime) / 60.0;  // minutes
         }
-        
-        // Calculate target temperature based on elapsed ramp time
-        double targetTemp = ctx->params.initialTemp + (elapsedRampTime * ctx->params.rampRate);
-        
-        if (targetTemp >= ctx->params.finalTemp) {
-            targetTemp = ctx->params.finalTemp;
-            ctx->finalTempReached = 1;
-        }
-        
-        // Update DTB setpoint
-        if (fabs(targetTemp - ctx->targetTemperature) > 0.1) {
-            result = UpdateTemperatureSetpoint(ctx, targetTemp);
-            if (result != SUCCESS) {
-                LogError("Failed to update temperature setpoint");
-                return result;
+
+        // Calculate target temperature based on elapsed ramp time (only if not in cooldown)
+        double targetTemp;
+        if (!ctx->peakTempReached) {
+            targetTemp = ctx->params.initialTemp + (elapsedRampTime * ctx->params.rampRate);
+
+            if (targetTemp >= ctx->params.finalTemp) {
+                targetTemp = ctx->params.finalTemp;
+                ctx->finalTempReached = 1;
+
+                // When reaching final temp (and not in runaway mode), switch to cooldown
+                if (!ctx->runawayReached) {
+                    LogMessage("Target temperature reached - beginning cooldown monitoring");
+                    const double COOLDOWN_SETPOINT = 25.0;
+                    result = UpdateTemperatureSetpoint(ctx, COOLDOWN_SETPOINT);
+                    if (result != SUCCESS) {
+                        LogWarning("Failed to set cooldown setpoint");
+                    }
+                    ctx->peakTempReached = 1;
+                    LogMessage("Now monitoring cooldown to initial temperature: %.1f deg C", ctx->params.initialTemp);
+                }
             }
+
+            // Update DTB setpoint (only if still ramping)
+            if (!ctx->peakTempReached && fabs(targetTemp - ctx->targetTemperature) > 0.1) {
+                result = UpdateTemperatureSetpoint(ctx, targetTemp);
+                if (result != SUCCESS) {
+                    LogError("Failed to update temperature setpoint");
+                    return result;
+                }
+            }
+        } else {
+            // In cooldown mode, target is initial temperature
+            targetTemp = ctx->params.initialTemp;
         }
         
         // Read and log temperature
@@ -840,85 +896,118 @@ static int RunTemperatureRampWithEIS(TempRampExperimentContext *ctx) {
             ReadAllTemperatures(ctx, &tempData, currentTime - ctx->experimentStartTime);
             LogTemperatureDataPoint(ctx, &tempData);
             UpdateTemperaturePlot(ctx, &tempData);
-            
+
+            // Check if we've cooled back to initial temperature (after reaching peak)
+            if (ctx->peakTempReached) {
+                int allCooled = 1;
+                for (int i = 0; i < tempData.dtbDeviceCount; i++) {
+                    if (tempData.dtbTemperatures[i] > (ctx->params.initialTemp + TEMP_RAMP_TOLERANCE)) {
+                        allCooled = 0;
+                        break;
+                    }
+                }
+
+                if (allCooled) {
+                    LogMessage("All DTB devices have cooled to initial temperature (%.1f deg C)",
+                              ctx->params.initialTemp);
+                    cooledToInitial = 1;
+                }
+            }
+
+            // Update status message
             char statusMsg[MEDIUM_BUFFER_SIZE];
-            snprintf(statusMsg, sizeof(statusMsg), 
-                     "Ramping: %.1f deg C (target: %.1f deg C, ramp time: %.1f min)", 
-                     tempData.dtbAverageTemperature, targetTemp, elapsedRampTime);
+            if (ctx->peakTempReached) {
+                snprintf(statusMsg, sizeof(statusMsg),
+                         "Cooldown: %.1f deg C (target: %.1f deg C)%s",
+                         tempData.dtbAverageTemperature, ctx->params.initialTemp,
+                         ctx->runawayReached ? " [RUNAWAY MODE]" : "");
+            } else {
+                snprintf(statusMsg, sizeof(statusMsg),
+                         "Ramping: %.1f deg C (target: %.1f deg C, ramp time: %.1f min)",
+                         tempData.dtbAverageTemperature, targetTemp, elapsedRampTime);
+            }
             SetCtrlVal(ctx->tabPanelHandle, ctx->statusControl, statusMsg);
             SetCtrlVal(ctx->tabPanelHandle, ctx->outputControl, tempData.dtbAverageTemperature);
-            
+
             ctx->lastTempLogTime = currentTime;
         }
         
-        // Check if time for EIS measurement
+        // Check if time for EIS measurement (skip if runaway has been reached)
         double timeSinceLastEIS = (currentTime - ctx->experimentStartTime - ctx->lastEISTime) / 60.0;  // minutes
-        
-        if (timeSinceLastEIS >= ctx->params.eisInterval) {
+
+        if (timeSinceLastEIS >= ctx->params.eisInterval && !ctx->runawayReached) {
             LogMessage("Time for EIS measurement (%.1f minutes elapsed since last)", timeSinceLastEIS);
-            
+
             TempRampTempData tempData;
             ReadAllTemperatures(ctx, &tempData, currentTime - ctx->experimentStartTime);
-            
-            LogMessage("Current temperature: %.1f deg C, Target: %.1f deg C", 
+
+            LogMessage("Current temperature: %.1f deg C, Target: %.1f deg C",
                       tempData.dtbAverageTemperature, targetTemp);
-            
+
             ctx->state = TEMP_RAMP_STATE_EIS_MEASUREMENT;
-            
+
             eisStartTime = Timer();
             result = PerformEISMeasurement(ctx);
             eisEndTime = Timer();
             eisDuration = eisEndTime - eisStartTime;
-            
+
             if (!ctx->params.continueRampDuringEIS) {
                 ctx->totalEISTime += eisDuration;
-                LogMessage("EIS measurement took %.1f seconds (ramp paused, total pause: %.1f min)", 
+                LogMessage("EIS measurement took %.1f seconds (ramp paused, total pause: %.1f min)",
                           eisDuration, ctx->totalEISTime / 60.0);
             } else {
                 LogMessage("EIS measurement took %.1f seconds (ramp continued)", eisDuration);
             }
-            
+
             if (CheckCancellation(ctx)) {
                 return ERR_CANCELLED;
             }
-            
+
             if (result != SUCCESS) {
                 LogWarning("EIS measurement failed, continuing ramp");
             }
-            
+
             ctx->state = TEMP_RAMP_STATE_RAMPING;
             ctx->lastEISTime = currentTime - ctx->experimentStartTime;
-        }
-        
-        // Check if final temperature reached
-        if (ctx->finalTempReached) {
-            LogMessage("Final temperature reached");
-            
-            // One final EIS measurement
-            LogMessage("Taking final EIS measurement at %.1f deg C", ctx->params.finalTemp);
-            ctx->state = TEMP_RAMP_STATE_EIS_MEASUREMENT;
-            
-            eisStartTime = Timer();
-            result = PerformEISMeasurement(ctx);
-            eisEndTime = Timer();
-            eisDuration = eisEndTime - eisStartTime;
-            
-            if (!ctx->params.continueRampDuringEIS) {
-                ctx->totalEISTime += eisDuration;
-                LogMessage("Final EIS took %.1f seconds (total EIS time: %.1f min)", 
-                          eisDuration, ctx->totalEISTime / 60.0);
-            }
-            
-            if (result != SUCCESS) {
-                LogWarning("Final EIS measurement failed");
-            }
-            
-            return SUCCESS;
+        } else if (timeSinceLastEIS >= ctx->params.eisInterval && ctx->runawayReached) {
+            // Update last EIS time even when skipping to avoid repeated log messages
+            ctx->lastEISTime = currentTime - ctx->experimentStartTime;
+            LogMessage("Skipping EIS measurement due to runaway condition");
         }
         
         ProcessSystemEvents();
         Delay(1.0);
     }
+
+    // Final EIS measurement after cooldown (skip if runaway reached)
+    if (!ctx->runawayReached) {
+        LogMessage("Taking final EIS measurement after cooldown to %.1f deg C", ctx->params.initialTemp);
+        ctx->state = TEMP_RAMP_STATE_EIS_MEASUREMENT;
+
+        eisStartTime = Timer();
+        result = PerformEISMeasurement(ctx);
+        eisEndTime = Timer();
+        eisDuration = eisEndTime - eisStartTime;
+
+        if (!ctx->params.continueRampDuringEIS) {
+            ctx->totalEISTime += eisDuration;
+            LogMessage("Final EIS took %.1f seconds (total EIS time: %.1f min)",
+                      eisDuration, ctx->totalEISTime / 60.0);
+        }
+
+        if (result != SUCCESS) {
+            LogWarning("Final EIS measurement failed");
+        }
+    } else {
+        LogMessage("Skipping final EIS measurement due to runaway condition");
+    }
+
+    LogMessage("Temperature ramp with cooldown monitoring completed successfully");
+    if (ctx->runawayReached) {
+        LogMessage("Experiment included runaway condition - heating was stopped early");
+    }
+
+    return SUCCESS;
 }
 
 static int HoldAtFinalTemperature(TempRampExperimentContext *ctx) {
@@ -1106,7 +1195,7 @@ static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
     LogMessage("EIS measurements every %.1f minutes", ctx->params.eisInterval);
     LogMessage("Ramp mode: %s during EIS measurements",
                ctx->params.continueRampDuringEIS ? "CONTINUE" : "PAUSE");
-    LogMessage("Will terminate early when target %.1f deg C is reached", ctx->params.finalTemp);
+    LogMessage("Will continue monitoring until temperature returns to %.1f deg C", ctx->params.initialTemp);
 
     // Perform initial EIS measurement
     LogMessage("Taking initial EIS measurement at %.1f deg C", ctx->currentTemperature);
@@ -1124,8 +1213,9 @@ static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
     // The DTB doesn't report completion via Modbus, so we use time-based detection
     double expectedRampDuration = inflatedRampMinutes * 60.0;  // Convert to seconds
 
-    // Main monitoring loop
-    while (!ctx->finalTempReached) {
+    // Main monitoring loop - continue until we've cooled back to initial temperature
+    int cooledToInitial = 0;
+    while (!cooledToInitial) {
         if (CheckCancellation(ctx)) {
             // Stop the program on all devices
             for (int i = 0; i < DTB_NUM_DEVICES; i++) {
@@ -1140,23 +1230,51 @@ static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
             return ERR_CANCELLED;
         }
 
+        // Check if user has signaled runaway condition
+        if (ctx->runawayReached && !ctx->peakTempReached) {
+            LogMessage("Runaway condition signaled - stopping heating and switching to cooldown");
+
+            // Stop ramp-soak program on all DTB devices
+            for (int i = 0; i < DTB_NUM_DEVICES; i++) {
+                int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
+                int stopResult = DTB_StopProgramQueued(slaveAddress, DEVICE_PRIORITY_HIGH);
+                if (stopResult != DTB_SUCCESS) {
+                    LogWarning("Failed to stop DTB %d program: %s", i+1, DTB_GetErrorString(stopResult));
+                }
+            }
+
+            // Switch back to normal PID control
+            for (int i = 0; i < DTB_NUM_DEVICES; i++) {
+                int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
+                int ctrlResult = DTB_SetControlMethodQueued(slaveAddress, CONTROL_METHOD_PID, DEVICE_PRIORITY_HIGH);
+                if (ctrlResult != DTB_SUCCESS) {
+                    LogWarning("Failed to set DTB %d control method: %s", i+1, DTB_GetErrorString(ctrlResult));
+                }
+            }
+
+            // Set DTB to safe cooldown temperature (25 deg C)
+            const double COOLDOWN_SETPOINT = 25.0;
+            for (int i = 0; i < DTB_NUM_DEVICES; i++) {
+                int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
+                int setResult = DTB_SetSetPointQueued(slaveAddress, COOLDOWN_SETPOINT, DEVICE_PRIORITY_HIGH);
+                if (setResult != DTB_SUCCESS) {
+                    LogWarning("Failed to set DTB %d cooldown setpoint: %s", i+1, DTB_GetErrorString(setResult));
+                }
+            }
+
+            LogMessage("DTB heating stopped, setpoint set to %.1f deg C for cooldown", COOLDOWN_SETPOINT);
+            ctx->peakTempReached = 1;  // Mark that we've reached peak and are now cooling
+        }
+
         double currentTime = Timer();
         double elapsedTime = (currentTime - ctx->experimentStartTime - ctx->rampStartTime) / 60.0;  // minutes
 
-        // Time-based completion detection (with pause compensation)
+        // Calculate effective elapsed time for status display
         double effectiveElapsedTime;
         if (ctx->params.continueRampDuringEIS) {
             effectiveElapsedTime = (currentTime - ctx->experimentStartTime - ctx->rampStartTime);
         } else {
             effectiveElapsedTime = (currentTime - ctx->experimentStartTime - ctx->rampStartTime - ctx->totalEISTime);
-        }
-
-        // Check if ramp should be complete (with 30 second tolerance)
-        if (effectiveElapsedTime >= (expectedRampDuration - 30.0)) {
-            LogMessage("DTB ramp program duration reached (%.1f minutes elapsed)",
-                      effectiveElapsedTime / 60.0);
-            ctx->finalTempReached = 1;
-            break;
         }
 
         // Read and log temperatures periodically
@@ -1177,21 +1295,63 @@ static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
                 }
             }
 
-            // If target reached, stop ramp and switch to setpoint hold
-            if (targetReached && !ctx->finalTempReached) {
-                result = StopRampAndSwitchToSetpointHold(ctx);
-                if (result != SUCCESS) {
-                    LogWarning("Failed to transition to setpoint hold, continuing");
+            // If target reached (and not in runaway mode), stop ramp and switch to natural cooldown
+            if (targetReached && !ctx->peakTempReached && !ctx->runawayReached) {
+                LogMessage("Target temperature reached - stopping ramp and beginning cooldown monitoring");
+
+                // Stop ramp-soak program on all DTB devices
+                for (int i = 0; i < DTB_NUM_DEVICES; i++) {
+                    int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
+                    DTB_StopProgramQueued(slaveAddress, DEVICE_PRIORITY_NORMAL);
                 }
-                // finalTempReached is set by StopRampAndSwitchToSetpointHold()
-                // This will cause the loop to exit and proceed to final EIS measurement
+
+                // Switch back to normal PID control
+                for (int i = 0; i < DTB_NUM_DEVICES; i++) {
+                    int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
+                    DTB_SetControlMethodQueued(slaveAddress, CONTROL_METHOD_PID, DEVICE_PRIORITY_NORMAL);
+                }
+
+                // Set DTB to allow natural cooldown (25 deg C)
+                const double COOLDOWN_SETPOINT = 25.0;
+                for (int i = 0; i < DTB_NUM_DEVICES; i++) {
+                    int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
+                    DTB_SetSetPointQueued(slaveAddress, COOLDOWN_SETPOINT, DEVICE_PRIORITY_NORMAL);
+                }
+
+                ctx->peakTempReached = 1;  // Mark that we've reached peak and are now cooling
+                LogMessage("Now monitoring cooldown to initial temperature: %.1f deg C", ctx->params.initialTemp);
             }
 
+            // Check if we've cooled back to initial temperature (after reaching peak)
+            if (ctx->peakTempReached) {
+                int allCooled = 1;
+                for (int i = 0; i < tempData.dtbDeviceCount; i++) {
+                    if (tempData.dtbTemperatures[i] > (ctx->params.initialTemp + TEMP_RAMP_TOLERANCE)) {
+                        allCooled = 0;
+                        break;
+                    }
+                }
+
+                if (allCooled) {
+                    LogMessage("All DTB devices have cooled to initial temperature (%.1f deg C)",
+                              ctx->params.initialTemp);
+                    cooledToInitial = 1;
+                }
+            }
+
+            // Update status message
             char statusMsg[MEDIUM_BUFFER_SIZE];
-            double remainingTime = (expectedRampDuration - effectiveElapsedTime) / 60.0;
-            snprintf(statusMsg, sizeof(statusMsg),
-                     "Ramping: %.1f deg C (%.1f/%.1f min, %.1f min remaining)",
-                     tempData.dtbAverageTemperature, elapsedTime, (double)inflatedRampMinutes, remainingTime);
+            if (ctx->peakTempReached) {
+                snprintf(statusMsg, sizeof(statusMsg),
+                         "Cooldown: %.1f deg C (target: %.1f deg C)%s",
+                         tempData.dtbAverageTemperature, ctx->params.initialTemp,
+                         ctx->runawayReached ? " [RUNAWAY MODE]" : "");
+            } else {
+                double remainingTime = (expectedRampDuration - effectiveElapsedTime) / 60.0;
+                snprintf(statusMsg, sizeof(statusMsg),
+                         "Ramping: %.1f deg C (%.1f/%.1f min, %.1f min remaining)",
+                         tempData.dtbAverageTemperature, elapsedTime, (double)inflatedRampMinutes, remainingTime);
+            }
             SetCtrlVal(ctx->tabPanelHandle, ctx->statusControl, statusMsg);
             SetCtrlVal(ctx->tabPanelHandle, ctx->outputControl, tempData.dtbAverageTemperature);
 
@@ -1209,10 +1369,10 @@ static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
             }
         }
 
-        // Check if time for EIS measurement
+        // Check if time for EIS measurement (skip if runaway has been reached)
         double timeSinceLastEIS = (currentTime - ctx->experimentStartTime - ctx->lastEISTime) / 60.0;  // minutes
 
-        if (timeSinceLastEIS >= ctx->params.eisInterval) {
+        if (timeSinceLastEIS >= ctx->params.eisInterval && !ctx->runawayReached) {
             LogMessage("Time for EIS measurement (%.1f minutes elapsed since last)", timeSinceLastEIS);
 
             TempRampTempData tempData;
@@ -1225,15 +1385,17 @@ static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
             result = PerformEISMeasurementWithRampControl(ctx);
 
             if (CheckCancellation(ctx)) {
-                // Stop the program on all devices
-                for (int i = 0; i < DTB_NUM_DEVICES; i++) {
-                    int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
-                    DTB_StopProgramQueued(slaveAddress, DEVICE_PRIORITY_NORMAL);
-                }
-                // Reset control method back to PID mode
-                for (int i = 0; i < DTB_NUM_DEVICES; i++) {
-                    int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
-                    DTB_SetControlMethodQueued(slaveAddress, CONTROL_METHOD_PID, DEVICE_PRIORITY_NORMAL);
+                // Stop the program on all devices (if still running)
+                if (!ctx->peakTempReached) {
+                    for (int i = 0; i < DTB_NUM_DEVICES; i++) {
+                        int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
+                        DTB_StopProgramQueued(slaveAddress, DEVICE_PRIORITY_NORMAL);
+                    }
+                    // Reset control method back to PID mode
+                    for (int i = 0; i < DTB_NUM_DEVICES; i++) {
+                        int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
+                        DTB_SetControlMethodQueued(slaveAddress, CONTROL_METHOD_PID, DEVICE_PRIORITY_NORMAL);
+                    }
                 }
                 return ERR_CANCELLED;
             }
@@ -1244,39 +1406,52 @@ static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
 
             ctx->state = TEMP_RAMP_STATE_RAMPING;
             ctx->lastEISTime = currentTime - ctx->experimentStartTime;
+        } else if (timeSinceLastEIS >= ctx->params.eisInterval && ctx->runawayReached) {
+            // Update last EIS time even when skipping to avoid repeated log messages
+            ctx->lastEISTime = currentTime - ctx->experimentStartTime;
+            LogMessage("Skipping EIS measurement due to runaway condition");
         }
 
         ProcessSystemEvents();
         Delay(1.0);
     }
 
-    // Final EIS measurement at end temperature
-    LogMessage("Taking final EIS measurement at %.1f deg C", ctx->params.finalTemp);
-    ctx->state = TEMP_RAMP_STATE_EIS_MEASUREMENT;
+    // Final EIS measurement at end temperature (skip if runaway reached)
+    if (!ctx->runawayReached) {
+        LogMessage("Taking final EIS measurement after cooldown to %.1f deg C", ctx->params.initialTemp);
+        ctx->state = TEMP_RAMP_STATE_EIS_MEASUREMENT;
 
-    result = PerformEISMeasurementWithRampControl(ctx);
+        result = PerformEISMeasurementWithRampControl(ctx);
 
-    if (result != SUCCESS) {
-        LogWarning("Final EIS measurement failed");
+        if (result != SUCCESS) {
+            LogWarning("Final EIS measurement failed");
+        }
+    } else {
+        LogMessage("Skipping final EIS measurement due to runaway condition");
     }
 
-    // Stop the program on all devices (cleanup)
+    // Stop the program on all devices (cleanup - may already be stopped)
     for (int i = 0; i < DTB_NUM_DEVICES; i++) {
         int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
         DTB_StopProgramQueued(slaveAddress, DEVICE_PRIORITY_NORMAL);
     }
 
-    // Reset control method back to PID mode for all devices
+    // Reset control method back to PID mode for all devices (may already be set)
     // This is CRITICAL - if we don't reset from CONTROL_METHOD_PID_PROG (3) back to
     // CONTROL_METHOD_PID (0), subsequent experiments will fail with Modbus exception 0x03
     // because the DTB won't accept setpoint commands while in Program Control Mode
     for (int i = 0; i < DTB_NUM_DEVICES; i++) {
         int slaveAddress = (i == 0) ? DTB1_SLAVE_ADDRESS : DTB2_SLAVE_ADDRESS;
-        int result = DTB_SetControlMethodQueued(slaveAddress, CONTROL_METHOD_PID, DEVICE_PRIORITY_NORMAL);
-        if (result != DTB_SUCCESS) {
+        int resetResult = DTB_SetControlMethodQueued(slaveAddress, CONTROL_METHOD_PID, DEVICE_PRIORITY_NORMAL);
+        if (resetResult != DTB_SUCCESS) {
             LogWarning("Failed to reset control method for DTB slave %d: %s",
-                      slaveAddress, DTB_GetErrorString(result));
+                      slaveAddress, DTB_GetErrorString(resetResult));
         }
+    }
+
+    LogMessage("Temperature ramp with cooldown monitoring completed successfully");
+    if (ctx->runawayReached) {
+        LogMessage("Experiment included runaway condition - heating was stopped early");
     }
 
     return SUCCESS;

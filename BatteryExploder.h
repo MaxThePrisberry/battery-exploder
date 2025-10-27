@@ -89,6 +89,8 @@
 #define  RUNAWAY_CBX_AUTO_TUNE            9       /* control type: radioButton, callback function: (none) */
 #define  RUNAWAY_CBX_CONT_TRAMP_EIS       10      /* control type: radioButton, callback function: (none) */
 #define  RUNAWAY_RING_RAMP_MODE           11      /* control type: ring, callback function: (none) */
+#define  RUNAWAY_BTN_SIGNAL_RUNAWAY       12      /* control type: command, callback function: SignalRunawayReachedCallback */
+                                                  /* NOTE: Button must be added in CVI IDE and this ID updated if different */
 
 
      /* Control Arrays: */
