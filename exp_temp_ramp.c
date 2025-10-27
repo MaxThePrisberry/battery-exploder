@@ -815,10 +815,14 @@ static int RunTemperatureRampWithEIS(TempRampExperimentContext *ctx) {
     ctx->lastEISTime = ctx->rampStartTime;
     ctx->lastTempLogTime = Timer();
     ctx->totalEISTime = 0.0;
-    
-    double rampDuration = (ctx->params.finalTemp - ctx->params.initialTemp) / 
+
+    double rampDuration = (ctx->params.finalTemp - ctx->params.initialTemp) /
                          ctx->params.rampRate;  // minutes
-    
+
+    // Declare variables used throughout the function
+    int result;
+    double eisStartTime, eisEndTime, eisDuration;
+
     LogMessage("Starting temperature ramp from %.1f to %.1f deg C",
                ctx->params.initialTemp, ctx->params.finalTemp);
     LogMessage("Ramp rate: %.1f deg C/min, Duration: %.1f minutes",
@@ -835,10 +839,10 @@ static int RunTemperatureRampWithEIS(TempRampExperimentContext *ctx) {
         // Set state for temperature monitor thread to work correctly
         ctx->state = TEMP_RAMP_STATE_EIS_MEASUREMENT;
 
-        double eisStartTime = Timer();
-        int result = PerformEISMeasurement(ctx);
-        double eisEndTime = Timer();
-        double eisDuration = eisEndTime - eisStartTime;
+        eisStartTime = Timer();
+        result = PerformEISMeasurement(ctx);
+        eisEndTime = Timer();
+        eisDuration = eisEndTime - eisStartTime;
 
         // Return to ramping state
         ctx->state = TEMP_RAMP_STATE_RAMPING;
