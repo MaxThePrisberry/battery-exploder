@@ -289,6 +289,10 @@ int CVICALLBACK SignalRunawayReachedCallback(int panel, int control, int event,
     LogMessage("Heating will be stopped, further EIS measurements will be skipped");
     LogMessage("Temperature monitoring will continue until cooldown to initial temperature");
 
+    // Update button label and disable it
+    SetCtrlAttribute(panel, control, ATTR_LABEL_TEXT, "Heating stopped, recording ongoing");
+    SetCtrlAttribute(panel, control, ATTR_DIMMED, 1);
+
     MessagePopup("Runaway Signaled",
                  "Runaway condition acknowledged.\n\n"
                  "Actions:\n"
@@ -571,10 +575,14 @@ cleanup:
     
     SetCtrlVal(ctx->tabPanelHandle, ctx->statusControl, finalStatus);
     SetCtrlVal(ctx->mainPanelHandle, PANEL_STR_PSB_STATUS, finalStatus);
-    
+
     SetCtrlAttribute(ctx->tabPanelHandle, ctx->buttonControl, ATTR_LABEL_TEXT, "Start");
     DimExperimentControls(ctx->mainPanelHandle, ctx->tabPanelHandle, 0, controls, numControls);
-    
+
+    // Reset runaway button to original state
+    SetCtrlAttribute(ctx->tabPanelHandle, RUNAWAY_BTN_SIGNAL_RUNAWAY, ATTR_LABEL_TEXT, "Signal Runaway Reached");
+    SetCtrlAttribute(ctx->tabPanelHandle, RUNAWAY_BTN_SIGNAL_RUNAWAY, ATTR_DIMMED, 0);
+
     CmtGetLock(g_busyLock);
     g_systemBusy = 0;
     CmtReleaseLock(g_busyLock);
