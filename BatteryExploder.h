@@ -88,10 +88,9 @@
 #define  RUNAWAY_STR_RWY_STATUS           8       /* control type: string, callback function: (none) */
 #define  RUNAWAY_TEMP_RAMP_NUM_OUTPUT     9       /* control type: numeric, callback function: (none) */
 #define  RUNAWAY_CBX_AUTO_TUNE            10      /* control type: radioButton, callback function: (none) */
-#define  RUNAWAY_CBX_CONT_TRAMP_EIS       11      /* control type: radioButton, callback function: (none) */
-#define  RUNAWAY_RING_RAMP_MODE           12      /* control type: ring, callback function: (none) */
-#define  RUNAWAY_CBX_ENABLE_EIS           13      /* control type: radioButton, callback function: (none) */
-                                                  /* NOTE: Checkbox must be added in CVI IDE and this ID updated if different */
+#define  RUNAWAY_CBX_ENABLE_EIS           11      /* control type: radioButton, callback function: (none) */
+#define  RUNAWAY_CBX_CONT_TRAMP_EIS       12      /* control type: radioButton, callback function: (none) */
+#define  RUNAWAY_RING_RAMP_MODE           13      /* control type: ring, callback function: (none) */
 
 
      /* Control Arrays: */
