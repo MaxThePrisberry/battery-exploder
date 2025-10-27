@@ -1358,14 +1358,17 @@ static int RunTemperatureRampWithEIS_V2(TempRampExperimentContext *ctx) {
             ctx->lastTempLogTime = currentTime;
         }
 
-        // Check program status to detect unexpected stops
-        DTB_ProgramStatus progStatus;
-        result = DTB_GetProgramStatusQueued(DTB1_SLAVE_ADDRESS, &progStatus, DEVICE_PRIORITY_NORMAL);
+        // Check program status to detect unexpected stops (only while still ramping)
+        // Once we've reached peak and are cooling, we expect the program to be stopped
+        if (!ctx->peakTempReached) {
+            DTB_ProgramStatus progStatus;
+            result = DTB_GetProgramStatusQueued(DTB1_SLAVE_ADDRESS, &progStatus, DEVICE_PRIORITY_NORMAL);
 
-        if (result == DTB_SUCCESS) {
-            if (progStatus.state == DTB_PROG_STATE_STOPPED) {
-                LogWarning("DTB program stopped unexpectedly");
-                return ERR_OPERATION_FAILED;
+            if (result == DTB_SUCCESS) {
+                if (progStatus.state == DTB_PROG_STATE_STOPPED) {
+                    LogWarning("DTB program stopped unexpectedly during ramp");
+                    return ERR_OPERATION_FAILED;
+                }
             }
         }
 
