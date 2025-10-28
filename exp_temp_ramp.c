@@ -207,7 +207,7 @@ int CVICALLBACK StartTempRampExperimentCallback(int panel, int control, int even
     }
     
     // Change button to "Stop"
-    SetCtrlAttribute(panel, control, ATTR_LABEL_TEXT, "Stop");
+    SetCtrlAttribute(panel, control, ATTR_LABEL_TEXT, "Stop Experiment");
     DimExperimentControls(g_mainPanelHandle, panel, 1, controls, numControls);
     
     // Start experiment thread
@@ -215,7 +215,7 @@ int CVICALLBACK StartTempRampExperimentCallback(int panel, int control, int even
                                             &g_experimentContext, &g_experimentThreadId);
     if (error != 0) {
         g_experimentContext.state = TEMP_RAMP_STATE_ERROR;
-        SetCtrlAttribute(panel, control, ATTR_LABEL_TEXT, "Start");
+        SetCtrlAttribute(panel, control, ATTR_LABEL_TEXT, "Start Experiment");
         DimExperimentControls(g_mainPanelHandle, panel, 0, controls, numControls);
         
         CmtGetLock(g_busyLock);
