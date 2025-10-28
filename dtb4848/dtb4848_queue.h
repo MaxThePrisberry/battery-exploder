@@ -64,10 +64,11 @@ typedef enum {
     DTB_CMD_SET_TEMPERATURE_LIMITS,
     DTB_CMD_SET_ALARM_LIMITS,
     DTB_CMD_SET_HEATING_COOLING,
+    DTB_CMD_SET_CONTROL_CYCLE,
     DTB_CMD_CONFIGURE,
     DTB_CMD_CONFIGURE_DEFAULT,
     DTB_CMD_FACTORY_RESET,
-    
+
     // Query commands
     DTB_CMD_GET_STATUS,
     DTB_CMD_GET_PROCESS_VALUE,
@@ -75,6 +76,7 @@ typedef enum {
     DTB_CMD_GET_TEMPERATURE_QUICK,
     DTB_CMD_GET_PID_PARAMS,
     DTB_CMD_GET_ALARM_STATUS,
+    DTB_CMD_GET_CONTROL_CYCLE,
     
     // Alarm commands
     DTB_CMD_CLEAR_ALARM,
@@ -136,6 +138,8 @@ typedef union {
     struct { int slaveAddress; int pidNumber; DTB_PIDParams pidParams; } setPidParams;
     struct { int slaveAddress; int lockMode; } frontPanelLock;
     struct { int slaveAddress; int mode; } heatingCooling;
+    struct { int slaveAddress; int outputNumber; int cycleTime; } setControlCycle;
+    struct { int slaveAddress; int outputNumber; } getControlCycle;
     struct { int slaveAddress; } getStatus;
     struct { int slaveAddress; } getProcessValue;
     struct { int slaveAddress; } getSetpoint;
@@ -192,6 +196,7 @@ typedef struct {
         int alarmActive;
         int frontPanelLockMode;
         int writeAccessEnabled;
+        int controlCycle;
         struct { unsigned char *rxData; int rxLength; } rawResponse;
 
         // Ramp-Soak results
@@ -300,6 +305,8 @@ int DTB_SetSensorTypeQueued(int slaveAddress, int sensorType, DevicePriority pri
 int DTB_SetTemperatureLimitsQueued(int slaveAddress, double upperLimit, double lowerLimit, DevicePriority priority);
 int DTB_SetAlarmLimitsQueued(int slaveAddress, double upperLimit, double lowerLimit, DevicePriority priority);
 int DTB_SetHeatingCoolingQueued(int slaveAddress, int mode, DevicePriority priority);
+int DTB_GetControlCycleQueued(int slaveAddress, int outputNumber, int *cycleTime, DevicePriority priority);
+int DTB_SetControlCycleQueued(int slaveAddress, int outputNumber, int cycleTime, DevicePriority priority);
 int DTB_ConfigureQueued(int slaveAddress, const DTB_Configuration *config, DevicePriority priority);
 int DTB_ConfigureDefaultQueued(int slaveAddress, DevicePriority priority);
 int DTB_FactoryResetQueued(int slaveAddress, DevicePriority priority);

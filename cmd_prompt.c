@@ -419,6 +419,98 @@ static int DTBCommandManager(CommandContext *ctx) {
 		} else {
 			LogPromptTextbox(CMD_ERROR, "Invalid PID command. Use: PID?, PIDP<val>, PIDI<val>, PIDD<val>, or PIDX<val>");
 		}
+	} else if (strncmp(ctx->command, "HCP", 3) == 0) {
+		// HCP commands: HCP?, HCP1<val>, HCP2<val> (Heating Control Period / cycle time)
+
+		if (strcmp(ctx->command, "HCP?") == 0) {
+			// Read and display control cycle times for both outputs
+			int cycle1, cycle2;
+			int error1 = DTB_GetControlCycleQueued(slaveAddress, 1, &cycle1, DEVICE_PRIORITY_HIGH);
+			int error2 = DTB_GetControlCycleQueued(slaveAddress, 2, &cycle2, DEVICE_PRIORITY_HIGH);
+
+			if (error1 != SUCCESS) {
+				char message[1024];
+				snprintf(message, 1024, "Failed to read output 1 control cycle: %d : %s", error1, GetErrorString(error1));
+				LogPromptTextbox(CMD_ERROR, message);
+				return -1;
+			}
+
+			if (error2 != SUCCESS) {
+				char message[1024];
+				snprintf(message, 1024, "Failed to read output 2 control cycle: %d : %s", error2, GetErrorString(error2));
+				LogPromptTextbox(CMD_ERROR, message);
+				return -1;
+			}
+
+			char message[1024];
+			const char *time1Str = (cycle1 == 0) ? "0.5" : "";
+			const char *time2Str = (cycle2 == 0) ? "0.5" : "";
+			if (cycle1 == 0 && cycle2 == 0) {
+				snprintf(message, 1024, "Control Cycles: OUT1=0.5s, OUT2=0.5s");
+			} else if (cycle1 == 0) {
+				snprintf(message, 1024, "Control Cycles: OUT1=0.5s, OUT2=%ds", cycle2);
+			} else if (cycle2 == 0) {
+				snprintf(message, 1024, "Control Cycles: OUT1=%ds, OUT2=0.5s", cycle1);
+			} else {
+				snprintf(message, 1024, "Control Cycles: OUT1=%ds, OUT2=%ds", cycle1, cycle2);
+			}
+			LogPromptTextbox(CMD_OUTPUT, message);
+
+		} else if (ctx->commandLength >= 5 && ctx->command[3] == '1') {
+			// Set output 1 control cycle: HCP1<value>
+			int value = atoi(&ctx->command[4]);
+
+			if (value < 0 || value > 99) {
+				LogPromptTextbox(CMD_ERROR, "Control cycle must be 0-99 (0 = 0.5 sec)");
+				return -1;
+			}
+
+			int error = DTB_SetControlCycleQueued(slaveAddress, 1, value, DEVICE_PRIORITY_HIGH);
+
+			if (error != SUCCESS) {
+				char message[1024];
+				snprintf(message, 1024, "Failed to set control cycle: %d : %s", error, GetErrorString(error));
+				LogPromptTextbox(CMD_ERROR, message);
+				return -1;
+			}
+
+			char message[1024];
+			if (value == 0) {
+				snprintf(message, 1024, "Output 1 control cycle set to 0.5 seconds");
+			} else {
+				snprintf(message, 1024, "Output 1 control cycle set to %d seconds", value);
+			}
+			LogPromptTextbox(CMD_OUTPUT, message);
+
+		} else if (ctx->commandLength >= 5 && ctx->command[3] == '2') {
+			// Set output 2 control cycle: HCP2<value>
+			int value = atoi(&ctx->command[4]);
+
+			if (value < 0 || value > 99) {
+				LogPromptTextbox(CMD_ERROR, "Control cycle must be 0-99 (0 = 0.5 sec)");
+				return -1;
+			}
+
+			int error = DTB_SetControlCycleQueued(slaveAddress, 2, value, DEVICE_PRIORITY_HIGH);
+
+			if (error != SUCCESS) {
+				char message[1024];
+				snprintf(message, 1024, "Failed to set control cycle: %d : %s", error, GetErrorString(error));
+				LogPromptTextbox(CMD_ERROR, message);
+				return -1;
+			}
+
+			char message[1024];
+			if (value == 0) {
+				snprintf(message, 1024, "Output 2 control cycle set to 0.5 seconds");
+			} else {
+				snprintf(message, 1024, "Output 2 control cycle set to %d seconds", value);
+			}
+			LogPromptTextbox(CMD_OUTPUT, message);
+
+		} else {
+			LogPromptTextbox(CMD_ERROR, "Invalid HCP command. Use: HCP?, HCP1<val>, or HCP2<val> (0-99, 0=0.5s)");
+		}
 	} else {
 		LogPromptTextbox(CMD_ERROR, "Invalid DTB command.");
 	}

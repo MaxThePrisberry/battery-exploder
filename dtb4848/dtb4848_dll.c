@@ -797,10 +797,54 @@ int DTB_SetTemperatureLimits(DTB_Handle *handle, double upperLimit, double lower
 int DTB_SetHeatingCooling(DTB_Handle *handle, int mode) {
     if (!handle || !handle->isConnected) return DTB_ERROR_NOT_CONNECTED;
     if (mode < 0 || mode > 3) return DTB_ERROR_INVALID_PARAM;
-    
+
     LogMessageEx(LOG_DEVICE_DTB, "Setting heating/cooling mode: %d", mode);
-    
+
     return DTB_WriteRegister(handle, REG_HEATING_COOLING, (unsigned short)mode);
+}
+
+/******************************************************************************
+ * Control Cycle Functions
+ ******************************************************************************/
+
+int DTB_GetControlCycle(DTB_Handle *handle, int outputNumber, int *cycleTime) {
+    if (!handle || !handle->isConnected) return DTB_ERROR_NOT_CONNECTED;
+    if (!cycleTime) return DTB_ERROR_INVALID_PARAM;
+    if (outputNumber < 1 || outputNumber > 2) return DTB_ERROR_INVALID_PARAM;
+
+    unsigned short reg = (outputNumber == 1) ? REG_CONTROL_CYCLE_1 : REG_CONTROL_CYCLE_2;
+    unsigned short value;
+    int result = DTB_ReadRegister(handle, reg, &value);
+
+    if (result == DTB_SUCCESS) {
+        // Convert from register value to seconds
+        // Register value 0 = 0.5 sec, 1-99 = actual seconds
+        *cycleTime = (int)value;
+
+        if (value == 0) {
+            LogMessageEx(LOG_DEVICE_DTB, "Output %d control cycle: 0 (0.5 seconds)", outputNumber);
+        } else {
+            LogMessageEx(LOG_DEVICE_DTB, "Output %d control cycle: %d seconds", outputNumber, *cycleTime);
+        }
+    }
+
+    return result;
+}
+
+int DTB_SetControlCycle(DTB_Handle *handle, int outputNumber, int cycleTime) {
+    if (!handle || !handle->isConnected) return DTB_ERROR_NOT_CONNECTED;
+    if (outputNumber < 1 || outputNumber > 2) return DTB_ERROR_INVALID_PARAM;
+    if (cycleTime < 0 || cycleTime > 99) return DTB_ERROR_INVALID_PARAM;
+
+    unsigned short reg = (outputNumber == 1) ? REG_CONTROL_CYCLE_1 : REG_CONTROL_CYCLE_2;
+
+    if (cycleTime == 0) {
+        LogMessageEx(LOG_DEVICE_DTB, "Setting output %d control cycle to 0 (0.5 seconds)", outputNumber);
+    } else {
+        LogMessageEx(LOG_DEVICE_DTB, "Setting output %d control cycle to %d seconds", outputNumber, cycleTime);
+    }
+
+    return DTB_WriteRegister(handle, reg, (unsigned short)cycleTime);
 }
 
 /******************************************************************************

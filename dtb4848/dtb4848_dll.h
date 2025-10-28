@@ -287,6 +287,10 @@ int DTB_SetSensorType(DTB_Handle *handle, int sensorType);
 int DTB_SetTemperatureLimits(DTB_Handle *handle, double upperLimit, double lowerLimit);
 int DTB_SetHeatingCooling(DTB_Handle *handle, int mode);
 
+// Control Cycle Functions
+int DTB_GetControlCycle(DTB_Handle *handle, int outputNumber, int *cycleTime);
+int DTB_SetControlCycle(DTB_Handle *handle, int outputNumber, int cycleTime);
+
 // Front Panel Lock Functions
 int DTB_SetFrontPanelLock(DTB_Handle *handle, int lockMode);
 int DTB_GetFrontPanelLock(DTB_Handle *handle, int *lockMode);

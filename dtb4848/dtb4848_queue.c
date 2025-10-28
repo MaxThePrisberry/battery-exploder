@@ -27,6 +27,7 @@ static const char* g_commandTypeNames[] = {
     "SET_TEMPERATURE_LIMITS",
     "SET_ALARM_LIMITS",
     "SET_HEATING_COOLING",
+    "SET_CONTROL_CYCLE",
     "CONFIGURE",
     "CONFIGURE_DEFAULT",
     "FACTORY_RESET",
@@ -36,6 +37,7 @@ static const char* g_commandTypeNames[] = {
     "GET_TEMPERATURE_QUICK",
     "GET_PID_PARAMS",
     "GET_ALARM_STATUS",
+    "GET_CONTROL_CYCLE",
     "CLEAR_ALARM",
     "SET_FRONT_PANEL_LOCK",
     "GET_FRONT_PANEL_LOCK",
@@ -340,7 +342,19 @@ static int DTB_AdapterExecuteCommand(void *deviceContext, int commandType, void 
         case DTB_CMD_SET_HEATING_COOLING:
             cmdResult->errorCode = DTB_SetHeatingCooling(handle, cmdParams->heatingCooling.mode);
             break;
-            
+
+        case DTB_CMD_GET_CONTROL_CYCLE:
+            cmdResult->errorCode = DTB_GetControlCycle(handle,
+                cmdParams->getControlCycle.outputNumber,
+                &cmdResult->data.controlCycle);
+            break;
+
+        case DTB_CMD_SET_CONTROL_CYCLE:
+            cmdResult->errorCode = DTB_SetControlCycle(handle,
+                cmdParams->setControlCycle.outputNumber,
+                cmdParams->setControlCycle.cycleTime);
+            break;
+
         case DTB_CMD_CONFIGURE:
             cmdResult->errorCode = DTB_Configure(handle, &cmdParams->configure.config);
             break;
@@ -1021,11 +1035,40 @@ int DTB_SetAlarmLimitsQueued(int slaveAddress, double upperLimit, double lowerLi
 
 int DTB_SetHeatingCoolingQueued(int slaveAddress, int mode, DevicePriority priority) {
     if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
-    
+
     DTBCommandParams params = {.heatingCooling = {slaveAddress, mode}};
     DTBCommandResult result;
-    
+
     return DTB_QueueCommandBlocking(g_dtbQueueManager, DTB_CMD_SET_HEATING_COOLING,
+                                  &params, priority, &result,
+                                  DTB_QUEUE_COMMAND_TIMEOUT_MS);
+}
+
+int DTB_GetControlCycleQueued(int slaveAddress, int outputNumber, int *cycleTime, DevicePriority priority) {
+    if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
+    if (!cycleTime) return ERR_NULL_POINTER;
+
+    DTBCommandParams params = {.getControlCycle = {slaveAddress, outputNumber}};
+    DTBCommandResult result;
+
+    int error = DTB_QueueCommandBlocking(g_dtbQueueManager, DTB_CMD_GET_CONTROL_CYCLE,
+                                        &params, priority, &result,
+                                        DTB_QUEUE_COMMAND_TIMEOUT_MS);
+
+    if (error == SUCCESS) {
+        *cycleTime = result.data.controlCycle;
+    }
+
+    return error;
+}
+
+int DTB_SetControlCycleQueued(int slaveAddress, int outputNumber, int cycleTime, DevicePriority priority) {
+    if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
+
+    DTBCommandParams params = {.setControlCycle = {slaveAddress, outputNumber, cycleTime}};
+    DTBCommandResult result;
+
+    return DTB_QueueCommandBlocking(g_dtbQueueManager, DTB_CMD_SET_CONTROL_CYCLE,
                                   &params, priority, &result,
                                   DTB_QUEUE_COMMAND_TIMEOUT_MS);
 }
@@ -1909,6 +1952,7 @@ int DTB_QueueGetCommandDelay(DTBCommandType type) {
         case DTB_CMD_SET_ALARM_LIMITS:
         case DTB_CMD_SET_FRONT_PANEL_LOCK:
         case DTB_CMD_SET_PID_PARAMS:
+        case DTB_CMD_SET_CONTROL_CYCLE:
             return DTB_DELAY_AFTER_WRITE_REGISTER;
 
         case DTB_CMD_FACTORY_RESET:
@@ -1921,6 +1965,7 @@ int DTB_QueueGetCommandDelay(DTBCommandType type) {
         case DTB_CMD_GET_PID_PARAMS:
         case DTB_CMD_GET_ALARM_STATUS:
         case DTB_CMD_GET_FRONT_PANEL_LOCK:
+        case DTB_CMD_GET_CONTROL_CYCLE:
             return DTB_DELAY_AFTER_READ;
 
         case DTB_CMD_CLEAR_ALARM:
