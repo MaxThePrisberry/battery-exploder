@@ -848,6 +848,28 @@ int DTB_SetControlCycle(DTB_Handle *handle, int outputNumber, int cycleTime) {
 }
 
 /******************************************************************************
+ * Output Value Functions
+ ******************************************************************************/
+
+int DTB_GetOutputValue(DTB_Handle *handle, int outputNumber, double *outputPercent) {
+    if (!handle || !handle->isConnected) return DTB_ERROR_NOT_CONNECTED;
+    if (!outputPercent) return DTB_ERROR_INVALID_PARAM;
+    if (outputNumber < 1 || outputNumber > 2) return DTB_ERROR_INVALID_PARAM;
+
+    unsigned short reg = (outputNumber == 1) ? REG_OUTPUT_VALUE_1 : REG_OUTPUT_VALUE_2;
+    unsigned short value;
+    int result = DTB_ReadRegister(handle, reg, &value);
+
+    if (result == DTB_SUCCESS) {
+        // Register value is in units of 0.1% (0-1000 = 0.0%-100.0%)
+        *outputPercent = value / 10.0;
+        LogMessageEx(LOG_DEVICE_DTB, "Output %d value: %.1f%%", outputNumber, *outputPercent);
+    }
+
+    return result;
+}
+
+/******************************************************************************
  * Front Panel Lock Functions
  ******************************************************************************/
 

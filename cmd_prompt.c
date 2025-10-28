@@ -511,6 +511,36 @@ static int DTBCommandManager(CommandContext *ctx) {
 		} else {
 			LogPromptTextbox(CMD_ERROR, "Invalid HCP command. Use: HCP?, HCP1<val>, or HCP2<val> (0-99, 0=0.5s)");
 		}
+	} else if (strncmp(ctx->command, "OUT", 3) == 0) {
+		// OUT commands: OUT? (read output percentages for both outputs)
+
+		if (strcmp(ctx->command, "OUT?") == 0) {
+			// Read and display output percentages for both outputs
+			double output1, output2;
+			int error1 = DTB_GetOutputValueQueued(slaveAddress, 1, &output1, DEVICE_PRIORITY_HIGH);
+			int error2 = DTB_GetOutputValueQueued(slaveAddress, 2, &output2, DEVICE_PRIORITY_HIGH);
+
+			if (error1 != SUCCESS) {
+				char message[1024];
+				snprintf(message, 1024, "Failed to read output 1 value: %d : %s", error1, GetErrorString(error1));
+				LogPromptTextbox(CMD_ERROR, message);
+				return -1;
+			}
+
+			if (error2 != SUCCESS) {
+				char message[1024];
+				snprintf(message, 1024, "Failed to read output 2 value: %d : %s", error2, GetErrorString(error2));
+				LogPromptTextbox(CMD_ERROR, message);
+				return -1;
+			}
+
+			char message[1024];
+			snprintf(message, 1024, "Output Values: OUT1=%.1f%%, OUT2=%.1f%%", output1, output2);
+			LogPromptTextbox(CMD_OUTPUT, message);
+
+		} else {
+			LogPromptTextbox(CMD_ERROR, "Invalid OUT command. Use: OUT? to read output percentages");
+		}
 	} else {
 		LogPromptTextbox(CMD_ERROR, "Invalid DTB command.");
 	}

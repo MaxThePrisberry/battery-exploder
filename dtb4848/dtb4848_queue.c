@@ -38,6 +38,7 @@ static const char* g_commandTypeNames[] = {
     "GET_PID_PARAMS",
     "GET_ALARM_STATUS",
     "GET_CONTROL_CYCLE",
+    "GET_OUTPUT_VALUE",
     "CLEAR_ALARM",
     "SET_FRONT_PANEL_LOCK",
     "GET_FRONT_PANEL_LOCK",
@@ -400,7 +401,13 @@ static int DTB_AdapterExecuteCommand(void *deviceContext, int commandType, void 
         case DTB_CMD_GET_ALARM_STATUS:
             cmdResult->errorCode = DTB_GetAlarmStatus(handle, &cmdResult->data.alarmActive);
             break;
-            
+
+        case DTB_CMD_GET_OUTPUT_VALUE:
+            cmdResult->errorCode = DTB_GetOutputValue(handle,
+                cmdParams->getOutputValue.outputNumber,
+                &cmdResult->data.outputPercent);
+            break;
+
         case DTB_CMD_CLEAR_ALARM:
             cmdResult->errorCode = DTB_ClearAlarm(handle);
             break;
@@ -1210,17 +1217,35 @@ int DTB_SetPIDParamsQueued(int slaveAddress, int pidNumber, const DTB_PIDParams 
 int DTB_GetAlarmStatusQueued(int slaveAddress, int *alarmActive, DevicePriority priority) {
     if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
     if (!alarmActive) return ERR_NULL_POINTER;
-    
+
     DTBCommandParams params = {.getAlarmStatus = {slaveAddress}};
     DTBCommandResult result;
-    
+
     int error = DTB_QueueCommandBlocking(g_dtbQueueManager, DTB_CMD_GET_ALARM_STATUS,
                                        &params, priority, &result,
                                        DTB_QUEUE_COMMAND_TIMEOUT_MS);
-    
+
     if (error == DTB_SUCCESS) {
         *alarmActive = result.data.alarmActive;
     }
+    return error;
+}
+
+int DTB_GetOutputValueQueued(int slaveAddress, int outputNumber, double *outputPercent, DevicePriority priority) {
+    if (!g_dtbQueueManager) return ERR_QUEUE_NOT_INIT;
+    if (!outputPercent) return ERR_NULL_POINTER;
+
+    DTBCommandParams params = {.getOutputValue = {slaveAddress, outputNumber}};
+    DTBCommandResult result;
+
+    int error = DTB_QueueCommandBlocking(g_dtbQueueManager, DTB_CMD_GET_OUTPUT_VALUE,
+                                        &params, priority, &result,
+                                        DTB_QUEUE_COMMAND_TIMEOUT_MS);
+
+    if (error == SUCCESS) {
+        *outputPercent = result.data.outputPercent;
+    }
+
     return error;
 }
 
@@ -1966,6 +1991,7 @@ int DTB_QueueGetCommandDelay(DTBCommandType type) {
         case DTB_CMD_GET_ALARM_STATUS:
         case DTB_CMD_GET_FRONT_PANEL_LOCK:
         case DTB_CMD_GET_CONTROL_CYCLE:
+        case DTB_CMD_GET_OUTPUT_VALUE:
             return DTB_DELAY_AFTER_READ;
 
         case DTB_CMD_CLEAR_ALARM:

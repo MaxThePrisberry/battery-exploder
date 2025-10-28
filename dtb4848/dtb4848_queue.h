@@ -77,6 +77,7 @@ typedef enum {
     DTB_CMD_GET_PID_PARAMS,
     DTB_CMD_GET_ALARM_STATUS,
     DTB_CMD_GET_CONTROL_CYCLE,
+    DTB_CMD_GET_OUTPUT_VALUE,
     
     // Alarm commands
     DTB_CMD_CLEAR_ALARM,
@@ -140,6 +141,7 @@ typedef union {
     struct { int slaveAddress; int mode; } heatingCooling;
     struct { int slaveAddress; int outputNumber; int cycleTime; } setControlCycle;
     struct { int slaveAddress; int outputNumber; } getControlCycle;
+    struct { int slaveAddress; int outputNumber; } getOutputValue;
     struct { int slaveAddress; } getStatus;
     struct { int slaveAddress; } getProcessValue;
     struct { int slaveAddress; } getSetpoint;
@@ -197,6 +199,7 @@ typedef struct {
         int frontPanelLockMode;
         int writeAccessEnabled;
         int controlCycle;
+        double outputPercent;
         struct { unsigned char *rxData; int rxLength; } rawResponse;
 
         // Ramp-Soak results
@@ -319,6 +322,7 @@ int DTB_GetTemperatureQuickQueued(int slaveAddress, double *temperature, double 
 int DTB_GetPIDParamsQueued(int slaveAddress, int pidNumber, DTB_PIDParams *params, DevicePriority priority);
 int DTB_SetPIDParamsQueued(int slaveAddress, int pidNumber, const DTB_PIDParams *params, DevicePriority priority);
 int DTB_GetAlarmStatusQueued(int slaveAddress, int *alarmActive, DevicePriority priority);
+int DTB_GetOutputValueQueued(int slaveAddress, int outputNumber, double *outputPercent, DevicePriority priority);
 
 // Alarm functions
 int DTB_ClearAlarmQueued(int slaveAddress, DevicePriority priority);

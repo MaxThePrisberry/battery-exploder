@@ -58,6 +58,8 @@
 #define REG_DERIVATIVE_TIME         0x100B
 #define REG_INTEGRAL_DEFAULT        0x100C
 #define REG_PD_OFFSET               0x100D
+#define REG_OUTPUT_VALUE_1          0x1012
+#define REG_OUTPUT_VALUE_2          0x1013
 #define REG_HYSTERESIS_HEAT         0x1010
 #define REG_HYSTERESIS_COOL         0x1011
 #define REG_TEMP_REGULATION         0x1016
@@ -290,6 +292,9 @@ int DTB_SetHeatingCooling(DTB_Handle *handle, int mode);
 // Control Cycle Functions
 int DTB_GetControlCycle(DTB_Handle *handle, int outputNumber, int *cycleTime);
 int DTB_SetControlCycle(DTB_Handle *handle, int outputNumber, int cycleTime);
+
+// Output Value Functions
+int DTB_GetOutputValue(DTB_Handle *handle, int outputNumber, double *outputPercent);
 
 // Front Panel Lock Functions
 int DTB_SetFrontPanelLock(DTB_Handle *handle, int lockMode);
