@@ -391,8 +391,7 @@ static int TempRampExperimentThread(void *functionData) {
                 ctx->params.eisInterval, ctx->params.eisInterval,
                 expectedMeasurements);
     } else {
-        snprintf(formattedMessage, sizeof(formattedMessage), message,
-                "", "");  // Empty strings for conditional parts
+        snprintf(formattedMessage, sizeof(formattedMessage), message);  // Empty strings for conditional parts
     }
     
     int response = ConfirmPopup(ctx->params.enableEIS ?

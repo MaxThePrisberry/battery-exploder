@@ -22,12 +22,12 @@
 #define MAX_ALICAT_DEVICES          16
 
 // Command delays (milliseconds)
-#define ALICAT_DELAY_AFTER_WRITE        50   // After write register
-#define ALICAT_DELAY_AFTER_READ         20   // After read operations
+#define ALICAT_DELAY_AFTER_WRITE        10   // After write register
+#define ALICAT_DELAY_AFTER_READ         10   // After read operations
 #define ALICAT_DELAY_SETPOINT_CHANGE   100   // After setpoint change
-#define ALICAT_DELAY_CONFIG_CHANGE     200   // After configuration changes
-#define ALICAT_DELAY_TARE              500   // After tare command
-#define ALICAT_DELAY_RECOVERY           30   // General recovery between commands
+#define ALICAT_DELAY_CONFIG_CHANGE     100   // After configuration changes
+#define ALICAT_DELAY_TARE              100   // After tare command
+#define ALICAT_DELAY_RECOVERY           20   // General recovery between commands
 
 /******************************************************************************
  * Type Definitions

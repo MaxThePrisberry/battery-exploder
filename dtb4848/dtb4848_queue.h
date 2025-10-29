@@ -22,13 +22,13 @@
 #define MAX_DTB_DEVICES             4
 
 // Command delays (milliseconds)
-#define DTB_DELAY_AFTER_WRITE_BIT       50    // After write single bit (run/stop, auto-tune)
-#define DTB_DELAY_AFTER_WRITE_REGISTER  50    // After write register
-#define DTB_DELAY_AFTER_READ            50    // After read operations
-#define DTB_DELAY_STATE_CHANGE          500   // After run/stop state change
-#define DTB_DELAY_SETPOINT_CHANGE       200   // After temperature setpoint change
-#define DTB_DELAY_CONFIG_CHANGE         300   // After configuration changes (PID mode, control method)
-#define DTB_DELAY_RECOVERY              50    // General recovery between commands
+#define DTB_DELAY_AFTER_WRITE_BIT       5    // After write single bit (run/stop, auto-tune)
+#define DTB_DELAY_AFTER_WRITE_REGISTER  20    // After write register
+#define DTB_DELAY_AFTER_READ            20    // After read operations
+#define DTB_DELAY_STATE_CHANGE          100   // After run/stop state change
+#define DTB_DELAY_SETPOINT_CHANGE       100   // After temperature setpoint change
+#define DTB_DELAY_CONFIG_CHANGE         100   // After configuration changes (PID mode, control method)
+#define DTB_DELAY_RECOVERY              10    // General recovery between commands
 
 /******************************************************************************
  * Type Definitions
