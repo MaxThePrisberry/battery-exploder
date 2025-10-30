@@ -1,0 +1,509 @@
+/******************************************************************************
+ * biologic_eclab.c
+ *
+ * Implementation of EC-Lab technique interface
+ *
+ * This file implements the high-level technique API using EC-Lab OLE COM
+ * automation. It handles the workflow of loading settings, running experiments,
+ * monitoring status, and converting data to the standard format.
+ ******************************************************************************/
+
+#include "biologic_eclab.h"
+#include "logging.h"
+#include <time.h>
+
+/******************************************************************************
+ * Module State
+ ******************************************************************************/
+
+static ECLAB_Config g_config = {0};
+static bool g_initialized = false;
+
+/******************************************************************************
+ * Internal Helper Functions
+ ******************************************************************************/
+
+/**
+ * Build full path to .mps template file
+ */
+static void BuildMpsPath(const char *templateName, char *fullPath, size_t maxLen) {
+    snprintf(fullPath, maxLen, "%s\\%s", g_config.settingsDir, templateName);
+}
+
+/**
+ * Build full path to .mpr output file
+ */
+static void BuildMprPath(const char *mprFilename, char *fullPath, size_t maxLen) {
+    snprintf(fullPath, maxLen, "%s\\%s", g_config.dataDir, mprFilename);
+}
+
+/**
+ * Monitor measurement until complete or timeout
+ *
+ * Polls MeasureStatus every 500ms and calls progress callback.
+ * Returns when status changes to STOP or timeout occurs.
+ */
+static int MonitorMeasurement(int timeout_ms,
+                             BioTechniqueProgressCallback progressCallback,
+                             void *userData,
+                             volatile int *cancelled,
+                             ECLAB_Status *finalStatus) {
+    if (!g_config.conn) return ECLAB_ERR_INVALID_CONNECTION;
+
+    double startTime = Timer();
+    double lastCallbackTime = startTime;
+    int pollCount = 0;
+
+    LogMessageEx(LOG_DEVICE_BIO, "Monitoring measurement (timeout: %d ms)", timeout_ms);
+
+    while (1) {
+        // Check cancellation
+        if (cancelled && *cancelled) {
+            LogMessageEx(LOG_DEVICE_BIO, "Measurement cancelled by user");
+            ECLAB_StopChannel(g_config.conn, g_config.deviceNumber, g_config.channelNumber);
+            return BIO_ERR_TECHNIQUE_CANCELLED;
+        }
+
+        // Check timeout
+        double elapsed = (Timer() - startTime) * 1000.0;
+        if (elapsed > timeout_ms) {
+            LogErrorEx(LOG_DEVICE_BIO, "Measurement timeout after %.1f seconds", elapsed / 1000.0);
+            ECLAB_StopChannel(g_config.conn, g_config.deviceNumber, g_config.channelNumber);
+            return BIO_ERR_TECHNIQUE_TIMEOUT;
+        }
+
+        // Get status
+        ECLAB_Status status;
+        int result = ECLAB_MeasureStatus(g_config.conn, g_config.deviceNumber,
+                                        g_config.channelNumber, &status);
+
+        if (result != SUCCESS) {
+            LogWarningEx(LOG_DEVICE_BIO, "Failed to get status: %s", ECLAB_GetErrorString(result));
+            Delay(0.5);
+            continue;
+        }
+
+        // Log status periodically
+        if (pollCount % 10 == 0) {  // Every 5 seconds
+            LogDebugEx(LOG_DEVICE_BIO,
+                      "Status: %d, Technique: %d, Time: %.1f s, Points: %d",
+                      status.status, status.techniqueCode, status.time,
+                      status.totalPointIndex);
+        }
+        pollCount++;
+
+        // Call progress callback (throttled to once per second)
+        if (progressCallback && (Timer() - lastCallbackTime) >= 1.0) {
+            progressCallback(status.time, status.totalPointIndex, userData);
+            lastCallbackTime = Timer();
+        }
+
+        // Check if measurement is complete
+        if (status.status == ECLAB_STATUS_STOP) {
+            LogMessageEx(LOG_DEVICE_BIO, "Measurement completed (%.1f s, %d points)",
+                        status.time, status.totalPointIndex);
+            if (finalStatus) {
+                *finalStatus = status;
+            }
+            return SUCCESS;
+        }
+
+        // Check for disconnection
+        if (status.connection == ECLAB_CONN_DISCONNECTED) {
+            LogErrorEx(LOG_DEVICE_BIO, "Device disconnected during measurement");
+            return ECLAB_ERR_NOT_CONNECTED;
+        }
+
+        // Check for safety limits
+        if (status.safetyLimit != ECLAB_SAFETY_OK) {
+            LogWarningEx(LOG_DEVICE_BIO, "Safety limit triggered: %d", status.safetyLimit);
+        }
+
+        // Wait before next poll
+        Delay(0.5);
+    }
+
+    return SUCCESS;
+}
+
+/******************************************************************************
+ * Initialization and Shutdown
+ ******************************************************************************/
+
+int BIO_ECLAB_Init(const ECLAB_Config *config) {
+    if (!config) return ERR_NULL_POINTER;
+    if (g_initialized) return ERR_ALREADY_INITIALIZED;
+
+    LogMessageEx(LOG_DEVICE_BIO, "Initializing EC-Lab backend");
+    LogMessageEx(LOG_DEVICE_BIO, "  Settings dir: %s", config->settingsDir);
+    LogMessageEx(LOG_DEVICE_BIO, "  Data dir: %s", config->dataDir);
+    LogMessageEx(LOG_DEVICE_BIO, "  Device: %d, Channel: %d",
+                config->deviceNumber, config->channelNumber);
+
+    // Copy configuration
+    memcpy(&g_config, config, sizeof(ECLAB_Config));
+
+    // Verify directories exist
+    if (GetFileAttributesA(g_config.settingsDir) == INVALID_FILE_ATTRIBUTES) {
+        LogWarningEx(LOG_DEVICE_BIO, "Settings directory does not exist: %s", g_config.settingsDir);
+        LogWarningEx(LOG_DEVICE_BIO, "Please create it and add .mps template files");
+    }
+
+    if (GetFileAttributesA(g_config.dataDir) == INVALID_FILE_ATTRIBUTES) {
+        LogWarningEx(LOG_DEVICE_BIO, "Data directory does not exist: %s", g_config.dataDir);
+        LogMessageEx(LOG_DEVICE_BIO, "Creating data directory...");
+        if (!CreateDirectoryA(g_config.dataDir, NULL)) {
+            LogErrorEx(LOG_DEVICE_BIO, "Failed to create data directory");
+            return ERR_OPERATION_FAILED;
+        }
+    }
+
+    // Initialize EC-Lab OLE COM connection
+    int result = ECLAB_Initialize(&g_config.conn, g_config.dataDir);
+    if (result != SUCCESS) {
+        LogErrorEx(LOG_DEVICE_BIO, "Failed to initialize EC-Lab: %s",
+                  ECLAB_GetErrorString(result));
+        return result;
+    }
+
+    // Connect to device
+    result = ECLAB_ConnectDevice(g_config.conn, g_config.deviceNumber);
+    if (result != SUCCESS) {
+        LogErrorEx(LOG_DEVICE_BIO, "Failed to connect to device: %s",
+                  ECLAB_GetErrorString(result));
+        ECLAB_Shutdown(g_config.conn);
+        g_config.conn = NULL;
+        return result;
+    }
+
+    // Disable EC-Lab message windows for automated operation
+    ECLAB_EnableMessagesWindows(g_config.conn, false);
+
+    g_initialized = true;
+
+    LogMessageEx(LOG_DEVICE_BIO, "EC-Lab backend initialized successfully");
+    return SUCCESS;
+}
+
+void BIO_ECLAB_Shutdown(void) {
+    if (!g_initialized) return;
+
+    LogMessageEx(LOG_DEVICE_BIO, "Shutting down EC-Lab backend");
+
+    if (g_config.conn) {
+        ECLAB_Shutdown(g_config.conn);
+        g_config.conn = NULL;
+    }
+
+    memset(&g_config, 0, sizeof(g_config));
+    g_initialized = false;
+
+    LogMessageEx(LOG_DEVICE_BIO, "EC-Lab backend shutdown complete");
+}
+
+bool BIO_ECLAB_IsInitialized(void) {
+    return g_initialized;
+}
+
+int BIO_ECLAB_GetConfig(ECLAB_Config *config) {
+    if (!config) return ERR_NULL_POINTER;
+    if (!g_initialized) return ERR_NOT_INITIALIZED;
+
+    memcpy(config, &g_config, sizeof(ECLAB_Config));
+    return SUCCESS;
+}
+
+/******************************************************************************
+ * Technique Functions
+ ******************************************************************************/
+
+int BIO_ECLAB_RunOCV(const char *mpsFilePath,
+                     const char *outputMprPath,
+                     BIO_TechniqueData **result,
+                     int timeout_ms,
+                     BioTechniqueProgressCallback progressCallback,
+                     void *userData,
+                     volatile int *cancelled) {
+    if (!result) return ERR_NULL_POINTER;
+    if (!g_initialized) return ERR_NOT_INITIALIZED;
+
+    LogMessageEx(LOG_DEVICE_BIO, "Starting OCV measurement via EC-Lab");
+
+    // Build paths
+    char mpsPath[MAX_PATH];
+    char mprPath[MAX_PATH];
+
+    if (mpsFilePath) {
+        strncpy(mpsPath, mpsFilePath, MAX_PATH - 1);
+    } else {
+        BuildMpsPath(g_config.ocvTemplate, mpsPath, MAX_PATH);
+    }
+
+    if (outputMprPath) {
+        strncpy(mprPath, outputMprPath, MAX_PATH - 1);
+    } else {
+        char filename[MAX_PATH];
+        BIO_ECLAB_GenerateMprFilename(BIO_TECHNIQUE_OCV, filename);
+        BuildMprPath(filename, mprPath, MAX_PATH);
+    }
+
+    LogMessageEx(LOG_DEVICE_BIO, "  Settings: %s", mpsPath);
+    LogMessageEx(LOG_DEVICE_BIO, "  Output: %s", mprPath);
+
+    // Load settings
+    int ret = ECLAB_LoadSettings(g_config.conn, g_config.deviceNumber,
+                                 g_config.channelNumber, mpsPath);
+    if (ret != SUCCESS) {
+        LogErrorEx(LOG_DEVICE_BIO, "Failed to load settings: %s", ECLAB_GetErrorString(ret));
+        return ret;
+    }
+
+    // Start measurement
+    ret = ECLAB_RunChannel(g_config.conn, g_config.deviceNumber,
+                          g_config.channelNumber, mprPath);
+    if (ret != SUCCESS) {
+        LogErrorEx(LOG_DEVICE_BIO, "Failed to start measurement: %s", ECLAB_GetErrorString(ret));
+        return ret;
+    }
+
+    // Monitor until complete
+    ECLAB_Status finalStatus;
+    ret = MonitorMeasurement(timeout_ms, progressCallback, userData, cancelled, &finalStatus);
+    if (ret != SUCCESS) {
+        return ret;
+    }
+
+    // Convert .mpr data to BIO_TechniqueData
+    ret = BIO_ECLAB_ConvertMprToTechniqueData(mprPath, BIO_TECHNIQUE_OCV, result);
+    if (ret != SUCCESS) {
+        LogErrorEx(LOG_DEVICE_BIO, "Failed to convert data: %s", ECLAB_GetErrorString(ret));
+        return ret;
+    }
+
+    LogMessageEx(LOG_DEVICE_BIO, "OCV measurement completed successfully");
+    return SUCCESS;
+}
+
+int BIO_ECLAB_RunPEIS(const char *mpsFilePath,
+                      const char *outputMprPath,
+                      BIO_TechniqueData **result,
+                      int timeout_ms,
+                      BioTechniqueProgressCallback progressCallback,
+                      void *userData,
+                      volatile int *cancelled) {
+    if (!result) return ERR_NULL_POINTER;
+    if (!g_initialized) return ERR_NOT_INITIALIZED;
+
+    LogMessageEx(LOG_DEVICE_BIO, "Starting PEIS measurement via EC-Lab");
+
+    // Build paths
+    char mpsPath[MAX_PATH];
+    char mprPath[MAX_PATH];
+
+    if (mpsFilePath) {
+        strncpy(mpsPath, mpsFilePath, MAX_PATH - 1);
+    } else {
+        BuildMpsPath(g_config.peisTemplate, mpsPath, MAX_PATH);
+    }
+
+    if (outputMprPath) {
+        strncpy(mprPath, outputMprPath, MAX_PATH - 1);
+    } else {
+        char filename[MAX_PATH];
+        BIO_ECLAB_GenerateMprFilename(BIO_TECHNIQUE_PEIS, filename);
+        BuildMprPath(filename, mprPath, MAX_PATH);
+    }
+
+    LogMessageEx(LOG_DEVICE_BIO, "  Settings: %s", mpsPath);
+    LogMessageEx(LOG_DEVICE_BIO, "  Output: %s", mprPath);
+
+    // Load settings
+    int ret = ECLAB_LoadSettings(g_config.conn, g_config.deviceNumber,
+                                 g_config.channelNumber, mpsPath);
+    if (ret != SUCCESS) {
+        LogErrorEx(LOG_DEVICE_BIO, "Failed to load settings: %s", ECLAB_GetErrorString(ret));
+        return ret;
+    }
+
+    // Start measurement
+    ret = ECLAB_RunChannel(g_config.conn, g_config.deviceNumber,
+                          g_config.channelNumber, mprPath);
+    if (ret != SUCCESS) {
+        LogErrorEx(LOG_DEVICE_BIO, "Failed to start measurement: %s", ECLAB_GetErrorString(ret));
+        return ret;
+    }
+
+    // Monitor until complete
+    ECLAB_Status finalStatus;
+    ret = MonitorMeasurement(timeout_ms, progressCallback, userData, cancelled, &finalStatus);
+    if (ret != SUCCESS) {
+        return ret;
+    }
+
+    // Convert .mpr data to BIO_TechniqueData
+    ret = BIO_ECLAB_ConvertMprToTechniqueData(mprPath, BIO_TECHNIQUE_PEIS, result);
+    if (ret != SUCCESS) {
+        LogErrorEx(LOG_DEVICE_BIO, "Failed to convert data: %s", ECLAB_GetErrorString(ret));
+        return ret;
+    }
+
+    LogMessageEx(LOG_DEVICE_BIO, "PEIS measurement completed successfully");
+    return SUCCESS;
+}
+
+int BIO_ECLAB_RunGEIS(const char *mpsFilePath,
+                      const char *outputMprPath,
+                      BIO_TechniqueData **result,
+                      int timeout_ms,
+                      BioTechniqueProgressCallback progressCallback,
+                      void *userData,
+                      volatile int *cancelled) {
+    if (!result) return ERR_NULL_POINTER;
+    if (!g_initialized) return ERR_NOT_INITIALIZED;
+
+    LogMessageEx(LOG_DEVICE_BIO, "Starting GEIS measurement via EC-Lab");
+
+    // Build paths
+    char mpsPath[MAX_PATH];
+    char mprPath[MAX_PATH];
+
+    if (mpsFilePath) {
+        strncpy(mpsPath, mpsFilePath, MAX_PATH - 1);
+    } else {
+        BuildMpsPath(g_config.geisTemplate, mpsPath, MAX_PATH);
+    }
+
+    if (outputMprPath) {
+        strncpy(mprPath, outputMprPath, MAX_PATH - 1);
+    } else {
+        char filename[MAX_PATH];
+        BIO_ECLAB_GenerateMprFilename(BIO_TECHNIQUE_GEIS, filename);
+        BuildMprPath(filename, mprPath, MAX_PATH);
+    }
+
+    LogMessageEx(LOG_DEVICE_BIO, "  Settings: %s", mpsPath);
+    LogMessageEx(LOG_DEVICE_BIO, "  Output: %s", mprPath);
+
+    // Load settings
+    int ret = ECLAB_LoadSettings(g_config.conn, g_config.deviceNumber,
+                                 g_config.channelNumber, mpsPath);
+    if (ret != SUCCESS) {
+        LogErrorEx(LOG_DEVICE_BIO, "Failed to load settings: %s", ECLAB_GetErrorString(ret));
+        return ret;
+    }
+
+    // Start measurement
+    ret = ECLAB_RunChannel(g_config.conn, g_config.deviceNumber,
+                          g_config.channelNumber, mprPath);
+    if (ret != SUCCESS) {
+        LogErrorEx(LOG_DEVICE_BIO, "Failed to start measurement: %s", ECLAB_GetErrorString(ret));
+        return ret;
+    }
+
+    // Monitor until complete
+    ECLAB_Status finalStatus;
+    ret = MonitorMeasurement(timeout_ms, progressCallback, userData, cancelled, &finalStatus);
+    if (ret != SUCCESS) {
+        return ret;
+    }
+
+    // Convert .mpr data to BIO_TechniqueData
+    ret = BIO_ECLAB_ConvertMprToTechniqueData(mprPath, BIO_TECHNIQUE_GEIS, result);
+    if (ret != SUCCESS) {
+        LogErrorEx(LOG_DEVICE_BIO, "Failed to convert data: %s", ECLAB_GetErrorString(ret));
+        return ret;
+    }
+
+    LogMessageEx(LOG_DEVICE_BIO, "GEIS measurement completed successfully");
+    return SUCCESS;
+}
+
+/******************************************************************************
+ * Data Conversion Functions
+ ******************************************************************************/
+
+int BIO_ECLAB_ConvertMprToTechniqueData(const char *mprPath,
+                                        BioTechniqueType type,
+                                        BIO_TechniqueData **data) {
+    if (!mprPath || !data) return ERR_NULL_POINTER;
+
+    LogMessageEx(LOG_DEVICE_BIO, "Converting .mpr file to BIO_TechniqueData: %s", mprPath);
+
+    // Check file exists
+    if (GetFileAttributesA(mprPath) == INVALID_FILE_ATTRIBUTES) {
+        LogErrorEx(LOG_DEVICE_BIO, ".mpr file not found: %s", mprPath);
+        return ECLAB_ERR_FILE_NOT_FOUND;
+    }
+
+    // TODO: Implement .mpr file parsing
+    // For now, create empty data structure as placeholder
+
+    LogWarningEx(LOG_DEVICE_BIO, ".mpr file parsing not yet implemented");
+    LogWarningEx(LOG_DEVICE_BIO, "Returning placeholder data structure");
+
+    BIO_TechniqueData *techData = (BIO_TechniqueData*)calloc(1, sizeof(BIO_TechniqueData));
+    if (!techData) return ERR_OUT_OF_MEMORY;
+
+    // Allocate placeholder raw data
+    techData->rawData = (BIO_RawDataBuffer*)calloc(1, sizeof(BIO_RawDataBuffer));
+    if (!techData->rawData) {
+        free(techData);
+        return ERR_OUT_OF_MEMORY;
+    }
+
+    techData->rawData->numPoints = 0;
+    techData->rawData->numVariables = 0;
+    techData->convertedData = NULL;
+
+    *data = techData;
+
+    return SUCCESS;
+}
+
+int BIO_ECLAB_GenerateMprFilename(BioTechniqueType type, char *filename) {
+    if (!filename) return ERR_NULL_POINTER;
+
+    const char *prefix = "unknown";
+    switch (type) {
+        case BIO_TECHNIQUE_OCV: prefix = "ocv"; break;
+        case BIO_TECHNIQUE_PEIS: prefix = "peis"; break;
+        case BIO_TECHNIQUE_GEIS: prefix = "geis"; break;
+        default: prefix = "technique"; break;
+    }
+
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+
+    snprintf(filename, MAX_PATH, "%s_%04d%02d%02d_%02d%02d%02d.mpr",
+            prefix,
+            t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
+            t->tm_hour, t->tm_min, t->tm_sec);
+
+    return SUCCESS;
+}
+
+/******************************************************************************
+ * Utility Functions
+ ******************************************************************************/
+
+ECLabConnection* BIO_ECLAB_GetConnection(void) {
+    return g_initialized ? g_config.conn : NULL;
+}
+
+int BIO_ECLAB_GetDeviceID(void) {
+    return g_initialized ? g_config.deviceID : -1;
+}
+
+int BIO_ECLAB_TestConnection(void) {
+    if (!g_initialized) return ERR_NOT_INITIALIZED;
+    if (!g_config.conn) return ECLAB_ERR_INVALID_CONNECTION;
+
+    return ECLAB_TestConnection(g_config.conn);
+}
+
+int BIO_ECLAB_StopMeasurement(void) {
+    if (!g_initialized) return ERR_NOT_INITIALIZED;
+    if (!g_config.conn) return ECLAB_ERR_INVALID_CONNECTION;
+
+    return ECLAB_StopChannel(g_config.conn, g_config.deviceNumber, g_config.channelNumber);
+}

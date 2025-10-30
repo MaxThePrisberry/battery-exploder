@@ -1,0 +1,705 @@
+/******************************************************************************
+ * eclab_olecom.c
+ *
+ * Implementation of EC-Lab OLE COM wrapper
+ *
+ * This file contains Windows COM automation code for interfacing with EC-Lab.
+ * It handles IDispatch method invocation, BSTR string conversions, and
+ * VARIANT type management.
+ ******************************************************************************/
+
+#include "eclab_olecom.h"
+#include "logging.h"
+#include <oleauto.h>
+#include <process.h>
+#include <tlhelp32.h>
+
+/******************************************************************************
+ * Internal Helper Functions
+ ******************************************************************************/
+
+/**
+ * Convert ASCII string to BSTR (wide string)
+ */
+static BSTR StringToBSTR(const char *str) {
+    if (!str) return NULL;
+
+    int len = MultiByteToWideChar(CP_ACP, 0, str, -1, NULL, 0);
+    if (len == 0) return NULL;
+
+    wchar_t *wstr = (wchar_t*)malloc(len * sizeof(wchar_t));
+    if (!wstr) return NULL;
+
+    MultiByteToWideChar(CP_ACP, 0, str, -1, wstr, len);
+    BSTR bstr = SysAllocString(wstr);
+    free(wstr);
+
+    return bstr;
+}
+
+/**
+ * Convert BSTR to ASCII string
+ */
+static int BSTRToString(BSTR bstr, char *str, int maxLen) {
+    if (!bstr || !str || maxLen <= 0) return ERR_INVALID_PARAMETER;
+
+    int len = WideCharToMultiByte(CP_ACP, 0, bstr, -1, NULL, 0, NULL, NULL);
+    if (len == 0 || len > maxLen) return ECLAB_ERR_BSTR_CONVERSION;
+
+    WideCharToMultiByte(CP_ACP, 0, bstr, -1, str, maxLen, NULL, NULL);
+    return SUCCESS;
+}
+
+/**
+ * Invoke IDispatch method by name
+ */
+static HRESULT InvokeMethod(IDispatch *pDisp, LPOLESTR methodName,
+                           VARIANT *pResult, int numArgs, ...) {
+    if (!pDisp) return E_POINTER;
+
+    DISPID dispid;
+    HRESULT hr = pDisp->lpVtbl->GetIDsOfNames(pDisp, &IID_NULL, &methodName,
+                                               1, LOCALE_USER_DEFAULT, &dispid);
+    if (FAILED(hr)) return hr;
+
+    // Build parameter array (COM uses reverse order)
+    VARIANT *pArgs = NULL;
+    if (numArgs > 0) {
+        pArgs = (VARIANT*)malloc(sizeof(VARIANT) * numArgs);
+        if (!pArgs) return E_OUTOFMEMORY;
+
+        va_list args;
+        va_start(args, numArgs);
+        for (int i = numArgs - 1; i >= 0; i--) {
+            VariantInit(&pArgs[i]);
+            VariantCopy(&pArgs[i], va_arg(args, VARIANT*));
+        }
+        va_end(args);
+    }
+
+    // Set up dispatch parameters
+    DISPPARAMS params;
+    params.cArgs = numArgs;
+    params.rgvarg = pArgs;
+    params.cNamedArgs = 0;
+    params.rgdispidNamedArgs = NULL;
+
+    // Invoke method
+    EXCEPINFO excepInfo;
+    UINT argErr;
+    VariantInit(pResult);
+
+    hr = pDisp->lpVtbl->Invoke(pDisp, dispid, &IID_NULL, LOCALE_USER_DEFAULT,
+                               DISPATCH_METHOD, &params, pResult,
+                               &excepInfo, &argErr);
+
+    // Cleanup
+    if (pArgs) {
+        for (int i = 0; i < numArgs; i++) {
+            VariantClear(&pArgs[i]);
+        }
+        free(pArgs);
+    }
+
+    return hr;
+}
+
+/**
+ * Get property value from IDispatch
+ */
+static HRESULT GetProperty(IDispatch *pDisp, LPOLESTR propName, VARIANT *pResult) {
+    if (!pDisp) return E_POINTER;
+
+    DISPID dispid;
+    HRESULT hr = pDisp->lpVtbl->GetIDsOfNames(pDisp, &IID_NULL, &propName,
+                                               1, LOCALE_USER_DEFAULT, &dispid);
+    if (FAILED(hr)) return hr;
+
+    DISPPARAMS params = {NULL, NULL, 0, 0};
+    VariantInit(pResult);
+
+    hr = pDisp->lpVtbl->Invoke(pDisp, dispid, &IID_NULL, LOCALE_USER_DEFAULT,
+                               DISPATCH_PROPERTYGET, &params, pResult, NULL, NULL);
+
+    return hr;
+}
+
+/******************************************************************************
+ * Initialization and Cleanup
+ ******************************************************************************/
+
+int ECLAB_Initialize(ECLabConnection **conn, const char *workingDir) {
+    if (!conn) return ERR_NULL_POINTER;
+
+    LogMessageEx(LOG_DEVICE_BIO, "Initializing EC-Lab OLE COM connection");
+
+    // Allocate connection structure
+    ECLabConnection *c = (ECLabConnection*)calloc(1, sizeof(ECLabConnection));
+    if (!c) return ERR_OUT_OF_MEMORY;
+
+    // Set working directory
+    if (workingDir) {
+        strncpy(c->workingDir, workingDir, MAX_PATH - 1);
+    } else {
+        GetCurrentDirectoryA(MAX_PATH, c->workingDir);
+    }
+
+    // Initialize COM
+    HRESULT hr = CoInitialize(NULL);
+    if (FAILED(hr) && hr != RPC_E_CHANGED_MODE) {
+        LogErrorEx(LOG_DEVICE_BIO, "CoInitialize failed: 0x%08X", hr);
+        free(c);
+        return ECLAB_ERR_COM_INIT_FAILED;
+    }
+
+    // Get CLSID for EC-Lab
+    // EC-Lab ProgID is typically "ECLab.Application" or similar
+    // The exact ProgID should be in EC-Lab documentation
+    wchar_t progId[] = L"ECLab.Application";
+    hr = CLSIDFromProgID(progId, &c->clsid);
+    if (FAILED(hr)) {
+        LogErrorEx(LOG_DEVICE_BIO, "CLSIDFromProgID failed: 0x%08X. Is EC-Lab registered?", hr);
+        LogErrorEx(LOG_DEVICE_BIO, "Run: ECLab.exe /regserver");
+        CoUninitialize();
+        free(c);
+        return ECLAB_ERR_COM_CREATE_FAILED;
+    }
+
+    // Create EC-Lab COM object
+    hr = CoCreateInstance(&c->clsid, NULL, CLSCTX_LOCAL_SERVER,
+                         &IID_IDispatch, (void**)&c->pECLab);
+    if (FAILED(hr)) {
+        LogErrorEx(LOG_DEVICE_BIO, "CoCreateInstance failed: 0x%08X. Is EC-Lab running?", hr);
+        CoUninitialize();
+        free(c);
+        return ECLAB_ERR_COM_CREATE_FAILED;
+    }
+
+    LogMessageEx(LOG_DEVICE_BIO, "EC-Lab OLE COM connection initialized");
+
+    *conn = c;
+    return SUCCESS;
+}
+
+int ECLAB_Shutdown(ECLabConnection *conn) {
+    if (!conn) return ERR_NULL_POINTER;
+
+    LogMessageEx(LOG_DEVICE_BIO, "Shutting down EC-Lab OLE COM connection");
+
+    // Disconnect if connected
+    if (conn->isConnected) {
+        ECLAB_DisconnectDevice(conn);
+    }
+
+    // Release COM interface
+    if (conn->pECLab) {
+        conn->pECLab->lpVtbl->Release(conn->pECLab);
+        conn->pECLab = NULL;
+    }
+
+    CoUninitialize();
+    free(conn);
+
+    LogMessageEx(LOG_DEVICE_BIO, "EC-Lab OLE COM connection shutdown complete");
+    return SUCCESS;
+}
+
+int ECLAB_RegisterServer(const char *eclabPath) {
+    if (!eclabPath) return ERR_NULL_POINTER;
+
+    LogMessageEx(LOG_DEVICE_BIO, "Registering EC-Lab as OLE COM server: %s", eclabPath);
+
+    // Build command: "ECLab.exe" /regserver
+    char cmd[MAX_PATH * 2];
+    snprintf(cmd, sizeof(cmd), "\"%s\" /regserver", eclabPath);
+
+    // Execute registration command
+    STARTUPINFO si = {sizeof(si)};
+    PROCESS_INFORMATION pi;
+
+    if (!CreateProcessA(NULL, cmd, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+        LogErrorEx(LOG_DEVICE_BIO, "Failed to execute: %s (Error: %d)", cmd, GetLastError());
+        return ECLAB_ERR_REGISTRATION_FAILED;
+    }
+
+    // Wait for registration to complete
+    WaitForSingleObject(pi.hProcess, 10000);  // 10 second timeout
+
+    DWORD exitCode;
+    GetExitCodeProcess(pi.hProcess, &exitCode);
+
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+
+    if (exitCode != 0 && exitCode != STILL_ACTIVE) {
+        LogErrorEx(LOG_DEVICE_BIO, "Registration failed with exit code: %d", exitCode);
+        return ECLAB_ERR_REGISTRATION_FAILED;
+    }
+
+    LogMessageEx(LOG_DEVICE_BIO, "EC-Lab OLE COM registration complete");
+    return SUCCESS;
+}
+
+/******************************************************************************
+ * Device Management
+ ******************************************************************************/
+
+int ECLAB_ConnectDevice(ECLabConnection *conn, int deviceNumber) {
+    if (!conn || !conn->pECLab) return ECLAB_ERR_INVALID_CONNECTION;
+    if (conn->isConnected) return ECLAB_ERR_ALREADY_CONNECTED;
+
+    LogMessageEx(LOG_DEVICE_BIO, "Connecting to EC-Lab device %d", deviceNumber);
+
+    // Build parameter
+    VARIANT vDevice;
+    VariantInit(&vDevice);
+    vDevice.vt = VT_I4;
+    vDevice.lVal = deviceNumber;
+
+    // Call ConnectDevice method
+    VARIANT result;
+    HRESULT hr = InvokeMethod(conn->pECLab, L"ConnectDevice", &result, 1, &vDevice);
+
+    VariantClear(&vDevice);
+
+    if (FAILED(hr)) {
+        LogErrorEx(LOG_DEVICE_BIO, "ConnectDevice COM call failed: 0x%08X", hr);
+        VariantClear(&result);
+        return ECLAB_ERR_COM_INVOKE_FAILED;
+    }
+
+    // Check return value (should be 0 for success)
+    int retVal = (result.vt == VT_I4) ? result.lVal : -1;
+    VariantClear(&result);
+
+    if (retVal != 0) {
+        LogErrorEx(LOG_DEVICE_BIO, "ConnectDevice returned error: %d", retVal);
+        return ECLAB_ERR_DEVICE_NOT_FOUND;
+    }
+
+    conn->deviceNumber = deviceNumber;
+    conn->isConnected = true;
+
+    LogMessageEx(LOG_DEVICE_BIO, "Connected to EC-Lab device %d", deviceNumber);
+    return SUCCESS;
+}
+
+int ECLAB_DisconnectDevice(ECLabConnection *conn) {
+    if (!conn || !conn->pECLab) return ECLAB_ERR_INVALID_CONNECTION;
+    if (!conn->isConnected) return SUCCESS;  // Already disconnected
+
+    LogMessageEx(LOG_DEVICE_BIO, "Disconnecting from EC-Lab device %d", conn->deviceNumber);
+
+    VARIANT vDevice;
+    VariantInit(&vDevice);
+    vDevice.vt = VT_I4;
+    vDevice.lVal = conn->deviceNumber;
+
+    VARIANT result;
+    HRESULT hr = InvokeMethod(conn->pECLab, L"DisconnectDevice", &result, 1, &vDevice);
+
+    VariantClear(&vDevice);
+    VariantClear(&result);
+
+    conn->isConnected = false;
+
+    if (FAILED(hr)) {
+        LogWarningEx(LOG_DEVICE_BIO, "DisconnectDevice COM call failed: 0x%08X", hr);
+        return ECLAB_ERR_COM_INVOKE_FAILED;
+    }
+
+    LogMessageEx(LOG_DEVICE_BIO, "Disconnected from EC-Lab device");
+    return SUCCESS;
+}
+
+int ECLAB_TestConnection(ECLabConnection *conn) {
+    if (!conn || !conn->pECLab) return ECLAB_ERR_INVALID_CONNECTION;
+    if (!conn->isConnected) return ECLAB_ERR_NOT_CONNECTED;
+
+    VARIANT vDevice;
+    VariantInit(&vDevice);
+    vDevice.vt = VT_I4;
+    vDevice.lVal = conn->deviceNumber;
+
+    VARIANT result;
+    HRESULT hr = InvokeMethod(conn->pECLab, L"TestConnection", &result, 1, &vDevice);
+
+    VariantClear(&vDevice);
+
+    if (FAILED(hr)) {
+        VariantClear(&result);
+        return ECLAB_ERR_COM_INVOKE_FAILED;
+    }
+
+    int retVal = (result.vt == VT_I4) ? result.lVal : -1;
+    VariantClear(&result);
+
+    return (retVal == 0) ? SUCCESS : ECLAB_ERR_NOT_CONNECTED;
+}
+
+/******************************************************************************
+ * Experiment Control
+ ******************************************************************************/
+
+int ECLAB_LoadSettings(ECLabConnection *conn, int device, int channel,
+                      const char *mpsFilePath) {
+    if (!conn || !conn->pECLab) return ECLAB_ERR_INVALID_CONNECTION;
+    if (!mpsFilePath) return ERR_NULL_POINTER;
+
+    LogMessageEx(LOG_DEVICE_BIO, "Loading settings from: %s", mpsFilePath);
+
+    // Check file exists
+    if (GetFileAttributesA(mpsFilePath) == INVALID_FILE_ATTRIBUTES) {
+        LogErrorEx(LOG_DEVICE_BIO, "Settings file not found: %s", mpsFilePath);
+        return ECLAB_ERR_FILE_NOT_FOUND;
+    }
+
+    // Build parameters
+    VARIANT vDevice, vChannel, vFilePath;
+    VariantInit(&vDevice);
+    VariantInit(&vChannel);
+    VariantInit(&vFilePath);
+
+    vDevice.vt = VT_I4;
+    vDevice.lVal = device;
+
+    vChannel.vt = VT_I4;
+    vChannel.lVal = channel;
+
+    vFilePath.vt = VT_BSTR;
+    vFilePath.bstrVal = StringToBSTR(mpsFilePath);
+
+    // Call LoadSettings method
+    VARIANT result;
+    HRESULT hr = InvokeMethod(conn->pECLab, L"LoadSettings", &result, 3,
+                              &vDevice, &vChannel, &vFilePath);
+
+    VariantClear(&vDevice);
+    VariantClear(&vChannel);
+    VariantClear(&vFilePath);
+
+    if (FAILED(hr)) {
+        LogErrorEx(LOG_DEVICE_BIO, "LoadSettings COM call failed: 0x%08X", hr);
+        VariantClear(&result);
+        return ECLAB_ERR_COM_INVOKE_FAILED;
+    }
+
+    int retVal = (result.vt == VT_I4) ? result.lVal : -1;
+    VariantClear(&result);
+
+    if (retVal != 0) {
+        LogErrorEx(LOG_DEVICE_BIO, "LoadSettings returned error: %d", retVal);
+        return ECLAB_ERR_INVALID_MPS_FILE;
+    }
+
+    LogMessageEx(LOG_DEVICE_BIO, "Settings loaded successfully");
+    return SUCCESS;
+}
+
+int ECLAB_RunChannel(ECLabConnection *conn, int device, int channel,
+                    const char *outputMprPath) {
+    if (!conn || !conn->pECLab) return ECLAB_ERR_INVALID_CONNECTION;
+    if (!outputMprPath) return ERR_NULL_POINTER;
+
+    LogMessageEx(LOG_DEVICE_BIO, "Starting measurement, output: %s", outputMprPath);
+
+    // Build parameters
+    VARIANT vDevice, vChannel, vOutputPath;
+    VariantInit(&vDevice);
+    VariantInit(&vChannel);
+    VariantInit(&vOutputPath);
+
+    vDevice.vt = VT_I4;
+    vDevice.lVal = device;
+
+    vChannel.vt = VT_I4;
+    vChannel.lVal = channel;
+
+    vOutputPath.vt = VT_BSTR;
+    vOutputPath.bstrVal = StringToBSTR(outputMprPath);
+
+    // Call RunChannel method
+    VARIANT result;
+    HRESULT hr = InvokeMethod(conn->pECLab, L"RunChannel", &result, 3,
+                              &vDevice, &vChannel, &vOutputPath);
+
+    VariantClear(&vDevice);
+    VariantClear(&vChannel);
+    VariantClear(&vOutputPath);
+
+    if (FAILED(hr)) {
+        LogErrorEx(LOG_DEVICE_BIO, "RunChannel COM call failed: 0x%08X", hr);
+        VariantClear(&result);
+        return ECLAB_ERR_COM_INVOKE_FAILED;
+    }
+
+    int retVal = (result.vt == VT_I4) ? result.lVal : -1;
+    VariantClear(&result);
+
+    if (retVal != 0) {
+        LogErrorEx(LOG_DEVICE_BIO, "RunChannel returned error: %d", retVal);
+        return ECLAB_ERR_RUN_FAILED;
+    }
+
+    LogMessageEx(LOG_DEVICE_BIO, "Measurement started");
+    return SUCCESS;
+}
+
+int ECLAB_StopChannel(ECLabConnection *conn, int device, int channel) {
+    if (!conn || !conn->pECLab) return ECLAB_ERR_INVALID_CONNECTION;
+
+    LogMessageEx(LOG_DEVICE_BIO, "Stopping measurement on device %d, channel %d",
+                device, channel);
+
+    VARIANT vDevice, vChannel;
+    VariantInit(&vDevice);
+    VariantInit(&vChannel);
+
+    vDevice.vt = VT_I4;
+    vDevice.lVal = device;
+
+    vChannel.vt = VT_I4;
+    vChannel.lVal = channel;
+
+    VARIANT result;
+    HRESULT hr = InvokeMethod(conn->pECLab, L"StopChannel", &result, 2,
+                              &vDevice, &vChannel);
+
+    VariantClear(&vDevice);
+    VariantClear(&vChannel);
+    VariantClear(&result);
+
+    if (FAILED(hr)) {
+        LogWarningEx(LOG_DEVICE_BIO, "StopChannel COM call failed: 0x%08X", hr);
+        return ECLAB_ERR_COM_INVOKE_FAILED;
+    }
+
+    LogMessageEx(LOG_DEVICE_BIO, "Measurement stopped");
+    return SUCCESS;
+}
+
+/******************************************************************************
+ * Status Monitoring
+ ******************************************************************************/
+
+int ECLAB_MeasureStatus(ECLabConnection *conn, int device, int channel,
+                       ECLAB_Status *status) {
+    if (!conn || !conn->pECLab) return ECLAB_ERR_INVALID_CONNECTION;
+    if (!status) return ERR_NULL_POINTER;
+
+    memset(status, 0, sizeof(ECLAB_Status));
+
+    // Build parameters
+    VARIANT vDevice, vChannel, vStatusArray;
+    VariantInit(&vDevice);
+    VariantInit(&vChannel);
+    VariantInit(&vStatusArray);
+
+    vDevice.vt = VT_I4;
+    vDevice.lVal = device;
+
+    vChannel.vt = VT_I4;
+    vChannel.lVal = channel;
+
+    // vStatusArray is an output parameter (BYREF)
+    vStatusArray.vt = VT_VARIANT | VT_BYREF;
+    VARIANT statusResult;
+    VariantInit(&statusResult);
+    vStatusArray.pvarVal = &statusResult;
+
+    // Call MeasureStatus method
+    VARIANT result;
+    HRESULT hr = InvokeMethod(conn->pECLab, L"MeasureStatus", &result, 3,
+                              &vDevice, &vChannel, &vStatusArray);
+
+    VariantClear(&vDevice);
+    VariantClear(&vChannel);
+
+    if (FAILED(hr)) {
+        VariantClear(&vStatusArray);
+        VariantClear(&result);
+        return ECLAB_ERR_COM_INVOKE_FAILED;
+    }
+
+    // Parse status array (should be SAFEARRAY of 32 variants)
+    if (statusResult.vt == (VT_ARRAY | VT_VARIANT)) {
+        SAFEARRAY *psa = statusResult.parray;
+        LONG lBound, uBound;
+        SafeArrayGetLBound(psa, 1, &lBound);
+        SafeArrayGetUBound(psa, 1, &uBound);
+
+        int numElements = uBound - lBound + 1;
+        if (numElements != 32) {
+            LogWarningEx(LOG_DEVICE_BIO, "Status array size mismatch: %d (expected 32)",
+                        numElements);
+        }
+
+        // Extract values (manual section 3.2.9)
+        VARIANT *pData;
+        SafeArrayAccessData(psa, (void**)&pData);
+
+        if (numElements >= 32) {
+            status->status = (pData[0].vt == VT_I4) ? pData[0].lVal : 0;
+            status->oxRed = (pData[1].vt == VT_I4) ? pData[1].lVal : 0;
+            status->ocv = (pData[2].vt == VT_I4) ? pData[2].lVal : 0;
+            status->eis = (pData[3].vt == VT_I4) ? pData[3].lVal : 0;
+            status->techniqueNumber = (pData[4].vt == VT_I4) ? pData[4].lVal : 0;
+            status->techniqueCode = (pData[5].vt == VT_I4) ? pData[5].lVal : 0;
+            status->sequenceNumber = (pData[6].vt == VT_I4) ? pData[6].lVal : 0;
+            status->currentLoopIteration = (pData[7].vt == VT_I4) ? pData[7].lVal : 0;
+            status->currentSequenceInLoop = (pData[8].vt == VT_I4) ? pData[8].lVal : 0;
+            status->loopExperimentIteration = (pData[9].vt == VT_I4) ? pData[9].lVal : 0;
+            status->cycleNumber = (pData[10].vt == VT_I4) ? pData[10].lVal : 0;
+            status->counter1 = (pData[11].vt == VT_I4) ? pData[11].lVal : 0;
+            status->counter2 = (pData[12].vt == VT_I4) ? pData[12].lVal : 0;
+            status->counter3 = (pData[13].vt == VT_I4) ? pData[13].lVal : 0;
+            status->bufferSize = (pData[14].vt == VT_I4) ? pData[14].lVal : 0;
+            status->time = (pData[15].vt == VT_R8) ? pData[15].dblVal : 0.0;
+            status->ewe = (pData[16].vt == VT_R8) ? pData[16].dblVal : 0.0;
+            status->ece = (pData[17].vt == VT_R8) ? pData[17].dblVal : 0.0;
+            status->eoc = (pData[18].vt == VT_R8) ? pData[18].dblVal : 0.0;
+            status->current = (pData[19].vt == VT_R8) ? pData[19].dblVal : 0.0;
+            status->charge = (pData[20].vt == VT_R8) ? pData[20].dblVal : 0.0;
+            status->aux1 = (pData[21].vt == VT_R8) ? pData[21].dblVal : 0.0;
+            status->aux2 = (pData[22].vt == VT_R8) ? pData[22].dblVal : 0.0;
+            status->iRange = (pData[23].vt == VT_R8) ? pData[23].dblVal : 0.0;
+            status->rCompensation = (pData[24].vt == VT_R8) ? pData[24].dblVal : 0.0;
+            status->frequency = (pData[25].vt == VT_R8) ? pData[25].dblVal : 0.0;
+            status->zMagnitude = (pData[26].vt == VT_R8) ? pData[26].dblVal : 0.0;
+            status->currentPointIndex = (pData[27].vt == VT_I4) ? pData[27].lVal : 0;
+            status->totalPointIndex = (pData[28].vt == VT_I4) ? pData[28].lVal : 0;
+            status->temperature = (pData[29].vt == VT_R8) ? pData[29].dblVal : 0.0;
+            status->safetyLimit = (pData[30].vt == VT_I4) ? pData[30].lVal : 0;
+            status->connection = (pData[31].vt == VT_I4) ? pData[31].lVal : 0;
+        }
+
+        SafeArrayUnaccessData(psa);
+    }
+
+    VariantClear(&vStatusArray);
+    VariantClear(&statusResult);
+    VariantClear(&result);
+
+    return SUCCESS;
+}
+
+/******************************************************************************
+ * Data Retrieval
+ ******************************************************************************/
+
+int ECLAB_MeasureNumberOfPoints(const char *mprPath, int *numPoints) {
+    if (!mprPath || !numPoints) return ERR_NULL_POINTER;
+
+    // This function is typically called statically, so we need to create
+    // a temporary COM instance or require an existing connection
+    // For simplicity, we'll document that the connection must be initialized
+
+    LogWarningEx(LOG_DEVICE_BIO, "ECLAB_MeasureNumberOfPoints not yet implemented");
+    LogWarningEx(LOG_DEVICE_BIO, "This requires static COM access or connection parameter");
+
+    *numPoints = 0;
+    return ERR_NOT_IMPLEMENTED_YET;
+}
+
+int ECLAB_MeasureDcValue(const char *mprPath, int dataIndex,
+                        double *time, double *voltage, double *current) {
+    if (!mprPath || !time || !voltage || !current) return ERR_NULL_POINTER;
+
+    // Similar to above - needs implementation with COM access
+    LogWarningEx(LOG_DEVICE_BIO, "ECLAB_MeasureDcValue not yet implemented");
+
+    *time = *voltage = *current = 0.0;
+    return ERR_NOT_IMPLEMENTED_YET;
+}
+
+int ECLAB_MeasureEisValue(const char *mprPath, int dataIndex,
+                         double *time, double *freq, double *zReal, double *zImag) {
+    if (!mprPath || !time || !freq || !zReal || !zImag) return ERR_NULL_POINTER;
+
+    LogWarningEx(LOG_DEVICE_BIO, "ECLAB_MeasureEisValue not yet implemented");
+
+    *time = *freq = *zReal = *zImag = 0.0;
+    return ERR_NOT_IMPLEMENTED_YET;
+}
+
+int ECLAB_MeasureValueByCode(const char *mprPath, int varCode, int dataIndex,
+                            double *value) {
+    if (!mprPath || !value) return ERR_NULL_POINTER;
+
+    LogWarningEx(LOG_DEVICE_BIO, "ECLAB_MeasureValueByCode not yet implemented");
+
+    *value = 0.0;
+    return ERR_NOT_IMPLEMENTED_YET;
+}
+
+/******************************************************************************
+ * Utility Functions
+ ******************************************************************************/
+
+const char* ECLAB_GetErrorString(int errorCode) {
+    switch (errorCode) {
+        case SUCCESS: return "Success";
+        case ECLAB_ERR_COM_INIT_FAILED: return "COM initialization failed";
+        case ECLAB_ERR_COM_CREATE_FAILED: return "Failed to create EC-Lab COM object";
+        case ECLAB_ERR_COM_INVOKE_FAILED: return "COM method invocation failed";
+        case ECLAB_ERR_COM_RELEASE_FAILED: return "COM object release failed";
+        case ECLAB_ERR_BSTR_CONVERSION: return "BSTR string conversion failed";
+        case ECLAB_ERR_VARIANT_TYPE: return "Invalid VARIANT type";
+        case ECLAB_ERR_INVALID_CONNECTION: return "Invalid connection handle";
+        case ECLAB_ERR_NOT_CONNECTED: return "Not connected to device";
+        case ECLAB_ERR_ALREADY_CONNECTED: return "Already connected to device";
+        case ECLAB_ERR_DEVICE_NOT_FOUND: return "Device not found";
+        case ECLAB_ERR_CHANNEL_NOT_FOUND: return "Channel not found";
+        case ECLAB_ERR_FILE_NOT_FOUND: return "File not found";
+        case ECLAB_ERR_INVALID_MPS_FILE: return "Invalid or corrupt .mps file";
+        case ECLAB_ERR_INVALID_MPR_FILE: return "Invalid or corrupt .mpr file";
+        case ECLAB_ERR_RUN_FAILED: return "Failed to start measurement";
+        case ECLAB_ERR_STATUS_ARRAY_SIZE: return "Status array size mismatch";
+        case ECLAB_ERR_DATA_NOT_AVAILABLE: return "Data not available";
+        case ECLAB_ERR_REGISTRATION_FAILED: return "EC-Lab registration failed";
+        default: return "Unknown EC-Lab error";
+    }
+}
+
+bool ECLAB_IsRunning(void) {
+    // Check if EC-Lab process is running
+    HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    if (hSnapshot == INVALID_HANDLE_VALUE) return false;
+
+    PROCESSENTRY32 pe32;
+    pe32.dwSize = sizeof(PROCESSENTRY32);
+
+    bool found = false;
+    if (Process32First(hSnapshot, &pe32)) {
+        do {
+            if (_stricmp(pe32.szExeFile, "ECLab.exe") == 0) {
+                found = true;
+                break;
+            }
+        } while (Process32Next(hSnapshot, &pe32));
+    }
+
+    CloseHandle(hSnapshot);
+    return found;
+}
+
+int ECLAB_EnableMessagesWindows(ECLabConnection *conn, bool enable) {
+    if (!conn || !conn->pECLab) return ECLAB_ERR_INVALID_CONNECTION;
+
+    VARIANT vEnable;
+    VariantInit(&vEnable);
+    vEnable.vt = VT_BOOL;
+    vEnable.boolVal = enable ? VARIANT_TRUE : VARIANT_FALSE;
+
+    VARIANT result;
+    HRESULT hr = InvokeMethod(conn->pECLab, L"EnableMessagesWindows", &result, 1, &vEnable);
+
+    VariantClear(&vEnable);
+    VariantClear(&result);
+
+    if (FAILED(hr)) {
+        return ECLAB_ERR_COM_INVOKE_FAILED;
+    }
+
+    return SUCCESS;
+}

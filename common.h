@@ -64,6 +64,31 @@
 #define TNY_STATE_DISCONNECTED 0        // LOW = disconnected
 
 //==============================================================================
+// BioLogic Configuration
+//==============================================================================
+
+// BioLogic control mode selection
+// 0 = Direct DLL mode (default) - Direct hardware control via ECLib.dll
+// 1 = EC-Lab OLE COM mode - Control via EC-Lab GUI automation
+#define BIOLOGIC_CONTROL_MODE           0
+
+// Direct DLL mode settings (used when BIOLOGIC_CONTROL_MODE == 0)
+#define BIOLOGIC_DEFAULT_ADDRESS        "USB0"
+#define BIOLOGIC_CONNECTION_TIMEOUT     5       // seconds
+
+// EC-Lab OLE COM mode settings (used when BIOLOGIC_CONTROL_MODE == 1)
+#define ECLAB_SETTINGS_DIR              "C:\\BatteryExploder\\eclab_settings"
+#define ECLAB_DATA_DIR                  "C:\\BatteryExploder\\eclab_data"
+#define ECLAB_DEVICE_NUMBER             0       // EC-Lab device index
+#define ECLAB_CHANNEL_NUMBER            0       // EC-Lab channel index
+#define ECLAB_EXECUTABLE_PATH           "C:\\Program Files (x86)\\EC-Lab\\ECLab.exe"
+
+// .mps template filenames (place these in ECLAB_SETTINGS_DIR)
+#define ECLAB_OCV_TEMPLATE              "ocv_default.mps"
+#define ECLAB_PEIS_TEMPLATE             "peis_default.mps"
+#define ECLAB_GEIS_TEMPLATE             "geis_default.mps"
+
+//==============================================================================
 // Project Configuration
 //==============================================================================
 #define PROJECT_NAME            "Battery Exploder"
@@ -104,6 +129,7 @@
 #define ERR_INVALID_STATE       (ERR_BASE_SYSTEM - 9)
 #define ERR_COMM_FAILED         (ERR_BASE_SYSTEM - 10)
 #define ERR_NOT_CONNECTED       (ERR_BASE_SYSTEM - 11)
+#define ERR_NOT_IMPLEMENTED_YET (ERR_BASE_SYSTEM - 12)
 
 // Queue-specific errors
 #define ERR_QUEUE_FULL          (ERR_BASE_SYSTEM - 20)
