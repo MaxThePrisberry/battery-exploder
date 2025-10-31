@@ -1934,7 +1934,7 @@ static int RunOCVMeasurement(TempRampExperimentContext *ctx, TempRampEISMeasurem
     
     if (result != SUCCESS) {
         LogError("OCV measurement failed: %s", BIO_GetErrorString(result));
-        BIO_StopChannelQueued(ctx->biologicID, 0, DEVICE_PRIORITY_NORMAL);
+        // Note: Abstraction layer handles cleanup internally (both Direct DLL and EC-Lab modes)
         Delay(0.5);
         return result;
     }
@@ -2139,7 +2139,8 @@ static int SwitchToBioLogic(TempRampExperimentContext *ctx) {
 static int SafeDisconnectAllDevices(TempRampExperimentContext *ctx) {
     LogMessage("Disconnecting all devices...");
 
-    BIO_StopChannelQueued(ctx->biologicID, 0, DEVICE_PRIORITY_NORMAL);
+    // Note: BioLogic abstraction layer handles cleanup in BIO_ShutdownAbstract()
+    // No need to stop channel manually (works for both Direct DLL and EC-Lab modes)
 
     if (ENABLE_DTB) {
         DTB_SetRunStopAllQueued(0, DEVICE_PRIORITY_NORMAL);
@@ -2240,19 +2241,22 @@ static int VerifyDevicesAndInitialize(TempRampExperimentContext *ctx) {
         return ERR_NOT_CONNECTED;
     }
     
-    BioQueueManager *bioQueueMgr = BIO_GetGlobalQueueManager();
-    if (!bioQueueMgr) {
-        MessagePopup("BioLogic Not Connected", 
-                     "The BioLogic potentiostat is not connected.");
+    // Check if BioLogic abstraction layer is initialized (works for both Direct DLL and EC-Lab modes)
+    if (!BIO_IsAbstractInitialized()) {
+        MessagePopup("BioLogic Not Connected",
+                     "The BioLogic potentiostat is not initialized.\n\n"
+                     "For Direct DLL mode: Connect device via USB.\n"
+                     "For EC-Lab mode: Start EC-Lab and connect device.");
         return ERR_NOT_CONNECTED;
     }
-    
-    ctx->biologicID = BIO_QueueGetDeviceID(bioQueueMgr);
-    if (ctx->biologicID < 0) {
-        MessagePopup("BioLogic Not Connected", 
-                     "The BioLogic potentiostat is not connected.");
-        return ERR_NOT_CONNECTED;
-    }
+
+    // Get current mode for logging
+    BIO_ControlMode mode = BIO_GetCurrentMode();
+    const char *modeName = (mode == BIO_MODE_ECLAB_OLECOM) ? "EC-Lab OLE COM" : "Direct DLL";
+    LogMessage("BioLogic initialized in %s mode", modeName);
+
+    // Note: biologicID is only used in Direct DLL mode, not needed for EC-Lab
+    ctx->biologicID = 0;  // Not used with abstraction layer
     
     TNYQueueManager *tnyQueueMgr = TNY_GetGlobalQueueManager();
     if (!tnyQueueMgr) {
