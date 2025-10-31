@@ -14,6 +14,31 @@
 #include <tlhelp32.h>
 
 /******************************************************************************
+ * VARIANT Access Macros for LabWindows/CVI
+ ******************************************************************************/
+
+// LabWindows/CVI uses named unions in VARIANT structure (NONAMELESSUNION mode)
+// Access pattern: variant.n1.n2.vt and variant.n1.n2.n3.lVal
+#ifndef V_VT
+#define V_VT(X)         ((X)->n1.n2.vt)
+#endif
+#ifndef V_I4
+#define V_I4(X)         ((X)->n1.n2.n3.lVal)
+#endif
+#ifndef V_R8
+#define V_R8(X)         ((X)->n1.n2.n3.dblVal)
+#endif
+#ifndef V_BOOL
+#define V_BOOL(X)       ((X)->n1.n2.n3.boolVal)
+#endif
+#ifndef V_BSTR
+#define V_BSTR(X)       ((X)->n1.n2.n3.bstrVal)
+#endif
+#ifndef V_ARRAY
+#define V_ARRAY(X)      ((X)->n1.n2.n3.parray)
+#endif
+
+/******************************************************************************
  * Internal Helper Functions
  ******************************************************************************/
 
@@ -252,8 +277,8 @@ int ECLAB_ConnectDevice(ECLabConnection *conn, int deviceNumber) {
     // Build parameter
     VARIANT vDevice;
     VariantInit(&vDevice);
-    vDevice.vt = VT_I4;
-    vDevice.lVal = deviceNumber;
+    V_VT(&vDevice) = VT_I4;
+    V_I4(&vDevice) = deviceNumber;
 
     // Call ConnectDevice method
     VARIANT result;
@@ -268,7 +293,7 @@ int ECLAB_ConnectDevice(ECLabConnection *conn, int deviceNumber) {
     }
 
     // Check return value (should be 0 for success)
-    int retVal = (result.vt == VT_I4) ? result.lVal : -1;
+    int retVal = (V_VT(&result) == VT_I4) ? V_I4(&result) : -1;
     VariantClear(&result);
 
     if (retVal != 0) {
@@ -291,8 +316,8 @@ int ECLAB_DisconnectDevice(ECLabConnection *conn) {
 
     VARIANT vDevice;
     VariantInit(&vDevice);
-    vDevice.vt = VT_I4;
-    vDevice.lVal = conn->deviceNumber;
+    V_VT(&vDevice) = VT_I4;
+    V_I4(&vDevice) = conn->deviceNumber;
 
     VARIANT result;
     HRESULT hr = InvokeMethod(conn->pECLab, L"DisconnectDevice", &result, 1, &vDevice);
@@ -317,8 +342,8 @@ int ECLAB_TestConnection(ECLabConnection *conn) {
 
     VARIANT vDevice;
     VariantInit(&vDevice);
-    vDevice.vt = VT_I4;
-    vDevice.lVal = conn->deviceNumber;
+    V_VT(&vDevice) = VT_I4;
+    V_I4(&vDevice) = conn->deviceNumber;
 
     VARIANT result;
     HRESULT hr = InvokeMethod(conn->pECLab, L"TestConnection", &result, 1, &vDevice);
@@ -330,7 +355,7 @@ int ECLAB_TestConnection(ECLabConnection *conn) {
         return ECLAB_ERR_COM_INVOKE_FAILED;
     }
 
-    int retVal = (result.vt == VT_I4) ? result.lVal : -1;
+    int retVal = (V_VT(&result) == VT_I4) ? V_I4(&result) : -1;
     VariantClear(&result);
 
     return (retVal == 0) ? SUCCESS : ECLAB_ERR_NOT_CONNECTED;
@@ -359,14 +384,14 @@ int ECLAB_LoadSettings(ECLabConnection *conn, int device, int channel,
     VariantInit(&vChannel);
     VariantInit(&vFilePath);
 
-    vDevice.vt = VT_I4;
-    vDevice.lVal = device;
+    V_VT(&vDevice) = VT_I4;
+    V_I4(&vDevice) = device;
 
-    vChannel.vt = VT_I4;
-    vChannel.lVal = channel;
+    V_VT(&vChannel) = VT_I4;
+    V_I4(&vChannel) = channel;
 
-    vFilePath.vt = VT_BSTR;
-    vFilePath.bstrVal = StringToBSTR(mpsFilePath);
+    V_VT(&vFilePath) = VT_BSTR;
+    V_BSTR(&vFilePath) = StringToBSTR(mpsFilePath);
 
     // Call LoadSettings method
     VARIANT result;
@@ -383,7 +408,7 @@ int ECLAB_LoadSettings(ECLabConnection *conn, int device, int channel,
         return ECLAB_ERR_COM_INVOKE_FAILED;
     }
 
-    int retVal = (result.vt == VT_I4) ? result.lVal : -1;
+    int retVal = (V_VT(&result) == VT_I4) ? V_I4(&result) : -1;
     VariantClear(&result);
 
     if (retVal != 0) {
@@ -408,14 +433,14 @@ int ECLAB_RunChannel(ECLabConnection *conn, int device, int channel,
     VariantInit(&vChannel);
     VariantInit(&vOutputPath);
 
-    vDevice.vt = VT_I4;
-    vDevice.lVal = device;
+    V_VT(&vDevice) = VT_I4;
+    V_I4(&vDevice) = device;
 
-    vChannel.vt = VT_I4;
-    vChannel.lVal = channel;
+    V_VT(&vChannel) = VT_I4;
+    V_I4(&vChannel) = channel;
 
-    vOutputPath.vt = VT_BSTR;
-    vOutputPath.bstrVal = StringToBSTR(outputMprPath);
+    V_VT(&vOutputPath) = VT_BSTR;
+    V_BSTR(&vOutputPath) = StringToBSTR(outputMprPath);
 
     // Call RunChannel method
     VARIANT result;
@@ -432,7 +457,7 @@ int ECLAB_RunChannel(ECLabConnection *conn, int device, int channel,
         return ECLAB_ERR_COM_INVOKE_FAILED;
     }
 
-    int retVal = (result.vt == VT_I4) ? result.lVal : -1;
+    int retVal = (V_VT(&result) == VT_I4) ? V_I4(&result) : -1;
     VariantClear(&result);
 
     if (retVal != 0) {
@@ -454,11 +479,11 @@ int ECLAB_StopChannel(ECLabConnection *conn, int device, int channel) {
     VariantInit(&vDevice);
     VariantInit(&vChannel);
 
-    vDevice.vt = VT_I4;
-    vDevice.lVal = device;
+    V_VT(&vDevice) = VT_I4;
+    V_I4(&vDevice) = device;
 
-    vChannel.vt = VT_I4;
-    vChannel.lVal = channel;
+    V_VT(&vChannel) = VT_I4;
+    V_I4(&vChannel) = channel;
 
     VARIANT result;
     HRESULT hr = InvokeMethod(conn->pECLab, L"StopChannel", &result, 2,
@@ -494,17 +519,17 @@ int ECLAB_MeasureStatus(ECLabConnection *conn, int device, int channel,
     VariantInit(&vChannel);
     VariantInit(&vStatusArray);
 
-    vDevice.vt = VT_I4;
-    vDevice.lVal = device;
+    V_VT(&vDevice) = VT_I4;
+    V_I4(&vDevice) = device;
 
-    vChannel.vt = VT_I4;
-    vChannel.lVal = channel;
+    V_VT(&vChannel) = VT_I4;
+    V_I4(&vChannel) = channel;
 
     // vStatusArray is an output parameter (BYREF)
-    vStatusArray.vt = VT_VARIANT | VT_BYREF;
     VARIANT statusResult;
     VariantInit(&statusResult);
-    vStatusArray.pvarVal = &statusResult;
+    V_VT(&vStatusArray) = VT_VARIANT | VT_BYREF;
+    vStatusArray.n1.n2.n3.pvarVal = &statusResult;
 
     // Call MeasureStatus method
     VARIANT result;
@@ -521,8 +546,8 @@ int ECLAB_MeasureStatus(ECLabConnection *conn, int device, int channel,
     }
 
     // Parse status array (should be SAFEARRAY of 32 variants)
-    if (statusResult.vt == (VT_ARRAY | VT_VARIANT)) {
-        SAFEARRAY *psa = statusResult.parray;
+    if (V_VT(&statusResult) == (VT_ARRAY | VT_VARIANT)) {
+        SAFEARRAY *psa = V_ARRAY(&statusResult);
         LONG lBound, uBound;
         SafeArrayGetLBound(psa, 1, &lBound);
         SafeArrayGetUBound(psa, 1, &uBound);
@@ -538,38 +563,38 @@ int ECLAB_MeasureStatus(ECLabConnection *conn, int device, int channel,
         SafeArrayAccessData(psa, (void**)&pData);
 
         if (numElements >= 32) {
-            status->status = (pData[0].vt == VT_I4) ? pData[0].lVal : 0;
-            status->oxRed = (pData[1].vt == VT_I4) ? pData[1].lVal : 0;
-            status->ocv = (pData[2].vt == VT_I4) ? pData[2].lVal : 0;
-            status->eis = (pData[3].vt == VT_I4) ? pData[3].lVal : 0;
-            status->techniqueNumber = (pData[4].vt == VT_I4) ? pData[4].lVal : 0;
-            status->techniqueCode = (pData[5].vt == VT_I4) ? pData[5].lVal : 0;
-            status->sequenceNumber = (pData[6].vt == VT_I4) ? pData[6].lVal : 0;
-            status->currentLoopIteration = (pData[7].vt == VT_I4) ? pData[7].lVal : 0;
-            status->currentSequenceInLoop = (pData[8].vt == VT_I4) ? pData[8].lVal : 0;
-            status->loopExperimentIteration = (pData[9].vt == VT_I4) ? pData[9].lVal : 0;
-            status->cycleNumber = (pData[10].vt == VT_I4) ? pData[10].lVal : 0;
-            status->counter1 = (pData[11].vt == VT_I4) ? pData[11].lVal : 0;
-            status->counter2 = (pData[12].vt == VT_I4) ? pData[12].lVal : 0;
-            status->counter3 = (pData[13].vt == VT_I4) ? pData[13].lVal : 0;
-            status->bufferSize = (pData[14].vt == VT_I4) ? pData[14].lVal : 0;
-            status->time = (pData[15].vt == VT_R8) ? pData[15].dblVal : 0.0;
-            status->ewe = (pData[16].vt == VT_R8) ? pData[16].dblVal : 0.0;
-            status->ece = (pData[17].vt == VT_R8) ? pData[17].dblVal : 0.0;
-            status->eoc = (pData[18].vt == VT_R8) ? pData[18].dblVal : 0.0;
-            status->current = (pData[19].vt == VT_R8) ? pData[19].dblVal : 0.0;
-            status->charge = (pData[20].vt == VT_R8) ? pData[20].dblVal : 0.0;
-            status->aux1 = (pData[21].vt == VT_R8) ? pData[21].dblVal : 0.0;
-            status->aux2 = (pData[22].vt == VT_R8) ? pData[22].dblVal : 0.0;
-            status->iRange = (pData[23].vt == VT_R8) ? pData[23].dblVal : 0.0;
-            status->rCompensation = (pData[24].vt == VT_R8) ? pData[24].dblVal : 0.0;
-            status->frequency = (pData[25].vt == VT_R8) ? pData[25].dblVal : 0.0;
-            status->zMagnitude = (pData[26].vt == VT_R8) ? pData[26].dblVal : 0.0;
-            status->currentPointIndex = (pData[27].vt == VT_I4) ? pData[27].lVal : 0;
-            status->totalPointIndex = (pData[28].vt == VT_I4) ? pData[28].lVal : 0;
-            status->temperature = (pData[29].vt == VT_R8) ? pData[29].dblVal : 0.0;
-            status->safetyLimit = (pData[30].vt == VT_I4) ? pData[30].lVal : 0;
-            status->connection = (pData[31].vt == VT_I4) ? pData[31].lVal : 0;
+            status->status = (V_VT(&pData[0]) == VT_I4) ? V_I4(&pData[0]) : 0;
+            status->oxRed = (V_VT(&pData[1]) == VT_I4) ? V_I4(&pData[1]) : 0;
+            status->ocv = (V_VT(&pData[2]) == VT_I4) ? V_I4(&pData[2]) : 0;
+            status->eis = (V_VT(&pData[3]) == VT_I4) ? V_I4(&pData[3]) : 0;
+            status->techniqueNumber = (V_VT(&pData[4]) == VT_I4) ? V_I4(&pData[4]) : 0;
+            status->techniqueCode = (V_VT(&pData[5]) == VT_I4) ? V_I4(&pData[5]) : 0;
+            status->sequenceNumber = (V_VT(&pData[6]) == VT_I4) ? V_I4(&pData[6]) : 0;
+            status->currentLoopIteration = (V_VT(&pData[7]) == VT_I4) ? V_I4(&pData[7]) : 0;
+            status->currentSequenceInLoop = (V_VT(&pData[8]) == VT_I4) ? V_I4(&pData[8]) : 0;
+            status->loopExperimentIteration = (V_VT(&pData[9]) == VT_I4) ? V_I4(&pData[9]) : 0;
+            status->cycleNumber = (V_VT(&pData[10]) == VT_I4) ? V_I4(&pData[10]) : 0;
+            status->counter1 = (V_VT(&pData[11]) == VT_I4) ? V_I4(&pData[11]) : 0;
+            status->counter2 = (V_VT(&pData[12]) == VT_I4) ? V_I4(&pData[12]) : 0;
+            status->counter3 = (V_VT(&pData[13]) == VT_I4) ? V_I4(&pData[13]) : 0;
+            status->bufferSize = (V_VT(&pData[14]) == VT_I4) ? V_I4(&pData[14]) : 0;
+            status->time = (V_VT(&pData[15]) == VT_R8) ? V_R8(&pData[15]) : 0.0;
+            status->ewe = (V_VT(&pData[16]) == VT_R8) ? V_R8(&pData[16]) : 0.0;
+            status->ece = (V_VT(&pData[17]) == VT_R8) ? V_R8(&pData[17]) : 0.0;
+            status->eoc = (V_VT(&pData[18]) == VT_R8) ? V_R8(&pData[18]) : 0.0;
+            status->current = (V_VT(&pData[19]) == VT_R8) ? V_R8(&pData[19]) : 0.0;
+            status->charge = (V_VT(&pData[20]) == VT_R8) ? V_R8(&pData[20]) : 0.0;
+            status->aux1 = (V_VT(&pData[21]) == VT_R8) ? V_R8(&pData[21]) : 0.0;
+            status->aux2 = (V_VT(&pData[22]) == VT_R8) ? V_R8(&pData[22]) : 0.0;
+            status->iRange = (V_VT(&pData[23]) == VT_R8) ? V_R8(&pData[23]) : 0.0;
+            status->rCompensation = (V_VT(&pData[24]) == VT_R8) ? V_R8(&pData[24]) : 0.0;
+            status->frequency = (V_VT(&pData[25]) == VT_R8) ? V_R8(&pData[25]) : 0.0;
+            status->zMagnitude = (V_VT(&pData[26]) == VT_R8) ? V_R8(&pData[26]) : 0.0;
+            status->currentPointIndex = (V_VT(&pData[27]) == VT_I4) ? V_I4(&pData[27]) : 0;
+            status->totalPointIndex = (V_VT(&pData[28]) == VT_I4) ? V_I4(&pData[28]) : 0;
+            status->temperature = (V_VT(&pData[29]) == VT_R8) ? V_R8(&pData[29]) : 0.0;
+            status->safetyLimit = (V_VT(&pData[30]) == VT_I4) ? V_I4(&pData[30]) : 0;
+            status->connection = (V_VT(&pData[31]) == VT_I4) ? V_I4(&pData[31]) : 0;
         }
 
         SafeArrayUnaccessData(psa);
@@ -687,8 +712,8 @@ int ECLAB_EnableMessagesWindows(ECLabConnection *conn, bool enable) {
 
     VARIANT vEnable;
     VariantInit(&vEnable);
-    vEnable.vt = VT_BOOL;
-    vEnable.boolVal = enable ? VARIANT_TRUE : VARIANT_FALSE;
+    V_VT(&vEnable) = VT_BOOL;
+    V_BOOL(&vEnable) = enable ? VARIANT_TRUE : VARIANT_FALSE;
 
     VARIANT result;
     HRESULT hr = InvokeMethod(conn->pECLab, L"EnableMessagesWindows", &result, 1, &vEnable);
