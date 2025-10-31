@@ -70,7 +70,7 @@
 // BioLogic control mode selection
 // 0 = Direct DLL mode (default) - Direct hardware control via ECLib.dll
 // 1 = EC-Lab OLE COM mode - Control via EC-Lab GUI automation
-#define BIOLOGIC_CONTROL_MODE           0
+#define BIOLOGIC_CONTROL_MODE           1
 
 // Direct DLL mode settings (used when BIOLOGIC_CONTROL_MODE == 0)
 #define BIOLOGIC_DEFAULT_ADDRESS        "USB0"

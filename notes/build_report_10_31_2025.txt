@@ -1,0 +1,47 @@
+Build Status (BatteryExploder.prj - Debug)
+ biologic_abstract.c - 2 errors, 7 warnings
+      10, 1   In file included from c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\biologic\biologic_abstract.c:10:
+  "biologic_abstract.h"(27,1)   In file included from c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\biologic\biologic_abstract.h:27:
+  "biologic_dll.h"(9,1)   In file included from c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\biologic\biologic_dll.h:9:
+  "common.h"(155,17)    error: cannot combine with previous 'int' declaration specifier
+  "stdbool.h"(31,14)    note: expanded from macro 'bool'
+      10, 1   In file included from c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\biologic\biologic_abstract.c:10:
+  "biologic_abstract.h"(29,1)   In file included from c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\biologic\biologic_abstract.h:29:
+  "biologic_eclab.h"(27,1)   In file included from c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\biologic\biologic_eclab.h:27:
+  "eclab_olecom.h"(68,1)    error: unknown type name 'IDispatch'
+  92, 1    warning: default label in switch which covers all enumeration values 
+  197, 1    warning: default label in switch which covers all enumeration values 
+  264, 1    warning: default label in switch which covers all enumeration values 
+  333, 1    warning: default label in switch which covers all enumeration values 
+  352, 1    warning: default label in switch which covers all enumeration values 
+  368, 1    warning: default label in switch which covers all enumeration values 
+  377, 1    warning: default label in switch which covers all enumeration values 
+ biologic_eclab.c - 9 errors, 3 warnings
+      11, 1   In file included from c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\biologic\biologic_eclab.c:11:
+  "biologic_eclab.h"(26,1)   In file included from c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\biologic\biologic_eclab.h:26:
+  "biologic_dll.h"(9,1)   In file included from c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\biologic\biologic_dll.h:9:
+  "common.h"(155,17)    error: cannot combine with previous 'int' declaration specifier
+  "stdbool.h"(31,14)    note: expanded from macro 'bool'
+      11, 1   In file included from c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\biologic\biologic_eclab.c:11:
+  "biologic_eclab.h"(27,1)   In file included from c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\biologic\biologic_eclab.h:27:
+  "eclab_olecom.h"(68,1)    error: unknown type name 'IDispatch'
+      11, 1   In file included from c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\biologic\biologic_eclab.c:11:
+  "biologic_eclab.h"(124,1)    error: unknown type name 'BioTechniqueProgressCallback'
+  "biologic_eclab.h"(147,1)    error: unknown type name 'BioTechniqueProgressCallback'
+  "biologic_eclab.h"(170,1)    error: unknown type name 'BioTechniqueProgressCallback'
+  47, 1    error: unknown type name 'BioTechniqueProgressCallback'
+  224, 1    error: unknown type name 'BioTechniqueProgressCallback'
+  270, 1    warning: unused variable 'finalStatus' 
+  291, 1    error: unknown type name 'BioTechniqueProgressCallback'
+  337, 1    warning: unused variable 'finalStatus' 
+  358, 1    error: unknown type name 'BioTechniqueProgressCallback'
+  404, 1    warning: unused variable 'finalStatus' 
+ eclab_olecom.c - 3 errors
+      11, 1   In file included from c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\biologic\eclab_olecom.c:11:
+  "eclab_olecom.h"(22,1)   In file included from c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\biologic\eclab_olecom.h:22:
+  "common.h"(155,17)    error: cannot combine with previous 'int' declaration specifier
+  "stdbool.h"(31,14)    note: expanded from macro 'bool'
+      11, 1   In file included from c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\biologic\eclab_olecom.c:11:
+  "eclab_olecom.h"(68,1)    error: unknown type name 'IDispatch'
+  14, 1    fatal error: 'process.h' file not found
+Build failed.
