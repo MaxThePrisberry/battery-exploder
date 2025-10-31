@@ -12,7 +12,7 @@ IVI Standard Root Dir = "/c/Program Files/IVI Foundation/IVI"
 VXIplug&play Framework Dir = "/C/Program Files (x86)/IVI Foundation/VISA/winnt"
 IVI Standard Root 64-bit Dir = "/C/Program Files/IVI Foundation/IVI"
 VXIplug&play Framework 64-bit Dir = "/C/Program Files/IVI Foundation/VISA/win64"
-Number of Files = 62
+Number of Files = 64
 Target Type = "Executable"
 Flags = 2064
 Copied From Locked InstrDrv Directory = False
@@ -863,6 +863,32 @@ Path Rel Path Line0001 = "../../../../../../Program Files (x86)/National Instrum
 Path Rel Path Line0002 = "erSupport/C/lib32/msvc/NIDAQmx.lib"
 Path Line0001 = "/c/Program Files (x86)/National Instruments/Shared/ExternalCompilerSupport/C/lib"
 Path Line0002 = "32/msvc/NIDAQmx.lib"
+Exclude = False
+Project Flags = 0
+Folder = "Library Files"
+Folder Id = 3
+
+[File 0063]
+File Type = "Library"
+Res Id = 63
+Path Is Rel = True
+Path Rel To = "Project"
+Path Rel Path Line0001 = "../../../../../../Program Files (x86)/National Instruments/CVI2020/sdk/lib/msvc/"
+Path Rel Path Line0002 = "ole32.lib"
+Path Line0001 = "/c/Program Files (x86)/National Instruments/CVI2020/sdk/lib/msvc/ole32.lib"
+Exclude = False
+Project Flags = 0
+Folder = "Library Files"
+Folder Id = 3
+
+[File 0064]
+File Type = "Library"
+Res Id = 64
+Path Is Rel = True
+Path Rel To = "Project"
+Path Rel Path Line0001 = "../../../../../../Program Files (x86)/National Instruments/CVI2020/sdk/lib/msvc/"
+Path Rel Path Line0002 = "oleaut32.lib"
+Path Line0001 = "/c/Program Files (x86)/National Instruments/CVI2020/sdk/lib/msvc/oleaut32.lib"
 Exclude = False
 Project Flags = 0
 Folder = "Library Files"
