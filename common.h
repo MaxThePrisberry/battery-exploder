@@ -151,7 +151,8 @@
 //==============================================================================
 
 // Boolean type for old C standards
-#ifndef __cplusplus
+// Only define if stdbool.h hasn't been included (checked via macro defined by stdbool.h)
+#if !defined(__cplusplus) && !defined(__bool_true_false_are_defined)
     typedef int bool;
     #define true    1
     #define false   0

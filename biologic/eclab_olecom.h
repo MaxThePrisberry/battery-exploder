@@ -19,6 +19,8 @@
 
 #include <windows.h>
 #include <stdbool.h>
+#include <oaidl.h>
+#include <oleauto.h>
 #include "common.h"
 
 /******************************************************************************

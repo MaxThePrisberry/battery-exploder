@@ -269,6 +269,7 @@ int BIO_ECLAB_RunOCV(const char *mpsFilePath,
     // Monitor until complete
     ECLAB_Status finalStatus;
     ret = MonitorMeasurement(timeout_ms, progressCallback, userData, cancelled, &finalStatus);
+    (void)finalStatus;  // Status retrieved but not currently used
     if (ret != SUCCESS) {
         return ret;
     }
@@ -336,6 +337,7 @@ int BIO_ECLAB_RunPEIS(const char *mpsFilePath,
     // Monitor until complete
     ECLAB_Status finalStatus;
     ret = MonitorMeasurement(timeout_ms, progressCallback, userData, cancelled, &finalStatus);
+    (void)finalStatus;  // Status retrieved but not currently used
     if (ret != SUCCESS) {
         return ret;
     }
@@ -403,6 +405,7 @@ int BIO_ECLAB_RunGEIS(const char *mpsFilePath,
     // Monitor until complete
     ECLAB_Status finalStatus;
     ret = MonitorMeasurement(timeout_ms, progressCallback, userData, cancelled, &finalStatus);
+    (void)finalStatus;  // Status retrieved but not currently used
     if (ret != SUCCESS) {
         return ret;
     }

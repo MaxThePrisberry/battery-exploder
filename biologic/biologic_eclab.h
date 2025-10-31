@@ -24,6 +24,7 @@
 #define BIOLOGIC_ECLAB_H
 
 #include "biologic_dll.h"
+#include "biologic_queue.h"
 #include "eclab_olecom.h"
 
 /******************************************************************************

@@ -11,7 +11,6 @@
 #include "eclab_olecom.h"
 #include "logging.h"
 #include <oleauto.h>
-#include <process.h>
 #include <tlhelp32.h>
 
 /******************************************************************************
