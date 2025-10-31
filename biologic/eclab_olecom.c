@@ -12,6 +12,7 @@
 #include "logging.h"
 #include <oleauto.h>
 #include <tlhelp32.h>
+#include <string.h>
 
 /******************************************************************************
  * VARIANT Access Macros for LabWindows/CVI
@@ -696,7 +697,7 @@ bool ECLAB_IsRunning(void) {
     bool found = false;
     if (Process32First(hSnapshot, &pe32)) {
         do {
-            if (_stricmp(pe32.szExeFile, "ECLab.exe") == 0) {
+            if (stricmp(pe32.szExeFile, "ECLab.exe") == 0) {
                 found = true;
                 break;
             }
