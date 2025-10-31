@@ -11,6 +11,7 @@
 #include "common.h"
 #include "biologic_dll.h"
 #include "biologic_queue.h"
+#include "biologic/biologic_abstract.h"
 #include "teensy_dll.h"
 #include "teensy_queue.h"
 #include "dtb4848_dll.h"

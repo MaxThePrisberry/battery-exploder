@@ -62,7 +62,7 @@ static bool CheckExperimentCancellation(void *userData);
 static int PerformEISMeasurement(TempRampExperimentContext *ctx);
 static int RunOCVMeasurement(TempRampExperimentContext *ctx, TempRampEISMeasurement *measurement);
 static int RunGEISMeasurement(TempRampExperimentContext *ctx, TempRampEISMeasurement *measurement);
-static void EISProgressCallback(double progress, void *userData);
+static void EISProgressCallback(double elapsedTime, int memFilled, void *userData);
 static void EISStatusCallback(const char *status, void *userData);
 static int CVICALLBACK TemperatureMonitorThread(void *functionData);
 static int ProcessGEISData(BIO_TechniqueData *geisData, TempRampEISMeasurement *measurement);
@@ -1756,10 +1756,11 @@ static int CVICALLBACK TemperatureMonitorThread(void *functionData) {
     return 0;
 }
 
-static void EISProgressCallback(double progress, void *userData) {
+static void EISProgressCallback(double elapsedTime, int memFilled, void *userData) {
     if (!g_eisCallbackContext) return;
-    
+
     TempRampExperimentContext *ctx = g_eisCallbackContext;
+    double progress = (double)memFilled / 100.0;  // Approximate progress from memory filled
     
     // Just update status with EIS progress
     // Temperature monitoring is now handled by dedicated thread
@@ -1915,18 +1916,17 @@ static int RunOCVMeasurement(TempRampExperimentContext *ctx, TempRampEISMeasurem
     // Set global context for callbacks
     g_eisCallbackContext = ctx;
     
-    int result = BIO_RunOCVQueued(ctx->biologicID, 0,
+    // Use abstraction layer - works with both Direct DLL and EC-Lab modes
+    int result = BIO_Abstract_RunOCV(0,  // channel
                                 OCV_DURATION_S,
                                 OCV_SAMPLE_INTERVAL_S,
                                 OCV_RECORD_EVERY_DE,
                                 OCV_RECORD_EVERY_DT,
                                 OCV_E_RANGE,
-                                true,
                                 &measurement->ocvData,
                                 OCV_TIMEOUT_MS,
-                                DEVICE_PRIORITY_NORMAL,
-                                EISProgressCallback, 
-                                EISStatusCallback, 
+                                EISProgressCallback,
+                                ctx,
                                 &(ctx->cancelRequested));
     
     // Clear global context
@@ -1958,7 +1958,8 @@ static int RunGEISMeasurement(TempRampExperimentContext *ctx, TempRampEISMeasure
     // Set global context for callbacks
     g_eisCallbackContext = ctx;
     
-    int result = BIO_RunGEISQueued(ctx->biologicID, 0,
+    // Use abstraction layer - works with both Direct DLL and EC-Lab modes
+    int result = BIO_Abstract_RunGEIS(0,  // channel
                                  GEIS_VS_INITIAL,
                                  GEIS_INITIAL_CURRENT,
                                  GEIS_DURATION_S,
@@ -1973,12 +1974,10 @@ static int RunGEISMeasurement(TempRampExperimentContext *ctx, TempRampEISMeasure
                                  GEIS_CORRECTION,
                                  GEIS_WAIT_FOR_STEADY,
                                  GEIS_I_RANGE,
-                                 true,
                                  &measurement->geisData,
                                  GEIS_TIMEOUT_MS,
-                                 DEVICE_PRIORITY_NORMAL,
-                                 EISProgressCallback, 
-                                 EISStatusCallback, 
+                                 EISProgressCallback,
+                                 ctx,
                                  &(ctx->cancelRequested));
     
     // Clear global context

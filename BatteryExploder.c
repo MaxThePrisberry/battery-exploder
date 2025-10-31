@@ -9,6 +9,7 @@
 #include "BatteryExploder.h"
 #include "exp_temp_ramp.h"
 #include "biologic_queue.h"
+#include "biologic/biologic_abstract.h"
 #include "psb10000_queue.h"
 #include "dtb4848_queue.h"
 #include "alicat_queue.h"
@@ -126,14 +127,36 @@ int main (int argc, char *argv[]) {
 	    }
 	}
 
-	// Initialize BioLogic queue manager if BioLogic monitoring is enabled
+	// Initialize BioLogic using abstraction layer
 	if (ENABLE_BIOLOGIC) {
-	    LogMessage("Initializing BioLogic queue manager...");
-	    g_bioQueueMgr = BIO_QueueInit(BIOLOGIC_DEFAULT_ADDRESS);
-	    
-	    if (g_bioQueueMgr) {
-	        BIO_SetGlobalQueueManager(g_bioQueueMgr);
-	        LogMessage("BioLogic queue manager initialized");
+	    LogMessage("Initializing BioLogic abstraction layer...");
+
+	    BIO_Config bioConfig = {0};
+
+#if BIOLOGIC_CONTROL_MODE == 1
+	    // EC-Lab OLE COM mode
+	    LogMessage("  Mode: EC-Lab OLE COM");
+	    bioConfig.mode = BIO_MODE_ECLAB_OLECOM;
+	    strncpy(bioConfig.eclab.settingsDir, ECLAB_SETTINGS_DIR, MAX_PATH - 1);
+	    strncpy(bioConfig.eclab.dataDir, ECLAB_DATA_DIR, MAX_PATH - 1);
+	    bioConfig.eclab.deviceNumber = ECLAB_DEVICE_NUMBER;
+	    bioConfig.eclab.channelNumber = ECLAB_CHANNEL_NUMBER;
+	    strncpy(bioConfig.eclab.ocvTemplate, ECLAB_OCV_TEMPLATE, MAX_PATH - 1);
+	    strncpy(bioConfig.eclab.peisTemplate, ECLAB_PEIS_TEMPLATE, MAX_PATH - 1);
+	    strncpy(bioConfig.eclab.geisTemplate, ECLAB_GEIS_TEMPLATE, MAX_PATH - 1);
+#else
+	    // Direct DLL mode
+	    LogMessage("  Mode: Direct DLL");
+	    bioConfig.mode = BIO_MODE_DIRECT_DLL;
+	    strncpy(bioConfig.dll.deviceAddress, BIOLOGIC_DEFAULT_ADDRESS, 63);
+	    bioConfig.dll.timeout = BIOLOGIC_CONNECTION_TIMEOUT;
+#endif
+
+	    int result = BIO_InitializeAbstract(&bioConfig);
+	    if (result == SUCCESS) {
+	        LogMessage("BioLogic abstraction layer initialized successfully");
+	    } else {
+	        LogError("Failed to initialize BioLogic: error %d", result);
 	    }
 	}
 
@@ -413,13 +436,10 @@ int CVICALLBACK PanelCallback(int panel, int event, void *callbackData,
 			    PSB_QueueShutdown(tempMgr);  // Then shutdown
 			}
 
-			// Shutdown BioLogic queue manager
-			if (g_bioQueueMgr) {
-			    LogMessage("Shutting down BioLogic queue manager...");
-			    BioQueueManager *tempMgr = g_bioQueueMgr;
-			    g_bioQueueMgr = NULL;  // Clear global pointer FIRST
-			    BIO_SetGlobalQueueManager(NULL);  // Clear global reference
-			    BIO_QueueShutdown(tempMgr);  // Then shutdown
+			// Shutdown BioLogic abstraction layer
+			if (ENABLE_BIOLOGIC) {
+			    LogMessage("Shutting down BioLogic abstraction layer...");
+			    BIO_ShutdownAbstract();
 			}
 
 			// Shutdown DTB queue manager
