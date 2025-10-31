@@ -156,51 +156,100 @@ static HRESULT GetProperty(IDispatch *pDisp, LPOLESTR propName, VARIANT *pResult
 int ECLAB_Initialize(ECLabConnection **conn, const char *workingDir) {
     if (!conn) return ERR_NULL_POINTER;
 
+    LogMessageEx(LOG_DEVICE_BIO, "========================================");
     LogMessageEx(LOG_DEVICE_BIO, "Initializing EC-Lab OLE COM connection");
+    LogMessageEx(LOG_DEVICE_BIO, "========================================");
 
     // Allocate connection structure
     ECLabConnection *c = (ECLabConnection*)calloc(1, sizeof(ECLabConnection));
-    if (!c) return ERR_OUT_OF_MEMORY;
+    if (!c) {
+        LogErrorEx(LOG_DEVICE_BIO, "Failed to allocate memory for connection");
+        return ERR_OUT_OF_MEMORY;
+    }
 
     // Set working directory
     if (workingDir) {
         strncpy(c->workingDir, workingDir, MAX_PATH - 1);
+        LogMessageEx(LOG_DEVICE_BIO, "Working directory: %s", c->workingDir);
     } else {
         GetCurrentDirectoryA(MAX_PATH, c->workingDir);
+        LogMessageEx(LOG_DEVICE_BIO, "Using current directory: %s", c->workingDir);
     }
 
     // Initialize COM
+    LogMessageEx(LOG_DEVICE_BIO, "Step 1: Initializing COM...");
     HRESULT hr = CoInitialize(NULL);
     if (FAILED(hr) && hr != RPC_E_CHANGED_MODE) {
-        LogErrorEx(LOG_DEVICE_BIO, "CoInitialize failed: 0x%08X", hr);
+        LogErrorEx(LOG_DEVICE_BIO, "ERROR: CoInitialize failed with HRESULT: 0x%08X", hr);
+        LogErrorEx(LOG_DEVICE_BIO, "This indicates a COM system error.");
         free(c);
         return ECLAB_ERR_COM_INIT_FAILED;
     }
+    if (hr == RPC_E_CHANGED_MODE) {
+        LogMessageEx(LOG_DEVICE_BIO, "COM already initialized in different mode (this is OK)");
+    } else {
+        LogMessageEx(LOG_DEVICE_BIO, "COM initialized successfully");
+    }
 
     // Get CLSID for EC-Lab
-    // EC-Lab ProgID is typically "ECLab.Application" or similar
-    // The exact ProgID should be in EC-Lab documentation
+    LogMessageEx(LOG_DEVICE_BIO, "Step 2: Resolving ProgID 'ECLab.Application'...");
     wchar_t progId[] = L"ECLab.Application";
     hr = CLSIDFromProgID(progId, &c->clsid);
     if (FAILED(hr)) {
-        LogErrorEx(LOG_DEVICE_BIO, "CLSIDFromProgID failed: 0x%08X. Is EC-Lab registered?", hr);
-        LogErrorEx(LOG_DEVICE_BIO, "Run: ECLab.exe /regserver");
+        LogErrorEx(LOG_DEVICE_BIO, "ERROR: CLSIDFromProgID failed with HRESULT: 0x%08X", hr);
+        LogErrorEx(LOG_DEVICE_BIO, "");
+        LogErrorEx(LOG_DEVICE_BIO, "This means EC-Lab is NOT registered as an OLE COM server.");
+        LogErrorEx(LOG_DEVICE_BIO, "");
+        LogErrorEx(LOG_DEVICE_BIO, "To fix this, run the following command as Administrator:");
+        LogErrorEx(LOG_DEVICE_BIO, "  cd \"C:\\Program Files (x86)\\EC-Lab\"");
+        LogErrorEx(LOG_DEVICE_BIO, "  ECLab.exe /regserver");
+        LogErrorEx(LOG_DEVICE_BIO, "");
+        LogErrorEx(LOG_DEVICE_BIO, "After registration, restart this application.");
         CoUninitialize();
         free(c);
         return ECLAB_ERR_COM_CREATE_FAILED;
     }
+    LogMessageEx(LOG_DEVICE_BIO, "ProgID resolved successfully. EC-Lab is registered.");
 
     // Create EC-Lab COM object
+    LogMessageEx(LOG_DEVICE_BIO, "Step 3: Creating EC-Lab COM instance...");
+    LogMessageEx(LOG_DEVICE_BIO, "NOTE: EC-Lab must be running for this to succeed.");
     hr = CoCreateInstance(&c->clsid, NULL, CLSCTX_LOCAL_SERVER,
                          &IID_IDispatch, (void**)&c->pECLab);
     if (FAILED(hr)) {
-        LogErrorEx(LOG_DEVICE_BIO, "CoCreateInstance failed: 0x%08X. Is EC-Lab running?", hr);
+        LogErrorEx(LOG_DEVICE_BIO, "ERROR: CoCreateInstance failed with HRESULT: 0x%08X", hr);
+        LogErrorEx(LOG_DEVICE_BIO, "");
+
+        if (hr == 0x800401F3) {  // CLSID_E_CLASSSTRING
+            LogErrorEx(LOG_DEVICE_BIO, "Class string error - EC-Lab may not be properly registered.");
+        } else if (hr == 0x80080005) {  // CO_E_SERVER_EXEC_FAILURE
+            LogErrorEx(LOG_DEVICE_BIO, "EC-Lab server execution failed.");
+            LogErrorEx(LOG_DEVICE_BIO, "Possible causes:");
+            LogErrorEx(LOG_DEVICE_BIO, "  1. EC-Lab is not running - START EC-Lab first");
+            LogErrorEx(LOG_DEVICE_BIO, "  2. EC-Lab crashed during startup");
+            LogErrorEx(LOG_DEVICE_BIO, "  3. Insufficient permissions");
+        } else if (hr == 0x80070005) {  // E_ACCESSDENIED
+            LogErrorEx(LOG_DEVICE_BIO, "Access denied - run as Administrator");
+        } else {
+            LogErrorEx(LOG_DEVICE_BIO, "Unknown COM error occurred.");
+        }
+
+        LogErrorEx(LOG_DEVICE_BIO, "");
+        LogErrorEx(LOG_DEVICE_BIO, "SOLUTION:");
+        LogErrorEx(LOG_DEVICE_BIO, "  1. Start EC-Lab application");
+        LogErrorEx(LOG_DEVICE_BIO, "  2. Wait for it to fully load");
+        LogErrorEx(LOG_DEVICE_BIO, "  3. Check for 'OLECOM' indicator in EC-Lab status bar");
+        LogErrorEx(LOG_DEVICE_BIO, "  4. Then start this application");
+
         CoUninitialize();
         free(c);
         return ECLAB_ERR_COM_CREATE_FAILED;
     }
+    LogMessageEx(LOG_DEVICE_BIO, "EC-Lab COM instance created successfully!");
 
+    LogMessageEx(LOG_DEVICE_BIO, "========================================");
     LogMessageEx(LOG_DEVICE_BIO, "EC-Lab OLE COM connection initialized");
+    LogMessageEx(LOG_DEVICE_BIO, "========================================");
 
     *conn = c;
     return SUCCESS;
@@ -273,7 +322,14 @@ int ECLAB_ConnectDevice(ECLabConnection *conn, int deviceNumber) {
     if (!conn || !conn->pECLab) return ECLAB_ERR_INVALID_CONNECTION;
     if (conn->isConnected) return ECLAB_ERR_ALREADY_CONNECTED;
 
+    LogMessageEx(LOG_DEVICE_BIO, "========================================");
     LogMessageEx(LOG_DEVICE_BIO, "Connecting to EC-Lab device %d", deviceNumber);
+    LogMessageEx(LOG_DEVICE_BIO, "========================================");
+    LogMessageEx(LOG_DEVICE_BIO, "IMPORTANT: Device must be connected in EC-Lab first!");
+    LogMessageEx(LOG_DEVICE_BIO, "  1. In EC-Lab, go to Device menu");
+    LogMessageEx(LOG_DEVICE_BIO, "  2. Select 'Connect Device'");
+    LogMessageEx(LOG_DEVICE_BIO, "  3. Verify device %d is connected and active", deviceNumber);
+    LogMessageEx(LOG_DEVICE_BIO, "");
 
     // Build parameter
     VARIANT vDevice;
@@ -282,13 +338,18 @@ int ECLAB_ConnectDevice(ECLabConnection *conn, int deviceNumber) {
     V_I4(&vDevice) = deviceNumber;
 
     // Call ConnectDevice method
+    LogMessageEx(LOG_DEVICE_BIO, "Calling EC-Lab ConnectDevice method...");
     VARIANT result;
     HRESULT hr = InvokeMethod(conn->pECLab, L"ConnectDevice", &result, 1, &vDevice);
 
     VariantClear(&vDevice);
 
     if (FAILED(hr)) {
-        LogErrorEx(LOG_DEVICE_BIO, "ConnectDevice COM call failed: 0x%08X", hr);
+        LogErrorEx(LOG_DEVICE_BIO, "ERROR: ConnectDevice COM call failed with HRESULT: 0x%08X", hr);
+        LogErrorEx(LOG_DEVICE_BIO, "This could mean:");
+        LogErrorEx(LOG_DEVICE_BIO, "  - The method name is incorrect");
+        LogErrorEx(LOG_DEVICE_BIO, "  - EC-Lab interface has changed");
+        LogErrorEx(LOG_DEVICE_BIO, "  - Communication with EC-Lab was interrupted");
         VariantClear(&result);
         return ECLAB_ERR_COM_INVOKE_FAILED;
     }
@@ -298,14 +359,23 @@ int ECLAB_ConnectDevice(ECLabConnection *conn, int deviceNumber) {
     VariantClear(&result);
 
     if (retVal != 0) {
-        LogErrorEx(LOG_DEVICE_BIO, "ConnectDevice returned error: %d", retVal);
+        LogErrorEx(LOG_DEVICE_BIO, "ERROR: ConnectDevice returned error code: %d", retVal);
+        LogErrorEx(LOG_DEVICE_BIO, "Possible causes:");
+        LogErrorEx(LOG_DEVICE_BIO, "  - Device %d is not physically connected", deviceNumber);
+        LogErrorEx(LOG_DEVICE_BIO, "  - Device is not powered on");
+        LogErrorEx(LOG_DEVICE_BIO, "  - Device is already in use by another application");
+        LogErrorEx(LOG_DEVICE_BIO, "  - Wrong device number specified");
+        LogErrorEx(LOG_DEVICE_BIO, "");
+        LogErrorEx(LOG_DEVICE_BIO, "Check EC-Lab's device list to verify available devices.");
         return ECLAB_ERR_DEVICE_NOT_FOUND;
     }
 
     conn->deviceNumber = deviceNumber;
     conn->isConnected = true;
 
-    LogMessageEx(LOG_DEVICE_BIO, "Connected to EC-Lab device %d", deviceNumber);
+    LogMessageEx(LOG_DEVICE_BIO, "========================================");
+    LogMessageEx(LOG_DEVICE_BIO, "Successfully connected to device %d!", deviceNumber);
+    LogMessageEx(LOG_DEVICE_BIO, "========================================");
     return SUCCESS;
 }
 
