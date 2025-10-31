@@ -1,0 +1,16 @@
+Build Status (BatteryExploder.prj - Debug)
+ eclab_olecom.c
+ Link BatteryExploder.exe
+  error: Undefined symbol '_CLSIDFromProgID@8' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\eclab_olecom.obj".  
+  error: Undefined symbol '_CoCreateInstance@20' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\eclab_olecom.obj".  
+  error: Undefined symbol '_CoInitialize@4' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\eclab_olecom.obj".  
+  error: Undefined symbol '_CoUninitialize@0' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\eclab_olecom.obj".  
+  error: Undefined symbol '_SafeArrayAccessData@8' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\eclab_olecom.obj".  
+  error: Undefined symbol '_SafeArrayGetLBound@12' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\eclab_olecom.obj".  
+  error: Undefined symbol '_SafeArrayGetUBound@12' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\eclab_olecom.obj".  
+  error: Undefined symbol '_SafeArrayUnaccessData@4' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\eclab_olecom.obj".  
+  error: Undefined symbol '_SysAllocString@4' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\eclab_olecom.obj".  
+  error: Undefined symbol '_VariantClear@4' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\eclab_olecom.obj".  
+  error: Undefined symbol '_VariantCopy@8' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\eclab_olecom.obj".  
+  error: Undefined symbol '_VariantInit@4' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\eclab_olecom.obj".  
+Build failed.
