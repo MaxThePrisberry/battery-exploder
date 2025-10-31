@@ -1,0 +1,90 @@
+Build Status (BatteryExploder.prj - Debug)
+ alicat_dll.c - 3 warnings
+  172, 1    warning: implicit conversion loses integer precision: 'int' to 'unsigned short' 
+  209, 1    warning: implicit conversion loses integer precision: 'int' to 'unsigned short' 
+  213, 1    warning: implicit conversion loses integer precision: 'int' to 'unsigned short' 
+ alicat_queue.c
+ alicat_test.c
+ battery_utils.c
+ BatteryExploder.c
+ biologic_abstract.c - 10 warnings
+  92, 1    warning: default label in switch which covers all enumeration values 
+  93, 1    warning: will never be executed 
+  197, 1    warning: default label in switch which covers all enumeration values 
+  264, 1    warning: default label in switch which covers all enumeration values 
+  333, 1    warning: default label in switch which covers all enumeration values 
+  352, 1    warning: default label in switch which covers all enumeration values 
+  353, 1    warning: will never be executed 
+  368, 1    warning: default label in switch which covers all enumeration values 
+  377, 1    warning: default label in switch which covers all enumeration values 
+  377, 1    warning: will never be executed 
+ biologic_dll.c
+ biologic_eclab.c
+ biologic_queue.c
+ biologic_test.c
+ cdaq_utils.c
+ cmd_prompt.c - 2 warnings
+  446, 25    warning: unused variable 'time1Str' 
+  447, 25    warning: unused variable 'time2Str' 
+ common.c
+ controls.c
+ device_queue.c - 4 warnings
+  469, 9    warning: default label in switch which covers all enumeration values 
+  469, 46    warning: will never be executed 
+  1118, 9    warning: default label in switch which covers all enumeration values 
+  1118, 26    warning: will never be executed 
+ device_queue_test.c
+ dtb4848_dll.c - 6 warnings
+  1380, 1    warning: implicit conversion loses integer precision: 'int' to 'unsigned short' 
+  1392, 1    warning: implicit conversion loses integer precision: 'int' to 'unsigned short' 
+  1416, 1    warning: implicit conversion loses integer precision: 'int' to 'unsigned short' 
+  1428, 1    warning: implicit conversion loses integer precision: 'int' to 'unsigned short' 
+  1453, 1    warning: implicit conversion loses integer precision: 'int' to 'unsigned short' 
+  1465, 1    warning: implicit conversion loses integer precision: 'int' to 'unsigned short' 
+ dtb4848_queue.c
+ dtb_ramp_soak_test.c
+ eclab_olecom.c - 20 errors
+  255, 1    error: no member named 'vt' in 'struct tagVARIANT'
+  256, 1    error: no member named 'lVal' in 'struct tagVARIANT'
+  271, 1    error: no member named 'vt' in 'struct tagVARIANT'
+  271, 1    error: no member named 'lVal' in 'struct tagVARIANT'
+  294, 1    error: no member named 'vt' in 'struct tagVARIANT'
+  295, 1    error: no member named 'lVal' in 'struct tagVARIANT'
+  320, 1    error: no member named 'vt' in 'struct tagVARIANT'
+  321, 1    error: no member named 'lVal' in 'struct tagVARIANT'
+  333, 1    error: no member named 'vt' in 'struct tagVARIANT'
+  333, 1    error: no member named 'lVal' in 'struct tagVARIANT'
+  362, 1    error: no member named 'vt' in 'struct tagVARIANT'
+  363, 1    error: no member named 'lVal' in 'struct tagVARIANT'
+  365, 1    error: no member named 'vt' in 'struct tagVARIANT'
+  366, 1    error: no member named 'lVal' in 'struct tagVARIANT'
+  368, 1    error: no member named 'vt' in 'struct tagVARIANT'
+  369, 1    error: no member named 'bstrVal' in 'struct tagVARIANT'
+  386, 1    error: no member named 'vt' in 'struct tagVARIANT'
+  386, 1    error: no member named 'lVal' in 'struct tagVARIANT'
+  411, 1    error: no member named 'vt' in 'struct tagVARIANT'
+  412, 1    error: no member named 'lVal' in 'struct tagVARIANT'
+ exp_temp_ramp.c - 5 warnings
+  143, 9    warning: will never be executed 
+  1663, 36    warning: will never be executed 
+  1650, 9    warning: will never be executed 
+  1928, 33    warning: incompatible pointer types passing 'void (double, void *)' to parameter of type 'BioTechniqueProgressCallback' (aka 'void (*)(double, int, void *)') 
+  "biologic_queue.h"(291,50)    note: passing argument to parameter 'progressCallback' here
+  1980, 34    warning: incompatible pointer types passing 'void (double, void *)' to parameter of type 'BioTechniqueProgressCallback' (aka 'void (*)(double, int, void *)') 
+  "biologic_queue.h"(338,51)    note: passing argument to parameter 'progressCallback' here
+ logging.c
+ pressure_safety.c - 5 warnings
+  143, 1    warning: unused variable 'status' 
+  292, 1    warning: default label in switch which covers all enumeration values 
+  292, 1    warning: will never be executed 
+  300, 1    warning: default label in switch which covers all enumeration values 
+  300, 1    warning: will never be executed 
+ psb10000_dll.c
+ psb10000_queue.c
+ psb10000_test.c
+ status.c - 2 warnings
+  1041, 1    warning: default label in switch which covers all enumeration values 
+  1041, 1    warning: will never be executed 
+ teensy_dll.c
+ teensy_queue.c
+Build failed.
