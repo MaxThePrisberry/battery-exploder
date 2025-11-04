@@ -64,15 +64,15 @@ static void DiagnoseCOMRegistration(const wchar_t *progId, CLSID *pClsid) {
     // Check registry key for LocalServer32
     HKEY hKey;
     char keyPath[256];
-    char clsidStr[64];
+    char clsidForRegistry[64];
 
     // Convert CLSID to ASCII string for registry path
     LPOLESTR clsidWStr = NULL;
     if (SUCCEEDED(StringFromCLSID(pClsid, &clsidWStr))) {
-        WideCharToMultiByte(CP_ACP, 0, clsidWStr, -1, clsidStr, sizeof(clsidStr), NULL, NULL);
+        WideCharToMultiByte(CP_ACP, 0, clsidWStr, -1, clsidForRegistry, sizeof(clsidForRegistry), NULL, NULL);
         CoTaskMemFree(clsidWStr);
 
-        snprintf(keyPath, sizeof(keyPath), "CLSID\\%s\\LocalServer32", clsidStr);
+        snprintf(keyPath, sizeof(keyPath), "CLSID\\%s\\LocalServer32", clsidForRegistry);
 
         if (RegOpenKeyExA(HKEY_CLASSES_ROOT, keyPath, 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
             char serverPath[MAX_PATH];
