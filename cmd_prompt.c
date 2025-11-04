@@ -688,6 +688,12 @@ static int BioLogicCommandManager(CommandContext *ctx) {
 	char message[1024];
 	int error;
 
+	// Trim leading whitespace from command
+	char *trimmed = TrimWhitespace(ctx->command);
+	char *command = my_strdup(trimmed);
+	free(ctx->command);
+	ctx->command = command;
+
 	// BIO MODE - Show current control mode
 	if (strcmp(ctx->command, "MODE") == 0) {
 		BIO_ControlMode mode = BIO_GetCurrentMode();
