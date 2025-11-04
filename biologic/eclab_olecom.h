@@ -4,8 +4,10 @@
  * Low-level OLE COM wrapper for EC-Lab automation
  *
  * This module provides a C interface to EC-Lab's OLE COM automation API.
- * It handles Windows COM initialization, IDispatch interface management,
- * and BSTR/VARIANT conversions.
+ * It uses EC-Lab's CUSTOM COM INTERFACE (IEClabExe), NOT IDispatch!
+ *
+ * IMPORTANT: EC-Lab does not support IDispatch automation. You must use
+ * the custom IEClabExe interface with direct vtable calls.
  *
  * EC-Lab must be installed and registered as an OLE COM server before use:
  *   C:\> cd "C:\Program Files (x86)\EC-Lab"
@@ -22,6 +24,7 @@
 #include <oaidl.h>
 #include <oleauto.h>
 #include "common.h"
+#include "eclab_olecom_interface.h"  // Custom IEClabExe interface
 
 /******************************************************************************
  * Configuration Constants
@@ -67,7 +70,7 @@
 
 // EC-Lab connection handle
 typedef struct {
-    IDispatch *pECLab;           // OLE COM interface pointer
+    IEClabExe *pInterface;       // Custom IEClabExe interface pointer
     int deviceNumber;            // EC-Lab device index (0-based)
     int channelNumber;           // EC-Lab channel index (0-based)
     bool isConnected;            // Connection state

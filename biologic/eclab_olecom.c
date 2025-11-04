@@ -4,8 +4,12 @@
  * Implementation of EC-Lab OLE COM wrapper
  *
  * This file contains Windows COM automation code for interfacing with EC-Lab.
- * It handles IDispatch method invocation, BSTR string conversions, and
- * VARIANT type management.
+ * It uses the custom IEClabExe interface (NOT IDispatch) with direct vtable
+ * calls for method invocation. BSTR string conversions and VARIANT type
+ * management are still required for parameter passing.
+ *
+ * IMPORTANT: EC-Lab does not support IDispatch automation. This implementation
+ * uses the custom IEClabExe interface defined in eclab_olecom_interface.h.
  ******************************************************************************/
 
 #include "eclab_olecom.h"
@@ -285,80 +289,29 @@ int ECLAB_Initialize(ECLabConnection **conn, const char *workingDir) {
     }
     LogMessageEx(LOG_DEVICE_BIO, "EC-Lab process detected - proceeding with COM connection");
 
-    // Create EC-Lab COM object
+    // Create EC-Lab COM object using custom IEClabExe interface
     LogMessageEx(LOG_DEVICE_BIO, "Step 4: Creating EC-Lab COM instance...");
     LogMessageEx(LOG_DEVICE_BIO, "NOTE: This will connect to the running EC-Lab application.");
+    LogMessageEx(LOG_DEVICE_BIO, "NOTE: Using custom IEClabExe interface (NOT IDispatch)");
 
-    // Try CLSCTX_ALL first (allows COM to choose best context)
-    LogMessageEx(LOG_DEVICE_BIO, "Attempting with CLSCTX_ALL (flexible context)...");
-    hr = CoCreateInstance(&c->clsid, NULL, CLSCTX_ALL,
-                         &IID_IDispatch, (void**)&c->pECLab);
+    // Create instance with custom interface
+    LogMessageEx(LOG_DEVICE_BIO, "Requesting IEClabExe interface...");
+    hr = CoCreateInstance(&c->clsid, NULL, CLSCTX_LOCAL_SERVER,
+                         &IID_IEClabExe, (void**)&c->pInterface);
 
-    // If that fails, try the two-step approach: IUnknown then QueryInterface
-    if (FAILED(hr)) {
-        LogMessageEx(LOG_DEVICE_BIO, "CLSCTX_ALL failed (0x%08X), trying IUnknown approach...", hr);
+    // If that fails with E_NOINTERFACE, show diagnostics
+    if (hr == E_NOINTERFACE) {
+        LogErrorEx(LOG_DEVICE_BIO, "CRITICAL: EC-Lab does not support IEClabExe interface!");
+        LogErrorEx(LOG_DEVICE_BIO, "");
 
-        IUnknown *pUnknown = NULL;
-        hr = CoCreateInstance(&c->clsid, NULL, CLSCTX_ALL,
-                             &IID_IUnknown, (void**)&pUnknown);
+        // Show COM registration details
+        DiagnoseCOMRegistration(L"EClabCOM.EClabExe", &c->clsid);
 
-        if (SUCCEEDED(hr) && pUnknown) {
-            LogMessageEx(LOG_DEVICE_BIO, "Got IUnknown, querying for IDispatch...");
-            hr = pUnknown->lpVtbl->QueryInterface(pUnknown, &IID_IDispatch, (void**)&c->pECLab);
-
-            // If IDispatch failed, try to diagnose what interfaces ARE available
-            if (FAILED(hr)) {
-                LogErrorEx(LOG_DEVICE_BIO, "QueryInterface for IDispatch failed: 0x%08X", hr);
-                LogMessageEx(LOG_DEVICE_BIO, "");
-                LogMessageEx(LOG_DEVICE_BIO, "Diagnosing COM object capabilities...");
-
-                // Try IProvideClassInfo to get type information
-                IProvideClassInfo *pClassInfo = NULL;
-                HRESULT hrInfo = pUnknown->lpVtbl->QueryInterface(pUnknown, &IID_IProvideClassInfo,
-                                                                  (void**)&pClassInfo);
-                if (SUCCEEDED(hrInfo)) {
-                    LogMessageEx(LOG_DEVICE_BIO, "  - IProvideClassInfo: SUPPORTED");
-                    pClassInfo->lpVtbl->Release(pClassInfo);
-                } else {
-                    LogMessageEx(LOG_DEVICE_BIO, "  - IProvideClassInfo: not supported (0x%08X)", hrInfo);
-                }
-
-                LogMessageEx(LOG_DEVICE_BIO, "  - IDispatch: NOT SUPPORTED (0x%08X)", hr);
-                LogMessageEx(LOG_DEVICE_BIO, "  - IUnknown: SUPPORTED (base interface only)");
-
-                // Show COM registration details
-                DiagnoseCOMRegistration(L"EClabCOM.EClabExe", &c->clsid);
-
-                LogErrorEx(LOG_DEVICE_BIO, "CRITICAL: EC-Lab COM object does not support IDispatch!");
-                LogErrorEx(LOG_DEVICE_BIO, "This means the OLE COM automation interface is not available.");
-                LogErrorEx(LOG_DEVICE_BIO, "");
-                LogErrorEx(LOG_DEVICE_BIO, "Most likely causes (in order):");
-                LogErrorEx(LOG_DEVICE_BIO, "");
-                LogErrorEx(LOG_DEVICE_BIO, "1. ** DEVICE NOT CONNECTED ** (MOST COMMON)");
-                LogErrorEx(LOG_DEVICE_BIO, "   In EC-Lab, go to: Device -> Connect");
-                LogErrorEx(LOG_DEVICE_BIO, "   Wait until SP-150e shows as CONNECTED");
-                LogErrorEx(LOG_DEVICE_BIO, "   THEN restart this application");
-                LogErrorEx(LOG_DEVICE_BIO, "");
-                LogErrorEx(LOG_DEVICE_BIO, "2. EC-Lab version does not support OLE COM automation");
-                LogErrorEx(LOG_DEVICE_BIO, "   Check EC-Lab: Help -> About");
-                LogErrorEx(LOG_DEVICE_BIO, "   Need version 11.50 or later with 'OLE COM' support");
-                LogErrorEx(LOG_DEVICE_BIO, "");
-                LogErrorEx(LOG_DEVICE_BIO, "3. OLE COM not enabled in EC-Lab");
-                LogErrorEx(LOG_DEVICE_BIO, "   Check: Tools -> Options -> Communications");
-                LogErrorEx(LOG_DEVICE_BIO, "   Enable OLE COM automation if option exists");
-                LogErrorEx(LOG_DEVICE_BIO, "");
-                LogErrorEx(LOG_DEVICE_BIO, "4. Incorrect EC-Lab COM registration");
-                LogErrorEx(LOG_DEVICE_BIO, "   Re-register EC-Lab (as Administrator):");
-                LogErrorEx(LOG_DEVICE_BIO, "   cd \"C:\\Program Files (x86)\\EC-Lab\"");
-                LogErrorEx(LOG_DEVICE_BIO, "   ECLab.exe /regserver");
-            } else {
-                LogMessageEx(LOG_DEVICE_BIO, "Successfully obtained IDispatch via QueryInterface");
-            }
-
-            pUnknown->lpVtbl->Release(pUnknown);
-        } else {
-            LogErrorEx(LOG_DEVICE_BIO, "Failed to get IUnknown: 0x%08X", hr);
-        }
+        LogErrorEx(LOG_DEVICE_BIO, "");
+        LogErrorEx(LOG_DEVICE_BIO, "Possible causes:");
+        LogErrorEx(LOG_DEVICE_BIO, "1. EC-Lab version is too old and doesn't have this interface");
+        LogErrorEx(LOG_DEVICE_BIO, "2. EC-Lab COM registration is incomplete");
+        LogErrorEx(LOG_DEVICE_BIO, "3. Wrong ProgID or CLSID");
     }
 
     if (FAILED(hr)) {
@@ -421,9 +374,9 @@ int ECLAB_Shutdown(ECLabConnection *conn) {
     }
 
     // Release COM interface
-    if (conn->pECLab) {
-        conn->pECLab->lpVtbl->Release(conn->pECLab);
-        conn->pECLab = NULL;
+    if (conn->pInterface) {
+        conn->pInterface->lpVtbl->Release(conn->pInterface);
+        conn->pInterface = NULL;
     }
 
     CoUninitialize();
@@ -474,7 +427,7 @@ int ECLAB_RegisterServer(const char *eclabPath) {
  ******************************************************************************/
 
 int ECLAB_ConnectDevice(ECLabConnection *conn, int deviceNumber) {
-    if (!conn || !conn->pECLab) return ECLAB_ERR_INVALID_CONNECTION;
+    if (!conn || !conn->pInterface) return ECLAB_ERR_INVALID_CONNECTION;
     if (conn->isConnected) return ECLAB_ERR_ALREADY_CONNECTED;
 
     LogMessageEx(LOG_DEVICE_BIO, "========================================");
@@ -486,32 +439,9 @@ int ECLAB_ConnectDevice(ECLabConnection *conn, int deviceNumber) {
     LogMessageEx(LOG_DEVICE_BIO, "  3. Verify device %d is connected and active", deviceNumber);
     LogMessageEx(LOG_DEVICE_BIO, "");
 
-    // Build parameter
-    VARIANT vDevice;
-    VariantInit(&vDevice);
-    V_VT(&vDevice) = VT_I4;
-    V_I4(&vDevice) = deviceNumber;
-
-    // Call ConnectDevice method
+    // Call ConnectDevice method directly through vtable
     LogMessageEx(LOG_DEVICE_BIO, "Calling EC-Lab ConnectDevice method...");
-    VARIANT result;
-    HRESULT hr = InvokeMethod(conn->pECLab, L"ConnectDevice", &result, 1, &vDevice);
-
-    VariantClear(&vDevice);
-
-    if (FAILED(hr)) {
-        LogErrorEx(LOG_DEVICE_BIO, "ERROR: ConnectDevice COM call failed with HRESULT: 0x%08X", hr);
-        LogErrorEx(LOG_DEVICE_BIO, "This could mean:");
-        LogErrorEx(LOG_DEVICE_BIO, "  - The method name is incorrect");
-        LogErrorEx(LOG_DEVICE_BIO, "  - EC-Lab interface has changed");
-        LogErrorEx(LOG_DEVICE_BIO, "  - Communication with EC-Lab was interrupted");
-        VariantClear(&result);
-        return ECLAB_ERR_COM_INVOKE_FAILED;
-    }
-
-    // Check return value (should be 0 for success)
-    int retVal = (V_VT(&result) == VT_I4) ? V_I4(&result) : -1;
-    VariantClear(&result);
+    int retVal = conn->pInterface->lpVtbl->ConnectDevice(conn->pInterface, deviceNumber);
 
     if (retVal != 0) {
         LogErrorEx(LOG_DEVICE_BIO, "ERROR: ConnectDevice returned error code: %d", retVal);
@@ -535,26 +465,18 @@ int ECLAB_ConnectDevice(ECLabConnection *conn, int deviceNumber) {
 }
 
 int ECLAB_DisconnectDevice(ECLabConnection *conn) {
-    if (!conn || !conn->pECLab) return ECLAB_ERR_INVALID_CONNECTION;
+    if (!conn || !conn->pInterface) return ECLAB_ERR_INVALID_CONNECTION;
     if (!conn->isConnected) return SUCCESS;  // Already disconnected
 
     LogMessageEx(LOG_DEVICE_BIO, "Disconnecting from EC-Lab device %d", conn->deviceNumber);
 
-    VARIANT vDevice;
-    VariantInit(&vDevice);
-    V_VT(&vDevice) = VT_I4;
-    V_I4(&vDevice) = conn->deviceNumber;
-
-    VARIANT result;
-    HRESULT hr = InvokeMethod(conn->pECLab, L"DisconnectDevice", &result, 1, &vDevice);
-
-    VariantClear(&vDevice);
-    VariantClear(&result);
+    // Call DisconnectDevice method directly through vtable
+    int retVal = conn->pInterface->lpVtbl->DisconnectDevice(conn->pInterface, conn->deviceNumber);
 
     conn->isConnected = false;
 
-    if (FAILED(hr)) {
-        LogWarningEx(LOG_DEVICE_BIO, "DisconnectDevice COM call failed: 0x%08X", hr);
+    if (retVal != 0) {
+        LogWarningEx(LOG_DEVICE_BIO, "DisconnectDevice returned error: %d", retVal);
         return ECLAB_ERR_COM_INVOKE_FAILED;
     }
 
@@ -563,26 +485,11 @@ int ECLAB_DisconnectDevice(ECLabConnection *conn) {
 }
 
 int ECLAB_TestConnection(ECLabConnection *conn) {
-    if (!conn || !conn->pECLab) return ECLAB_ERR_INVALID_CONNECTION;
+    if (!conn || !conn->pInterface) return ECLAB_ERR_INVALID_CONNECTION;
     if (!conn->isConnected) return ECLAB_ERR_NOT_CONNECTED;
 
-    VARIANT vDevice;
-    VariantInit(&vDevice);
-    V_VT(&vDevice) = VT_I4;
-    V_I4(&vDevice) = conn->deviceNumber;
-
-    VARIANT result;
-    HRESULT hr = InvokeMethod(conn->pECLab, L"TestConnection", &result, 1, &vDevice);
-
-    VariantClear(&vDevice);
-
-    if (FAILED(hr)) {
-        VariantClear(&result);
-        return ECLAB_ERR_COM_INVOKE_FAILED;
-    }
-
-    int retVal = (V_VT(&result) == VT_I4) ? V_I4(&result) : -1;
-    VariantClear(&result);
+    // Call TestConnection method directly through vtable
+    int retVal = conn->pInterface->lpVtbl->TestConnection(conn->pInterface, conn->deviceNumber);
 
     return (retVal == 0) ? SUCCESS : ECLAB_ERR_NOT_CONNECTED;
 }
@@ -593,7 +500,7 @@ int ECLAB_TestConnection(ECLabConnection *conn) {
 
 int ECLAB_LoadSettings(ECLabConnection *conn, int device, int channel,
                       const char *mpsFilePath) {
-    if (!conn || !conn->pECLab) return ECLAB_ERR_INVALID_CONNECTION;
+    if (!conn || !conn->pInterface) return ECLAB_ERR_INVALID_CONNECTION;
     if (!mpsFilePath) return ERR_NULL_POINTER;
 
     LogMessageEx(LOG_DEVICE_BIO, "Loading settings from: %s", mpsFilePath);
@@ -604,38 +511,18 @@ int ECLAB_LoadSettings(ECLabConnection *conn, int device, int channel,
         return ECLAB_ERR_FILE_NOT_FOUND;
     }
 
-    // Build parameters
-    VARIANT vDevice, vChannel, vFilePath;
-    VariantInit(&vDevice);
-    VariantInit(&vChannel);
-    VariantInit(&vFilePath);
-
-    V_VT(&vDevice) = VT_I4;
-    V_I4(&vDevice) = device;
-
-    V_VT(&vChannel) = VT_I4;
-    V_I4(&vChannel) = channel;
-
-    V_VT(&vFilePath) = VT_BSTR;
-    V_BSTR(&vFilePath) = StringToBSTR(mpsFilePath);
-
-    // Call LoadSettings method
-    VARIANT result;
-    HRESULT hr = InvokeMethod(conn->pECLab, L"LoadSettings", &result, 3,
-                              &vDevice, &vChannel, &vFilePath);
-
-    VariantClear(&vDevice);
-    VariantClear(&vChannel);
-    VariantClear(&vFilePath);
-
-    if (FAILED(hr)) {
-        LogErrorEx(LOG_DEVICE_BIO, "LoadSettings COM call failed: 0x%08X", hr);
-        VariantClear(&result);
-        return ECLAB_ERR_COM_INVOKE_FAILED;
+    // Convert file path to BSTR
+    BSTR bstrFilePath = StringToBSTR(mpsFilePath);
+    if (!bstrFilePath) {
+        LogErrorEx(LOG_DEVICE_BIO, "Failed to convert file path to BSTR");
+        return ECLAB_ERR_BSTR_CONVERSION;
     }
 
-    int retVal = (V_VT(&result) == VT_I4) ? V_I4(&result) : -1;
-    VariantClear(&result);
+    // Call LoadSettings method directly through vtable
+    int retVal = conn->pInterface->lpVtbl->LoadSettings(conn->pInterface,
+                                                        device, channel, bstrFilePath);
+
+    SysFreeString(bstrFilePath);
 
     if (retVal != 0) {
         LogErrorEx(LOG_DEVICE_BIO, "LoadSettings returned error: %d", retVal);
@@ -648,43 +535,23 @@ int ECLAB_LoadSettings(ECLabConnection *conn, int device, int channel,
 
 int ECLAB_RunChannel(ECLabConnection *conn, int device, int channel,
                     const char *outputMprPath) {
-    if (!conn || !conn->pECLab) return ECLAB_ERR_INVALID_CONNECTION;
+    if (!conn || !conn->pInterface) return ECLAB_ERR_INVALID_CONNECTION;
     if (!outputMprPath) return ERR_NULL_POINTER;
 
     LogMessageEx(LOG_DEVICE_BIO, "Starting measurement, output: %s", outputMprPath);
 
-    // Build parameters
-    VARIANT vDevice, vChannel, vOutputPath;
-    VariantInit(&vDevice);
-    VariantInit(&vChannel);
-    VariantInit(&vOutputPath);
-
-    V_VT(&vDevice) = VT_I4;
-    V_I4(&vDevice) = device;
-
-    V_VT(&vChannel) = VT_I4;
-    V_I4(&vChannel) = channel;
-
-    V_VT(&vOutputPath) = VT_BSTR;
-    V_BSTR(&vOutputPath) = StringToBSTR(outputMprPath);
-
-    // Call RunChannel method
-    VARIANT result;
-    HRESULT hr = InvokeMethod(conn->pECLab, L"RunChannel", &result, 3,
-                              &vDevice, &vChannel, &vOutputPath);
-
-    VariantClear(&vDevice);
-    VariantClear(&vChannel);
-    VariantClear(&vOutputPath);
-
-    if (FAILED(hr)) {
-        LogErrorEx(LOG_DEVICE_BIO, "RunChannel COM call failed: 0x%08X", hr);
-        VariantClear(&result);
-        return ECLAB_ERR_COM_INVOKE_FAILED;
+    // Convert output path to BSTR
+    BSTR bstrOutputPath = StringToBSTR(outputMprPath);
+    if (!bstrOutputPath) {
+        LogErrorEx(LOG_DEVICE_BIO, "Failed to convert output path to BSTR");
+        return ECLAB_ERR_BSTR_CONVERSION;
     }
 
-    int retVal = (V_VT(&result) == VT_I4) ? V_I4(&result) : -1;
-    VariantClear(&result);
+    // Call RunChannel method directly through vtable
+    int retVal = conn->pInterface->lpVtbl->RunChannel(conn->pInterface,
+                                                      device, channel, bstrOutputPath);
+
+    SysFreeString(bstrOutputPath);
 
     if (retVal != 0) {
         LogErrorEx(LOG_DEVICE_BIO, "RunChannel returned error: %d", retVal);
@@ -696,31 +563,16 @@ int ECLAB_RunChannel(ECLabConnection *conn, int device, int channel,
 }
 
 int ECLAB_StopChannel(ECLabConnection *conn, int device, int channel) {
-    if (!conn || !conn->pECLab) return ECLAB_ERR_INVALID_CONNECTION;
+    if (!conn || !conn->pInterface) return ECLAB_ERR_INVALID_CONNECTION;
 
     LogMessageEx(LOG_DEVICE_BIO, "Stopping measurement on device %d, channel %d",
                 device, channel);
 
-    VARIANT vDevice, vChannel;
-    VariantInit(&vDevice);
-    VariantInit(&vChannel);
+    // Call StopChannel method directly through vtable
+    int retVal = conn->pInterface->lpVtbl->StopChannel(conn->pInterface, device, channel);
 
-    V_VT(&vDevice) = VT_I4;
-    V_I4(&vDevice) = device;
-
-    V_VT(&vChannel) = VT_I4;
-    V_I4(&vChannel) = channel;
-
-    VARIANT result;
-    HRESULT hr = InvokeMethod(conn->pECLab, L"StopChannel", &result, 2,
-                              &vDevice, &vChannel);
-
-    VariantClear(&vDevice);
-    VariantClear(&vChannel);
-    VariantClear(&result);
-
-    if (FAILED(hr)) {
-        LogWarningEx(LOG_DEVICE_BIO, "StopChannel COM call failed: 0x%08X", hr);
+    if (retVal != 0) {
+        LogWarningEx(LOG_DEVICE_BIO, "StopChannel returned error: %d", retVal);
         return ECLAB_ERR_COM_INVOKE_FAILED;
     }
 
@@ -734,40 +586,21 @@ int ECLAB_StopChannel(ECLabConnection *conn, int device, int channel) {
 
 int ECLAB_MeasureStatus(ECLabConnection *conn, int device, int channel,
                        ECLAB_Status *status) {
-    if (!conn || !conn->pECLab) return ECLAB_ERR_INVALID_CONNECTION;
+    if (!conn || !conn->pInterface) return ECLAB_ERR_INVALID_CONNECTION;
     if (!status) return ERR_NULL_POINTER;
 
     memset(status, 0, sizeof(ECLAB_Status));
 
-    // Build parameters
-    VARIANT vDevice, vChannel, vStatusArray;
-    VariantInit(&vDevice);
-    VariantInit(&vChannel);
-    VariantInit(&vStatusArray);
-
-    V_VT(&vDevice) = VT_I4;
-    V_I4(&vDevice) = device;
-
-    V_VT(&vChannel) = VT_I4;
-    V_I4(&vChannel) = channel;
-
-    // vStatusArray is an output parameter (BYREF)
+    // Call MeasureStatus method directly through vtable
     VARIANT statusResult;
     VariantInit(&statusResult);
-    V_VT(&vStatusArray) = VT_VARIANT | VT_BYREF;
-    vStatusArray.n1.n2.n3.pvarVal = &statusResult;
 
-    // Call MeasureStatus method
-    VARIANT result;
-    HRESULT hr = InvokeMethod(conn->pECLab, L"MeasureStatus", &result, 3,
-                              &vDevice, &vChannel, &vStatusArray);
+    int retVal = conn->pInterface->lpVtbl->MeasureStatus(conn->pInterface,
+                                                         device, channel, &statusResult);
 
-    VariantClear(&vDevice);
-    VariantClear(&vChannel);
-
-    if (FAILED(hr)) {
-        VariantClear(&vStatusArray);
-        VariantClear(&result);
+    if (retVal != 0) {
+        LogErrorEx(LOG_DEVICE_BIO, "MeasureStatus returned error: %d", retVal);
+        VariantClear(&statusResult);
         return ECLAB_ERR_COM_INVOKE_FAILED;
     }
 
@@ -826,9 +659,7 @@ int ECLAB_MeasureStatus(ECLabConnection *conn, int device, int channel,
         SafeArrayUnaccessData(psa);
     }
 
-    VariantClear(&vStatusArray);
     VariantClear(&statusResult);
-    VariantClear(&result);
 
     return SUCCESS;
 }
@@ -934,20 +765,21 @@ bool ECLAB_IsRunning(void) {
 }
 
 int ECLAB_EnableMessagesWindows(ECLabConnection *conn, bool enable) {
-    if (!conn || !conn->pECLab) return ECLAB_ERR_INVALID_CONNECTION;
+    if (!conn || !conn->pInterface) return ECLAB_ERR_INVALID_CONNECTION;
 
-    VARIANT vEnable;
-    VariantInit(&vEnable);
-    V_VT(&vEnable) = VT_BOOL;
-    V_BOOL(&vEnable) = enable ? VARIANT_TRUE : VARIANT_FALSE;
-
-    VARIANT result;
-    HRESULT hr = InvokeMethod(conn->pECLab, L"EnableMessagesWindows", &result, 1, &vEnable);
-
-    VariantClear(&vEnable);
-    VariantClear(&result);
+    // Call EnableMessagesWindows method directly through vtable
+    int functionResult;
+    HRESULT hr = conn->pInterface->lpVtbl->EnableMessagesWindows(conn->pInterface,
+                                                                 enable ? 1 : 0,
+                                                                 &functionResult);
 
     if (FAILED(hr)) {
+        LogErrorEx(LOG_DEVICE_BIO, "EnableMessagesWindows COM call failed: 0x%08X", hr);
+        return ECLAB_ERR_COM_INVOKE_FAILED;
+    }
+
+    if (functionResult != 0) {
+        LogWarningEx(LOG_DEVICE_BIO, "EnableMessagesWindows returned error: %d", functionResult);
         return ECLAB_ERR_COM_INVOKE_FAILED;
     }
 
