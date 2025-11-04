@@ -1,0 +1,194 @@
+
+=== Battery Tester Log Started: 2025-11-04 14:40:21 ===
+Log file location: c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\BatteryExploder.log
+2025-11-04 14:40:21 [INFO] Initializing cDAQ module...
+2025-11-04 14:40:21 [INFO] Initializing cDAQ thermocouple slots 2 and 3...
+2025-11-04 14:40:22 [INFO] cDAQ slot 2 initialized with 16 thermocouples
+2025-11-04 14:40:23 [INFO] cDAQ slot 3 initialized with 16 thermocouples
+2025-11-04 14:40:23 [INFO] cDAQ module initialized successfully
+2025-11-04 14:40:23 [INFO] cDAQ thermocouple slots initialized successfully
+2025-11-04 14:40:23 [INFO] Initializing cDAQ slot 1 for 4-20mA current sensors (NI 9202)...
+2025-11-04 14:40:23 [INFO] cDAQ slot 1 initialized with 16 voltage channels (4-20mA mode)
+2025-11-04 14:40:23 [INFO] Shunt resistor: 250.0 ohms, Range: 1.0-5.0V (4-20mA)
+2025-11-04 14:40:23 [INFO] cDAQ current sensor slot initialized successfully (4-20mA)
+2025-11-04 14:40:23 [INFO] Initializing pressure safety monitoring...
+2025-11-04 14:40:23 [INFO] Initializing pressure safety monitoring module...
+2025-11-04 14:40:23 [INFO] Pressure safety module initialized
+2025-11-04 14:40:23 [INFO] Pressure safety monitoring initialized successfully
+2025-11-04 14:40:23 [INFO] Initializing PSB queue manager on COM3...
+2025-11-04 14:40:23 [INFO] Attempting to connect to PSB 10000...
+2025-11-04 14:40:23 [INFO] [PSB] Connecting to PSB on COM3...
+2025-11-04 14:40:23 [INFO] [PSB] Initializing on COM3, slave 1, 9600 baud
+2025-11-04 14:40:23 [INFO] [PSB] Successfully initialized
+2025-11-04 14:40:23 [INFO] [PSB] Setting remote mode: ON
+2025-11-04 14:40:23 [INFO] [PSB] Setting output: OFF
+2025-11-04 14:40:24 [INFO] Successfully connected to PSB 10000
+2025-11-04 14:40:24 [INFO] PSB 10000 queue manager initialized
+2025-11-04 14:40:24 [INFO] PSB queue manager initialized and connected on COM3
+2025-11-04 14:40:24 [INFO] PSB 10000 queue processing thread started
+2025-11-04 14:40:24 [INFO] Initializing PSB to safe state...
+2025-11-04 14:40:24 [INFO] [PSB] Setting PSB safe limits...
+2025-11-04 14:40:24 [INFO] [PSB] Setting min voltage: 0.00V
+2025-11-04 14:40:24 [INFO] [PSB] Setting max voltage: 61.20V
+2025-11-04 14:40:24 [INFO] [PSB] Setting min current: 0.00A
+2025-11-04 14:40:24 [INFO] [PSB] Setting max current: 61.20A
+2025-11-04 14:40:24 [INFO] [PSB] Setting sink max current: 61.20A
+2025-11-04 14:40:24 [INFO] [PSB] Setting sink min current: 0.00A
+2025-11-04 14:40:24 [INFO] [PSB] Setting max power: 1224.00W
+2025-11-04 14:40:24 [INFO] [PSB] Setting sink max power: 1224.00W
+2025-11-04 14:40:25 [INFO] [PSB] PSB safe limits set successfully
+2025-11-04 14:40:25 [INFO] [PSB] Zeroing all PSB values...
+2025-11-04 14:40:25 [INFO] [PSB] Setting output: OFF
+2025-11-04 14:40:25 [INFO] [PSB] Setting voltage: 0.00V (0x0000)
+2025-11-04 14:40:26 [INFO] [PSB] Setting current: 0.00A (0x0000)
+2025-11-04 14:40:26 [INFO] [PSB] Setting power: 0.00W (0x0000)
+2025-11-04 14:40:26 [INFO] [PSB] Setting sink current: 0.00A (0x0000)
+2025-11-04 14:40:26 [INFO] [PSB] Setting sink power: 0.00W (0x0000)
+2025-11-04 14:40:26 [INFO] [PSB] All PSB values zeroed successfully
+2025-11-04 14:40:26 [INFO] PSB initialization complete
+2025-11-04 14:40:26 [INFO] Initializing BioLogic abstraction layer...
+2025-11-04 14:40:26 [INFO]   Mode: EC-Lab OLE COM
+2025-11-04 14:40:26 [INFO] [BIO] Initializing BioLogic abstraction layer
+2025-11-04 14:40:26 [INFO] [BIO]   Mode: EC-Lab OLE COM
+2025-11-04 14:40:26 [INFO] [BIO] Initializing EC-Lab OLE COM mode
+2025-11-04 14:40:26 [INFO] [BIO]   Settings dir: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_settings
+2025-11-04 14:40:26 [INFO] [BIO]   Data dir: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data
+2025-11-04 14:40:26 [INFO] [BIO] Initializing EC-Lab backend
+2025-11-04 14:40:26 [INFO] [BIO]   Settings dir: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_settings
+2025-11-04 14:40:26 [INFO] [BIO]   Data dir: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data
+2025-11-04 14:40:26 [INFO] [BIO]   Device: 1, Channel: 1
+2025-11-04 14:40:26 [INFO] [BIO] ========================================
+2025-11-04 14:40:26 [INFO] [BIO] Initializing EC-Lab OLE COM connection
+2025-11-04 14:40:26 [INFO] [BIO] ========================================
+2025-11-04 14:40:26 [INFO] [BIO] Working directory: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data
+2025-11-04 14:40:26 [INFO] [BIO] Step 1: Initializing COM...
+2025-11-04 14:40:26 [INFO] [BIO] COM initialized successfully
+2025-11-04 14:40:26 [INFO] [BIO] Step 2: Resolving ProgID 'EClabCOM.EClabExe'...
+2025-11-04 14:40:26 [INFO] [BIO] ProgID resolved successfully. EC-Lab is registered.
+2025-11-04 14:40:26 [INFO] [BIO] Step 3: Checking if EC-Lab is running...
+2025-11-04 14:40:26 [INFO] [BIO] EC-Lab process detected - proceeding with COM connection
+2025-11-04 14:40:26 [INFO] [BIO] Step 4: Creating EC-Lab COM instance...
+2025-11-04 14:40:26 [INFO] [BIO] NOTE: This will connect to the running EC-Lab application.
+2025-11-04 14:40:26 [INFO] [BIO] NOTE: Using custom IEClabExe interface (NOT IDispatch)
+2025-11-04 14:40:26 [INFO] [BIO] Requesting IEClabExe interface...
+2025-11-04 14:40:27 [INFO] [BIO] EC-Lab COM instance created successfully!
+2025-11-04 14:40:27 [INFO] [BIO] ========================================
+2025-11-04 14:40:27 [INFO] [BIO] EC-Lab OLE COM connection initialized
+2025-11-04 14:40:27 [INFO] [BIO] ========================================
+2025-11-04 14:40:27 [INFO] [BIO] ========================================
+2025-11-04 14:40:27 [INFO] [BIO] Connecting to EC-Lab device 1
+2025-11-04 14:40:27 [INFO] [BIO] ========================================
+2025-11-04 14:40:27 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-04 14:40:27 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-04 14:40:27 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-04 14:40:27 [INFO] [BIO]   3. Verify device 1 is connected and active
+2025-11-04 14:40:27 [INFO] [BIO] 
+2025-11-04 14:40:27 [INFO] [BIO] Calling EC-Lab ConnectDevice_TS method...
+2025-11-04 14:40:27 [ERROR] [BIO] ERROR: ConnectDevice_TS COM call failed with HRESULT: 0x80004005
+2025-11-04 14:40:27 [ERROR] [BIO] Failed to connect to device: COM method invocation failed
+2025-11-04 14:40:27 [INFO] [BIO] Shutting down EC-Lab OLE COM connection
+2025-11-04 14:40:27 [INFO] [BIO] EC-Lab OLE COM connection shutdown complete
+2025-11-04 14:40:27 [ERROR] [BIO] Failed to initialize EC-Lab: COM method invocation failed
+2025-11-04 14:40:27 [ERROR] Failed to initialize BioLogic: error -2102
+2025-11-04 14:40:27 [INFO] Initializing DTB queue manager on COM5 with 2 devices...
+2025-11-04 14:40:27 [INFO] [DTB] DTB_QueueInit: Will initialize slave address 2
+2025-11-04 14:40:27 [INFO] [DTB] DTB_QueueInit: Will initialize slave address 3
+2025-11-04 14:40:27 [INFO] Attempting to connect to DTB 4848...
+2025-11-04 14:40:27 [INFO] [DTB] Connecting to DTB slave 2 on COM5...
+2025-11-04 14:40:27 [INFO] [DTB] Initializing on COM5, slave 2, 9600 baud
+2025-11-04 14:40:27 [INFO] [DTB] Successfully initialized
+2025-11-04 14:40:27 [INFO] [DTB] Successfully connected to DTB slave 2
+2025-11-04 14:40:27 [INFO] [DTB] Connecting to DTB slave 3 on COM5...
+2025-11-04 14:40:27 [INFO] [DTB] Initializing on COM5, slave 3, 9600 baud
+2025-11-04 14:40:27 [INFO] [DTB] Successfully initialized
+2025-11-04 14:40:27 [INFO] [DTB] Successfully connected to DTB slave 3
+2025-11-04 14:40:27 [INFO] [DTB] Connected to 2 of 2 DTB devices
+2025-11-04 14:40:27 [INFO] Successfully connected to DTB 4848
+2025-11-04 14:40:27 [INFO] DTB 4848 queue manager initialized
+2025-11-04 14:40:27 [INFO] [DTB] DTB_QueueInit: Successfully created queue manager for 2 devices
+2025-11-04 14:40:27 [INFO] DTB queue manager initialized and connected on COM5
+2025-11-04 14:40:27 [INFO] Enabling DTB write access for all devices...
+2025-11-04 14:40:27 [INFO] [DTB] Enabling write access for all 2 DTB devices...
+2025-11-04 14:40:27 [INFO] DTB 4848 queue processing thread started
+2025-11-04 14:40:27 [INFO] [DTB] Enabling write access...
+2025-11-04 14:40:28 [INFO] [DTB] Write access enabled
+2025-11-04 14:40:28 [INFO] [DTB] Enabling write access...
+2025-11-04 14:40:28 [INFO] [DTB] Write access enabled
+2025-11-04 14:40:28 [INFO] [DTB] Successfully enabled write access for all DTB devices
+2025-11-04 14:40:28 [INFO] DTB write access enabled successfully for all devices
+2025-11-04 14:40:28 [INFO] Configuring all DTB4848 devices for K-type thermocouple with PID control...
+2025-11-04 14:40:28 [INFO] [DTB] Write access status: ENABLED
+2025-11-04 14:40:28 [INFO] DTB slave 2 write access currently: ENABLED
+2025-11-04 14:40:28 [INFO] [DTB] Configuring DTB4848...
+2025-11-04 14:40:28 [INFO] [DTB] Setting sensor type: 0
+2025-11-04 14:40:29 [INFO] [DTB] Setting heating/cooling mode: 0
+2025-11-04 14:40:30 [INFO] [DTB] Setting control method: 0
+2025-11-04 14:40:30 [INFO] [DTB] Setting PID mode: 4 (AUTO)
+2025-11-04 14:40:30 [INFO] [DTB] Configuration complete
+2025-11-04 14:40:30 [INFO] DTB4848 slave 2 configured successfully
+2025-11-04 14:40:31 [INFO] [DTB] Write access status: ENABLED
+2025-11-04 14:40:31 [INFO] DTB slave 3 write access currently: ENABLED
+2025-11-04 14:40:31 [INFO] [DTB] Configuring DTB4848...
+2025-11-04 14:40:31 [INFO] [DTB] Setting sensor type: 0
+2025-11-04 14:40:31 [INFO] [DTB] Setting heating/cooling mode: 0
+2025-11-04 14:40:32 [INFO] [DTB] Setting control method: 0
+2025-11-04 14:40:32 [INFO] [DTB] Setting PID mode: 4 (AUTO)
+2025-11-04 14:40:33 [INFO] [DTB] Configuration complete
+2025-11-04 14:40:33 [INFO] DTB4848 slave 3 configured successfully
+2025-11-04 14:40:33 [INFO] DTB initialization complete
+2025-11-04 14:40:33 [INFO] Initializing ALICAT queue manager on COM7 with 1 devices...
+2025-11-04 14:40:33 [INFO] [ALI] ALICAT_QueueInit: Will initialize address 1
+2025-11-04 14:40:33 [INFO] Attempting to connect to ALICAT BASIS 2...
+2025-11-04 14:40:33 [INFO] [ALI] Connecting to ALICAT address 1 on COM7...
+2025-11-04 14:40:33 [INFO] [ALI] Initializing on COM7, address 1, 38400 baud
+2025-11-04 14:40:33 [INFO] [ALI] Serial Number: B036829     
+2025-11-04 14:40:33 [INFO] [ALI] Successfully initialized
+2025-11-04 14:40:33 [INFO] [ALI] Successfully connected to ALICAT address 1
+2025-11-04 14:40:33 [INFO] [ALI] Connected to 1 of 1 ALICAT devices
+2025-11-04 14:40:33 [INFO] Successfully connected to ALICAT BASIS 2
+2025-11-04 14:40:33 [INFO] ALICAT BASIS 2 queue manager initialized
+2025-11-04 14:40:33 [INFO] [ALI] ALICAT_QueueInit: Successfully created queue manager for 1 devices
+2025-11-04 14:40:33 [INFO] ALICAT queue manager initialized and connected on COM7
+2025-11-04 14:40:33 [INFO] [ALI] ALICAT BASIS 2 queue processing thread started
+2025-11-04 14:40:33 [INFO] Configuring all ALICAT devices with default settings...
+2025-11-04 14:40:33 [INFO] [ALI] Configuring ALICAT...
+2025-11-04 14:40:33 [INFO] [ALI] Setting gas type: 0 (Air)
+2025-11-04 14:40:33 [INFO] [ALI] Setting setpoint source: 2
+2025-11-04 14:40:33 [INFO] [ALI] Setting reference temperature: 25.0 deg C
+2025-11-04 14:40:33 [INFO] [ALI] Setting flow averaging: 100 ms
+2025-11-04 14:40:33 [INFO] [ALI] Setting autotare: ENABLED
+2025-11-04 14:40:33 [INFO] [ALI] Setting PID parameters: P 500, I 5000
+2025-11-04 14:40:33 [INFO] [ALI] Configuration complete
+2025-11-04 14:40:33 [INFO] ALICAT address 1 configured successfully
+2025-11-04 14:40:33 [INFO] [ALI] Setting gas type: 3 (Nitrogen)
+2025-11-04 14:40:33 [INFO] ALICAT address 1 gas set to Nitrogen
+2025-11-04 14:40:33 [INFO] Taring ALICAT address 1...
+2025-11-04 14:40:33 [INFO] [ALI] Performing tare...
+2025-11-04 14:40:34 [INFO] ALICAT address 1 tared successfully
+2025-11-04 14:40:34 [INFO] ALICAT initialization complete
+2025-11-04 14:40:34 [INFO] Initializing Teensy queue manager on COM6...
+2025-11-04 14:40:34 [INFO] Attempting to connect to Teensy...
+2025-11-04 14:40:34 [INFO] [TNY] Connecting to Teensy on COM6...
+2025-11-04 14:40:34 [INFO] [TNY] Initializing Teensy on COM6 at 9600 baud
+2025-11-04 14:40:34 [INFO] [TNY] Successfully connected to Teensy on COM6
+2025-11-04 14:40:34 [INFO] Successfully connected to Teensy
+2025-11-04 14:40:34 [INFO] Teensy queue manager initialized
+2025-11-04 14:40:34 [INFO] Teensy queue processing thread started
+2025-11-04 14:40:34 [INFO] Teensy queue manager initialized and connected on COM6
+2025-11-04 14:40:34 [INFO] [TNY] Initializing 2 pins (2 low, 0 high)
+2025-11-04 14:40:34 [INFO] Committed transaction 1 with 2 commands to normal priority queue
+2025-11-04 14:40:34 [INFO] [TNY] Pin initialization transaction committed
+2025-11-04 14:40:34 [INFO] [TNY] Starting transaction 1 with 2 commands
+2025-11-04 14:40:34 [INFO] Status module state: UNINITIALIZED -> INITIALIZING
+2025-11-04 14:40:34 [INFO] Device states initialized (DTB devices: 2)
+2025-11-04 14:40:34 [INFO] Status monitoring module initialized
+2025-11-04 14:40:34 [INFO] Controls module initialized with 2 DTB devices
+2025-11-04 14:40:34 [INFO] Controls module initialized for ALICAT Mass Flow Controller
+2025-11-04 14:40:34 [INFO] Starting device status monitoring...
+2025-11-04 14:40:34 [INFO] Status module state: INITIALIZING -> RUNNING
+2025-11-04 14:40:34 [INFO] Status timer thread started
+2025-11-04 14:40:34 [INFO] Status monitoring started successfully
+2025-11-04 14:40:34 [INFO] Starting controls module - syncing with device states...
+2025-11-04 14:40:34 [INFO] [TNY] Completed transaction 1
+2025-11-04 14:40:34 [INFO] PSB remote mode: ON
+2025-11-04 14:40:40 [INFO] Controls module started
