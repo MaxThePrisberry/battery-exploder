@@ -11,6 +11,7 @@
 #include "eclab_olecom.h"
 #include "logging.h"
 #include <oleauto.h>
+#include <ocidl.h>      // For IProvideClassInfo
 #include <tlhelp32.h>
 #include <string.h>
 
@@ -42,6 +43,63 @@
 /******************************************************************************
  * Internal Helper Functions
  ******************************************************************************/
+
+/**
+ * Check registry for COM server details
+ */
+static void DiagnoseCOMRegistration(const wchar_t *progId, CLSID *pClsid) {
+    LogMessageEx(LOG_DEVICE_BIO, "");
+    LogMessageEx(LOG_DEVICE_BIO, "=== COM Registration Diagnostics ===");
+
+    // Convert CLSID to string
+    LPOLESTR clsidStr = NULL;
+    if (SUCCEEDED(StringFromCLSID(pClsid, &clsidStr))) {
+        char clsidAscii[128];
+        WideCharToMultiByte(CP_ACP, 0, clsidStr, -1, clsidAscii, sizeof(clsidAscii), NULL, NULL);
+        LogMessageEx(LOG_DEVICE_BIO, "ProgID: EClabCOM.EClabExe");
+        LogMessageEx(LOG_DEVICE_BIO, "CLSID: %s", clsidAscii);
+        CoTaskMemFree(clsidStr);
+    }
+
+    // Check registry key for LocalServer32
+    HKEY hKey;
+    char keyPath[256];
+    char clsidStr[64];
+
+    // Convert CLSID to ASCII string for registry path
+    LPOLESTR clsidWStr = NULL;
+    if (SUCCEEDED(StringFromCLSID(pClsid, &clsidWStr))) {
+        WideCharToMultiByte(CP_ACP, 0, clsidWStr, -1, clsidStr, sizeof(clsidStr), NULL, NULL);
+        CoTaskMemFree(clsidWStr);
+
+        snprintf(keyPath, sizeof(keyPath), "CLSID\\%s\\LocalServer32", clsidStr);
+
+        if (RegOpenKeyExA(HKEY_CLASSES_ROOT, keyPath, 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+            char serverPath[MAX_PATH];
+            DWORD bufferSize = sizeof(serverPath);
+            DWORD type;
+
+            if (RegQueryValueExA(hKey, NULL, NULL, &type, (LPBYTE)serverPath, &bufferSize) == ERROR_SUCCESS) {
+                LogMessageEx(LOG_DEVICE_BIO, "Server path: %s", serverPath);
+
+                // Check if file exists
+                DWORD attr = GetFileAttributesA(serverPath);
+                if (attr == INVALID_FILE_ATTRIBUTES) {
+                    LogErrorEx(LOG_DEVICE_BIO, "WARNING: Server executable NOT FOUND at registered path!");
+                } else {
+                    LogMessageEx(LOG_DEVICE_BIO, "Server executable: EXISTS");
+                }
+            }
+            RegCloseKey(hKey);
+        } else {
+            LogErrorEx(LOG_DEVICE_BIO, "WARNING: LocalServer32 registry key not found!");
+            LogErrorEx(LOG_DEVICE_BIO, "This may indicate incomplete COM registration.");
+        }
+    }
+
+    LogMessageEx(LOG_DEVICE_BIO, "===================================");
+    LogMessageEx(LOG_DEVICE_BIO, "");
+}
 
 /**
  * Convert ASCII string to BSTR (wide string)
@@ -247,11 +305,59 @@ int ECLAB_Initialize(ECLabConnection **conn, const char *workingDir) {
         if (SUCCEEDED(hr) && pUnknown) {
             LogMessageEx(LOG_DEVICE_BIO, "Got IUnknown, querying for IDispatch...");
             hr = pUnknown->lpVtbl->QueryInterface(pUnknown, &IID_IDispatch, (void**)&c->pECLab);
-            pUnknown->lpVtbl->Release(pUnknown);
 
-            if (SUCCEEDED(hr)) {
+            // If IDispatch failed, try to diagnose what interfaces ARE available
+            if (FAILED(hr)) {
+                LogErrorEx(LOG_DEVICE_BIO, "QueryInterface for IDispatch failed: 0x%08X", hr);
+                LogMessageEx(LOG_DEVICE_BIO, "");
+                LogMessageEx(LOG_DEVICE_BIO, "Diagnosing COM object capabilities...");
+
+                // Try IProvideClassInfo to get type information
+                IProvideClassInfo *pClassInfo = NULL;
+                HRESULT hrInfo = pUnknown->lpVtbl->QueryInterface(pUnknown, &IID_IProvideClassInfo,
+                                                                  (void**)&pClassInfo);
+                if (SUCCEEDED(hrInfo)) {
+                    LogMessageEx(LOG_DEVICE_BIO, "  - IProvideClassInfo: SUPPORTED");
+                    pClassInfo->lpVtbl->Release(pClassInfo);
+                } else {
+                    LogMessageEx(LOG_DEVICE_BIO, "  - IProvideClassInfo: not supported (0x%08X)", hrInfo);
+                }
+
+                LogMessageEx(LOG_DEVICE_BIO, "  - IDispatch: NOT SUPPORTED (0x%08X)", hr);
+                LogMessageEx(LOG_DEVICE_BIO, "  - IUnknown: SUPPORTED (base interface only)");
+
+                // Show COM registration details
+                DiagnoseCOMRegistration(L"EClabCOM.EClabExe", &c->clsid);
+
+                LogErrorEx(LOG_DEVICE_BIO, "CRITICAL: EC-Lab COM object does not support IDispatch!");
+                LogErrorEx(LOG_DEVICE_BIO, "This means the OLE COM automation interface is not available.");
+                LogErrorEx(LOG_DEVICE_BIO, "");
+                LogErrorEx(LOG_DEVICE_BIO, "Most likely causes (in order):");
+                LogErrorEx(LOG_DEVICE_BIO, "");
+                LogErrorEx(LOG_DEVICE_BIO, "1. ** DEVICE NOT CONNECTED ** (MOST COMMON)");
+                LogErrorEx(LOG_DEVICE_BIO, "   In EC-Lab, go to: Device -> Connect");
+                LogErrorEx(LOG_DEVICE_BIO, "   Wait until SP-150e shows as CONNECTED");
+                LogErrorEx(LOG_DEVICE_BIO, "   THEN restart this application");
+                LogErrorEx(LOG_DEVICE_BIO, "");
+                LogErrorEx(LOG_DEVICE_BIO, "2. EC-Lab version does not support OLE COM automation");
+                LogErrorEx(LOG_DEVICE_BIO, "   Check EC-Lab: Help -> About");
+                LogErrorEx(LOG_DEVICE_BIO, "   Need version 11.50 or later with 'OLE COM' support");
+                LogErrorEx(LOG_DEVICE_BIO, "");
+                LogErrorEx(LOG_DEVICE_BIO, "3. OLE COM not enabled in EC-Lab");
+                LogErrorEx(LOG_DEVICE_BIO, "   Check: Tools -> Options -> Communications");
+                LogErrorEx(LOG_DEVICE_BIO, "   Enable OLE COM automation if option exists");
+                LogErrorEx(LOG_DEVICE_BIO, "");
+                LogErrorEx(LOG_DEVICE_BIO, "4. Incorrect EC-Lab COM registration");
+                LogErrorEx(LOG_DEVICE_BIO, "   Re-register EC-Lab (as Administrator):");
+                LogErrorEx(LOG_DEVICE_BIO, "   cd \"C:\\Program Files (x86)\\EC-Lab\"");
+                LogErrorEx(LOG_DEVICE_BIO, "   ECLab.exe /regserver");
+            } else {
                 LogMessageEx(LOG_DEVICE_BIO, "Successfully obtained IDispatch via QueryInterface");
             }
+
+            pUnknown->lpVtbl->Release(pUnknown);
+        } else {
+            LogErrorEx(LOG_DEVICE_BIO, "Failed to get IUnknown: 0x%08X", hr);
         }
     }
 
