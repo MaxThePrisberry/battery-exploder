@@ -13,6 +13,7 @@
 #include "teensy_queue.h"
 #include "dtb4848_queue.h"
 #include "cdaq_utils.h"
+#include "biologic/biologic_abstraction.h"
 
 /******************************************************************************
  * Static Functions
@@ -26,6 +27,7 @@ static int TeensyCommandManager(CommandContext *ctx);
 static int DTBCommandManager(CommandContext *ctx);
 static int ControlsCommandManager(CommandContext *ctx);
 static int DAQCommandManager(CommandContext *ctx);
+static int BioLogicCommandManager(CommandContext *ctx);
 
 /******************************************************************************
  * UI panel CVICALLBACKS
@@ -177,19 +179,23 @@ static int DeviceSelect(CommandContext *ctx) {
 		case ('T' << 16 | 'N' << 8 | 'Y'):
 			TeensyCommandManager(ctx);
 			break;
-		
+
 		case ('D' << 16 | 'T' << 8 | 'B'):
 			DTBCommandManager(ctx);
 			break;
-			
+
 		case ('C' << 16 | 'T' << 8 | 'L'):
 			ControlsCommandManager(ctx);
 			break;
-			
+
 		case ('D' << 16 | 'A' << 8 | 'Q'):
 			DAQCommandManager(ctx);
 			break;
-			
+
+		case ('B' << 16 | 'I' << 8 | 'O'):
+			BioLogicCommandManager(ctx);
+			break;
+
 		default:
 			LogPromptTextbox(CMD_ERROR, "No such device.");
 	}
@@ -676,4 +682,168 @@ static int DAQCommandManager(CommandContext *ctx) {
 	LogPromptTextbox(CMD_ERROR, "Invalid DAQ command. Use: DAQ<0-15>, DAQALL, or DAQV<0-15>");
 	return 0;
 }
-							
+
+static int BioLogicCommandManager(CommandContext *ctx) {
+	char message[1024];
+	int error;
+
+	// BIO STATUS - Get current measurement status
+	if (strcmp(ctx->command, "STATUS") == 0) {
+		BIO_Status status;
+		error = BIO_GetStatus(&status);
+
+		if (error != SUCCESS) {
+			snprintf(message, sizeof(message), "Failed to get status: %d : %s",
+			        error, GetErrorString(error));
+			LogPromptTextbox(CMD_ERROR, message);
+			return -1;
+		}
+
+		const char *stateStr = "UNKNOWN";
+		switch (status.measurementState) {
+			case BIO_STATE_IDLE: stateStr = "IDLE"; break;
+			case BIO_STATE_RUNNING: stateStr = "RUNNING"; break;
+			case BIO_STATE_PAUSED: stateStr = "PAUSED"; break;
+			case BIO_STATE_FINISHED: stateStr = "FINISHED"; break;
+			case BIO_STATE_ERROR: stateStr = "ERROR"; break;
+		}
+
+		snprintf(message, sizeof(message),
+		        "Status: %s | Ewe: %.4f V | I: %.6f A | Time: %.1f s",
+		        stateStr, status.voltage, status.current, status.elapsedTime);
+		LogPromptTextbox(CMD_OUTPUT, message);
+		return 0;
+	}
+
+	// BIO LOAD <file> - Load settings file
+	if (strncmp(ctx->command, "LOAD ", 5) == 0) {
+		const char *filename = &ctx->command[5];
+
+		if (strlen(filename) == 0) {
+			LogPromptTextbox(CMD_ERROR, "No filename specified. Use: BIO LOAD <filename>");
+			return -1;
+		}
+
+		// Construct full path
+		char fullPath[MAX_PATH];
+		snprintf(fullPath, sizeof(fullPath), ".\\eclab_settings\\%s", filename);
+
+		error = BIO_LoadTechnique(fullPath);
+
+		if (error != SUCCESS) {
+			snprintf(message, sizeof(message), "Failed to load settings: %d : %s",
+			        error, GetErrorString(error));
+			LogPromptTextbox(CMD_ERROR, message);
+			return -1;
+		}
+
+		snprintf(message, sizeof(message), "Loaded settings: %s", filename);
+		LogPromptTextbox(CMD_OUTPUT, message);
+		return 0;
+	}
+
+	// BIO RUN <file> - Run measurement
+	if (strncmp(ctx->command, "RUN ", 4) == 0) {
+		const char *filename = &ctx->command[4];
+
+		if (strlen(filename) == 0) {
+			LogPromptTextbox(CMD_ERROR, "No output filename specified. Use: BIO RUN <outputfile>");
+			return -1;
+		}
+
+		// Construct full output path
+		char fullPath[MAX_PATH];
+		snprintf(fullPath, sizeof(fullPath), ".\\eclab_data\\%s", filename);
+
+		error = BIO_Start(fullPath);
+
+		if (error != SUCCESS) {
+			snprintf(message, sizeof(message), "Failed to start measurement: %d : %s",
+			        error, GetErrorString(error));
+			LogPromptTextbox(CMD_ERROR, message);
+			return -1;
+		}
+
+		snprintf(message, sizeof(message), "Started measurement, output: %s", filename);
+		LogPromptTextbox(CMD_OUTPUT, message);
+		return 0;
+	}
+
+	// BIO STOP - Stop measurement
+	if (strcmp(ctx->command, "STOP") == 0) {
+		error = BIO_Stop();
+
+		if (error != SUCCESS) {
+			snprintf(message, sizeof(message), "Failed to stop measurement: %d : %s",
+			        error, GetErrorString(error));
+			LogPromptTextbox(CMD_ERROR, message);
+			return -1;
+		}
+
+		LogPromptTextbox(CMD_OUTPUT, "Measurement stopped");
+		return 0;
+	}
+
+	// BIO CONNECT - Connect to device
+	if (strcmp(ctx->command, "CONNECT") == 0) {
+		error = BIO_Connect();
+
+		if (error != SUCCESS) {
+			snprintf(message, sizeof(message), "Failed to connect: %d : %s",
+			        error, GetErrorString(error));
+			LogPromptTextbox(CMD_ERROR, message);
+			return -1;
+		}
+
+		LogPromptTextbox(CMD_OUTPUT, "Connected to BioLogic device");
+		return 0;
+	}
+
+	// BIO DISCONNECT - Disconnect from device
+	if (strcmp(ctx->command, "DISCONNECT") == 0) {
+		error = BIO_Disconnect();
+
+		if (error != SUCCESS) {
+			snprintf(message, sizeof(message), "Failed to disconnect: %d : %s",
+			        error, GetErrorString(error));
+			LogPromptTextbox(CMD_ERROR, message);
+			return -1;
+		}
+
+		LogPromptTextbox(CMD_OUTPUT, "Disconnected from BioLogic device");
+		return 0;
+	}
+
+	// BIO TEST - Test connection
+	if (strcmp(ctx->command, "TEST") == 0) {
+		error = BIO_TestConnection();
+
+		if (error == SUCCESS) {
+			LogPromptTextbox(CMD_OUTPUT, "Connection test: OK");
+		} else {
+			snprintf(message, sizeof(message), "Connection test failed: %d : %s",
+			        error, GetErrorString(error));
+			LogPromptTextbox(CMD_ERROR, message);
+		}
+		return 0;
+	}
+
+	// BIO HELP - Show help
+	if (strcmp(ctx->command, "HELP") == 0) {
+		LogPromptTextbox(CMD_OUTPUT, "BioLogic EC-Lab Commands:");
+		LogPromptTextbox(CMD_OUTPUT, "  BIO STATUS             - Get current measurement status");
+		LogPromptTextbox(CMD_OUTPUT, "  BIO LOAD <file>        - Load settings from eclab_settings/");
+		LogPromptTextbox(CMD_OUTPUT, "  BIO RUN <file>         - Run measurement, save to eclab_data/");
+		LogPromptTextbox(CMD_OUTPUT, "  BIO STOP               - Stop current measurement");
+		LogPromptTextbox(CMD_OUTPUT, "  BIO CONNECT            - Connect to device");
+		LogPromptTextbox(CMD_OUTPUT, "  BIO DISCONNECT         - Disconnect from device");
+		LogPromptTextbox(CMD_OUTPUT, "  BIO TEST               - Test connection");
+		LogPromptTextbox(CMD_OUTPUT, "  BIO HELP               - Show this help");
+		return 0;
+	}
+
+	// Invalid command
+	snprintf(message, sizeof(message), "Invalid BIO command: %s (Use: BIO HELP)", ctx->command);
+	LogPromptTextbox(CMD_ERROR, message);
+	return 0;
+}
