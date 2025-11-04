@@ -754,10 +754,9 @@ static int BioLogicCommandManager(CommandContext *ctx) {
 			return -1;
 		}
 
-		if (result && result->dataPoints > 0) {
-			snprintf(message, sizeof(message), "OCV complete: %d points, final Ewe: %.4f V",
-			        result->dataPoints,
-			        result->dataArray[result->dataPoints - 1].voltage);
+		if (result && result->rawData && result->rawData->numPoints > 0) {
+			snprintf(message, sizeof(message), "OCV complete: %d points collected",
+			        result->rawData->numPoints);
 			LogPromptTextbox(CMD_OUTPUT, message);
 			BIO_FreeTechniqueData(result);
 		} else {
