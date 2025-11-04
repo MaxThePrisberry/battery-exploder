@@ -211,11 +211,50 @@ int ECLAB_Initialize(ECLabConnection **conn, const char *workingDir) {
     }
     LogMessageEx(LOG_DEVICE_BIO, "ProgID resolved successfully. EC-Lab is registered.");
 
+    // Check if EC-Lab is running
+    LogMessageEx(LOG_DEVICE_BIO, "Step 3: Checking if EC-Lab is running...");
+    if (!ECLAB_IsRunning()) {
+        LogErrorEx(LOG_DEVICE_BIO, "ERROR: EC-Lab.exe is not running!");
+        LogErrorEx(LOG_DEVICE_BIO, "");
+        LogErrorEx(LOG_DEVICE_BIO, "SOLUTION:");
+        LogErrorEx(LOG_DEVICE_BIO, "  1. Start EC-Lab application");
+        LogErrorEx(LOG_DEVICE_BIO, "  2. Wait for it to fully load");
+        LogErrorEx(LOG_DEVICE_BIO, "  3. Verify it shows 'OLECOM' in the status bar");
+        LogErrorEx(LOG_DEVICE_BIO, "  4. Then restart this application");
+        CoUninitialize();
+        free(c);
+        return ECLAB_ERR_COM_CREATE_FAILED;
+    }
+    LogMessageEx(LOG_DEVICE_BIO, "EC-Lab process detected - proceeding with COM connection");
+
     // Create EC-Lab COM object
-    LogMessageEx(LOG_DEVICE_BIO, "Step 3: Creating EC-Lab COM instance...");
-    LogMessageEx(LOG_DEVICE_BIO, "NOTE: EC-Lab must be running for this to succeed.");
-    hr = CoCreateInstance(&c->clsid, NULL, CLSCTX_LOCAL_SERVER,
+    LogMessageEx(LOG_DEVICE_BIO, "Step 4: Creating EC-Lab COM instance...");
+    LogMessageEx(LOG_DEVICE_BIO, "NOTE: This will connect to the running EC-Lab application.");
+
+    // Try CLSCTX_ALL first (allows COM to choose best context)
+    LogMessageEx(LOG_DEVICE_BIO, "Attempting with CLSCTX_ALL (flexible context)...");
+    hr = CoCreateInstance(&c->clsid, NULL, CLSCTX_ALL,
                          &IID_IDispatch, (void**)&c->pECLab);
+
+    // If that fails, try the two-step approach: IUnknown then QueryInterface
+    if (FAILED(hr)) {
+        LogMessageEx(LOG_DEVICE_BIO, "CLSCTX_ALL failed (0x%08X), trying IUnknown approach...", hr);
+
+        IUnknown *pUnknown = NULL;
+        hr = CoCreateInstance(&c->clsid, NULL, CLSCTX_ALL,
+                             &IID_IUnknown, (void**)&pUnknown);
+
+        if (SUCCEEDED(hr) && pUnknown) {
+            LogMessageEx(LOG_DEVICE_BIO, "Got IUnknown, querying for IDispatch...");
+            hr = pUnknown->lpVtbl->QueryInterface(pUnknown, &IID_IDispatch, (void**)&c->pECLab);
+            pUnknown->lpVtbl->Release(pUnknown);
+
+            if (SUCCEEDED(hr)) {
+                LogMessageEx(LOG_DEVICE_BIO, "Successfully obtained IDispatch via QueryInterface");
+            }
+        }
+    }
+
     if (FAILED(hr)) {
         LogErrorEx(LOG_DEVICE_BIO, "ERROR: CoCreateInstance failed with HRESULT: 0x%08X", hr);
         LogErrorEx(LOG_DEVICE_BIO, "");
@@ -230,16 +269,26 @@ int ECLAB_Initialize(ECLabConnection **conn, const char *workingDir) {
             LogErrorEx(LOG_DEVICE_BIO, "  3. Insufficient permissions");
         } else if (hr == 0x80070005) {  // E_ACCESSDENIED
             LogErrorEx(LOG_DEVICE_BIO, "Access denied - run as Administrator");
+        } else if (hr == 0x80004002) {  // E_NOINTERFACE
+            LogErrorEx(LOG_DEVICE_BIO, "E_NOINTERFACE error - EC-Lab COM interface issue.");
+            LogErrorEx(LOG_DEVICE_BIO, "This typically means:");
+            LogErrorEx(LOG_DEVICE_BIO, "  1. EC-Lab version mismatch (need version with OLE COM support)");
+            LogErrorEx(LOG_DEVICE_BIO, "  2. EC-Lab not properly registered (run: ECLab.exe /regserver)");
+            LogErrorEx(LOG_DEVICE_BIO, "  3. EC-Lab COM interface incompatible with this version");
+            LogErrorEx(LOG_DEVICE_BIO, "  4. EC-Lab must be running AND fully loaded before connection");
         } else {
             LogErrorEx(LOG_DEVICE_BIO, "Unknown COM error occurred.");
         }
 
         LogErrorEx(LOG_DEVICE_BIO, "");
         LogErrorEx(LOG_DEVICE_BIO, "SOLUTION:");
-        LogErrorEx(LOG_DEVICE_BIO, "  1. Start EC-Lab application");
-        LogErrorEx(LOG_DEVICE_BIO, "  2. Wait for it to fully load");
-        LogErrorEx(LOG_DEVICE_BIO, "  3. Check for 'OLECOM' indicator in EC-Lab status bar");
-        LogErrorEx(LOG_DEVICE_BIO, "  4. Then start this application");
+        LogErrorEx(LOG_DEVICE_BIO, "  1. Verify EC-Lab version supports OLE COM (check manual)");
+        LogErrorEx(LOG_DEVICE_BIO, "  2. Re-register EC-Lab: run as Admin: ECLab.exe /regserver");
+        LogErrorEx(LOG_DEVICE_BIO, "  3. Start EC-Lab application BEFORE this program");
+        LogErrorEx(LOG_DEVICE_BIO, "  4. Wait for EC-Lab to fully load");
+        LogErrorEx(LOG_DEVICE_BIO, "  5. Connect a device in EC-Lab");
+        LogErrorEx(LOG_DEVICE_BIO, "  6. Check for 'OLECOM' indicator in EC-Lab status bar");
+        LogErrorEx(LOG_DEVICE_BIO, "  7. Then start this application");
 
         CoUninitialize();
         free(c);
