@@ -1,0 +1,24 @@
+Build Status (BatteryExploder.prj - Debug)
+ cmd_prompt.c - 10 errors, 2 warnings
+  453, 25    warning: unused variable 'time1Str' 
+  454, 25    warning: unused variable 'time2Str' 
+  693, 9    error: unknown type name 'BIO_Status'; did you mean 'DTB_Status'?
+  "dtb4848_dll.h"(191,1)    note: 'DTB_Status' declared here
+  694, 17    error: implicit declaration of function 'BIO_GetStatus' is invalid in C99. Make sure that you include the function prototype. 
+      694, 17    note: did you mean 'DTB_GetStatus'?
+  "dtb4848_dll.h"(274,1)    note: 'DTB_GetStatus' declared here
+  704, 24    error: no member named 'measurementState' in 'DTB_Status'
+  714, 34    error: no member named 'voltage' in 'DTB_Status'
+  732, 43    error: too few arguments to function call, expected 7, have 1
+  "biologic_dll.h"(216,1)    note: 'BIO_LoadTechnique' declared here
+  759, 17    error: implicit declaration of function 'BIO_Start' is invalid in C99. Make sure that you include the function prototype. 
+      759, 17    note: did you mean 'BIO_StartOCV'?
+  "biologic_dll.h"(305,5)    note: 'BIO_StartOCV' declared here
+  775, 17    error: implicit declaration of function 'BIO_Stop' is invalid in C99. Make sure that you include the function prototype. 
+  790, 29    error: too few arguments to function call, expected 4, have 0
+  "biologic_dll.h"(172,1)    note: 'BIO_Connect' declared here
+  805, 32    error: too few arguments to function call, single argument 'ID' was not specified
+  "biologic_dll.h"(173,1)    note: 'BIO_Disconnect' declared here
+  820, 36    error: too few arguments to function call, single argument 'ID' was not specified
+  "biologic_dll.h"(174,1)    note: 'BIO_TestConnection' declared here
+Build failed.

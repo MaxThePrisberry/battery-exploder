@@ -13,7 +13,8 @@
 #include "teensy_queue.h"
 #include "dtb4848_queue.h"
 #include "cdaq_utils.h"
-#include "biologic/biologic_abstraction.h"
+#include "biologic_abstract.h"
+#include "biologic_dll.h"
 
 /******************************************************************************
  * Static Functions
