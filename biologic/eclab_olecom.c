@@ -192,8 +192,8 @@ int ECLAB_Initialize(ECLabConnection **conn, const char *workingDir) {
     }
 
     // Get CLSID for EC-Lab
-    LogMessageEx(LOG_DEVICE_BIO, "Step 2: Resolving ProgID 'ECLab.Application'...");
-    wchar_t progId[] = L"ECLab.Application";
+    LogMessageEx(LOG_DEVICE_BIO, "Step 2: Resolving ProgID 'EClabCOM.EClabExe'...");
+    wchar_t progId[] = L"EClabCOM.EClabExe";
     hr = CLSIDFromProgID(progId, &c->clsid);
     if (FAILED(hr)) {
         LogErrorEx(LOG_DEVICE_BIO, "ERROR: CLSIDFromProgID failed with HRESULT: 0x%08X", hr);

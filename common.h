@@ -77,11 +77,11 @@
 #define BIOLOGIC_CONNECTION_TIMEOUT     5       // seconds
 
 // EC-Lab OLE COM mode settings (used when BIOLOGIC_CONTROL_MODE == 1)
-#define ECLAB_SETTINGS_DIR              "C:\\BatteryExploder\\eclab_settings"
-#define ECLAB_DATA_DIR                  "C:\\BatteryExploder\\eclab_data"
+#define ECLAB_SETTINGS_DIR              "C:\\Users\\CV166\\Documents\\LabWindowsCVI\\BatteryApplication\\battery-exploder\\eclab_settings"
+#define ECLAB_DATA_DIR                  "C:\\Users\\CV166\\Documents\\LabWindowsCVI\\BatteryApplication\\battery-exploder\\eclab_data"
 #define ECLAB_DEVICE_NUMBER             1       // EC-Lab device index
 #define ECLAB_CHANNEL_NUMBER            1       // EC-Lab channel index
-#define ECLAB_EXECUTABLE_PATH           "C:\\Program Files (x86)\\EC-Lab\\ECLab.exe"
+#define ECLAB_EXECUTABLE_PATH           "C:\\Program Files (x86)\\EC-Lab\\EClab.exe"
 
 // .mps template filenames (place these in ECLAB_SETTINGS_DIR)
 #define ECLAB_OCV_TEMPLATE              "ocv_default.mps"
