@@ -439,20 +439,12 @@ int ECLAB_ConnectDevice(ECLabConnection *conn, int deviceNumber) {
     LogMessageEx(LOG_DEVICE_BIO, "  3. Verify device %d is connected and active", deviceNumber);
     LogMessageEx(LOG_DEVICE_BIO, "");
 
-    // Call ConnectDevice_TS method through vtable (Type-Safe variant)
-    LogMessageEx(LOG_DEVICE_BIO, "Calling EC-Lab ConnectDevice_TS method...");
-    int functionResult = 0;
-    HRESULT hr = conn->pInterface->lpVtbl->ConnectDevice_TS(conn->pInterface,
-                                                            deviceNumber,
-                                                            &functionResult);
+    // Call ConnectDevice method directly through vtable
+    LogMessageEx(LOG_DEVICE_BIO, "Calling EC-Lab ConnectDevice method...");
+    int retVal = conn->pInterface->lpVtbl->ConnectDevice(conn->pInterface, deviceNumber);
 
-    if (FAILED(hr)) {
-        LogErrorEx(LOG_DEVICE_BIO, "ERROR: ConnectDevice_TS COM call failed with HRESULT: 0x%08X", hr);
-        return ECLAB_ERR_COM_INVOKE_FAILED;
-    }
-
-    if (functionResult != 0) {
-        LogErrorEx(LOG_DEVICE_BIO, "ERROR: ConnectDevice returned error code: %d", functionResult);
+    if (retVal != 0) {
+        LogErrorEx(LOG_DEVICE_BIO, "ERROR: ConnectDevice returned error code: %d", retVal);
         LogErrorEx(LOG_DEVICE_BIO, "Possible causes:");
         LogErrorEx(LOG_DEVICE_BIO, "  - Device %d is not physically connected", deviceNumber);
         LogErrorEx(LOG_DEVICE_BIO, "  - Device is not powered on");
@@ -478,21 +470,13 @@ int ECLAB_DisconnectDevice(ECLabConnection *conn) {
 
     LogMessageEx(LOG_DEVICE_BIO, "Disconnecting from EC-Lab device %d", conn->deviceNumber);
 
-    // Call DisconnectDevice_TS method through vtable (Type-Safe variant)
-    int functionResult = 0;
-    HRESULT hr = conn->pInterface->lpVtbl->DisconnectDevice_TS(conn->pInterface,
-                                                               conn->deviceNumber,
-                                                               &functionResult);
+    // Call DisconnectDevice method directly through vtable
+    int retVal = conn->pInterface->lpVtbl->DisconnectDevice(conn->pInterface, conn->deviceNumber);
 
     conn->isConnected = false;
 
-    if (FAILED(hr)) {
-        LogWarningEx(LOG_DEVICE_BIO, "DisconnectDevice_TS COM call failed: 0x%08X", hr);
-        return ECLAB_ERR_COM_INVOKE_FAILED;
-    }
-
-    if (functionResult != 0) {
-        LogWarningEx(LOG_DEVICE_BIO, "DisconnectDevice returned error: %d", functionResult);
+    if (retVal != 0) {
+        LogWarningEx(LOG_DEVICE_BIO, "DisconnectDevice returned error: %d", retVal);
         return ECLAB_ERR_COM_INVOKE_FAILED;
     }
 
@@ -504,17 +488,10 @@ int ECLAB_TestConnection(ECLabConnection *conn) {
     if (!conn || !conn->pInterface) return ECLAB_ERR_INVALID_CONNECTION;
     if (!conn->isConnected) return ECLAB_ERR_NOT_CONNECTED;
 
-    // Call TestConnection_TS method through vtable (Type-Safe variant)
-    int functionResult = 0;
-    HRESULT hr = conn->pInterface->lpVtbl->TestConnection_TS(conn->pInterface,
-                                                             conn->deviceNumber,
-                                                             &functionResult);
+    // Call TestConnection method directly through vtable
+    int retVal = conn->pInterface->lpVtbl->TestConnection(conn->pInterface, conn->deviceNumber);
 
-    if (FAILED(hr)) {
-        return ECLAB_ERR_COM_INVOKE_FAILED;
-    }
-
-    return (functionResult == 0) ? SUCCESS : ECLAB_ERR_NOT_CONNECTED;
+    return (retVal == 0) ? SUCCESS : ECLAB_ERR_NOT_CONNECTED;
 }
 
 /******************************************************************************
@@ -541,21 +518,14 @@ int ECLAB_LoadSettings(ECLabConnection *conn, int device, int channel,
         return ECLAB_ERR_BSTR_CONVERSION;
     }
 
-    // Call LoadSettings_TS method through vtable (Type-Safe variant)
-    int functionResult = 0;
-    HRESULT hr = conn->pInterface->lpVtbl->LoadSettings_TS(conn->pInterface,
-                                                           device, channel, bstrFilePath,
-                                                           &functionResult);
+    // Call LoadSettings method directly through vtable
+    int retVal = conn->pInterface->lpVtbl->LoadSettings(conn->pInterface,
+                                                        device, channel, bstrFilePath);
 
     SysFreeString(bstrFilePath);
 
-    if (FAILED(hr)) {
-        LogErrorEx(LOG_DEVICE_BIO, "LoadSettings_TS COM call failed with HRESULT: 0x%08X", hr);
-        return ECLAB_ERR_COM_INVOKE_FAILED;
-    }
-
-    if (functionResult != 0) {
-        LogErrorEx(LOG_DEVICE_BIO, "LoadSettings returned error: %d", functionResult);
+    if (retVal != 0) {
+        LogErrorEx(LOG_DEVICE_BIO, "LoadSettings returned error: %d", retVal);
         return ECLAB_ERR_INVALID_MPS_FILE;
     }
 
@@ -577,21 +547,14 @@ int ECLAB_RunChannel(ECLabConnection *conn, int device, int channel,
         return ECLAB_ERR_BSTR_CONVERSION;
     }
 
-    // Call RunChannel_TS method through vtable (Type-Safe variant)
-    int functionResult = 0;
-    HRESULT hr = conn->pInterface->lpVtbl->RunChannel_TS(conn->pInterface,
-                                                         device, channel, bstrOutputPath,
-                                                         &functionResult);
+    // Call RunChannel method directly through vtable
+    int retVal = conn->pInterface->lpVtbl->RunChannel(conn->pInterface,
+                                                      device, channel, bstrOutputPath);
 
     SysFreeString(bstrOutputPath);
 
-    if (FAILED(hr)) {
-        LogErrorEx(LOG_DEVICE_BIO, "RunChannel_TS COM call failed with HRESULT: 0x%08X", hr);
-        return ECLAB_ERR_COM_INVOKE_FAILED;
-    }
-
-    if (functionResult != 0) {
-        LogErrorEx(LOG_DEVICE_BIO, "RunChannel returned error: %d", functionResult);
+    if (retVal != 0) {
+        LogErrorEx(LOG_DEVICE_BIO, "RunChannel returned error: %d", retVal);
         return ECLAB_ERR_RUN_FAILED;
     }
 
@@ -605,19 +568,11 @@ int ECLAB_StopChannel(ECLabConnection *conn, int device, int channel) {
     LogMessageEx(LOG_DEVICE_BIO, "Stopping measurement on device %d, channel %d",
                 device, channel);
 
-    // Call StopChannel_TS method through vtable (Type-Safe variant)
-    int functionResult = 0;
-    HRESULT hr = conn->pInterface->lpVtbl->StopChannel_TS(conn->pInterface,
-                                                          device, channel,
-                                                          &functionResult);
+    // Call StopChannel method directly through vtable
+    int retVal = conn->pInterface->lpVtbl->StopChannel(conn->pInterface, device, channel);
 
-    if (FAILED(hr)) {
-        LogWarningEx(LOG_DEVICE_BIO, "StopChannel_TS COM call failed: 0x%08X", hr);
-        return ECLAB_ERR_COM_INVOKE_FAILED;
-    }
-
-    if (functionResult != 0) {
-        LogWarningEx(LOG_DEVICE_BIO, "StopChannel returned error: %d", functionResult);
+    if (retVal != 0) {
+        LogWarningEx(LOG_DEVICE_BIO, "StopChannel returned error: %d", retVal);
         return ECLAB_ERR_COM_INVOKE_FAILED;
     }
 
@@ -636,24 +591,15 @@ int ECLAB_MeasureStatus(ECLabConnection *conn, int device, int channel,
 
     memset(status, 0, sizeof(ECLAB_Status));
 
-    // Call MeasureStatus_TS method through vtable (Type-Safe variant)
+    // Call MeasureStatus method directly through vtable
     VARIANT statusResult;
     VariantInit(&statusResult);
-    int functionResult = 0;
 
-    HRESULT hr = conn->pInterface->lpVtbl->MeasureStatus_TS(conn->pInterface,
-                                                            device, channel,
-                                                            &statusResult,
-                                                            &functionResult);
+    int retVal = conn->pInterface->lpVtbl->MeasureStatus(conn->pInterface,
+                                                         device, channel, &statusResult);
 
-    if (FAILED(hr)) {
-        LogErrorEx(LOG_DEVICE_BIO, "MeasureStatus_TS COM call failed with HRESULT: 0x%08X", hr);
-        VariantClear(&statusResult);
-        return ECLAB_ERR_COM_INVOKE_FAILED;
-    }
-
-    if (functionResult != 0) {
-        LogErrorEx(LOG_DEVICE_BIO, "MeasureStatus returned error: %d", functionResult);
+    if (retVal != 0) {
+        LogErrorEx(LOG_DEVICE_BIO, "MeasureStatus returned error: %d", retVal);
         VariantClear(&statusResult);
         return ECLAB_ERR_COM_INVOKE_FAILED;
     }
