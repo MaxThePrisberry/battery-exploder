@@ -1,0 +1,432 @@
+
+=== Battery Tester Log Started: 2025-11-04 13:44:28 ===
+Log file location: c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\BatteryExploder.log
+2025-11-04 13:44:28 [INFO] Initializing cDAQ module...
+2025-11-04 13:44:28 [INFO] Initializing cDAQ thermocouple slots 2 and 3...
+2025-11-04 13:44:29 [INFO] cDAQ slot 2 initialized with 16 thermocouples
+2025-11-04 13:44:30 [INFO] cDAQ slot 3 initialized with 16 thermocouples
+2025-11-04 13:44:30 [INFO] cDAQ module initialized successfully
+2025-11-04 13:44:30 [INFO] cDAQ thermocouple slots initialized successfully
+2025-11-04 13:44:30 [INFO] Initializing cDAQ slot 1 for 4-20mA current sensors (NI 9202)...
+2025-11-04 13:44:30 [INFO] cDAQ slot 1 initialized with 16 voltage channels (4-20mA mode)
+2025-11-04 13:44:30 [INFO] Shunt resistor: 250.0 ohms, Range: 1.0-5.0V (4-20mA)
+2025-11-04 13:44:30 [INFO] cDAQ current sensor slot initialized successfully (4-20mA)
+2025-11-04 13:44:30 [INFO] Initializing pressure safety monitoring...
+2025-11-04 13:44:30 [INFO] Initializing pressure safety monitoring module...
+2025-11-04 13:44:30 [INFO] Pressure safety module initialized
+2025-11-04 13:44:30 [INFO] Pressure safety monitoring initialized successfully
+2025-11-04 13:44:30 [INFO] Initializing PSB queue manager on COM3...
+2025-11-04 13:44:30 [INFO] Attempting to connect to PSB 10000...
+2025-11-04 13:44:30 [INFO] [PSB] Connecting to PSB on COM3...
+2025-11-04 13:44:30 [INFO] [PSB] Initializing on COM3, slave 1, 9600 baud
+2025-11-04 13:44:30 [INFO] [PSB] Successfully initialized
+2025-11-04 13:44:30 [INFO] [PSB] Setting remote mode: ON
+2025-11-04 13:44:30 [INFO] [PSB] Setting output: OFF
+2025-11-04 13:44:31 [INFO] Successfully connected to PSB 10000
+2025-11-04 13:44:31 [INFO] PSB 10000 queue manager initialized
+2025-11-04 13:44:31 [INFO] PSB 10000 queue processing thread started
+2025-11-04 13:44:31 [INFO] PSB queue manager initialized and connected on COM3
+2025-11-04 13:44:31 [INFO] Initializing PSB to safe state...
+2025-11-04 13:44:31 [INFO] [PSB] Setting PSB safe limits...
+2025-11-04 13:44:31 [INFO] [PSB] Setting min voltage: 0.00V
+2025-11-04 13:44:31 [INFO] [PSB] Setting max voltage: 61.20V
+2025-11-04 13:44:31 [INFO] [PSB] Setting min current: 0.00A
+2025-11-04 13:44:31 [INFO] [PSB] Setting max current: 61.20A
+2025-11-04 13:44:31 [INFO] [PSB] Setting sink max current: 61.20A
+2025-11-04 13:44:31 [INFO] [PSB] Setting sink min current: 0.00A
+2025-11-04 13:44:31 [INFO] [PSB] Setting max power: 1224.00W
+2025-11-04 13:44:32 [INFO] [PSB] Setting sink max power: 1224.00W
+2025-11-04 13:44:32 [INFO] [PSB] PSB safe limits set successfully
+2025-11-04 13:44:32 [INFO] [PSB] Zeroing all PSB values...
+2025-11-04 13:44:32 [INFO] [PSB] Setting output: OFF
+2025-11-04 13:44:32 [INFO] [PSB] Setting voltage: 0.00V (0x0000)
+2025-11-04 13:44:33 [INFO] [PSB] Setting current: 0.00A (0x0000)
+2025-11-04 13:44:33 [INFO] [PSB] Setting power: 0.00W (0x0000)
+2025-11-04 13:44:33 [INFO] [PSB] Setting sink current: 0.00A (0x0000)
+2025-11-04 13:44:33 [INFO] [PSB] Setting sink power: 0.00W (0x0000)
+2025-11-04 13:44:34 [INFO] [PSB] All PSB values zeroed successfully
+2025-11-04 13:44:34 [INFO] PSB initialization complete
+2025-11-04 13:44:34 [INFO] Initializing BioLogic abstraction layer...
+2025-11-04 13:44:34 [INFO]   Mode: EC-Lab OLE COM
+2025-11-04 13:44:34 [INFO] [BIO] Initializing BioLogic abstraction layer
+2025-11-04 13:44:34 [INFO] [BIO]   Mode: EC-Lab OLE COM
+2025-11-04 13:44:34 [INFO] [BIO] Initializing EC-Lab OLE COM mode
+2025-11-04 13:44:34 [INFO] [BIO]   Settings dir: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_settings
+2025-11-04 13:44:34 [INFO] [BIO]   Data dir: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data
+2025-11-04 13:44:34 [INFO] [BIO] Initializing EC-Lab backend
+2025-11-04 13:44:34 [INFO] [BIO]   Settings dir: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_settings
+2025-11-04 13:44:34 [INFO] [BIO]   Data dir: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data
+2025-11-04 13:44:34 [INFO] [BIO]   Device: 1, Channel: 1
+2025-11-04 13:44:34 [INFO] [BIO] ========================================
+2025-11-04 13:44:34 [INFO] [BIO] Initializing EC-Lab OLE COM connection
+2025-11-04 13:44:34 [INFO] [BIO] ========================================
+2025-11-04 13:44:34 [INFO] [BIO] Working directory: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data
+2025-11-04 13:44:34 [INFO] [BIO] Step 1: Initializing COM...
+2025-11-04 13:44:34 [INFO] [BIO] COM initialized successfully
+2025-11-04 13:44:34 [INFO] [BIO] Step 2: Resolving ProgID 'EClabCOM.EClabExe'...
+2025-11-04 13:44:34 [INFO] [BIO] ProgID resolved successfully. EC-Lab is registered.
+2025-11-04 13:44:34 [INFO] [BIO] Step 3: Checking if EC-Lab is running...
+2025-11-04 13:44:34 [INFO] [BIO] EC-Lab process detected - proceeding with COM connection
+2025-11-04 13:44:34 [INFO] [BIO] Step 4: Creating EC-Lab COM instance...
+2025-11-04 13:44:34 [INFO] [BIO] NOTE: This will connect to the running EC-Lab application.
+2025-11-04 13:44:34 [INFO] [BIO] NOTE: Using custom IEClabExe interface (NOT IDispatch)
+2025-11-04 13:44:34 [INFO] [BIO] Requesting IEClabExe interface...
+2025-11-04 13:44:34 [INFO] [BIO] EC-Lab COM instance created successfully!
+2025-11-04 13:44:34 [INFO] [BIO] ========================================
+2025-11-04 13:44:34 [INFO] [BIO] EC-Lab OLE COM connection initialized
+2025-11-04 13:44:34 [INFO] [BIO] ========================================
+2025-11-04 13:44:34 [INFO] [BIO] ========================================
+2025-11-04 13:44:34 [INFO] [BIO] Connecting to EC-Lab device 1
+2025-11-04 13:44:34 [INFO] [BIO] ========================================
+2025-11-04 13:44:34 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-04 13:44:34 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-04 13:44:34 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-04 13:44:34 [INFO] [BIO]   3. Verify device 1 is connected and active
+2025-11-04 13:44:34 [INFO] [BIO] 
+2025-11-04 13:44:34 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-04 13:44:34 [INFO] [BIO] ========================================
+2025-11-04 13:44:34 [INFO] [BIO] Successfully connected to device 1!
+2025-11-04 13:44:34 [INFO] [BIO] ========================================
+2025-11-04 13:44:34 [WARN] [BIO] EnableMessagesWindows returned error: 1
+2025-11-04 13:44:34 [INFO] [BIO] EC-Lab backend initialized successfully
+2025-11-04 13:44:34 [INFO] [BIO] BioLogic abstraction layer initialized successfully
+2025-11-04 13:44:34 [INFO] BioLogic abstraction layer initialized successfully
+2025-11-04 13:44:34 [INFO] Initializing DTB queue manager on COM5 with 2 devices...
+2025-11-04 13:44:34 [INFO] [DTB] DTB_QueueInit: Will initialize slave address 2
+2025-11-04 13:44:34 [INFO] [DTB] DTB_QueueInit: Will initialize slave address 3
+2025-11-04 13:44:34 [INFO] Attempting to connect to DTB 4848...
+2025-11-04 13:44:34 [INFO] [DTB] Connecting to DTB slave 2 on COM5...
+2025-11-04 13:44:34 [INFO] [DTB] Initializing on COM5, slave 2, 9600 baud
+2025-11-04 13:44:34 [INFO] [DTB] Successfully initialized
+2025-11-04 13:44:34 [INFO] [DTB] Successfully connected to DTB slave 2
+2025-11-04 13:44:34 [INFO] [DTB] Connecting to DTB slave 3 on COM5...
+2025-11-04 13:44:34 [INFO] [DTB] Initializing on COM5, slave 3, 9600 baud
+2025-11-04 13:44:34 [INFO] [DTB] Successfully initialized
+2025-11-04 13:44:34 [INFO] [DTB] Successfully connected to DTB slave 3
+2025-11-04 13:44:34 [INFO] [DTB] Connected to 2 of 2 DTB devices
+2025-11-04 13:44:34 [INFO] Successfully connected to DTB 4848
+2025-11-04 13:44:34 [INFO] DTB 4848 queue manager initialized
+2025-11-04 13:44:34 [INFO] [DTB] DTB_QueueInit: Successfully created queue manager for 2 devices
+2025-11-04 13:44:34 [INFO] DTB queue manager initialized and connected on COM5
+2025-11-04 13:44:34 [INFO] DTB 4848 queue processing thread started
+2025-11-04 13:44:34 [INFO] Enabling DTB write access for all devices...
+2025-11-04 13:44:34 [INFO] [DTB] Enabling write access for all 2 DTB devices...
+2025-11-04 13:44:34 [INFO] [DTB] Enabling write access...
+2025-11-04 13:44:35 [INFO] [DTB] Write access enabled
+2025-11-04 13:44:35 [INFO] [DTB] Enabling write access...
+2025-11-04 13:44:35 [INFO] [DTB] Write access enabled
+2025-11-04 13:44:35 [INFO] [DTB] Successfully enabled write access for all DTB devices
+2025-11-04 13:44:35 [INFO] DTB write access enabled successfully for all devices
+2025-11-04 13:44:35 [INFO] Configuring all DTB4848 devices for K-type thermocouple with PID control...
+2025-11-04 13:44:35 [INFO] [DTB] Write access status: ENABLED
+2025-11-04 13:44:35 [INFO] DTB slave 2 write access currently: ENABLED
+2025-11-04 13:44:35 [INFO] [DTB] Configuring DTB4848...
+2025-11-04 13:44:36 [INFO] [DTB] Setting sensor type: 0
+2025-11-04 13:44:36 [INFO] [DTB] Setting heating/cooling mode: 0
+2025-11-04 13:44:37 [INFO] [DTB] Setting control method: 0
+2025-11-04 13:44:37 [INFO] [DTB] Setting PID mode: 4 (AUTO)
+2025-11-04 13:44:37 [INFO] [DTB] Configuration complete
+2025-11-04 13:44:37 [INFO] DTB4848 slave 2 configured successfully
+2025-11-04 13:44:38 [INFO] [DTB] Write access status: ENABLED
+2025-11-04 13:44:38 [INFO] DTB slave 3 write access currently: ENABLED
+2025-11-04 13:44:38 [INFO] [DTB] Configuring DTB4848...
+2025-11-04 13:44:38 [INFO] [DTB] Setting sensor type: 0
+2025-11-04 13:44:38 [INFO] [DTB] Setting heating/cooling mode: 0
+2025-11-04 13:44:39 [INFO] [DTB] Setting control method: 0
+2025-11-04 13:44:39 [INFO] [DTB] Setting PID mode: 4 (AUTO)
+2025-11-04 13:44:40 [INFO] [DTB] Configuration complete
+2025-11-04 13:44:40 [INFO] DTB4848 slave 3 configured successfully
+2025-11-04 13:44:40 [INFO] DTB initialization complete
+2025-11-04 13:44:40 [INFO] Initializing ALICAT queue manager on COM7 with 1 devices...
+2025-11-04 13:44:40 [INFO] [ALI] ALICAT_QueueInit: Will initialize address 1
+2025-11-04 13:44:40 [INFO] Attempting to connect to ALICAT BASIS 2...
+2025-11-04 13:44:40 [INFO] [ALI] Connecting to ALICAT address 1 on COM7...
+2025-11-04 13:44:40 [INFO] [ALI] Initializing on COM7, address 1, 38400 baud
+2025-11-04 13:44:40 [INFO] [ALI] Serial Number: B036829     
+2025-11-04 13:44:40 [INFO] [ALI] Successfully initialized
+2025-11-04 13:44:40 [INFO] [ALI] Successfully connected to ALICAT address 1
+2025-11-04 13:44:40 [INFO] [ALI] Connected to 1 of 1 ALICAT devices
+2025-11-04 13:44:40 [INFO] Successfully connected to ALICAT BASIS 2
+2025-11-04 13:44:40 [INFO] ALICAT BASIS 2 queue manager initialized
+2025-11-04 13:44:40 [INFO] ALICAT BASIS 2 queue processing thread started
+2025-11-04 13:44:40 [INFO] [ALI] ALICAT_QueueInit: Successfully created queue manager for 1 devices
+2025-11-04 13:44:40 [INFO] ALICAT queue manager initialized and connected on COM7
+2025-11-04 13:44:40 [INFO] Configuring all ALICAT devices with default settings...
+2025-11-04 13:44:40 [INFO] [ALI] Configuring ALICAT...
+2025-11-04 13:44:40 [INFO] [ALI] Setting gas type: 0 (Air)
+2025-11-04 13:44:40 [INFO] [ALI] Setting setpoint source: 2
+2025-11-04 13:44:40 [INFO] [ALI] Setting reference temperature: 25.0 deg C
+2025-11-04 13:44:40 [INFO] [ALI] Setting flow averaging: 100 ms
+2025-11-04 13:44:40 [INFO] [ALI] Setting autotare: ENABLED
+2025-11-04 13:44:40 [INFO] [ALI] Setting PID parameters: P 500, I 5000
+2025-11-04 13:44:40 [INFO] [ALI] Configuration complete
+2025-11-04 13:44:40 [INFO] ALICAT address 1 configured successfully
+2025-11-04 13:44:40 [INFO] [ALI] Setting gas type: 3 (Nitrogen)
+2025-11-04 13:44:40 [INFO] ALICAT address 1 gas set to Nitrogen
+2025-11-04 13:44:40 [INFO] Taring ALICAT address 1...
+2025-11-04 13:44:41 [INFO] [ALI] Performing tare...
+2025-11-04 13:44:41 [INFO] ALICAT address 1 tared successfully
+2025-11-04 13:44:41 [INFO] ALICAT initialization complete
+2025-11-04 13:44:41 [INFO] Initializing Teensy queue manager on COM6...
+2025-11-04 13:44:41 [INFO] Attempting to connect to Teensy...
+2025-11-04 13:44:41 [INFO] [TNY] Connecting to Teensy on COM6...
+2025-11-04 13:44:41 [INFO] [TNY] Initializing Teensy on COM6 at 9600 baud
+2025-11-04 13:44:41 [INFO] [TNY] Successfully connected to Teensy on COM6
+2025-11-04 13:44:41 [INFO] Successfully connected to Teensy
+2025-11-04 13:44:41 [INFO] Teensy queue manager initialized
+2025-11-04 13:44:41 [INFO] Teensy queue manager initialized and connected on COM6
+2025-11-04 13:44:41 [INFO] Teensy queue processing thread started
+2025-11-04 13:44:41 [INFO] [TNY] Initializing 2 pins (2 low, 0 high)
+2025-11-04 13:44:41 [INFO] Committed transaction 1 with 2 commands to normal priority queue
+2025-11-04 13:44:41 [INFO] [TNY] Pin initialization transaction committed
+2025-11-04 13:44:41 [INFO] [TNY] Starting transaction 1 with 2 commands
+2025-11-04 13:44:41 [INFO] Status module state: UNINITIALIZED -> INITIALIZING
+2025-11-04 13:44:41 [INFO] Device states initialized (DTB devices: 2)
+2025-11-04 13:44:41 [INFO] Status monitoring module initialized
+2025-11-04 13:44:41 [INFO] Controls module initialized with 2 DTB devices
+2025-11-04 13:44:41 [INFO] Controls module initialized for ALICAT Mass Flow Controller
+2025-11-04 13:44:41 [INFO] Starting device status monitoring...
+2025-11-04 13:44:41 [INFO] Status module state: INITIALIZING -> RUNNING
+2025-11-04 13:44:41 [INFO] Status timer thread started
+2025-11-04 13:44:41 [INFO] Status monitoring started successfully
+2025-11-04 13:44:41 [INFO] Starting controls module - syncing with device states...
+2025-11-04 13:44:41 [INFO] [TNY] Completed transaction 1
+2025-11-04 13:44:41 [INFO] PSB remote mode: ON
+2025-11-04 13:44:47 [INFO] Controls module started
+2025-11-04 13:45:01 [INFO] BioLogic initialized in EC-Lab OLE COM mode
+2025-11-04 13:45:01 [INFO] All required devices verified
+2025-11-04 13:45:01 [INFO] === Starting Temperature Ramp EIS Experiment ===
+2025-11-04 13:45:02 [INFO] Created experiment file system: c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\data\temp_ramp_20251104_134502
+2025-11-04 13:45:02 [INFO] Settings saved: c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\data\temp_ramp_20251104_134502\experiment_settings.ini
+2025-11-04 13:45:02 [INFO] Initializing relay states...
+2025-11-04 13:45:02 [INFO] Checking fume hood ventilation conditions...
+2025-11-04 13:45:03 [INFO] Pre-start check: Ventilation OK (3.00 V)
+2025-11-04 13:45:03 [INFO] Ventilation check PASSED (3.00 V) - safe to start
+2025-11-04 13:45:03 [INFO] Starting pressure safety monitoring...
+2025-11-04 13:45:03 [INFO] Starting pressure safety monitoring...
+2025-11-04 13:45:03 [INFO]   Initial temperature: 25.0 °C
+2025-11-04 13:45:03 [INFO]   Safe temperature threshold: 30.0 °C
+2025-11-04 13:45:03 [INFO]   Pressure OK threshold: > 2.95 V
+2025-11-04 13:45:03 [INFO]   Pressure LOST threshold: < 2.85 V
+2025-11-04 13:45:03 [INFO]   Starting phase: SAFE
+2025-11-04 13:45:03 [INFO] Pressure safety monitoring started
+2025-11-04 13:45:03 [INFO] Pressure monitoring thread started
+2025-11-04 13:45:03 [INFO] Pressure safety monitoring active
+2025-11-04 13:45:03 [INFO] === PHASE 1: Reaching Initial Temperature ===
+2025-11-04 13:45:03 [INFO] Setting DTB target to 25.0 deg C
+2025-11-04 13:45:03 [INFO] [DTB] Setting setpoint to 25.0 deg C for all 2 DTB devices...
+2025-11-04 13:45:03 [INFO] [DTB] Setting setpoint: 25.0 deg C
+2025-11-04 13:45:03 [INFO] [DTB] Setting setpoint: 25.0 deg C
+2025-11-04 13:45:03 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-11-04 13:45:03 [INFO] [DTB] Setting run/stop to RUN for all 2 DTB devices...
+2025-11-04 13:45:04 [INFO] [DTB] Setting Run/Stop: RUN
+2025-11-04 13:45:04 [INFO] [DTB] Setting Run/Stop: RUN
+2025-11-04 13:45:04 [INFO] [DTB] Successfully set run/stop for all DTB devices
+2025-11-04 13:45:04 [INFO] Waiting for temperature to reach 25.0 deg C...
+2025-11-04 13:45:19 [INFO] Current temperature: 21.6 deg C (target: 25.0 deg C, diff: 3.4 deg C)
+2025-11-04 13:45:28 [INFO] Current temperature: 21.5 deg C (target: 25.0 deg C, diff: 3.5 deg C)
+2025-11-04 13:45:38 [INFO] Current temperature: 21.8 deg C (target: 25.0 deg C, diff: 3.2 deg C)
+2025-11-04 13:45:48 [INFO] Current temperature: 22.2 deg C (target: 25.0 deg C, diff: 2.8 deg C)
+2025-11-04 13:45:58 [INFO] Current temperature: 22.9 deg C (target: 25.0 deg C, diff: 2.1 deg C)
+2025-11-04 13:46:07 [INFO] Current temperature: 23.6 deg C (target: 25.0 deg C, diff: 1.4 deg C)
+2025-11-04 13:46:17 [INFO] Current temperature: 24.2 deg C (target: 25.0 deg C, diff: 0.8 deg C)
+2025-11-04 13:46:17 [INFO] Initial temperature reached
+2025-11-04 13:46:17 [INFO] === PHASE 2: Stabilizing at Initial Temperature ===
+2025-11-04 13:46:17 [INFO] Stabilizing at 25.0 deg C for 0 seconds...
+2025-11-04 13:46:55 [WARN] DTB(slave 2) status callback timed out after 5286.7 ms
+2025-11-04 13:46:55 [WARN] DTB(slave 2) status update timed out
+2025-11-04 13:46:55 [WARN] DTB(slave 3) status callback timed out after 5286.5 ms
+2025-11-04 13:46:55 [WARN] DTB(slave 3) status update timed out
+2025-11-04 13:47:22 [INFO] Temperature stabilization completed
+2025-11-04 13:47:22 [INFO] === PHASE 3: Temperature Ramp with EIS Measurements ===
+2025-11-04 13:47:22 [INFO] Using new DTB ramp-soak implementation
+2025-11-04 13:47:22 [INFO] === Using DTB Ramp-Soak Implementation ===
+2025-11-04 13:47:22 [INFO] Configuring DTB ramp: 25.0 -> 50.0 deg C (target: 45.0 deg C) over 13 minutes
+2025-11-04 13:47:22 [INFO] Using 25% overshoot safety margin for temperature-based early termination
+2025-11-04 13:47:22 [INFO] [DTB] Setting simple ramp in Pattern 0: 25.0 deg C to 50.0 deg C over 13 min, soak 0 min
+2025-11-04 13:47:22 [INFO] [DTB] Setting Pattern 0 (complete configuration)
+2025-11-04 13:47:22 [INFO] [DTB] Setting Pattern 0, Step 0: 25.0 deg C for 1 minutes
+2025-11-04 13:47:22 [INFO] [DTB] Setting Pattern 0, Step 1: 50.0 deg C for 13 minutes
+2025-11-04 13:47:23 [INFO] [DTB] Pattern 0: setting actual step count to 1
+2025-11-04 13:47:23 [INFO] [DTB] Pattern 0: setting cycle count to 0
+2025-11-04 13:47:24 [INFO] [DTB] Pattern 0: setting link pattern to 8 (END)
+2025-11-04 13:47:24 [INFO] [DTB] Pattern 0 configured: 1 steps, 0 cycles, link 8
+2025-11-04 13:47:24 [INFO] [DTB] Simple ramp configured: Step 0 (baseline: 25.0 deg C, 1 min), Step 1 (ramp to 50.0 deg C in 13 min), Step 2 (soak for 0 min)
+2025-11-04 13:47:24 [INFO] DTB device 2 ramp configured
+2025-11-04 13:47:24 [INFO] [DTB] Setting simple ramp in Pattern 0: 25.0 deg C to 50.0 deg C over 13 min, soak 0 min
+2025-11-04 13:47:24 [INFO] [DTB] Setting Pattern 0 (complete configuration)
+2025-11-04 13:47:24 [INFO] [DTB] Setting Pattern 0, Step 0: 25.0 deg C for 1 minutes
+2025-11-04 13:47:25 [INFO] [DTB] Setting Pattern 0, Step 1: 50.0 deg C for 13 minutes
+2025-11-04 13:47:25 [INFO] [DTB] Pattern 0: setting actual step count to 1
+2025-11-04 13:47:26 [INFO] [DTB] Pattern 0: setting cycle count to 0
+2025-11-04 13:47:26 [INFO] [DTB] Pattern 0: setting link pattern to 8 (END)
+2025-11-04 13:47:26 [INFO] [DTB] Pattern 0 configured: 1 steps, 0 cycles, link 8
+2025-11-04 13:47:26 [INFO] [DTB] Simple ramp configured: Step 0 (baseline: 25.0 deg C, 1 min), Step 1 (ramp to 50.0 deg C in 13 min), Step 2 (soak for 0 min)
+2025-11-04 13:47:26 [INFO] DTB device 3 ramp configured
+2025-11-04 13:47:26 [INFO] Setting DTB setpoint to start temperature: 25.0 deg C
+2025-11-04 13:47:26 [INFO] [DTB] Setting setpoint to 25.0 deg C for all 2 DTB devices...
+2025-11-04 13:47:26 [INFO] [DTB] Setting setpoint: 25.0 deg C
+2025-11-04 13:47:27 [INFO] [DTB] Setting setpoint: 25.0 deg C
+2025-11-04 13:47:27 [INFO] [DTB] Successfully set setpoint for all DTB devices
+2025-11-04 13:47:27 [INFO] [DTB] Setting start pattern: 0
+2025-11-04 13:47:27 [WARN] DTB(slave 2) status callback timed out after 5272.3 ms
+2025-11-04 13:47:27 [WARN] DTB(slave 2) status update timed out
+2025-11-04 13:47:27 [WARN] DTB(slave 3) status callback timed out after 5272.2 ms
+2025-11-04 13:47:27 [WARN] DTB(slave 3) status update timed out
+2025-11-04 13:47:28 [INFO] [DTB] Starting program execution...
+2025-11-04 13:47:28 [INFO] [DTB] Setting control method: 3
+2025-11-04 13:47:28 [INFO] [DTB] Program started successfully
+2025-11-04 13:47:28 [INFO] DTB device 2 ramp program started
+2025-11-04 13:47:28 [INFO] [DTB] Setting start pattern: 0
+2025-11-04 13:47:29 [INFO] [DTB] Starting program execution...
+2025-11-04 13:47:29 [INFO] [DTB] Setting control method: 3
+2025-11-04 13:47:30 [INFO] [DTB] Program started successfully
+2025-11-04 13:47:30 [INFO] DTB device 3 ramp program started
+2025-11-04 13:47:30 [INFO] Temperature ramp started from 25.0 to 50.0 deg C (target: 45.0 deg C)
+2025-11-04 13:47:30 [INFO] Ramp rate: 2.0 deg C/min, Inflated duration: 13 minutes
+2025-11-04 13:47:30 [INFO] EIS measurements every 4.0 minutes
+2025-11-04 13:47:30 [INFO] Ramp mode: CONTINUE during EIS measurements
+2025-11-04 13:47:30 [INFO] Will continue monitoring until temperature returns to 25.0 deg C
+2025-11-04 13:47:30 [INFO] Taking initial EIS measurement at 24.2 deg C
+2025-11-04 13:47:35 [WARN] DTB(slave 3) status callback timed out after 5356.2 ms
+2025-11-04 13:47:35 [WARN] DTB(slave 3) status update timed out
+2025-11-04 13:47:39 [INFO] Switching to BioLogic...
+2025-11-04 13:47:39 [INFO] Switched to BioLogic
+2025-11-04 13:47:39 [INFO] [BIO] Starting OCV measurement via EC-Lab
+2025-11-04 13:47:39 [INFO] [BIO]   Settings: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_settings\ocv_default.mps
+2025-11-04 13:47:39 [INFO] [BIO]   Output: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251104_134739.mpr
+2025-11-04 13:47:39 [INFO] [BIO] Loading settings from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_settings\ocv_default.mps
+2025-11-04 13:47:39 [ERROR] [BIO] LoadSettings returned error: -2147417842
+2025-11-04 13:47:39 [ERROR] [BIO] Failed to load settings: Invalid or corrupt .mps file
+2025-11-04 13:47:39 [ERROR] OCV measurement failed: Unknown BioLogic program error (code: -2112)
+2025-11-04 13:47:40 [WARN] OCV failed (attempt 1), retrying...
+2025-11-04 13:47:40 [INFO] Switching to BioLogic...
+2025-11-04 13:47:40 [INFO] Switched to BioLogic
+2025-11-04 13:47:40 [INFO] EIS retry 1 after 5.0 sec delay
+2025-11-04 13:47:45 [INFO] [BIO] Starting OCV measurement via EC-Lab
+2025-11-04 13:47:45 [INFO] [BIO]   Settings: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_settings\ocv_default.mps
+2025-11-04 13:47:45 [INFO] [BIO]   Output: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251104_134745.mpr
+2025-11-04 13:47:45 [INFO] [BIO] Loading settings from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_settings\ocv_default.mps
+2025-11-04 13:47:45 [ERROR] [BIO] LoadSettings returned error: -2147417842
+2025-11-04 13:47:45 [ERROR] [BIO] Failed to load settings: Invalid or corrupt .mps file
+2025-11-04 13:47:45 [ERROR] OCV measurement failed: Unknown BioLogic program error (code: -2112)
+2025-11-04 13:47:46 [WARN] OCV failed (attempt 2), retrying...
+2025-11-04 13:47:46 [INFO] Switching to BioLogic...
+2025-11-04 13:47:46 [INFO] Switched to BioLogic
+2025-11-04 13:47:46 [INFO] EIS retry 2 after 5.0 sec delay
+2025-11-04 13:47:51 [INFO] [BIO] Starting OCV measurement via EC-Lab
+2025-11-04 13:47:51 [INFO] [BIO]   Settings: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_settings\ocv_default.mps
+2025-11-04 13:47:51 [INFO] [BIO]   Output: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251104_134751.mpr
+2025-11-04 13:47:51 [INFO] [BIO] Loading settings from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_settings\ocv_default.mps
+2025-11-04 13:47:51 [ERROR] [BIO] LoadSettings returned error: -2147417842
+2025-11-04 13:47:51 [ERROR] [BIO] Failed to load settings: Invalid or corrupt .mps file
+2025-11-04 13:47:51 [ERROR] OCV measurement failed: Unknown BioLogic program error (code: -2112)
+2025-11-04 13:47:52 [ERROR] OCV failed after 3 retries
+2025-11-04 13:47:53 [ERROR] EIS measurement failed at 25.5 deg C
+2025-11-04 13:47:53 [INFO] EIS measurement took 22.9 seconds (ramp continued)
+2025-11-04 13:47:53 [WARN] Initial EIS measurement failed, continuing anyway
+2025-11-04 13:47:56 [INFO] User requested to stop temperature ramp experiment
+2025-11-04 13:47:56 [WARN] [DTB] Status query cancelled during device 3 query
+2025-11-04 13:47:58 [WARN] [DTB] Unrecognized slave address: 0
+2025-11-04 13:47:59 [ERROR] [DTB] Timeout waiting for response start character
+2025-11-04 13:47:59 [WARN] DTB(slave 2) status callback timed out after 5938.5 ms
+2025-11-04 13:47:59 [WARN] DTB(slave 2) status update timed out
+2025-11-04 13:47:59 [WARN] DTB(slave 3) status callback timed out after 5938.4 ms
+2025-11-04 13:47:59 [WARN] DTB(slave 3) status update timed out
+2025-11-04 13:48:00 [ERROR] [DTB] Timeout waiting for response start character
+2025-11-04 13:48:00 [WARN] DTB program stopped unexpectedly during ramp
+2025-11-04 13:48:00 [INFO] Cleaning up experiment...
+2025-11-04 13:48:00 [INFO] Stopping pressure safety monitoring...
+2025-11-04 13:48:00 [INFO] Stopping pressure safety monitoring...
+2025-11-04 13:48:01 [INFO] Pressure monitoring thread stopped
+2025-11-04 13:48:01 [INFO] Pressure safety monitoring stopped
+2025-11-04 13:48:01 [INFO] Disconnecting all devices...
+2025-11-04 13:48:01 [INFO] [DTB] Setting run/stop to STOP for all 2 DTB devices...
+2025-11-04 13:48:01 [INFO] [DTB] Setting Run/Stop: STOP
+2025-11-04 13:48:01 [INFO] [DTB] Setting Run/Stop: STOP
+2025-11-04 13:48:02 [INFO] [DTB] Successfully set run/stop for all DTB devices
+2025-11-04 13:48:02 [INFO] [DTB] Setting control method: 0
+2025-11-04 13:48:02 [INFO] [DTB] Setting control method: 0
+2025-11-04 13:48:02 [INFO] Devices disconnected
+2025-11-04 13:48:02 [INFO] Cleanup completed
+2025-11-04 13:52:57 [INFO] ========================================
+2025-11-04 13:52:57 [INFO] Shutting down Battery Tester application
+2025-11-04 13:52:57 [INFO] ========================================
+2025-11-04 13:52:57 [INFO] [TNY] Setting 2 pins
+2025-11-04 13:52:57 [INFO] Stopping status monitoring...
+2025-11-04 13:52:57 [INFO] Stopping device status monitoring...
+2025-11-04 13:52:57 [INFO] Status module state: RUNNING -> STOPPING
+2025-11-04 13:52:58 [INFO] Status timer thread stopped
+2025-11-04 13:52:59 [INFO] Status module state: STOPPING -> STOPPED
+2025-11-04 13:52:59 [INFO] Status monitoring stopped
+2025-11-04 13:52:59 [INFO] Cleaning up pressure safety monitoring...
+2025-11-04 13:52:59 [INFO] Cleaning up pressure safety module...
+2025-11-04 13:52:59 [INFO] Pressure safety module cleaned up
+2025-11-04 13:52:59 [INFO] Cleaning up cDAQ module...
+2025-11-04 13:52:59 [INFO] Cleaning up cDAQ current slot...
+2025-11-04 13:52:59 [INFO] Cleaned up cDAQ slot 1 task
+2025-11-04 13:52:59 [INFO] cDAQ current slot cleaned up
+2025-11-04 13:52:59 [INFO] Cleaning up cDAQ module...
+2025-11-04 13:53:00 [INFO] Cleaned up cDAQ slot 2 task
+2025-11-04 13:53:01 [INFO] Cleaned up cDAQ slot 3 task
+2025-11-04 13:53:01 [INFO] cDAQ module cleaned up
+2025-11-04 13:53:01 [INFO] Shutting down PSB queue manager...
+2025-11-04 13:53:01 [INFO] [PSB] Shutting down PSB 10000 queue manager...
+2025-11-04 13:53:01 [INFO] [PSB] Waiting for processing thread to complete...
+2025-11-04 13:53:01 [INFO] [PSB] All queues empty, processing thread exiting
+2025-11-04 13:53:01 [INFO] [PSB] PSB 10000 queue processing thread stopped
+2025-11-04 13:53:01 [INFO] [PSB] Setting output: OFF
+2025-11-04 13:53:01 [INFO] [PSB] Setting remote mode: OFF
+2025-11-04 13:53:01 [INFO] [PSB] Closing connection on COM3
+2025-11-04 13:53:01 [INFO] [PSB] Disconnected from PSB 10000
+2025-11-04 13:53:01 [INFO] Device queue manager shut down
+2025-11-04 13:53:01 [INFO] Shutting down BioLogic abstraction layer...
+2025-11-04 13:53:01 [INFO] [BIO] Shutting down BioLogic abstraction layer
+2025-11-04 13:53:01 [INFO] [BIO] Shutting down EC-Lab backend
+2025-11-04 13:53:01 [INFO] [BIO] Shutting down EC-Lab OLE COM connection
+2025-11-04 13:53:01 [INFO] [BIO] Disconnecting from EC-Lab device 1
+2025-11-04 13:53:01 [INFO] [BIO] Disconnected from EC-Lab device
+2025-11-04 13:53:01 [INFO] [BIO] EC-Lab OLE COM connection shutdown complete
+2025-11-04 13:53:01 [INFO] [BIO] EC-Lab backend shutdown complete
+2025-11-04 13:53:01 [INFO] [BIO] BioLogic abstraction layer shutdown complete
+2025-11-04 13:53:01 [INFO] Shutting down DTB queue manager...
+2025-11-04 13:53:01 [INFO] [DTB] Shutting down DTB 4848 queue manager...
+2025-11-04 13:53:01 [INFO] [DTB] Waiting for processing thread to complete...
+2025-11-04 13:53:01 [INFO] [DTB] All queues empty, processing thread exiting
+2025-11-04 13:53:01 [INFO] [DTB] DTB 4848 queue processing thread stopped
+2025-11-04 13:53:01 [INFO] [DTB] Stopping DTB slave 2...
+2025-11-04 13:53:01 [INFO] [DTB] Setting Run/Stop: STOP
+2025-11-04 13:53:02 [INFO] [DTB] Stopping DTB slave 3...
+2025-11-04 13:53:02 [INFO] [DTB] Setting Run/Stop: STOP
+2025-11-04 13:53:02 [INFO] [DTB] Closing COM5
+2025-11-04 13:53:02 [INFO] [DTB] Disconnected all DTB devices from COM5
+2025-11-04 13:53:02 [INFO] [DTB] Disconnected from DTB 4848
+2025-11-04 13:53:02 [INFO] Device queue manager shut down
+2025-11-04 13:53:02 [INFO] Shutting down Alicat queue manager...
+2025-11-04 13:53:02 [INFO] [ALI] Shutting down ALICAT BASIS 2 queue manager...
+2025-11-04 13:53:02 [INFO] [ALI] Waiting for processing thread to complete...
+2025-11-04 13:53:02 [INFO] [ALI] All queues empty, processing thread exiting
+2025-11-04 13:53:02 [INFO] [ALI] ALICAT BASIS 2 queue processing thread stopped
+2025-11-04 13:53:02 [INFO] [ALI] Stopping ALICAT address 1...
+2025-11-04 13:53:02 [INFO] [ALI] Setting setpoint: 0.000
+2025-11-04 13:53:02 [INFO] [ALI] Disconnecting from COM7
+2025-11-04 13:53:02 [INFO] [ALI] Disconnected all ALICAT devices from COM7
+2025-11-04 13:53:02 [INFO] [ALI] Disconnected from ALICAT BASIS 2
+2025-11-04 13:53:02 [INFO] Device queue manager shut down
+2025-11-04 13:53:02 [INFO] Shutting down Teensy queue manager...
+2025-11-04 13:53:02 [INFO] [TNY] Shutting down Teensy queue manager...
+2025-11-04 13:53:02 [INFO] [TNY] Waiting for processing thread to complete...
+2025-11-04 13:53:02 [INFO] [TNY] All queues empty, processing thread exiting
+2025-11-04 13:53:02 [INFO] [TNY] Teensy queue processing thread stopped
+2025-11-04 13:53:02 [INFO] [TNY] Closing connection on COM6
+2025-11-04 13:53:02 [INFO] [TNY] Disconnected from Teensy
+2025-11-04 13:53:02 [INFO] Device queue manager shut down
+2025-11-04 13:53:03 [INFO] Cleaning up controls module...
+2025-11-04 13:53:03 [INFO] Controls module cleaned up
+2025-11-04 13:53:03 [INFO] Cleaning up status monitoring...
+2025-11-04 13:53:03 [INFO] Status module state: STOPPED -> UNINITIALIZED
+2025-11-04 13:53:03 [INFO] Status module cleaned up
+2025-11-04 13:53:03 [INFO] Shutting down thread pool...
+2025-11-04 13:53:03 [INFO] Cleanup complete. Exiting application.
+2025-11-04 13:53:03 [INFO] ========================================
+=== Battery Tester Log Ended: 2025-11-04 13:53:03 ===
