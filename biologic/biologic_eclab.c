@@ -176,6 +176,9 @@ int BIO_ECLAB_Init(const ECLAB_Config *config) {
         return result;
     }
 
+    // Set deviceID for API compatibility (use deviceNumber as ID in EC-Lab mode)
+    g_config.deviceID = g_config.deviceNumber;
+
     // Disable EC-Lab message windows for automated operation
     ECLAB_EnableMessagesWindows(g_config.conn, false);
 
