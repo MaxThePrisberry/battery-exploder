@@ -492,7 +492,7 @@ static void Status_RequestDeviceUpdate(int deviceIndex) {
 static bool Status_CanSendCommand(int deviceIndex) {
     // Check queue connection state to determine if we should attempt sending commands
     // This does NOT update the UI - only determines if command should be sent
-    
+
     if (deviceIndex == DEVICE_PSB) {
         PSBQueueManager *mgr = PSB_GetGlobalQueueManager();
         if (mgr) {
@@ -502,13 +502,9 @@ static bool Status_CanSendCommand(int deviceIndex) {
         }
         return false;
     } else if (deviceIndex == DEVICE_BIOLOGIC) {
-        BioQueueManager *mgr = BIO_GetGlobalQueueManager();
-        if (mgr) {
-            BioQueueStats stats;
-            BIO_QueueGetStats(mgr, &stats);
-            return stats.isConnected;
-        }
-        return false;
+        // BioLogic uses abstraction layer - check if initialized
+        // This works for both Direct DLL mode (with queue) and EC-Lab mode (without queue)
+        return BIO_IsAbstractInitialized();
     } else if (deviceIndex >= DEVICE_DTB_BASE) {
         // All DTB devices share the same queue manager
         DTBQueueManager *mgr = DTB_GetGlobalQueueManager();
@@ -519,7 +515,7 @@ static bool Status_CanSendCommand(int deviceIndex) {
         }
         return false;
     }
-    
+
     return false;
 }
 
