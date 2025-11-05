@@ -411,10 +411,10 @@ int Test_BIO_Connection(BioQueueManager *bioQueueMgr, char *errorMsg, int errorM
         return -1;
     }
     
-    LogDebugEx(LOG_DEVICE_BIO, "BioLogic queue manager is connected, testing communication...");
-    
-    // Test the connection
-	int result = BIO_TestConnectionQueued(0, DEVICE_PRIORITY_NORMAL);
+    LogDebugEx(LOG_DEVICE_BIO, "BioLogic is connected, testing communication...");
+
+    // Test the connection using abstraction layer (works in both DLL and EC-Lab modes)
+	int result = BIO_Abstract_TestConnection();
     
     if (result != SUCCESS) {
         snprintf(errorMsg, errorMsgSize, "Connection test failed: %s", GetErrorString(result));
@@ -439,20 +439,17 @@ int Test_BIO_OCV(BioQueueManager *bioQueueMgr, char *errorMsg, int errorMsgSize)
     
     LogDebugEx(LOG_DEVICE_BIO, "Running OCV measurement for %.1f seconds...", BIO_TEST_OCV_DURATION);
     
-    // Run OCV measurement using high-level function
+    // Run OCV measurement using abstraction layer (works in both DLL and EC-Lab modes)
     BIO_TechniqueData *ocvData = NULL;
-    int result = BIO_RunOCVQueued(
-        deviceID,
+    int result = BIO_Abstract_RunOCV(
         TEST_CHANNEL,
         BIO_TEST_OCV_DURATION,  // duration_s
         0.1,                    // sample_interval_s (100ms)
         10.0,                   // record_every_dE (10mV)
         0.1,                    // record_every_dT (100ms)
         2,                      // e_range (10V range)
-        true,                   // Process the data
         &ocvData,
         0,                      // Use default timeout
-		DEVICE_PRIORITY_NORMAL,
         Test_BIO_TechniqueProgress,  // Progress callback
         g_biologicTestSuiteContext,  // Pass test context
 		&(g_biologicTestSuiteContext->cancelRequested) // Pass cancellation flag
@@ -533,10 +530,9 @@ int Test_BIO_PEIS(BioQueueManager *bioQueueMgr, char *errorMsg, int errorMsgSize
     LogDebugEx(LOG_DEVICE_BIO, "Running PEIS measurement from %.0fHz to %.0fHz...", 
                BIO_TEST_PEIS_START_FREQ, BIO_TEST_PEIS_END_FREQ);
     
-    // Run PEIS measurement using high-level function with proper parameters
+    // Run PEIS measurement using abstraction layer (works in both DLL and EC-Lab modes)
     BIO_TechniqueData *peisData = NULL;
-    int result = BIO_RunPEISQueued(
-        deviceID,
+    int result = BIO_Abstract_RunPEIS(
         TEST_CHANNEL,
         true,                           // vs_initial (vs OCV)
         0.0,                           // initial_voltage_step (0V vs OCV)
@@ -551,10 +547,8 @@ int Test_BIO_PEIS(BioQueueManager *bioQueueMgr, char *errorMsg, int errorMsgSize
         1,                             // average_n_times (1 repeat)
         false,                         // correction (no non-stationary correction)
         0.0,                           // wait_for_steady (0 periods)
-        true,                          // Process the data
         &peisData,
         0,                             // Use default timeout
-		DEVICE_PRIORITY_NORMAL,
         Test_BIO_TechniqueProgress,    // Progress callback
         g_biologicTestSuiteContext,    // Pass test context
 		&(g_biologicTestSuiteContext->cancelRequested) // Pass cancellation flag
@@ -640,10 +634,9 @@ int Test_BIO_GEIS(BioQueueManager *bioQueueMgr, char *errorMsg, int errorMsgSize
     LogDebugEx(LOG_DEVICE_BIO, "Running GEIS measurement at %.1fmA from %.0fHz to %.0fHz...", 
                BIO_TEST_GEIS_INIT_I * 1000, BIO_TEST_GEIS_START_FREQ, BIO_TEST_GEIS_END_FREQ);
     
-    // Run GEIS measurement using high-level function
+    // Run GEIS measurement using abstraction layer (works in both DLL and EC-Lab modes)
     BIO_TechniqueData *geisData = NULL;
-    int result = BIO_RunGEISQueued(
-        deviceID,
+    int result = BIO_Abstract_RunGEIS(
         TEST_CHANNEL,
         true,                          // vs_initial (vs initial current)
         BIO_TEST_GEIS_INIT_I,         // initial_current_step (0A)
@@ -659,10 +652,8 @@ int Test_BIO_GEIS(BioQueueManager *bioQueueMgr, char *errorMsg, int errorMsgSize
         false,                        // correction (no non-stationary correction)
         0.0,                          // wait_for_steady (0 periods)
         KBIO_IRANGE_100mA,           // i_range (100mA range)
-        true,                         // Process the data
         &geisData,
         0,                            // Use default timeout
-		DEVICE_PRIORITY_NORMAL,
         Test_BIO_TechniqueProgress,   // Progress callback
         g_biologicTestSuiteContext,    // Pass test context
 		&(g_biologicTestSuiteContext->cancelRequested) // Pass cancellation flag
