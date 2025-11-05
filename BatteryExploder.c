@@ -24,7 +24,7 @@
  * Global Variables (defined here, declared extern in common.h)
  ******************************************************************************/
 int g_mainPanelHandle = 0;
-int g_debugMode = 0;
+int g_debugMode = 1;
 CmtThreadPoolHandle g_threadPool = 0;
 CmtThreadLockHandle g_busyLock = 0;
 int g_systemBusy = 0;
