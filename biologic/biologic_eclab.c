@@ -182,43 +182,46 @@ int BIO_ECLAB_Init(const ECLAB_Config *config) {
     // Disable EC-Lab message windows for automated operation
     ECLAB_EnableMessagesWindows(g_config.conn, false);
 
-    // DIAGNOSTIC: Monitor connection stability after initialization
-    LogMessageEx(LOG_DEVICE_BIO, "========================================");
-    LogMessageEx(LOG_DEVICE_BIO, "DIAGNOSTIC: Monitoring connection stability for 30 seconds");
-    LogMessageEx(LOG_DEVICE_BIO, "Testing connection every 2 seconds to detect when/if it drops...");
-    LogMessageEx(LOG_DEVICE_BIO, "========================================");
+    // DIAGNOSTIC: Quick connection stability check (5 seconds)
+    // This runs synchronously during init to detect immediate connection issues
+    // Set ECLAB_CONNECTION_DIAGNOSTIC_ENABLED to 0 in common.h to disable
+#ifndef ECLAB_CONNECTION_DIAGNOSTIC_ENABLED
+#define ECLAB_CONNECTION_DIAGNOSTIC_ENABLED 1
+#endif
 
-    double startTime = Timer();
+#if ECLAB_CONNECTION_DIAGNOSTIC_ENABLED
+    LogMessageEx(LOG_DEVICE_BIO, "Running connection diagnostic (5 tests over ~5 seconds)...");
+
     int testCount = 0;
-    int consecutiveFailures = 0;
+    int passCount = 0;
+    int failCount = 0;
+    double testStart = Timer();
 
-    while ((Timer() - startTime) < 30.0) {  // Monitor for 30 seconds
-        Delay(2.0);  // Test every 2 seconds
+    for (int i = 0; i < 5; i++) {
+        if (i > 0) Delay(1.0);  // Wait 1 second between tests (not before first test)
         testCount++;
 
         int testResult = ECLAB_TestConnection(g_config.conn);
+        double elapsed = Timer() - testStart;
 
         if (testResult == SUCCESS) {
-            LogMessageEx(LOG_DEVICE_BIO, "[Test %d @ %.1fs] Connection: OK",
-                        testCount, Timer() - startTime);
-            consecutiveFailures = 0;
+            passCount++;
+            LogMessageEx(LOG_DEVICE_BIO, "  [Test %d @ %.1fs] Connection: OK", testCount, elapsed);
         } else {
-            consecutiveFailures++;
-            LogWarningEx(LOG_DEVICE_BIO, "[Test %d @ %.1fs] Connection: FAILED (error: %s) - consecutive failures: %d",
-                        testCount, Timer() - startTime, ECLAB_GetErrorString(testResult), consecutiveFailures);
-        }
-
-        // Stop early if we see consistent failures
-        if (consecutiveFailures >= 3) {
-            LogErrorEx(LOG_DEVICE_BIO, "Connection lost after 3 consecutive failures - stopping diagnostic");
-            break;
+            failCount++;
+            LogWarningEx(LOG_DEVICE_BIO, "  [Test %d @ %.1fs] Connection: FAILED (%s)",
+                        testCount, elapsed, ECLAB_GetErrorString(testResult));
         }
     }
 
-    LogMessageEx(LOG_DEVICE_BIO, "========================================");
-    LogMessageEx(LOG_DEVICE_BIO, "DIAGNOSTIC COMPLETE: Performed %d connection tests over %.1f seconds",
-                testCount, Timer() - startTime);
-    LogMessageEx(LOG_DEVICE_BIO, "========================================");
+    LogMessageEx(LOG_DEVICE_BIO, "Connection diagnostic complete: %d/%d tests passed", passCount, testCount);
+
+    if (failCount > 0) {
+        LogWarningEx(LOG_DEVICE_BIO, "WARNING: %d connection test(s) failed - device may be unstable", failCount);
+    }
+#else
+    LogMessageEx(LOG_DEVICE_BIO, "Connection diagnostic disabled (ECLAB_CONNECTION_DIAGNOSTIC_ENABLED=0)");
+#endif
 
     g_initialized = true;
 
