@@ -443,8 +443,9 @@ int ECLAB_ConnectDevice(ECLabConnection *conn, int deviceNumber) {
     LogMessageEx(LOG_DEVICE_BIO, "Calling EC-Lab ConnectDevice method...");
     int retVal = conn->pInterface->lpVtbl->ConnectDevice(conn->pInterface, deviceNumber);
 
-    if (retVal != 0) {
-        LogErrorEx(LOG_DEVICE_BIO, "ERROR: ConnectDevice returned error code: %d", retVal);
+    // EC-Lab returns 1 if connected, 0 otherwise (per manual section 3.2.1)
+    if (retVal == 0) {
+        LogErrorEx(LOG_DEVICE_BIO, "ERROR: ConnectDevice failed (returned 0)");
         LogErrorEx(LOG_DEVICE_BIO, "Possible causes:");
         LogErrorEx(LOG_DEVICE_BIO, "  - Device %d is not physically connected", deviceNumber);
         LogErrorEx(LOG_DEVICE_BIO, "  - Device is not powered on");
@@ -454,6 +455,8 @@ int ECLAB_ConnectDevice(ECLabConnection *conn, int deviceNumber) {
         LogErrorEx(LOG_DEVICE_BIO, "Check EC-Lab's device list to verify available devices.");
         return ECLAB_ERR_DEVICE_NOT_FOUND;
     }
+
+    LogMessageEx(LOG_DEVICE_BIO, "ConnectDevice returned: %d (success)", retVal);
 
     conn->deviceNumber = deviceNumber;
     conn->isConnected = true;
@@ -475,8 +478,9 @@ int ECLAB_DisconnectDevice(ECLabConnection *conn) {
 
     conn->isConnected = false;
 
-    if (retVal != 0) {
-        LogWarningEx(LOG_DEVICE_BIO, "DisconnectDevice returned error: %d", retVal);
+    // EC-Lab returns 1 if success, 0 if failed
+    if (retVal == 0) {
+        LogWarningEx(LOG_DEVICE_BIO, "DisconnectDevice failed (returned 0)");
         return ECLAB_ERR_COM_INVOKE_FAILED;
     }
 
@@ -491,7 +495,8 @@ int ECLAB_TestConnection(ECLabConnection *conn) {
     // Call TestConnection method directly through vtable
     int retVal = conn->pInterface->lpVtbl->TestConnection(conn->pInterface, conn->deviceNumber);
 
-    return (retVal == 0) ? SUCCESS : ECLAB_ERR_NOT_CONNECTED;
+    // EC-Lab returns 1 if connected, 0 otherwise (per manual section 3.2.2)
+    return (retVal == 1) ? SUCCESS : ECLAB_ERR_NOT_CONNECTED;
 }
 
 /******************************************************************************
@@ -524,8 +529,9 @@ int ECLAB_LoadSettings(ECLabConnection *conn, int device, int channel,
 
     SysFreeString(bstrFilePath);
 
-    if (retVal != 0) {
-        LogErrorEx(LOG_DEVICE_BIO, "LoadSettings returned error: %d", retVal);
+    // EC-Lab returns 1 if success, 0 if failed (per manual section 3.2.3)
+    if (retVal == 0) {
+        LogErrorEx(LOG_DEVICE_BIO, "LoadSettings failed (returned 0)");
         return ECLAB_ERR_INVALID_MPS_FILE;
     }
 
@@ -553,8 +559,9 @@ int ECLAB_RunChannel(ECLabConnection *conn, int device, int channel,
 
     SysFreeString(bstrOutputPath);
 
-    if (retVal != 0) {
-        LogErrorEx(LOG_DEVICE_BIO, "RunChannel returned error: %d", retVal);
+    // EC-Lab returns 1 if success, 0 if failed (per manual section 3.2.4)
+    if (retVal == 0) {
+        LogErrorEx(LOG_DEVICE_BIO, "RunChannel failed (returned 0)");
         return ECLAB_ERR_RUN_FAILED;
     }
 
@@ -571,8 +578,9 @@ int ECLAB_StopChannel(ECLabConnection *conn, int device, int channel) {
     // Call StopChannel method directly through vtable
     int retVal = conn->pInterface->lpVtbl->StopChannel(conn->pInterface, device, channel);
 
-    if (retVal != 0) {
-        LogWarningEx(LOG_DEVICE_BIO, "StopChannel returned error: %d", retVal);
+    // EC-Lab returns 1 if success, 0 if failed (per manual section 3.2.5)
+    if (retVal == 0) {
+        LogWarningEx(LOG_DEVICE_BIO, "StopChannel failed (returned 0)");
         return ECLAB_ERR_COM_INVOKE_FAILED;
     }
 
@@ -598,8 +606,9 @@ int ECLAB_MeasureStatus(ECLabConnection *conn, int device, int channel,
     int retVal = conn->pInterface->lpVtbl->MeasureStatus(conn->pInterface,
                                                          device, channel, &statusResult);
 
-    if (retVal != 0) {
-        LogErrorEx(LOG_DEVICE_BIO, "MeasureStatus returned error: %d", retVal);
+    // EC-Lab returns 1 if success, 0 if failed (per manual section 3.2.9)
+    if (retVal == 0) {
+        LogErrorEx(LOG_DEVICE_BIO, "MeasureStatus failed (returned 0)");
         VariantClear(&statusResult);
         return ECLAB_ERR_COM_INVOKE_FAILED;
     }
