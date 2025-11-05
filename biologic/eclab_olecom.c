@@ -811,10 +811,13 @@ int ECLAB_EnableMessagesWindows(ECLabConnection *conn, bool enable) {
         return ECLAB_ERR_COM_INVOKE_FAILED;
     }
 
-    if (functionResult != 0) {
-        LogWarningEx(LOG_DEVICE_BIO, "EnableMessagesWindows returned error: %d", functionResult);
+    // EC-Lab returns 1 if success, 0 if failed (per manual convention)
+    if (functionResult == 0) {
+        LogWarningEx(LOG_DEVICE_BIO, "EnableMessagesWindows failed (returned 0)");
         return ECLAB_ERR_COM_INVOKE_FAILED;
     }
 
+    LogDebugEx(LOG_DEVICE_BIO, "EnableMessagesWindows succeeded (messages %s)",
+              enable ? "enabled" : "disabled");
     return SUCCESS;
 }
