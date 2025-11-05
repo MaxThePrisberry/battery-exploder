@@ -258,6 +258,16 @@ int BIO_Abstract_RunGEIS(uint8_t channel,
 int BIO_Abstract_GetDeviceID(void);
 
 /**
+ * Connect to BioLogic device
+ *
+ * Connects to the device. Can be used to reconnect after a disconnection.
+ * Works in both Direct DLL and EC-Lab modes.
+ *
+ * @return SUCCESS or error code
+ */
+int BIO_Abstract_Connect(void);
+
+/**
  * Test connection
  *
  * Verifies connection to device in current mode.

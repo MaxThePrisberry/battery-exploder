@@ -541,6 +541,13 @@ int BIO_ECLAB_GetDeviceID(void) {
     return g_initialized ? g_config.deviceID : -1;
 }
 
+int BIO_ECLAB_Connect(void) {
+    if (!g_initialized) return ERR_NOT_INITIALIZED;
+    if (!g_config.conn) return ECLAB_ERR_INVALID_CONNECTION;
+
+    return ECLAB_ConnectDevice(g_config.conn, g_config.deviceNumber);
+}
+
 int BIO_ECLAB_TestConnection(void) {
     if (!g_initialized) return ERR_NOT_INITIALIZED;
     if (!g_config.conn) return ECLAB_ERR_INVALID_CONNECTION;

@@ -354,6 +354,22 @@ int BIO_Abstract_GetDeviceID(void) {
     }
 }
 
+int BIO_Abstract_Connect(void) {
+    if (!g_abstractInitialized) return ERR_NOT_INITIALIZED;
+
+    switch (g_abstractConfig.mode) {
+        case BIO_MODE_DIRECT_DLL:
+            return BIO_ConnectQueued(g_abstractConfig.dll.deviceAddress,
+                                    DEVICE_PRIORITY_NORMAL);
+
+        case BIO_MODE_ECLAB_OLECOM:
+            return BIO_ECLAB_Connect();
+
+        default:
+            return ERR_INVALID_STATE;
+    }
+}
+
 int BIO_Abstract_TestConnection(void) {
     if (!g_abstractInitialized) return ERR_NOT_INITIALIZED;
 

@@ -227,6 +227,16 @@ ECLabConnection* BIO_ECLAB_GetConnection(void);
 int BIO_ECLAB_GetDeviceID(void);
 
 /**
+ * Connect to EC-Lab device
+ *
+ * Connects to the configured device. Can be used to reconnect after
+ * a disconnection.
+ *
+ * @return SUCCESS or error code
+ */
+int BIO_ECLAB_Connect(void);
+
+/**
  * Test EC-Lab connection
  *
  * Verifies that EC-Lab is still running and device is connected.

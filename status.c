@@ -559,10 +559,30 @@ static void BIO_RequestStatusUpdate(void) {
 
         LogDebugEx(LOG_DEVICE_BIO, "BioLogic connected via %s", modeStr);
     } else {
-        g_status.devices[DEVICE_BIOLOGIC].lastState = CONN_STATE_ERROR;
-        UpdateDeviceLED(DEVICE_BIOLOGIC, CONN_STATE_ERROR);
-        UpdateDeviceStatus(DEVICE_BIOLOGIC, "BioLogic Connection Lost");
-        LogDebugEx(LOG_DEVICE_BIO, "BioLogic connection test failed: %s", GetErrorString(testResult));
+        // Connection test failed - attempt automatic reconnection
+        LogWarningEx(LOG_DEVICE_BIO, "Connection lost, attempting to reconnect...");
+
+        int reconnectResult = BIO_Abstract_Connect();
+
+        if (reconnectResult == SUCCESS) {
+            // Reconnection succeeded
+            g_status.devices[DEVICE_BIOLOGIC].lastState = CONN_STATE_CONNECTED;
+            UpdateDeviceLED(DEVICE_BIOLOGIC, CONN_STATE_CONNECTED);
+
+            BIO_ControlMode mode = BIO_GetCurrentMode();
+            const char *modeStr = BIO_GetModeName(mode);
+            char statusMsg[64];
+            snprintf(statusMsg, sizeof(statusMsg), "BioLogic Reconnected (%s)", modeStr);
+            UpdateDeviceStatus(DEVICE_BIOLOGIC, statusMsg);
+
+            LogMessageEx(LOG_DEVICE_BIO, "Successfully reconnected via %s", modeStr);
+        } else {
+            // Reconnection failed
+            g_status.devices[DEVICE_BIOLOGIC].lastState = CONN_STATE_ERROR;
+            UpdateDeviceLED(DEVICE_BIOLOGIC, CONN_STATE_ERROR);
+            UpdateDeviceStatus(DEVICE_BIOLOGIC, "BioLogic Connection Lost");
+            LogDebugEx(LOG_DEVICE_BIO, "Reconnection failed: %s", GetErrorString(reconnectResult));
+        }
     }
 }
 
