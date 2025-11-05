@@ -182,6 +182,44 @@ int BIO_ECLAB_Init(const ECLAB_Config *config) {
     // Disable EC-Lab message windows for automated operation
     ECLAB_EnableMessagesWindows(g_config.conn, false);
 
+    // DIAGNOSTIC: Monitor connection stability after initialization
+    LogMessageEx(LOG_DEVICE_BIO, "========================================");
+    LogMessageEx(LOG_DEVICE_BIO, "DIAGNOSTIC: Monitoring connection stability for 30 seconds");
+    LogMessageEx(LOG_DEVICE_BIO, "Testing connection every 2 seconds to detect when/if it drops...");
+    LogMessageEx(LOG_DEVICE_BIO, "========================================");
+
+    double startTime = Timer();
+    int testCount = 0;
+    int consecutiveFailures = 0;
+
+    while ((Timer() - startTime) < 30.0) {  // Monitor for 30 seconds
+        Delay(2.0);  // Test every 2 seconds
+        testCount++;
+
+        int testResult = ECLAB_TestConnection(g_config.conn);
+
+        if (testResult == SUCCESS) {
+            LogMessageEx(LOG_DEVICE_BIO, "[Test %d @ %.1fs] Connection: OK",
+                        testCount, Timer() - startTime);
+            consecutiveFailures = 0;
+        } else {
+            consecutiveFailures++;
+            LogWarningEx(LOG_DEVICE_BIO, "[Test %d @ %.1fs] Connection: FAILED (error: %s) - consecutive failures: %d",
+                        testCount, Timer() - startTime, ECLAB_GetErrorString(testResult), consecutiveFailures);
+        }
+
+        // Stop early if we see consistent failures
+        if (consecutiveFailures >= 3) {
+            LogErrorEx(LOG_DEVICE_BIO, "Connection lost after 3 consecutive failures - stopping diagnostic");
+            break;
+        }
+    }
+
+    LogMessageEx(LOG_DEVICE_BIO, "========================================");
+    LogMessageEx(LOG_DEVICE_BIO, "DIAGNOSTIC COMPLETE: Performed %d connection tests over %.1f seconds",
+                testCount, Timer() - startTime);
+    LogMessageEx(LOG_DEVICE_BIO, "========================================");
+
     g_initialized = true;
 
     LogMessageEx(LOG_DEVICE_BIO, "EC-Lab backend initialized successfully");
