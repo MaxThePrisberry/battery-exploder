@@ -1,0 +1,1770 @@
+
+=== Battery Tester Log Started: 2025-11-05 15:01:13 ===
+Log file location: c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\BatteryExploder.log
+2025-11-05 15:01:13 [INFO] Initializing cDAQ module...
+2025-11-05 15:01:13 [INFO] Initializing cDAQ thermocouple slots 2 and 3...
+2025-11-05 15:01:14 [INFO] cDAQ slot 2 initialized with 16 thermocouples
+2025-11-05 15:01:15 [INFO] cDAQ slot 3 initialized with 16 thermocouples
+2025-11-05 15:01:15 [INFO] cDAQ module initialized successfully
+2025-11-05 15:01:15 [INFO] cDAQ thermocouple slots initialized successfully
+2025-11-05 15:01:15 [INFO] Initializing cDAQ slot 1 for 4-20mA current sensors (NI 9202)...
+2025-11-05 15:01:15 [INFO] cDAQ slot 1 initialized with 16 voltage channels (4-20mA mode)
+2025-11-05 15:01:15 [INFO] Shunt resistor: 250.0 ohms, Range: 1.0-5.0V (4-20mA)
+2025-11-05 15:01:15 [INFO] cDAQ current sensor slot initialized successfully (4-20mA)
+2025-11-05 15:01:15 [INFO] Initializing pressure safety monitoring...
+2025-11-05 15:01:15 [INFO] Initializing pressure safety monitoring module...
+2025-11-05 15:01:15 [INFO] Pressure safety module initialized
+2025-11-05 15:01:15 [INFO] Pressure safety monitoring initialized successfully
+2025-11-05 15:01:15 [INFO] Initializing PSB queue manager on COM3...
+2025-11-05 15:01:15 [INFO] Attempting to connect to PSB 10000...
+2025-11-05 15:01:15 [INFO] [PSB] Connecting to PSB on COM3...
+2025-11-05 15:01:15 [INFO] [PSB] Initializing on COM3, slave 1, 9600 baud
+2025-11-05 15:01:15 [INFO] [PSB] Successfully initialized
+2025-11-05 15:01:15 [INFO] [PSB] Setting remote mode: ON
+2025-11-05 15:01:15 [DEBUG] [PSB] TX (8 bytes): 01 05 01 92 FF 00 2C 2B 
+2025-11-05 15:01:15 [DEBUG] [PSB] RX (8 bytes): 01 05 01 92 FF 00 2C 2B 
+2025-11-05 15:01:15 [INFO] [PSB] Setting output: OFF
+2025-11-05 15:01:15 [DEBUG] [PSB] TX (8 bytes): 01 05 01 95 00 00 DC 1A 
+2025-11-05 15:01:16 [DEBUG] [PSB] RX (8 bytes): 01 05 01 95 00 00 DC 1A 
+2025-11-05 15:01:16 [DEBUG] [PSB] Reading Device State (Reg 505)
+2025-11-05 15:01:16 [DEBUG] [PSB] TX (8 bytes): 01 03 01 F9 00 02 15 C6 
+2025-11-05 15:01:16 [DEBUG] [PSB] RX (9 bytes): 01 03 04 00 00 48 03 8C 32 
+2025-11-05 15:01:16 [DEBUG] [PSB] Raw registers: [505]=0x0000, [506]=0x4803
+2025-11-05 15:01:16 [DEBUG] [PSB] Combined 32-bit state: 0x00004803
+2025-11-05 15:01:16 [DEBUG] [PSB] Parsed state:
+2025-11-05 15:01:16 [DEBUG] [PSB]   Control Location: 0x03
+2025-11-05 15:01:16 [DEBUG] [PSB]   Output Enabled: NO
+2025-11-05 15:01:16 [DEBUG] [PSB]   Remote Mode: YES
+2025-11-05 15:01:16 [DEBUG] [PSB]   Regulation Mode: 0
+2025-11-05 15:01:16 [DEBUG] [PSB]   Alarms Active: NO
+2025-11-05 15:01:16 [DEBUG] [PSB]   Sink Mode: NO (source)
+2025-11-05 15:01:16 [DEBUG] [PSB] Reading Actual Values
+2025-11-05 15:01:16 [DEBUG] [PSB] TX (8 bytes): 01 03 01 FB 00 03 75 C6 
+2025-11-05 15:01:16 [DEBUG] [PSB] RX (11 bytes): 01 03 06 0C 9A 00 00 00 00 79 A5 
+2025-11-05 15:01:16 [DEBUG] [PSB] Actual values: V=3.69V, I=0.00A, P=0.00W
+2025-11-05 15:01:16 [INFO] Successfully connected to PSB 10000
+2025-11-05 15:01:16 [INFO] PSB 10000 queue manager initialized
+2025-11-05 15:01:16 [INFO] PSB 10000 queue processing thread started
+2025-11-05 15:01:16 [INFO] PSB queue manager initialized and connected on COM3
+2025-11-05 15:01:16 [INFO] Initializing PSB to safe state...
+2025-11-05 15:01:16 [INFO] [PSB] Setting PSB safe limits...
+2025-11-05 15:01:16 [INFO] [PSB] Setting min voltage: 0.00V
+2025-11-05 15:01:16 [DEBUG] [PSB] TX (8 bytes): 01 06 23 29 00 00 53 86 
+2025-11-05 15:01:16 [DEBUG] [PSB] RX (8 bytes): 01 06 23 29 00 00 53 86 
+2025-11-05 15:01:16 [INFO] [PSB] Setting max voltage: 61.20V
+2025-11-05 15:01:16 [DEBUG] [PSB] TX (8 bytes): 01 06 23 28 D0 E4 5F CD 
+2025-11-05 15:01:16 [DEBUG] [PSB] RX (8 bytes): 01 06 23 28 D0 E4 5F CD 
+2025-11-05 15:01:16 [INFO] [PSB] Setting min current: 0.00A
+2025-11-05 15:01:16 [DEBUG] [PSB] TX (8 bytes): 01 06 23 2B 00 00 F2 46 
+2025-11-05 15:01:16 [DEBUG] [PSB] RX (8 bytes): 01 06 23 2B 00 00 F2 46 
+2025-11-05 15:01:16 [INFO] [PSB] Setting max current: 61.20A
+2025-11-05 15:01:16 [DEBUG] [PSB] TX (8 bytes): 01 06 23 2A D0 E4 FE 0D 
+2025-11-05 15:01:16 [DEBUG] [PSB] RX (8 bytes): 01 06 23 2A D0 E4 FE 0D 
+2025-11-05 15:01:16 [INFO] [PSB] Setting sink max current: 61.20A
+2025-11-05 15:01:16 [DEBUG] [PSB] TX (8 bytes): 01 06 23 30 D0 E4 DF CA 
+2025-11-05 15:01:16 [DEBUG] [PSB] RX (8 bytes): 01 06 23 30 D0 E4 DF CA 
+2025-11-05 15:01:16 [INFO] [PSB] Setting sink min current: 0.00A
+2025-11-05 15:01:16 [DEBUG] [PSB] TX (8 bytes): 01 06 23 31 00 00 D3 81 
+2025-11-05 15:01:17 [DEBUG] [PSB] RX (8 bytes): 01 06 23 31 00 00 D3 81 
+2025-11-05 15:01:17 [INFO] [PSB] Setting max power: 1224.00W
+2025-11-05 15:01:17 [DEBUG] [PSB] TX (8 bytes): 01 06 23 2C D0 E4 1E 0C 
+2025-11-05 15:01:17 [DEBUG] [PSB] RX (8 bytes): 01 06 23 2C D0 E4 1E 0C 
+2025-11-05 15:01:17 [INFO] [PSB] Setting sink max power: 1224.00W
+2025-11-05 15:01:17 [DEBUG] [PSB] TX (8 bytes): 01 06 23 2D D0 E4 4F CC 
+2025-11-05 15:01:17 [DEBUG] [PSB] RX (8 bytes): 01 06 23 2D D0 E4 4F CC 
+2025-11-05 15:01:17 [INFO] [PSB] PSB safe limits set successfully
+2025-11-05 15:01:17 [INFO] [PSB] Zeroing all PSB values...
+2025-11-05 15:01:17 [INFO] [PSB] Setting output: OFF
+2025-11-05 15:01:17 [DEBUG] [PSB] TX (8 bytes): 01 05 01 95 00 00 DC 1A 
+2025-11-05 15:01:17 [DEBUG] [PSB] RX (8 bytes): 01 05 01 95 00 00 DC 1A 
+2025-11-05 15:01:18 [INFO] [PSB] Setting voltage: 0.00V (0x0000)
+2025-11-05 15:01:18 [DEBUG] [PSB] TX (8 bytes): 01 06 01 F4 00 00 C9 C4 
+2025-11-05 15:01:18 [DEBUG] [PSB] RX (8 bytes): 01 06 01 F4 00 00 C9 C4 
+2025-11-05 15:01:18 [INFO] [PSB] Setting current: 0.00A (0x0000)
+2025-11-05 15:01:18 [DEBUG] [PSB] TX (8 bytes): 01 06 01 F5 00 00 98 04 
+2025-11-05 15:01:18 [DEBUG] [PSB] RX (8 bytes): 01 06 01 F5 00 00 98 04 
+2025-11-05 15:01:18 [INFO] [PSB] Setting power: 0.00W (0x0000)
+2025-11-05 15:01:18 [DEBUG] [PSB] TX (8 bytes): 01 06 01 F6 00 00 68 04 
+2025-11-05 15:01:18 [DEBUG] [PSB] RX (8 bytes): 01 06 01 F6 00 00 68 04 
+2025-11-05 15:01:18 [INFO] [PSB] Setting sink current: 0.00A (0x0000)
+2025-11-05 15:01:18 [DEBUG] [PSB] TX (8 bytes): 01 06 01 F3 00 00 78 05 
+2025-11-05 15:01:18 [DEBUG] [PSB] RX (8 bytes): 01 06 01 F3 00 00 78 05 
+2025-11-05 15:01:19 [INFO] [PSB] Setting sink power: 0.00W (0x0000)
+2025-11-05 15:01:19 [DEBUG] [PSB] TX (8 bytes): 01 06 01 F2 00 00 29 C5 
+2025-11-05 15:01:19 [DEBUG] [PSB] RX (8 bytes): 01 06 01 F2 00 00 29 C5 
+2025-11-05 15:01:19 [INFO] [PSB] All PSB values zeroed successfully
+2025-11-05 15:01:19 [INFO] PSB initialization complete
+2025-11-05 15:01:19 [INFO] Initializing BioLogic abstraction layer...
+2025-11-05 15:01:19 [INFO]   Mode: EC-Lab OLE COM
+2025-11-05 15:01:19 [INFO] [BIO] Initializing BioLogic abstraction layer
+2025-11-05 15:01:19 [INFO] [BIO]   Mode: EC-Lab OLE COM
+2025-11-05 15:01:19 [INFO] [BIO] Initializing EC-Lab OLE COM mode
+2025-11-05 15:01:19 [INFO] [BIO]   Settings dir: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_settings
+2025-11-05 15:01:19 [INFO] [BIO]   Data dir: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data
+2025-11-05 15:01:19 [INFO] [BIO] Initializing EC-Lab backend
+2025-11-05 15:01:19 [INFO] [BIO]   Settings dir: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_settings
+2025-11-05 15:01:19 [INFO] [BIO]   Data dir: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data
+2025-11-05 15:01:19 [INFO] [BIO]   Device: 0, Channel: 1
+2025-11-05 15:01:19 [INFO] [BIO] ========================================
+2025-11-05 15:01:19 [INFO] [BIO] Initializing EC-Lab OLE COM connection
+2025-11-05 15:01:19 [INFO] [BIO] ========================================
+2025-11-05 15:01:19 [INFO] [BIO] Working directory: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data
+2025-11-05 15:01:19 [INFO] [BIO] Step 1: Initializing COM...
+2025-11-05 15:01:19 [INFO] [BIO] COM initialized successfully
+2025-11-05 15:01:19 [INFO] [BIO] Step 2: Resolving ProgID 'EClabCOM.EClabExe'...
+2025-11-05 15:01:19 [INFO] [BIO] ProgID resolved successfully. EC-Lab is registered.
+2025-11-05 15:01:19 [INFO] [BIO] Step 3: Checking if EC-Lab is running...
+2025-11-05 15:01:19 [INFO] [BIO] EC-Lab process detected - proceeding with COM connection
+2025-11-05 15:01:19 [INFO] [BIO] Step 4: Creating EC-Lab COM instance...
+2025-11-05 15:01:19 [INFO] [BIO] NOTE: This will connect to the running EC-Lab application.
+2025-11-05 15:01:19 [INFO] [BIO] NOTE: Using custom IEClabExe interface (NOT IDispatch)
+2025-11-05 15:01:19 [INFO] [BIO] Requesting IEClabExe interface...
+2025-11-05 15:01:19 [INFO] [BIO] EC-Lab COM instance created successfully!
+2025-11-05 15:01:19 [INFO] [BIO] ========================================
+2025-11-05 15:01:19 [INFO] [BIO] EC-Lab OLE COM connection initialized
+2025-11-05 15:01:19 [INFO] [BIO] ========================================
+2025-11-05 15:01:19 [INFO] [BIO] ========================================
+2025-11-05 15:01:19 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-05 15:01:19 [INFO] [BIO] ========================================
+2025-11-05 15:01:19 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-05 15:01:19 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-05 15:01:19 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-05 15:01:19 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-05 15:01:19 [INFO] [BIO] 
+2025-11-05 15:01:19 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-05 15:01:20 [INFO] [BIO] ConnectDevice returned: 1 (success)
+2025-11-05 15:01:20 [INFO] [BIO] Verifying connection with TestConnection...
+2025-11-05 15:01:20 [INFO] [BIO] TestConnection returned: 1 (device confirmed connected)
+2025-11-05 15:01:20 [INFO] [BIO] ========================================
+2025-11-05 15:01:20 [INFO] [BIO] Successfully connected to device 0!
+2025-11-05 15:01:20 [INFO] [BIO] ========================================
+2025-11-05 15:01:20 [DEBUG] [BIO] EnableMessagesWindows succeeded (messages disabled)
+2025-11-05 15:01:20 [INFO] [BIO] Running connection diagnostic (5 tests over ~5 seconds)...
+2025-11-05 15:01:20 [INFO] [BIO]   [Test 1 @ 0.0s] Connection: OK
+2025-11-05 15:01:21 [INFO] [BIO]   [Test 2 @ 1.0s] Connection: OK
+2025-11-05 15:01:22 [INFO] [BIO]   [Test 3 @ 2.0s] Connection: OK
+2025-11-05 15:01:23 [INFO] [BIO]   [Test 4 @ 3.0s] Connection: OK
+2025-11-05 15:01:24 [INFO] [BIO]   [Test 5 @ 4.0s] Connection: OK
+2025-11-05 15:01:24 [INFO] [BIO] Connection diagnostic complete: 5/5 tests passed
+2025-11-05 15:01:24 [INFO] [BIO] EC-Lab backend initialized successfully
+2025-11-05 15:01:24 [INFO] [BIO] BioLogic abstraction layer initialized successfully
+2025-11-05 15:01:24 [INFO] BioLogic abstraction layer initialized successfully
+2025-11-05 15:01:24 [INFO] Initializing DTB queue manager on COM5 with 2 devices...
+2025-11-05 15:01:24 [INFO] [DTB] DTB_QueueInit: Will initialize slave address 2
+2025-11-05 15:01:24 [INFO] [DTB] DTB_QueueInit: Will initialize slave address 3
+2025-11-05 15:01:24 [INFO] Attempting to connect to DTB 4848...
+2025-11-05 15:01:24 [INFO] [DTB] Connecting to DTB slave 2 on COM5...
+2025-11-05 15:01:24 [INFO] [DTB] Initializing on COM5, slave 2, 9600 baud
+2025-11-05 15:01:24 [INFO] [DTB] Successfully initialized
+2025-11-05 15:01:24 [INFO] [DTB] Successfully connected to DTB slave 2
+2025-11-05 15:01:24 [INFO] [DTB] Connecting to DTB slave 3 on COM5...
+2025-11-05 15:01:24 [INFO] [DTB] Initializing on COM5, slave 3, 9600 baud
+2025-11-05 15:01:24 [INFO] [DTB] Successfully initialized
+2025-11-05 15:01:24 [INFO] [DTB] Successfully connected to DTB slave 3
+2025-11-05 15:01:24 [INFO] [DTB] Connected to 2 of 2 DTB devices
+2025-11-05 15:01:24 [DEBUG] [DTB] TX: :0203102F0001BB
+
+2025-11-05 15:01:24 [DEBUG] [DTB] Sending frame: :0203102F0001BB
+ (length=17)
+2025-11-05 15:01:24 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:24 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:24 [DEBUG] [DTB] RX: :0203020200F7
+
+2025-11-05 15:01:24 [DEBUG] [DTB] Received frame: :0203020200F7
+ (length=15)
+2025-11-05 15:01:24 [DEBUG] [DTB] RX: :0203020200F7
+
+2025-11-05 15:01:24 [DEBUG] [DTB] Received frame: :0203020200F7
+ (length=15)
+2025-11-05 15:01:24 [DEBUG] [DTB] Response hex data: 0203020200F7
+2025-11-05 15:01:24 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:24 [DEBUG] [DTB] TX: :0303102F0001BA
+
+2025-11-05 15:01:24 [DEBUG] [DTB] Sending frame: :0303102F0001BA
+ (length=17)
+2025-11-05 15:01:24 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:24 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:24 [DEBUG] [DTB] RX: :0303020200F6
+
+2025-11-05 15:01:24 [DEBUG] [DTB] Received frame: :0303020200F6
+ (length=15)
+2025-11-05 15:01:24 [DEBUG] [DTB] RX: :0303020200F6
+
+2025-11-05 15:01:24 [DEBUG] [DTB] Received frame: :0303020200F6
+ (length=15)
+2025-11-05 15:01:24 [DEBUG] [DTB] Response hex data: 0303020200F6
+2025-11-05 15:01:24 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:24 [INFO] Successfully connected to DTB 4848
+2025-11-05 15:01:24 [INFO] DTB 4848 queue manager initialized
+2025-11-05 15:01:24 [INFO] [DTB] DTB_QueueInit: Successfully created queue manager for 2 devices
+2025-11-05 15:01:24 [INFO] [DTB] DTB 4848 queue processing thread started
+2025-11-05 15:01:24 [INFO] DTB queue manager initialized and connected on COM5
+2025-11-05 15:01:24 [INFO] Enabling DTB write access for all devices...
+2025-11-05 15:01:24 [INFO] [DTB] Enabling write access for all 2 DTB devices...
+2025-11-05 15:01:24 [INFO] [DTB] Enabling write access...
+2025-11-05 15:01:24 [DEBUG] [DTB] TX: :02050810FF00E2
+
+2025-11-05 15:01:24 [DEBUG] [DTB] Sending frame: :02050810FF00E2
+ (length=17)
+2025-11-05 15:01:24 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:25 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:25 [DEBUG] [DTB] RX: :02050810FF00E2
+
+2025-11-05 15:01:25 [DEBUG] [DTB] Received frame: :02050810FF00E2
+ (length=17)
+2025-11-05 15:01:25 [DEBUG] [DTB] RX: :02050810FF00E2
+
+2025-11-05 15:01:25 [DEBUG] [DTB] Received frame: :02050810FF00E2
+ (length=17)
+2025-11-05 15:01:25 [DEBUG] [DTB] Response hex data: 02050810FF00E2
+2025-11-05 15:01:25 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:25 [INFO] [DTB] Write access enabled
+2025-11-05 15:01:25 [INFO] [DTB] Enabling write access...
+2025-11-05 15:01:25 [DEBUG] [DTB] TX: :03050810FF00E1
+
+2025-11-05 15:01:25 [DEBUG] [DTB] Sending frame: :03050810FF00E1
+ (length=17)
+2025-11-05 15:01:25 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:25 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:25 [DEBUG] [DTB] RX: :03050810FF00E1
+
+2025-11-05 15:01:25 [DEBUG] [DTB] Received frame: :03050810FF00E1
+ (length=17)
+2025-11-05 15:01:25 [DEBUG] [DTB] RX: :03050810FF00E1
+
+2025-11-05 15:01:25 [DEBUG] [DTB] Received frame: :03050810FF00E1
+ (length=17)
+2025-11-05 15:01:25 [DEBUG] [DTB] Response hex data: 03050810FF00E1
+2025-11-05 15:01:25 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:25 [INFO] [DTB] Write access enabled
+2025-11-05 15:01:25 [INFO] [DTB] Successfully enabled write access for all DTB devices
+2025-11-05 15:01:25 [INFO] DTB write access enabled successfully for all devices
+2025-11-05 15:01:25 [INFO] Configuring all DTB4848 devices for K-type thermocouple with PID control...
+2025-11-05 15:01:25 [DEBUG] [DTB] TX: :020208100001E3
+
+2025-11-05 15:01:25 [DEBUG] [DTB] Sending frame: :020208100001E3
+ (length=17)
+2025-11-05 15:01:25 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:25 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:25 [DEBUG] [DTB] RX: :02020101FA
+
+2025-11-05 15:01:25 [DEBUG] [DTB] Received frame: :02020101FA
+ (length=13)
+2025-11-05 15:01:25 [DEBUG] [DTB] RX: :02020101FA
+
+2025-11-05 15:01:25 [DEBUG] [DTB] Received frame: :02020101FA
+ (length=13)
+2025-11-05 15:01:25 [DEBUG] [DTB] Response hex data: 02020101FA
+2025-11-05 15:01:25 [DEBUG] [DTB] Transaction completed successfully in 0.160 seconds
+2025-11-05 15:01:25 [INFO] [DTB] Write access status: ENABLED
+2025-11-05 15:01:25 [INFO] DTB slave 2 write access currently: ENABLED
+2025-11-05 15:01:25 [INFO] [DTB] Configuring DTB4848...
+2025-11-05 15:01:25 [INFO] [DTB] Setting sensor type: 0
+2025-11-05 15:01:25 [DEBUG] [DTB] TX: :020610040000E4
+
+2025-11-05 15:01:25 [DEBUG] [DTB] Sending frame: :020610040000E4
+ (length=17)
+2025-11-05 15:01:26 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:26 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:26 [DEBUG] [DTB] RX: :020610040000E4
+
+2025-11-05 15:01:26 [DEBUG] [DTB] Received frame: :020610040000E4
+ (length=17)
+2025-11-05 15:01:26 [DEBUG] [DTB] RX: :020610040000E4
+
+2025-11-05 15:01:26 [DEBUG] [DTB] Received frame: :020610040000E4
+ (length=17)
+2025-11-05 15:01:26 [DEBUG] [DTB] Response hex data: 020610040000E4
+2025-11-05 15:01:26 [DEBUG] [DTB] Write register verified: addr=0x1004, data=0x0000
+2025-11-05 15:01:26 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:26 [INFO] [DTB] Setting heating/cooling mode: 0
+2025-11-05 15:01:26 [DEBUG] [DTB] TX: :020610060000E2
+
+2025-11-05 15:01:26 [DEBUG] [DTB] Sending frame: :020610060000E2
+ (length=17)
+2025-11-05 15:01:26 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:26 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:26 [DEBUG] [DTB] RX: :020610060000E2
+
+2025-11-05 15:01:26 [DEBUG] [DTB] Received frame: :020610060000E2
+ (length=17)
+2025-11-05 15:01:26 [DEBUG] [DTB] RX: :020610060000E2
+
+2025-11-05 15:01:26 [DEBUG] [DTB] Received frame: :020610060000E2
+ (length=17)
+2025-11-05 15:01:26 [DEBUG] [DTB] Response hex data: 020610060000E2
+2025-11-05 15:01:26 [DEBUG] [DTB] Write register verified: addr=0x1006, data=0x0000
+2025-11-05 15:01:26 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:26 [DEBUG] [DTB] TX: :02061002270FB0
+
+2025-11-05 15:01:26 [DEBUG] [DTB] Sending frame: :02061002270FB0
+ (length=17)
+2025-11-05 15:01:26 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:26 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:26 [DEBUG] [DTB] RX: :02061002270FB0
+
+2025-11-05 15:01:26 [DEBUG] [DTB] Received frame: :02061002270FB0
+ (length=17)
+2025-11-05 15:01:26 [DEBUG] [DTB] RX: :02061002270FB0
+
+2025-11-05 15:01:26 [DEBUG] [DTB] Received frame: :02061002270FB0
+ (length=17)
+2025-11-05 15:01:26 [DEBUG] [DTB] Response hex data: 02061002270FB0
+2025-11-05 15:01:26 [DEBUG] [DTB] Write register verified: addr=0x1002, data=0x270F
+2025-11-05 15:01:26 [DEBUG] [DTB] Transaction completed successfully in 0.156 seconds
+2025-11-05 15:01:26 [DEBUG] [DTB] TX: :02061003F831BC
+
+2025-11-05 15:01:26 [DEBUG] [DTB] Sending frame: :02061003F831BC
+ (length=17)
+2025-11-05 15:01:26 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:27 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:27 [DEBUG] [DTB] RX: :02061003F831BC
+
+2025-11-05 15:01:27 [DEBUG] [DTB] Received frame: :02061003F831BC
+ (length=17)
+2025-11-05 15:01:27 [DEBUG] [DTB] RX: :02061003F831BC
+
+2025-11-05 15:01:27 [DEBUG] [DTB] Received frame: :02061003F831BC
+ (length=17)
+2025-11-05 15:01:27 [DEBUG] [DTB] Response hex data: 02061003F831BC
+2025-11-05 15:01:27 [DEBUG] [DTB] Write register verified: addr=0x1003, data=0xF831
+2025-11-05 15:01:27 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:27 [INFO] [DTB] Setting control method: 0
+2025-11-05 15:01:27 [DEBUG] [DTB] TX: :020610050000E3
+
+2025-11-05 15:01:27 [DEBUG] [DTB] Sending frame: :020610050000E3
+ (length=17)
+2025-11-05 15:01:27 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:27 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:27 [DEBUG] [DTB] RX: :020610050000E3
+
+2025-11-05 15:01:27 [DEBUG] [DTB] Received frame: :020610050000E3
+ (length=17)
+2025-11-05 15:01:27 [DEBUG] [DTB] RX: :020610050000E3
+
+2025-11-05 15:01:27 [DEBUG] [DTB] Received frame: :020610050000E3
+ (length=17)
+2025-11-05 15:01:27 [DEBUG] [DTB] Response hex data: 020610050000E3
+2025-11-05 15:01:27 [DEBUG] [DTB] Write register verified: addr=0x1005, data=0x0000
+2025-11-05 15:01:27 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:27 [INFO] [DTB] Setting PID mode: 4 (AUTO)
+2025-11-05 15:01:27 [DEBUG] [DTB] TX: :0206101C0004C8
+
+2025-11-05 15:01:27 [DEBUG] [DTB] Sending frame: :0206101C0004C8
+ (length=17)
+2025-11-05 15:01:27 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:27 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:27 [DEBUG] [DTB] RX: :0206101C0004C8
+
+2025-11-05 15:01:27 [DEBUG] [DTB] Received frame: :0206101C0004C8
+ (length=17)
+2025-11-05 15:01:27 [DEBUG] [DTB] RX: :0206101C0004C8
+
+2025-11-05 15:01:27 [DEBUG] [DTB] Received frame: :0206101C0004C8
+ (length=17)
+2025-11-05 15:01:27 [DEBUG] [DTB] Response hex data: 0206101C0004C8
+2025-11-05 15:01:27 [DEBUG] [DTB] Write register verified: addr=0x101C, data=0x0004
+2025-11-05 15:01:27 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:27 [INFO] [DTB] Configuration complete
+2025-11-05 15:01:27 [INFO] DTB4848 slave 2 configured successfully
+2025-11-05 15:01:27 [DEBUG] [DTB] TX: :030208100001E2
+
+2025-11-05 15:01:27 [DEBUG] [DTB] Sending frame: :030208100001E2
+ (length=17)
+2025-11-05 15:01:28 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:28 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:28 [DEBUG] [DTB] RX: :03020101F9
+
+2025-11-05 15:01:28 [DEBUG] [DTB] Received frame: :03020101F9
+ (length=13)
+2025-11-05 15:01:28 [DEBUG] [DTB] RX: :03020101F9
+
+2025-11-05 15:01:28 [DEBUG] [DTB] Received frame: :03020101F9
+ (length=13)
+2025-11-05 15:01:28 [DEBUG] [DTB] Response hex data: 03020101F9
+2025-11-05 15:01:28 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:28 [INFO] [DTB] Write access status: ENABLED
+2025-11-05 15:01:28 [INFO] DTB slave 3 write access currently: ENABLED
+2025-11-05 15:01:28 [INFO] [DTB] Configuring DTB4848...
+2025-11-05 15:01:28 [INFO] [DTB] Setting sensor type: 0
+2025-11-05 15:01:28 [DEBUG] [DTB] TX: :030610040000E3
+
+2025-11-05 15:01:28 [DEBUG] [DTB] Sending frame: :030610040000E3
+ (length=17)
+2025-11-05 15:01:28 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:28 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:28 [DEBUG] [DTB] RX: :030610040000E3
+
+2025-11-05 15:01:28 [DEBUG] [DTB] Received frame: :030610040000E3
+ (length=17)
+2025-11-05 15:01:28 [DEBUG] [DTB] RX: :030610040000E3
+
+2025-11-05 15:01:28 [DEBUG] [DTB] Received frame: :030610040000E3
+ (length=17)
+2025-11-05 15:01:28 [DEBUG] [DTB] Response hex data: 030610040000E3
+2025-11-05 15:01:28 [DEBUG] [DTB] Write register verified: addr=0x1004, data=0x0000
+2025-11-05 15:01:28 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:28 [INFO] [DTB] Setting heating/cooling mode: 0
+2025-11-05 15:01:28 [DEBUG] [DTB] TX: :030610060000E1
+
+2025-11-05 15:01:28 [DEBUG] [DTB] Sending frame: :030610060000E1
+ (length=17)
+2025-11-05 15:01:28 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:28 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:28 [DEBUG] [DTB] RX: :030610060000E1
+
+2025-11-05 15:01:28 [DEBUG] [DTB] Received frame: :030610060000E1
+ (length=17)
+2025-11-05 15:01:28 [DEBUG] [DTB] RX: :030610060000E1
+
+2025-11-05 15:01:28 [DEBUG] [DTB] Received frame: :030610060000E1
+ (length=17)
+2025-11-05 15:01:28 [DEBUG] [DTB] Response hex data: 030610060000E1
+2025-11-05 15:01:28 [DEBUG] [DTB] Write register verified: addr=0x1006, data=0x0000
+2025-11-05 15:01:28 [DEBUG] [DTB] Transaction completed successfully in 0.156 seconds
+2025-11-05 15:01:28 [DEBUG] [DTB] TX: :03061002270FAF
+
+2025-11-05 15:01:28 [DEBUG] [DTB] Sending frame: :03061002270FAF
+ (length=17)
+2025-11-05 15:01:28 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:29 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:29 [DEBUG] [DTB] RX: :03061002270FAF
+
+2025-11-05 15:01:29 [DEBUG] [DTB] Received frame: :03061002270FAF
+ (length=17)
+2025-11-05 15:01:29 [DEBUG] [DTB] RX: :03061002270FAF
+
+2025-11-05 15:01:29 [DEBUG] [DTB] Received frame: :03061002270FAF
+ (length=17)
+2025-11-05 15:01:29 [DEBUG] [DTB] Response hex data: 03061002270FAF
+2025-11-05 15:01:29 [DEBUG] [DTB] Write register verified: addr=0x1002, data=0x270F
+2025-11-05 15:01:29 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:29 [DEBUG] [DTB] TX: :03061003F831BB
+
+2025-11-05 15:01:29 [DEBUG] [DTB] Sending frame: :03061003F831BB
+ (length=17)
+2025-11-05 15:01:29 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:29 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:29 [DEBUG] [DTB] RX: :03061003F831BB
+
+2025-11-05 15:01:29 [DEBUG] [DTB] Received frame: :03061003F831BB
+ (length=17)
+2025-11-05 15:01:29 [DEBUG] [DTB] RX: :03061003F831BB
+
+2025-11-05 15:01:29 [DEBUG] [DTB] Received frame: :03061003F831BB
+ (length=17)
+2025-11-05 15:01:29 [DEBUG] [DTB] Response hex data: 03061003F831BB
+2025-11-05 15:01:29 [DEBUG] [DTB] Write register verified: addr=0x1003, data=0xF831
+2025-11-05 15:01:29 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:29 [INFO] [DTB] Setting control method: 0
+2025-11-05 15:01:29 [DEBUG] [DTB] TX: :030610050000E2
+
+2025-11-05 15:01:29 [DEBUG] [DTB] Sending frame: :030610050000E2
+ (length=17)
+2025-11-05 15:01:29 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:29 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:29 [DEBUG] [DTB] RX: :030610050000E2
+
+2025-11-05 15:01:29 [DEBUG] [DTB] Received frame: :030610050000E2
+ (length=17)
+2025-11-05 15:01:29 [DEBUG] [DTB] RX: :030610050000E2
+
+2025-11-05 15:01:29 [DEBUG] [DTB] Received frame: :030610050000E2
+ (length=17)
+2025-11-05 15:01:29 [DEBUG] [DTB] Response hex data: 030610050000E2
+2025-11-05 15:01:29 [DEBUG] [DTB] Write register verified: addr=0x1005, data=0x0000
+2025-11-05 15:01:29 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:29 [INFO] [DTB] Setting PID mode: 4 (AUTO)
+2025-11-05 15:01:29 [DEBUG] [DTB] TX: :0306101C0004C7
+
+2025-11-05 15:01:29 [DEBUG] [DTB] Sending frame: :0306101C0004C7
+ (length=17)
+2025-11-05 15:01:29 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:30 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:30 [DEBUG] [DTB] RX: :0306101C0004C7
+
+2025-11-05 15:01:30 [DEBUG] [DTB] Received frame: :0306101C0004C7
+ (length=17)
+2025-11-05 15:01:30 [DEBUG] [DTB] RX: :0306101C0004C7
+
+2025-11-05 15:01:30 [DEBUG] [DTB] Received frame: :0306101C0004C7
+ (length=17)
+2025-11-05 15:01:30 [DEBUG] [DTB] Response hex data: 0306101C0004C7
+2025-11-05 15:01:30 [DEBUG] [DTB] Write register verified: addr=0x101C, data=0x0004
+2025-11-05 15:01:30 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:30 [INFO] [DTB] Configuration complete
+2025-11-05 15:01:30 [INFO] DTB4848 slave 3 configured successfully
+2025-11-05 15:01:30 [INFO] DTB initialization complete
+2025-11-05 15:01:30 [INFO] Initializing ALICAT queue manager on COM7 with 1 devices...
+2025-11-05 15:01:30 [INFO] [ALI] ALICAT_QueueInit: Will initialize address 1
+2025-11-05 15:01:30 [INFO] Attempting to connect to ALICAT BASIS 2...
+2025-11-05 15:01:30 [INFO] [ALI] Connecting to ALICAT address 1 on COM7...
+2025-11-05 15:01:30 [INFO] [ALI] Initializing on COM7, address 1, 38400 baud
+2025-11-05 15:01:30 [DEBUG] [ALI] Sent Modbus frame: 8 bytes
+2025-11-05 15:01:30 [DEBUG] [ALI] Received response: 17 bytes
+2025-11-05 15:01:30 [DEBUG] [ALI] Transaction completed successfully
+2025-11-05 15:01:30 [INFO] [ALI] Serial Number: B036829     
+2025-11-05 15:01:30 [INFO] [ALI] Successfully initialized
+2025-11-05 15:01:30 [INFO] [ALI] Successfully connected to ALICAT address 1
+2025-11-05 15:01:30 [INFO] [ALI] Connected to 1 of 1 ALICAT devices
+2025-11-05 15:01:30 [DEBUG] [ALI] Sent Modbus frame: 8 bytes
+2025-11-05 15:01:30 [DEBUG] [ALI] Received response: 7 bytes
+2025-11-05 15:01:30 [DEBUG] [ALI] Transaction completed successfully
+2025-11-05 15:01:30 [INFO] Successfully connected to ALICAT BASIS 2
+2025-11-05 15:01:30 [INFO] ALICAT BASIS 2 queue manager initialized
+2025-11-05 15:01:30 [INFO] ALICAT BASIS 2 queue processing thread started
+2025-11-05 15:01:30 [INFO] [ALI] ALICAT_QueueInit: Successfully created queue manager for 1 devices
+2025-11-05 15:01:30 [INFO] ALICAT queue manager initialized and connected on COM7
+2025-11-05 15:01:30 [INFO] Configuring all ALICAT devices with default settings...
+2025-11-05 15:01:30 [INFO] [ALI] Configuring ALICAT...
+2025-11-05 15:01:30 [INFO] [ALI] Setting gas type: 0 (Air)
+2025-11-05 15:01:30 [DEBUG] [ALI] Sent Modbus frame: 8 bytes
+2025-11-05 15:01:30 [DEBUG] [ALI] Received response: 8 bytes
+2025-11-05 15:01:30 [DEBUG] [ALI] Transaction completed successfully
+2025-11-05 15:01:30 [INFO] [ALI] Setting setpoint source: 2
+2025-11-05 15:01:30 [DEBUG] [ALI] Sent Modbus frame: 8 bytes
+2025-11-05 15:01:30 [DEBUG] [ALI] Received response: 8 bytes
+2025-11-05 15:01:30 [DEBUG] [ALI] Transaction completed successfully
+2025-11-05 15:01:30 [INFO] [ALI] Setting reference temperature: 25.0 deg C
+2025-11-05 15:01:30 [DEBUG] [ALI] Sent Modbus frame: 8 bytes
+2025-11-05 15:01:30 [DEBUG] [ALI] Received response: 8 bytes
+2025-11-05 15:01:30 [DEBUG] [ALI] Transaction completed successfully
+2025-11-05 15:01:30 [INFO] [ALI] Setting flow averaging: 100 ms
+2025-11-05 15:01:30 [DEBUG] [ALI] Sent Modbus frame: 8 bytes
+2025-11-05 15:01:30 [DEBUG] [ALI] Received response: 8 bytes
+2025-11-05 15:01:30 [DEBUG] [ALI] Transaction completed successfully
+2025-11-05 15:01:30 [INFO] [ALI] Setting autotare: ENABLED
+2025-11-05 15:01:30 [DEBUG] [ALI] Sent Modbus frame: 8 bytes
+2025-11-05 15:01:30 [DEBUG] [ALI] Received response: 8 bytes
+2025-11-05 15:01:30 [DEBUG] [ALI] Transaction completed successfully
+2025-11-05 15:01:30 [INFO] [ALI] Setting PID parameters: P 500, I 5000
+2025-11-05 15:01:30 [DEBUG] [ALI] Sent Modbus frame: 13 bytes
+2025-11-05 15:01:30 [DEBUG] [ALI] Received response: 8 bytes
+2025-11-05 15:01:30 [DEBUG] [ALI] Transaction completed successfully
+2025-11-05 15:01:30 [INFO] [ALI] Configuration complete
+2025-11-05 15:01:30 [INFO] ALICAT address 1 configured successfully
+2025-11-05 15:01:30 [INFO] [ALI] Setting gas type: 3 (Nitrogen)
+2025-11-05 15:01:30 [DEBUG] [ALI] Sent Modbus frame: 8 bytes
+2025-11-05 15:01:30 [DEBUG] [ALI] Received response: 8 bytes
+2025-11-05 15:01:30 [DEBUG] [ALI] Transaction completed successfully
+2025-11-05 15:01:31 [INFO] ALICAT address 1 gas set to Nitrogen
+2025-11-05 15:01:31 [INFO] Taring ALICAT address 1...
+2025-11-05 15:01:31 [INFO] [ALI] Performing tare...
+2025-11-05 15:01:31 [DEBUG] [ALI] Sent Modbus frame: 8 bytes
+2025-11-05 15:01:31 [DEBUG] [ALI] Received response: 8 bytes
+2025-11-05 15:01:31 [DEBUG] [ALI] Transaction completed successfully
+2025-11-05 15:01:31 [INFO] ALICAT address 1 tared successfully
+2025-11-05 15:01:31 [INFO] ALICAT initialization complete
+2025-11-05 15:01:31 [INFO] Initializing Teensy queue manager on COM6...
+2025-11-05 15:01:31 [INFO] Attempting to connect to Teensy...
+2025-11-05 15:01:31 [INFO] [TNY] Connecting to Teensy on COM6...
+2025-11-05 15:01:31 [INFO] [TNY] Initializing Teensy on COM6 at 9600 baud
+2025-11-05 15:01:31 [DEBUG] [TNY] Testing connection by setting pin 0 low
+2025-11-05 15:01:31 [DEBUG] [TNY] TX: D13L
+2025-11-05 15:01:31 [DEBUG] [TNY] RX: 130
+2025-11-05 15:01:31 [DEBUG] [TNY] Raw response: '130
+', Clean response: '130' (len=3)
+2025-11-05 15:01:31 [DEBUG] [TNY] Parsed double-digit response: pin=13, state=0
+2025-11-05 15:01:31 [DEBUG] [TNY] Successfully set pin 13 to LOW
+2025-11-05 15:01:31 [INFO] [TNY] Successfully connected to Teensy on COM6
+2025-11-05 15:01:31 [DEBUG] [TNY] Testing connection by setting pin 0 low
+2025-11-05 15:01:31 [DEBUG] [TNY] TX: D13L
+2025-11-05 15:01:31 [DEBUG] [TNY] RX: 130
+2025-11-05 15:01:31 [DEBUG] [TNY] Raw response: '130
+', Clean response: '130' (len=3)
+2025-11-05 15:01:31 [DEBUG] [TNY] Parsed double-digit response: pin=13, state=0
+2025-11-05 15:01:31 [DEBUG] [TNY] Successfully set pin 13 to LOW
+2025-11-05 15:01:31 [INFO] Successfully connected to Teensy
+2025-11-05 15:01:31 [INFO] Teensy queue manager initialized
+2025-11-05 15:01:31 [INFO] Teensy queue manager initialized and connected on COM6
+2025-11-05 15:01:31 [INFO] [TNY] Initializing 2 pins (2 low, 0 high)
+2025-11-05 15:01:31 [DEBUG] [TNY] Thread 22024 started transaction 1
+2025-11-05 15:01:31 [DEBUG] [TNY] Added SET_PIN to transaction 1
+2025-11-05 15:01:31 [DEBUG] [TNY] Added SET_PIN to transaction 1
+2025-11-05 15:01:31 [INFO] [TNY] Teensy queue processing thread started
+2025-11-05 15:01:31 [INFO] Committed transaction 1 with 2 commands to normal priority queue
+2025-11-05 15:01:31 [INFO] [TNY] Starting transaction 1 with 2 commands
+2025-11-05 15:01:31 [INFO] [TNY] Pin initialization transaction committed
+2025-11-05 15:01:31 [DEBUG] [TNY] TX: D00L
+2025-11-05 15:01:31 [DEBUG] [TNY] RX: 00
+2025-11-05 15:01:31 [DEBUG] [TNY] Raw response: '00
+', Clean response: '00' (len=2)
+2025-11-05 15:01:31 [DEBUG] [TNY] Parsed single-digit response: pin=0, state=0
+2025-11-05 15:01:31 [DEBUG] [TNY] Successfully set pin 0 to LOW
+2025-11-05 15:01:31 [DEBUG] [TNY] TX: D01L
+2025-11-05 15:01:31 [DEBUG] [TNY] RX: 10
+2025-11-05 15:01:31 [DEBUG] [TNY] Raw response: '10
+', Clean response: '10' (len=2)
+2025-11-05 15:01:31 [INFO] Status module state: UNINITIALIZED -> INITIALIZING
+2025-11-05 15:01:31 [DEBUG] [TNY] Parsed single-digit response: pin=1, state=0
+2025-11-05 15:01:31 [INFO] Device states initialized (DTB devices: 2)
+2025-11-05 15:01:31 [DEBUG] [TNY] Successfully set pin 1 to LOW
+2025-11-05 15:01:31 [INFO] Status monitoring module initialized
+2025-11-05 15:01:31 [INFO] [TNY] Completed transaction 1
+2025-11-05 15:01:31 [INFO] Controls module initialized with 2 DTB devices
+2025-11-05 15:01:31 [INFO] Controls module initialized for ALICAT Mass Flow Controller
+2025-11-05 15:01:31 [INFO] Starting device status monitoring...
+2025-11-05 15:01:31 [INFO] Status module state: INITIALIZING -> RUNNING
+2025-11-05 15:01:31 [INFO] Status timer thread started
+2025-11-05 15:01:31 [INFO] Status monitoring started successfully
+2025-11-05 15:01:31 [INFO] Starting controls module - syncing with device states...
+2025-11-05 15:01:31 [DEBUG] [PSB] Reading Device State (Reg 505)
+2025-11-05 15:01:31 [DEBUG] [PSB] TX (8 bytes): 01 03 01 F9 00 02 15 C6 
+2025-11-05 15:01:31 [DEBUG] [PSB] RX (9 bytes): 01 03 04 00 00 48 03 8C 32 
+2025-11-05 15:01:31 [DEBUG] [PSB] Raw registers: [505]=0x0000, [506]=0x4803
+2025-11-05 15:01:31 [DEBUG] [PSB] Combined 32-bit state: 0x00004803
+2025-11-05 15:01:31 [DEBUG] [PSB] Parsed state:
+2025-11-05 15:01:31 [DEBUG] [PSB]   Control Location: 0x03
+2025-11-05 15:01:31 [DEBUG] [PSB]   Output Enabled: NO
+2025-11-05 15:01:31 [DEBUG] [PSB]   Remote Mode: YES
+2025-11-05 15:01:31 [DEBUG] [PSB]   Regulation Mode: 0
+2025-11-05 15:01:31 [DEBUG] [PSB]   Alarms Active: NO
+2025-11-05 15:01:31 [DEBUG] [PSB]   Sink Mode: NO (source)
+2025-11-05 15:01:31 [DEBUG] [PSB] Reading Actual Values
+2025-11-05 15:01:31 [DEBUG] [PSB] TX (8 bytes): 01 03 01 FB 00 03 75 C6 
+2025-11-05 15:01:31 [DEBUG] [PSB] RX (11 bytes): 01 03 06 0C 9A 00 00 00 00 79 A5 
+2025-11-05 15:01:31 [DEBUG] [PSB] Actual values: V=3.69V, I=0.00A, P=0.00W
+2025-11-05 15:01:31 [INFO] PSB remote mode: ON
+2025-11-05 15:01:31 [DEBUG] [DTB] TX: :020310000001EA
+
+2025-11-05 15:01:31 [DEBUG] [DTB] Sending frame: :020310000001EA
+ (length=17)
+2025-11-05 15:01:31 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:31 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:31 [DEBUG] [DTB] RX: :02030200B841
+
+2025-11-05 15:01:31 [DEBUG] [DTB] Received frame: :02030200B841
+ (length=15)
+2025-11-05 15:01:31 [DEBUG] [DTB] RX: :02030200B841
+
+2025-11-05 15:01:31 [DEBUG] [DTB] Received frame: :02030200B841
+ (length=15)
+2025-11-05 15:01:31 [DEBUG] [DTB] Response hex data: 02030200B841
+2025-11-05 15:01:31 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:31 [DEBUG] [DTB] TX: :020310010001E9
+
+2025-11-05 15:01:31 [DEBUG] [DTB] Sending frame: :020310010001E9
+ (length=17)
+2025-11-05 15:01:32 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:32 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:32 [DEBUG] [DTB] RX: :02030200FAFF
+
+2025-11-05 15:01:32 [DEBUG] [DTB] Received frame: :02030200FAFF
+ (length=15)
+2025-11-05 15:01:32 [DEBUG] [DTB] RX: :02030200FAFF
+
+2025-11-05 15:01:32 [DEBUG] [DTB] Received frame: :02030200FAFF
+ (length=15)
+2025-11-05 15:01:32 [DEBUG] [DTB] Response hex data: 02030200FAFF
+2025-11-05 15:01:32 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:32 [DEBUG] [DTB] TX: :020208140001DF
+
+2025-11-05 15:01:32 [DEBUG] [DTB] Sending frame: :020208140001DF
+ (length=17)
+2025-11-05 15:01:32 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:32 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:32 [DEBUG] [DTB] RX: :02020100FB
+
+2025-11-05 15:01:32 [DEBUG] [DTB] Received frame: :02020100FB
+ (length=13)
+2025-11-05 15:01:32 [DEBUG] [DTB] RX: :02020100FB
+
+2025-11-05 15:01:32 [DEBUG] [DTB] Received frame: :02020100FB
+ (length=13)
+2025-11-05 15:01:32 [DEBUG] [DTB] Response hex data: 02020100FB
+2025-11-05 15:01:32 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:32 [DEBUG] [DTB] TX: :020208010001F2
+
+2025-11-05 15:01:32 [DEBUG] [DTB] Sending frame: :020208010001F2
+ (length=17)
+2025-11-05 15:01:32 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:32 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:32 [DEBUG] [DTB] RX: :02020100FB
+
+2025-11-05 15:01:32 [DEBUG] [DTB] Received frame: :02020100FB
+ (length=13)
+2025-11-05 15:01:32 [DEBUG] [DTB] RX: :02020100FB
+
+2025-11-05 15:01:32 [DEBUG] [DTB] Received frame: :02020100FB
+ (length=13)
+2025-11-05 15:01:32 [DEBUG] [DTB] Response hex data: 02020100FB
+2025-11-05 15:01:32 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:32 [DEBUG] [DTB] TX: :020208020001F1
+
+2025-11-05 15:01:32 [DEBUG] [DTB] Sending frame: :020208020001F1
+ (length=17)
+2025-11-05 15:01:32 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:33 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:33 [DEBUG] [DTB] RX: :02020100FB
+
+2025-11-05 15:01:33 [DEBUG] [DTB] Received frame: :02020100FB
+ (length=13)
+2025-11-05 15:01:33 [DEBUG] [DTB] RX: :02020100FB
+
+2025-11-05 15:01:33 [DEBUG] [DTB] Received frame: :02020100FB
+ (length=13)
+2025-11-05 15:01:33 [DEBUG] [DTB] Response hex data: 02020100FB
+2025-11-05 15:01:33 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:33 [DEBUG] [DTB] TX: :020208030001F0
+
+2025-11-05 15:01:33 [DEBUG] [DTB] Sending frame: :020208030001F0
+ (length=17)
+2025-11-05 15:01:33 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:33 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:33 [DEBUG] [DTB] RX: :02020100FB
+
+2025-11-05 15:01:33 [DEBUG] [DTB] Received frame: :02020100FB
+ (length=13)
+2025-11-05 15:01:33 [DEBUG] [DTB] RX: :02020100FB
+
+2025-11-05 15:01:33 [DEBUG] [DTB] Received frame: :02020100FB
+ (length=13)
+2025-11-05 15:01:33 [DEBUG] [DTB] Response hex data: 02020100FB
+2025-11-05 15:01:33 [DEBUG] [DTB] Transaction completed successfully in 0.154 seconds
+2025-11-05 15:01:33 [DEBUG] [DTB] TX: :020208000001F3
+
+2025-11-05 15:01:33 [DEBUG] [DTB] Sending frame: :020208000001F3
+ (length=17)
+2025-11-05 15:01:33 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:33 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:33 [DEBUG] [DTB] RX: :02020100FB
+
+2025-11-05 15:01:33 [DEBUG] [DTB] Received frame: :02020100FB
+ (length=13)
+2025-11-05 15:01:33 [DEBUG] [DTB] RX: :02020100FB
+
+2025-11-05 15:01:33 [DEBUG] [DTB] Received frame: :02020100FB
+ (length=13)
+2025-11-05 15:01:33 [DEBUG] [DTB] Response hex data: 02020100FB
+2025-11-05 15:01:33 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:33 [DEBUG] [DTB] TX: :020310050001E5
+
+2025-11-05 15:01:33 [DEBUG] [DTB] Sending frame: :020310050001E5
+ (length=17)
+2025-11-05 15:01:33 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:34 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-05 15:01:34 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-05 15:01:34 [INFO] [BIO] ========================================
+2025-11-05 15:01:34 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-05 15:01:34 [INFO] [BIO] ========================================
+2025-11-05 15:01:34 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-05 15:01:34 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-05 15:01:34 [DEBUG] [PSB] Reading Device State (Reg 505)
+2025-11-05 15:01:34 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-05 15:01:34 [DEBUG] [PSB] TX (8 bytes): 01 03 01 F9 00 02 15 C6 
+2025-11-05 15:01:34 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-05 15:01:34 [INFO] [BIO] 
+2025-11-05 15:01:34 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-05 15:01:34 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-05 15:01:34 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-05 15:01:34 [ERROR] [BIO] Possible causes:
+2025-11-05 15:01:34 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-05 15:01:34 [ERROR] [BIO]   - Device is not powered on
+2025-11-05 15:01:34 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-05 15:01:34 [ERROR] [BIO]   - Wrong device number specified
+2025-11-05 15:01:34 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-05 15:01:34 [ERROR] [BIO] 
+2025-11-05 15:01:34 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-05 15:01:34 [DEBUG] [BIO] Reconnection failed: Unknown BioLogic program error (code: -2109)
+2025-11-05 15:01:34 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:34 [DEBUG] [DTB] RX: :0203020000F9
+
+2025-11-05 15:01:34 [DEBUG] [DTB] Received frame: :0203020000F9
+ (length=15)
+2025-11-05 15:01:34 [DEBUG] [DTB] RX: :0203020000F9
+
+2025-11-05 15:01:34 [DEBUG] [DTB] Received frame: :0203020000F9
+ (length=15)
+2025-11-05 15:01:34 [DEBUG] [DTB] Response hex data: 0203020000F9
+2025-11-05 15:01:34 [DEBUG] [DTB] Transaction completed successfully in 0.154 seconds
+2025-11-05 15:01:34 [DEBUG] [PSB] RX (9 bytes): 01 03 04 00 00 48 03 8C 32 
+2025-11-05 15:01:34 [DEBUG] [PSB] Raw registers: [505]=0x0000, [506]=0x4803
+2025-11-05 15:01:34 [DEBUG] [PSB] Combined 32-bit state: 0x00004803
+2025-11-05 15:01:34 [DEBUG] [PSB] Parsed state:
+2025-11-05 15:01:34 [DEBUG] [PSB]   Control Location: 0x03
+2025-11-05 15:01:34 [DEBUG] [PSB]   Output Enabled: NO
+2025-11-05 15:01:34 [DEBUG] [PSB]   Remote Mode: YES
+2025-11-05 15:01:34 [DEBUG] [PSB]   Regulation Mode: 0
+2025-11-05 15:01:34 [DEBUG] [PSB]   Alarms Active: NO
+2025-11-05 15:01:34 [DEBUG] [PSB]   Sink Mode: NO (source)
+2025-11-05 15:01:34 [DEBUG] [PSB] Reading Actual Values
+2025-11-05 15:01:34 [DEBUG] [PSB] TX (8 bytes): 01 03 01 FB 00 03 75 C6 
+2025-11-05 15:01:34 [DEBUG] [DTB] TX: :0203101C0001CE
+
+2025-11-05 15:01:34 [DEBUG] [DTB] Sending frame: :0203101C0001CE
+ (length=17)
+2025-11-05 15:01:34 [DEBUG] [PSB] RX (11 bytes): 01 03 06 0C 9A 00 00 00 00 79 A5 
+2025-11-05 15:01:34 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:34 [DEBUG] [PSB] Actual values: V=3.69V, I=0.00A, P=0.00W
+2025-11-05 15:01:34 [DEBUG] [PSB] PSB status updated: V=3.69V, I=0.00A, P=0.00W, Remote=ON
+2025-11-05 15:01:34 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:34 [DEBUG] [DTB] RX: :0203020004F5
+
+2025-11-05 15:01:34 [DEBUG] [DTB] Received frame: :0203020004F5
+ (length=15)
+2025-11-05 15:01:34 [DEBUG] [DTB] RX: :0203020004F5
+
+2025-11-05 15:01:34 [DEBUG] [DTB] Received frame: :0203020004F5
+ (length=15)
+2025-11-05 15:01:34 [DEBUG] [DTB] Response hex data: 0203020004F5
+2025-11-05 15:01:34 [DEBUG] [DTB] Transaction completed successfully in 0.154 seconds
+2025-11-05 15:01:34 [DEBUG] [DTB] TX: :020310000002E9
+
+2025-11-05 15:01:34 [DEBUG] [DTB] Sending frame: :020310000002E9
+ (length=17)
+2025-11-05 15:01:34 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:34 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:34 [DEBUG] [DTB] RX: :02030400B800FA45
+
+2025-11-05 15:01:34 [DEBUG] [DTB] Received frame: :02030400B800FA45
+ (length=19)
+2025-11-05 15:01:34 [DEBUG] [DTB] RX: :02030400B800FA45
+
+2025-11-05 15:01:34 [DEBUG] [DTB] Received frame: :02030400B800FA45
+ (length=19)
+2025-11-05 15:01:34 [DEBUG] [DTB] Response hex data: 02030400B800FA45
+2025-11-05 15:01:34 [DEBUG] [DTB] Transaction completed successfully in 0.156 seconds
+2025-11-05 15:01:34 [DEBUG] [DTB] DTB slave 2 quick read: Temp=18.4 deg C, SP=25.0 deg C
+2025-11-05 15:01:34 [DEBUG] [DTB] TX: :030310000001E9
+
+2025-11-05 15:01:34 [DEBUG] [DTB] Sending frame: :030310000001E9
+ (length=17)
+2025-11-05 15:01:34 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:35 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:35 [DEBUG] [DTB] RX: :03030200BB3D
+
+2025-11-05 15:01:35 [DEBUG] [DTB] Received frame: :03030200BB3D
+ (length=15)
+2025-11-05 15:01:35 [DEBUG] [DTB] RX: :03030200BB3D
+
+2025-11-05 15:01:35 [DEBUG] [DTB] Received frame: :03030200BB3D
+ (length=15)
+2025-11-05 15:01:35 [DEBUG] [DTB] Response hex data: 03030200BB3D
+2025-11-05 15:01:35 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:35 [DEBUG] [DTB] TX: :030310010001E8
+
+2025-11-05 15:01:35 [DEBUG] [DTB] Sending frame: :030310010001E8
+ (length=17)
+2025-11-05 15:01:35 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:35 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:35 [DEBUG] [DTB] RX: :03030200FAFE
+
+2025-11-05 15:01:35 [DEBUG] [DTB] Received frame: :03030200FAFE
+ (length=15)
+2025-11-05 15:01:35 [DEBUG] [DTB] RX: :03030200FAFE
+
+2025-11-05 15:01:35 [DEBUG] [DTB] Received frame: :03030200FAFE
+ (length=15)
+2025-11-05 15:01:35 [DEBUG] [DTB] Response hex data: 03030200FAFE
+2025-11-05 15:01:35 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:35 [DEBUG] [DTB] TX: :030208140001DE
+
+2025-11-05 15:01:35 [DEBUG] [DTB] Sending frame: :030208140001DE
+ (length=17)
+2025-11-05 15:01:35 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:35 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:35 [DEBUG] [DTB] RX: :03020100FA
+
+2025-11-05 15:01:35 [DEBUG] [DTB] Received frame: :03020100FA
+ (length=13)
+2025-11-05 15:01:35 [DEBUG] [DTB] RX: :03020100FA
+
+2025-11-05 15:01:35 [DEBUG] [DTB] Received frame: :03020100FA
+ (length=13)
+2025-11-05 15:01:35 [DEBUG] [DTB] Response hex data: 03020100FA
+2025-11-05 15:01:35 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:35 [DEBUG] [DTB] TX: :030208010001F1
+
+2025-11-05 15:01:35 [DEBUG] [DTB] Sending frame: :030208010001F1
+ (length=17)
+2025-11-05 15:01:35 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:35 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:35 [DEBUG] [DTB] RX: :03020100FA
+
+2025-11-05 15:01:35 [DEBUG] [DTB] Received frame: :03020100FA
+ (length=13)
+2025-11-05 15:01:35 [DEBUG] [DTB] RX: :03020100FA
+
+2025-11-05 15:01:35 [DEBUG] [DTB] Received frame: :03020100FA
+ (length=13)
+2025-11-05 15:01:35 [DEBUG] [DTB] Response hex data: 03020100FA
+2025-11-05 15:01:35 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:36 [DEBUG] [DTB] TX: :030208020001F0
+
+2025-11-05 15:01:36 [DEBUG] [DTB] Sending frame: :030208020001F0
+ (length=17)
+2025-11-05 15:01:36 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:36 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:36 [DEBUG] [DTB] RX: :03020100FA
+
+2025-11-05 15:01:36 [DEBUG] [DTB] Received frame: :03020100FA
+ (length=13)
+2025-11-05 15:01:36 [DEBUG] [DTB] RX: :03020100FA
+
+2025-11-05 15:01:36 [DEBUG] [DTB] Received frame: :03020100FA
+ (length=13)
+2025-11-05 15:01:36 [DEBUG] [DTB] Response hex data: 03020100FA
+2025-11-05 15:01:36 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:36 [DEBUG] [DTB] TX: :030208030001EF
+
+2025-11-05 15:01:36 [DEBUG] [DTB] Sending frame: :030208030001EF
+ (length=17)
+2025-11-05 15:01:36 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-05 15:01:36 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-05 15:01:36 [INFO] [BIO] ========================================
+2025-11-05 15:01:36 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-05 15:01:36 [INFO] [BIO] ========================================
+2025-11-05 15:01:36 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-05 15:01:36 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-05 15:01:36 [DEBUG] [PSB] Reading Device State (Reg 505)
+2025-11-05 15:01:36 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-05 15:01:36 [DEBUG] [PSB] TX (8 bytes): 01 03 01 F9 00 02 15 C6 
+2025-11-05 15:01:36 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-05 15:01:36 [INFO] [BIO] 
+2025-11-05 15:01:36 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-05 15:01:36 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-05 15:01:36 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-05 15:01:36 [ERROR] [BIO] Possible causes:
+2025-11-05 15:01:36 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-05 15:01:36 [ERROR] [BIO]   - Device is not powered on
+2025-11-05 15:01:36 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-05 15:01:36 [ERROR] [BIO]   - Wrong device number specified
+2025-11-05 15:01:36 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-05 15:01:36 [ERROR] [BIO] 
+2025-11-05 15:01:36 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-05 15:01:36 [DEBUG] [BIO] Reconnection failed: Unknown BioLogic program error (code: -2109)
+2025-11-05 15:01:36 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:36 [DEBUG] [PSB] RX (9 bytes): 01 03 04 00 00 48 03 8C 32 
+2025-11-05 15:01:36 [DEBUG] [PSB] Raw registers: [505]=0x0000, [506]=0x4803
+2025-11-05 15:01:36 [DEBUG] [PSB] Combined 32-bit state: 0x00004803
+2025-11-05 15:01:36 [DEBUG] [PSB] Parsed state:
+2025-11-05 15:01:36 [DEBUG] [PSB]   Control Location: 0x03
+2025-11-05 15:01:36 [DEBUG] [PSB]   Output Enabled: NO
+2025-11-05 15:01:36 [DEBUG] [PSB]   Remote Mode: YES
+2025-11-05 15:01:36 [DEBUG] [PSB]   Regulation Mode: 0
+2025-11-05 15:01:36 [DEBUG] [PSB]   Alarms Active: NO
+2025-11-05 15:01:36 [DEBUG] [PSB]   Sink Mode: NO (source)
+2025-11-05 15:01:36 [DEBUG] [PSB] Reading Actual Values
+2025-11-05 15:01:36 [DEBUG] [PSB] TX (8 bytes): 01 03 01 FB 00 03 75 C6 
+2025-11-05 15:01:36 [DEBUG] [PSB] RX (11 bytes): 01 03 06 0C 9A 00 00 00 00 79 A5 
+2025-11-05 15:01:36 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:36 [DEBUG] [DTB] RX: :03020100FA
+
+2025-11-05 15:01:36 [DEBUG] [DTB] Received frame: :03020100FA
+ (length=13)
+2025-11-05 15:01:36 [DEBUG] [DTB] RX: :03020100FA
+
+2025-11-05 15:01:36 [DEBUG] [DTB] Received frame: :03020100FA
+ (length=13)
+2025-11-05 15:01:36 [DEBUG] [DTB] Response hex data: 03020100FA
+2025-11-05 15:01:36 [DEBUG] [DTB] Transaction completed successfully in 0.154 seconds
+2025-11-05 15:01:36 [DEBUG] [PSB] Actual values: V=3.69V, I=0.00A, P=0.00W
+2025-11-05 15:01:36 [DEBUG] [PSB] PSB status updated: V=3.69V, I=0.00A, P=0.00W, Remote=ON
+2025-11-05 15:01:36 [DEBUG] [DTB] TX: :030208000001F2
+
+2025-11-05 15:01:36 [DEBUG] [DTB] Sending frame: :030208000001F2
+ (length=17)
+2025-11-05 15:01:36 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:36 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:36 [DEBUG] [DTB] RX: :03020100FA
+
+2025-11-05 15:01:36 [DEBUG] [DTB] Received frame: :03020100FA
+ (length=13)
+2025-11-05 15:01:36 [DEBUG] [DTB] RX: :03020100FA
+
+2025-11-05 15:01:36 [DEBUG] [DTB] Received frame: :03020100FA
+ (length=13)
+2025-11-05 15:01:36 [DEBUG] [DTB] Response hex data: 03020100FA
+2025-11-05 15:01:36 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:36 [DEBUG] [DTB] TX: :030310050001E4
+
+2025-11-05 15:01:36 [DEBUG] [DTB] Sending frame: :030310050001E4
+ (length=17)
+2025-11-05 15:01:37 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:37 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:37 [DEBUG] [DTB] RX: :0303020000F8
+
+2025-11-05 15:01:37 [DEBUG] [DTB] Received frame: :0303020000F8
+ (length=15)
+2025-11-05 15:01:37 [DEBUG] [DTB] RX: :0303020000F8
+
+2025-11-05 15:01:37 [DEBUG] [DTB] Received frame: :0303020000F8
+ (length=15)
+2025-11-05 15:01:37 [DEBUG] [DTB] Response hex data: 0303020000F8
+2025-11-05 15:01:37 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:37 [DEBUG] [DTB] TX: :0303101C0001CD
+
+2025-11-05 15:01:37 [DEBUG] [DTB] Sending frame: :0303101C0001CD
+ (length=17)
+2025-11-05 15:01:37 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:37 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:37 [DEBUG] [DTB] RX: :0303020004F4
+
+2025-11-05 15:01:37 [DEBUG] [DTB] Received frame: :0303020004F4
+ (length=15)
+2025-11-05 15:01:37 [DEBUG] [DTB] RX: :0303020004F4
+
+2025-11-05 15:01:37 [DEBUG] [DTB] Received frame: :0303020004F4
+ (length=15)
+2025-11-05 15:01:37 [DEBUG] [DTB] Response hex data: 0303020004F4
+2025-11-05 15:01:37 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:37 [DEBUG] [DTB] TX: :030310000002E8
+
+2025-11-05 15:01:37 [DEBUG] [DTB] Sending frame: :030310000002E8
+ (length=17)
+2025-11-05 15:01:37 [DEBUG] [ALI] Sent Modbus frame: 8 bytes
+2025-11-05 15:01:37 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:37 [DEBUG] [ALI] Received response: 21 bytes
+2025-11-05 15:01:37 [DEBUG] [ALI] Transaction completed successfully
+2025-11-05 15:01:37 [INFO] Controls module started
+2025-11-05 15:01:37 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:37 [DEBUG] [DTB] RX: :03030400BB00FA41
+
+2025-11-05 15:01:37 [DEBUG] [DTB] Received frame: :03030400BB00FA41
+ (length=19)
+2025-11-05 15:01:37 [DEBUG] [DTB] RX: :03030400BB00FA41
+
+2025-11-05 15:01:37 [DEBUG] [DTB] Received frame: :03030400BB00FA41
+ (length=19)
+2025-11-05 15:01:37 [DEBUG] [DTB] Response hex data: 03030400BB00FA41
+2025-11-05 15:01:37 [DEBUG] [DTB] Transaction completed successfully in 0.154 seconds
+2025-11-05 15:01:37 [DEBUG] [DTB] DTB slave 3 quick read: Temp=18.7 deg C, SP=25.0 deg C
+2025-11-05 15:01:37 [DEBUG] [DTB] TX: :020310000002E9
+
+2025-11-05 15:01:37 [DEBUG] [DTB] Sending frame: :020310000002E9
+ (length=17)
+2025-11-05 15:01:37 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:38 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:38 [DEBUG] [DTB] RX: :02030400B800FA45
+
+2025-11-05 15:01:38 [DEBUG] [DTB] Received frame: :02030400B800FA45
+ (length=19)
+2025-11-05 15:01:38 [DEBUG] [DTB] RX: :02030400B800FA45
+
+2025-11-05 15:01:38 [DEBUG] [DTB] Received frame: :02030400B800FA45
+ (length=19)
+2025-11-05 15:01:38 [DEBUG] [DTB] Response hex data: 02030400B800FA45
+2025-11-05 15:01:38 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:38 [DEBUG] [DTB] DTB slave 2 quick read: Temp=18.4 deg C, SP=25.0 deg C
+2025-11-05 15:01:38 [DEBUG] [PSB] Reading Device State (Reg 505)
+2025-11-05 15:01:38 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-05 15:01:38 [DEBUG] [PSB] TX (8 bytes): 01 03 01 F9 00 02 15 C6 
+2025-11-05 15:01:38 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-05 15:01:38 [INFO] [BIO] ========================================
+2025-11-05 15:01:38 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-05 15:01:38 [INFO] [BIO] ========================================
+2025-11-05 15:01:38 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-05 15:01:38 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-05 15:01:38 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-05 15:01:38 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-05 15:01:38 [INFO] [BIO] 
+2025-11-05 15:01:38 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-05 15:01:38 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-05 15:01:38 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-05 15:01:38 [ERROR] [BIO] Possible causes:
+2025-11-05 15:01:38 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-05 15:01:38 [ERROR] [BIO]   - Device is not powered on
+2025-11-05 15:01:38 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-05 15:01:38 [ERROR] [BIO]   - Wrong device number specified
+2025-11-05 15:01:38 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-05 15:01:38 [ERROR] [BIO] 
+2025-11-05 15:01:38 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-05 15:01:38 [DEBUG] [BIO] Reconnection failed: Unknown BioLogic program error (code: -2109)
+2025-11-05 15:01:38 [DEBUG] [DTB] TX: :020310000002E9
+
+2025-11-05 15:01:38 [DEBUG] [DTB] Sending frame: :020310000002E9
+ (length=17)
+2025-11-05 15:01:38 [DEBUG] [PSB] RX (9 bytes): 01 03 04 00 00 48 03 8C 32 
+2025-11-05 15:01:38 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:38 [DEBUG] [PSB] Raw registers: [505]=0x0000, [506]=0x4803
+2025-11-05 15:01:38 [DEBUG] [PSB] Combined 32-bit state: 0x00004803
+2025-11-05 15:01:38 [DEBUG] [PSB] Parsed state:
+2025-11-05 15:01:38 [DEBUG] [PSB]   Control Location: 0x03
+2025-11-05 15:01:38 [DEBUG] [PSB]   Output Enabled: NO
+2025-11-05 15:01:38 [DEBUG] [PSB]   Remote Mode: YES
+2025-11-05 15:01:38 [DEBUG] [PSB]   Regulation Mode: 0
+2025-11-05 15:01:38 [DEBUG] [PSB]   Alarms Active: NO
+2025-11-05 15:01:38 [DEBUG] [PSB]   Sink Mode: NO (source)
+2025-11-05 15:01:38 [DEBUG] [PSB] Reading Actual Values
+2025-11-05 15:01:38 [DEBUG] [PSB] TX (8 bytes): 01 03 01 FB 00 03 75 C6 
+2025-11-05 15:01:38 [DEBUG] [PSB] RX (11 bytes): 01 03 06 0C 9A 00 00 00 00 79 A5 
+2025-11-05 15:01:38 [DEBUG] [PSB] Actual values: V=3.69V, I=0.00A, P=0.00W
+2025-11-05 15:01:38 [DEBUG] [PSB] PSB status updated: V=3.69V, I=0.00A, P=0.00W, Remote=ON
+2025-11-05 15:01:38 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:38 [DEBUG] [DTB] RX: :02030400B800FA45
+
+2025-11-05 15:01:38 [DEBUG] [DTB] Received frame: :02030400B800FA45
+ (length=19)
+2025-11-05 15:01:38 [DEBUG] [DTB] RX: :02030400B800FA45
+
+2025-11-05 15:01:38 [DEBUG] [DTB] Received frame: :02030400B800FA45
+ (length=19)
+2025-11-05 15:01:38 [DEBUG] [DTB] Response hex data: 02030400B800FA45
+2025-11-05 15:01:38 [DEBUG] [DTB] Transaction completed successfully in 0.154 seconds
+2025-11-05 15:01:38 [DEBUG] [DTB] DTB slave 2 quick read: Temp=18.4 deg C, SP=25.0 deg C
+2025-11-05 15:01:39 [DEBUG] [DTB] TX: :030310000002E8
+
+2025-11-05 15:01:39 [DEBUG] [DTB] Sending frame: :030310000002E8
+ (length=17)
+2025-11-05 15:01:39 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:39 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:39 [DEBUG] [DTB] RX: :03030400BB00FA41
+
+2025-11-05 15:01:39 [DEBUG] [DTB] Received frame: :03030400BB00FA41
+ (length=19)
+2025-11-05 15:01:39 [DEBUG] [DTB] RX: :03030400BB00FA41
+
+2025-11-05 15:01:39 [DEBUG] [DTB] Received frame: :03030400BB00FA41
+ (length=19)
+2025-11-05 15:01:39 [DEBUG] [DTB] Response hex data: 03030400BB00FA41
+2025-11-05 15:01:39 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:39 [DEBUG] [DTB] DTB slave 3 quick read: Temp=18.7 deg C, SP=25.0 deg C
+2025-11-05 15:01:40 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-05 15:01:40 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-05 15:01:40 [INFO] [BIO] ========================================
+2025-11-05 15:01:40 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-05 15:01:40 [INFO] [BIO] ========================================
+2025-11-05 15:01:40 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-05 15:01:40 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-05 15:01:40 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-05 15:01:40 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-05 15:01:40 [INFO] [BIO] 
+2025-11-05 15:01:40 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-05 15:01:40 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-05 15:01:40 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-05 15:01:40 [ERROR] [BIO] Possible causes:
+2025-11-05 15:01:40 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-05 15:01:40 [ERROR] [BIO]   - Device is not powered on
+2025-11-05 15:01:40 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-05 15:01:40 [ERROR] [BIO]   - Wrong device number specified
+2025-11-05 15:01:40 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-05 15:01:40 [ERROR] [BIO] 
+2025-11-05 15:01:40 [DEBUG] [PSB] Reading Device State (Reg 505)
+2025-11-05 15:01:40 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-05 15:01:40 [DEBUG] [PSB] TX (8 bytes): 01 03 01 F9 00 02 15 C6 
+2025-11-05 15:01:40 [DEBUG] [BIO] Reconnection failed: Unknown BioLogic program error (code: -2109)
+2025-11-05 15:01:40 [DEBUG] [DTB] TX: :020310000002E9
+
+2025-11-05 15:01:40 [DEBUG] [DTB] Sending frame: :020310000002E9
+ (length=17)
+2025-11-05 15:01:41 [DEBUG] [PSB] RX (9 bytes): 01 03 04 00 00 48 03 8C 32 
+2025-11-05 15:01:41 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:41 [DEBUG] [PSB] Raw registers: [505]=0x0000, [506]=0x4803
+2025-11-05 15:01:41 [DEBUG] [PSB] Combined 32-bit state: 0x00004803
+2025-11-05 15:01:41 [DEBUG] [PSB] Parsed state:
+2025-11-05 15:01:41 [DEBUG] [PSB]   Control Location: 0x03
+2025-11-05 15:01:41 [DEBUG] [PSB]   Output Enabled: NO
+2025-11-05 15:01:41 [DEBUG] [PSB]   Remote Mode: YES
+2025-11-05 15:01:41 [DEBUG] [PSB]   Regulation Mode: 0
+2025-11-05 15:01:41 [DEBUG] [PSB]   Alarms Active: NO
+2025-11-05 15:01:41 [DEBUG] [PSB]   Sink Mode: NO (source)
+2025-11-05 15:01:41 [DEBUG] [PSB] Reading Actual Values
+2025-11-05 15:01:41 [DEBUG] [PSB] TX (8 bytes): 01 03 01 FB 00 03 75 C6 
+2025-11-05 15:01:41 [DEBUG] [PSB] RX (11 bytes): 01 03 06 0C 9A 00 00 00 00 79 A5 
+2025-11-05 15:01:41 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:41 [DEBUG] [DTB] RX: :02030400B800FA45
+
+2025-11-05 15:01:41 [DEBUG] [DTB] Received frame: :02030400B800FA45
+ (length=19)
+2025-11-05 15:01:41 [DEBUG] [DTB] RX: :02030400B800FA45
+
+2025-11-05 15:01:41 [DEBUG] [DTB] Received frame: :02030400B800FA45
+ (length=19)
+2025-11-05 15:01:41 [DEBUG] [DTB] Response hex data: 02030400B800FA45
+2025-11-05 15:01:41 [DEBUG] [DTB] Transaction completed successfully in 0.154 seconds
+2025-11-05 15:01:41 [DEBUG] [PSB] Actual values: V=3.69V, I=0.00A, P=0.00W
+2025-11-05 15:01:41 [DEBUG] [PSB] PSB status updated: V=3.69V, I=0.00A, P=0.00W, Remote=ON
+2025-11-05 15:01:41 [DEBUG] [DTB] DTB slave 2 quick read: Temp=18.4 deg C, SP=25.0 deg C
+2025-11-05 15:01:41 [DEBUG] [DTB] TX: :030310000002E8
+
+2025-11-05 15:01:41 [DEBUG] [DTB] Sending frame: :030310000002E8
+ (length=17)
+2025-11-05 15:01:41 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:41 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:41 [DEBUG] [DTB] RX: :03030400BB00FA41
+
+2025-11-05 15:01:41 [DEBUG] [DTB] Received frame: :03030400BB00FA41
+ (length=19)
+2025-11-05 15:01:41 [DEBUG] [DTB] RX: :03030400BB00FA41
+
+2025-11-05 15:01:41 [DEBUG] [DTB] Received frame: :03030400BB00FA41
+ (length=19)
+2025-11-05 15:01:41 [DEBUG] [DTB] Response hex data: 03030400BB00FA41
+2025-11-05 15:01:41 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:41 [DEBUG] [DTB] DTB slave 3 quick read: Temp=18.7 deg C, SP=25.0 deg C
+2025-11-05 15:01:43 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-05 15:01:43 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-05 15:01:43 [INFO] [BIO] ========================================
+2025-11-05 15:01:43 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-05 15:01:43 [INFO] [BIO] ========================================
+2025-11-05 15:01:43 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-05 15:01:43 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-05 15:01:43 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-05 15:01:43 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-05 15:01:43 [INFO] [BIO] 
+2025-11-05 15:01:43 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-05 15:01:43 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-05 15:01:43 [DEBUG] [PSB] Reading Device State (Reg 505)
+2025-11-05 15:01:43 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-05 15:01:43 [DEBUG] [PSB] TX (8 bytes): 01 03 01 F9 00 02 15 C6 
+2025-11-05 15:01:43 [ERROR] [BIO] Possible causes:
+2025-11-05 15:01:43 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-05 15:01:43 [ERROR] [BIO]   - Device is not powered on
+2025-11-05 15:01:43 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-05 15:01:43 [ERROR] [BIO]   - Wrong device number specified
+2025-11-05 15:01:43 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-05 15:01:43 [ERROR] [BIO] 
+2025-11-05 15:01:43 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-05 15:01:43 [DEBUG] [BIO] Reconnection failed: Unknown BioLogic program error (code: -2109)
+2025-11-05 15:01:43 [DEBUG] [DTB] TX: :020310000002E9
+
+2025-11-05 15:01:43 [DEBUG] [DTB] Sending frame: :020310000002E9
+ (length=17)
+2025-11-05 15:01:43 [DEBUG] [PSB] RX (9 bytes): 01 03 04 00 00 48 03 8C 32 
+2025-11-05 15:01:43 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:43 [DEBUG] [PSB] Raw registers: [505]=0x0000, [506]=0x4803
+2025-11-05 15:01:43 [DEBUG] [PSB] Combined 32-bit state: 0x00004803
+2025-11-05 15:01:43 [DEBUG] [PSB] Parsed state:
+2025-11-05 15:01:43 [DEBUG] [PSB]   Control Location: 0x03
+2025-11-05 15:01:43 [DEBUG] [PSB]   Output Enabled: NO
+2025-11-05 15:01:43 [DEBUG] [PSB]   Remote Mode: YES
+2025-11-05 15:01:43 [DEBUG] [PSB]   Regulation Mode: 0
+2025-11-05 15:01:43 [DEBUG] [PSB]   Alarms Active: NO
+2025-11-05 15:01:43 [DEBUG] [PSB]   Sink Mode: NO (source)
+2025-11-05 15:01:43 [DEBUG] [PSB] Reading Actual Values
+2025-11-05 15:01:43 [DEBUG] [PSB] TX (8 bytes): 01 03 01 FB 00 03 75 C6 
+2025-11-05 15:01:43 [DEBUG] [PSB] RX (11 bytes): 01 03 06 0C 9A 00 00 00 00 79 A5 
+2025-11-05 15:01:43 [DEBUG] [PSB] Actual values: V=3.69V, I=0.00A, P=0.00W
+2025-11-05 15:01:43 [DEBUG] [PSB] PSB status updated: V=3.69V, I=0.00A, P=0.00W, Remote=ON
+2025-11-05 15:01:43 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:43 [DEBUG] [DTB] RX: :02030400B800FA45
+
+2025-11-05 15:01:43 [DEBUG] [DTB] Received frame: :02030400B800FA45
+ (length=19)
+2025-11-05 15:01:43 [DEBUG] [DTB] RX: :02030400B800FA45
+
+2025-11-05 15:01:43 [DEBUG] [DTB] Received frame: :02030400B800FA45
+ (length=19)
+2025-11-05 15:01:43 [DEBUG] [DTB] Response hex data: 02030400B800FA45
+2025-11-05 15:01:43 [DEBUG] [DTB] Transaction completed successfully in 0.154 seconds
+2025-11-05 15:01:43 [DEBUG] [DTB] DTB slave 2 quick read: Temp=18.4 deg C, SP=25.0 deg C
+2025-11-05 15:01:43 [DEBUG] [DTB] TX: :030310000002E8
+
+2025-11-05 15:01:43 [DEBUG] [DTB] Sending frame: :030310000002E8
+ (length=17)
+2025-11-05 15:01:43 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:43 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:43 [DEBUG] [DTB] RX: :03030400BB00FA41
+
+2025-11-05 15:01:43 [DEBUG] [DTB] Received frame: :03030400BB00FA41
+ (length=19)
+2025-11-05 15:01:43 [DEBUG] [DTB] RX: :03030400BB00FA41
+
+2025-11-05 15:01:43 [DEBUG] [DTB] Received frame: :03030400BB00FA41
+ (length=19)
+2025-11-05 15:01:43 [DEBUG] [DTB] Response hex data: 03030400BB00FA41
+2025-11-05 15:01:43 [DEBUG] [DTB] Transaction completed successfully in 0.156 seconds
+2025-11-05 15:01:43 [DEBUG] [DTB] DTB slave 3 quick read: Temp=18.7 deg C, SP=25.0 deg C
+2025-11-05 15:01:45 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-05 15:01:45 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-05 15:01:45 [INFO] [BIO] ========================================
+2025-11-05 15:01:45 [DEBUG] [PSB] Reading Device State (Reg 505)
+2025-11-05 15:01:45 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-05 15:01:45 [INFO] [BIO] ========================================
+2025-11-05 15:01:45 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-05 15:01:45 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-05 15:01:45 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-05 15:01:45 [DEBUG] [PSB] TX (8 bytes): 01 03 01 F9 00 02 15 C6 
+2025-11-05 15:01:45 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-05 15:01:45 [INFO] [BIO] 
+2025-11-05 15:01:45 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-05 15:01:45 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-05 15:01:45 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-05 15:01:45 [ERROR] [BIO] Possible causes:
+2025-11-05 15:01:45 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-05 15:01:45 [ERROR] [BIO]   - Device is not powered on
+2025-11-05 15:01:45 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-05 15:01:45 [ERROR] [BIO]   - Wrong device number specified
+2025-11-05 15:01:45 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-05 15:01:45 [ERROR] [BIO] 
+2025-11-05 15:01:45 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-05 15:01:45 [DEBUG] [BIO] Reconnection failed: Unknown BioLogic program error (code: -2109)
+2025-11-05 15:01:45 [DEBUG] [DTB] TX: :020310000002E9
+
+2025-11-05 15:01:45 [DEBUG] [DTB] Sending frame: :020310000002E9
+ (length=17)
+2025-11-05 15:01:45 [DEBUG] [PSB] RX (9 bytes): 01 03 04 00 00 48 03 8C 32 
+2025-11-05 15:01:45 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:45 [DEBUG] [PSB] Raw registers: [505]=0x0000, [506]=0x4803
+2025-11-05 15:01:45 [DEBUG] [PSB] Combined 32-bit state: 0x00004803
+2025-11-05 15:01:45 [DEBUG] [PSB] Parsed state:
+2025-11-05 15:01:45 [DEBUG] [PSB]   Control Location: 0x03
+2025-11-05 15:01:45 [DEBUG] [PSB]   Output Enabled: NO
+2025-11-05 15:01:45 [DEBUG] [PSB]   Remote Mode: YES
+2025-11-05 15:01:45 [DEBUG] [PSB]   Regulation Mode: 0
+2025-11-05 15:01:45 [DEBUG] [PSB]   Alarms Active: NO
+2025-11-05 15:01:45 [DEBUG] [PSB]   Sink Mode: NO (source)
+2025-11-05 15:01:45 [DEBUG] [PSB] Reading Actual Values
+2025-11-05 15:01:45 [DEBUG] [PSB] TX (8 bytes): 01 03 01 FB 00 03 75 C6 
+2025-11-05 15:01:45 [DEBUG] [PSB] RX (11 bytes): 01 03 06 0C 9A 00 00 00 00 79 A5 
+2025-11-05 15:01:45 [DEBUG] [PSB] Actual values: V=3.69V, I=0.00A, P=0.00W
+2025-11-05 15:01:45 [DEBUG] [PSB] PSB status updated: V=3.69V, I=0.00A, P=0.00W, Remote=ON
+2025-11-05 15:01:45 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:45 [DEBUG] [DTB] RX: :02030400B800FA45
+
+2025-11-05 15:01:45 [DEBUG] [DTB] Received frame: :02030400B800FA45
+ (length=19)
+2025-11-05 15:01:45 [DEBUG] [DTB] RX: :02030400B800FA45
+
+2025-11-05 15:01:45 [DEBUG] [DTB] Received frame: :02030400B800FA45
+ (length=19)
+2025-11-05 15:01:45 [DEBUG] [DTB] Response hex data: 02030400B800FA45
+2025-11-05 15:01:45 [DEBUG] [DTB] Transaction completed successfully in 0.154 seconds
+2025-11-05 15:01:45 [DEBUG] [DTB] DTB slave 2 quick read: Temp=18.4 deg C, SP=25.0 deg C
+2025-11-05 15:01:45 [DEBUG] [DTB] TX: :030310000002E8
+
+2025-11-05 15:01:45 [DEBUG] [DTB] Sending frame: :030310000002E8
+ (length=17)
+2025-11-05 15:01:46 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:46 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:46 [DEBUG] [DTB] RX: :03030400BB00FA41
+
+2025-11-05 15:01:46 [DEBUG] [DTB] Received frame: :03030400BB00FA41
+ (length=19)
+2025-11-05 15:01:46 [DEBUG] [DTB] RX: :03030400BB00FA41
+
+2025-11-05 15:01:46 [DEBUG] [DTB] Received frame: :03030400BB00FA41
+ (length=19)
+2025-11-05 15:01:46 [DEBUG] [DTB] Response hex data: 03030400BB00FA41
+2025-11-05 15:01:46 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:46 [DEBUG] [DTB] DTB slave 3 quick read: Temp=18.7 deg C, SP=25.0 deg C
+2025-11-05 15:01:47 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-05 15:01:47 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-05 15:01:47 [INFO] [BIO] ========================================
+2025-11-05 15:01:47 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-05 15:01:47 [INFO] [BIO] ========================================
+2025-11-05 15:01:47 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-05 15:01:47 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-05 15:01:47 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-05 15:01:47 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-05 15:01:47 [INFO] [BIO] 
+2025-11-05 15:01:47 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-05 15:01:47 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-05 15:01:47 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-05 15:01:47 [ERROR] [BIO] Possible causes:
+2025-11-05 15:01:47 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-05 15:01:47 [ERROR] [BIO]   - Device is not powered on
+2025-11-05 15:01:47 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-05 15:01:47 [ERROR] [BIO]   - Wrong device number specified
+2025-11-05 15:01:47 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-05 15:01:47 [ERROR] [BIO] 
+2025-11-05 15:01:47 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-05 15:01:47 [DEBUG] [BIO] Reconnection failed: Unknown BioLogic program error (code: -2109)
+2025-11-05 15:01:47 [DEBUG] [PSB] Reading Device State (Reg 505)
+2025-11-05 15:01:47 [DEBUG] [PSB] TX (8 bytes): 01 03 01 F9 00 02 15 C6 
+2025-11-05 15:01:47 [DEBUG] [DTB] TX: :020310000002E9
+
+2025-11-05 15:01:47 [DEBUG] [DTB] Sending frame: :020310000002E9
+ (length=17)
+2025-11-05 15:01:47 [DEBUG] [PSB] RX (9 bytes): 01 03 04 00 00 48 03 8C 32 
+2025-11-05 15:01:47 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:48 [DEBUG] [PSB] Raw registers: [505]=0x0000, [506]=0x4803
+2025-11-05 15:01:48 [DEBUG] [PSB] Combined 32-bit state: 0x00004803
+2025-11-05 15:01:48 [DEBUG] [PSB] Parsed state:
+2025-11-05 15:01:48 [DEBUG] [PSB]   Control Location: 0x03
+2025-11-05 15:01:48 [DEBUG] [PSB]   Output Enabled: NO
+2025-11-05 15:01:48 [DEBUG] [PSB]   Remote Mode: YES
+2025-11-05 15:01:48 [DEBUG] [PSB]   Regulation Mode: 0
+2025-11-05 15:01:48 [DEBUG] [PSB]   Alarms Active: NO
+2025-11-05 15:01:48 [DEBUG] [PSB]   Sink Mode: NO (source)
+2025-11-05 15:01:48 [DEBUG] [PSB] Reading Actual Values
+2025-11-05 15:01:48 [DEBUG] [PSB] TX (8 bytes): 01 03 01 FB 00 03 75 C6 
+2025-11-05 15:01:48 [DEBUG] [PSB] RX (11 bytes): 01 03 06 0C 9A 00 00 00 00 79 A5 
+2025-11-05 15:01:48 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:48 [DEBUG] [DTB] RX: :02030400B800FA45
+
+2025-11-05 15:01:48 [DEBUG] [DTB] Received frame: :02030400B800FA45
+ (length=19)
+2025-11-05 15:01:48 [DEBUG] [DTB] RX: :02030400B800FA45
+
+2025-11-05 15:01:48 [DEBUG] [DTB] Received frame: :02030400B800FA45
+ (length=19)
+2025-11-05 15:01:48 [DEBUG] [DTB] Response hex data: 02030400B800FA45
+2025-11-05 15:01:48 [DEBUG] [DTB] Transaction completed successfully in 0.154 seconds
+2025-11-05 15:01:48 [DEBUG] [PSB] Actual values: V=3.69V, I=0.00A, P=0.00W
+2025-11-05 15:01:48 [DEBUG] [PSB] PSB status updated: V=3.69V, I=0.00A, P=0.00W, Remote=ON
+2025-11-05 15:01:48 [DEBUG] [DTB] DTB slave 2 quick read: Temp=18.4 deg C, SP=25.0 deg C
+2025-11-05 15:01:48 [DEBUG] [DTB] TX: :030310000002E8
+
+2025-11-05 15:01:48 [DEBUG] [DTB] Sending frame: :030310000002E8
+ (length=17)
+2025-11-05 15:01:48 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:48 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:48 [DEBUG] [DTB] RX: :03030400BB00FA41
+
+2025-11-05 15:01:48 [DEBUG] [DTB] Received frame: :03030400BB00FA41
+ (length=19)
+2025-11-05 15:01:48 [DEBUG] [DTB] RX: :03030400BB00FA41
+
+2025-11-05 15:01:48 [DEBUG] [DTB] Received frame: :03030400BB00FA41
+ (length=19)
+2025-11-05 15:01:48 [DEBUG] [DTB] Response hex data: 03030400BB00FA41
+2025-11-05 15:01:48 [DEBUG] [DTB] Transaction completed successfully in 0.154 seconds
+2025-11-05 15:01:48 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-05 15:01:48 [DEBUG] [DTB] DTB slave 3 quick read: Temp=18.7 deg C, SP=25.0 deg C
+2025-11-05 15:01:50 [DEBUG] [PSB] Reading Device State (Reg 505)
+2025-11-05 15:01:50 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-05 15:01:50 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-05 15:01:50 [DEBUG] [PSB] TX (8 bytes): 01 03 01 F9 00 02 15 C6 
+2025-11-05 15:01:50 [INFO] [BIO] ========================================
+2025-11-05 15:01:50 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-05 15:01:50 [INFO] [BIO] ========================================
+2025-11-05 15:01:50 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-05 15:01:50 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-05 15:01:50 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-05 15:01:50 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-05 15:01:50 [INFO] [BIO] 
+2025-11-05 15:01:50 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-05 15:01:50 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-05 15:01:50 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-05 15:01:50 [ERROR] [BIO] Possible causes:
+2025-11-05 15:01:50 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-05 15:01:50 [ERROR] [BIO]   - Device is not powered on
+2025-11-05 15:01:50 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-05 15:01:50 [ERROR] [BIO]   - Wrong device number specified
+2025-11-05 15:01:50 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-05 15:01:50 [ERROR] [BIO] 
+2025-11-05 15:01:50 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-05 15:01:50 [DEBUG] [BIO] Reconnection failed: Unknown BioLogic program error (code: -2109)
+2025-11-05 15:01:50 [DEBUG] [DTB] TX: :020310000002E9
+
+2025-11-05 15:01:50 [DEBUG] [DTB] Sending frame: :020310000002E9
+ (length=17)
+2025-11-05 15:01:50 [DEBUG] [PSB] RX (9 bytes): 01 03 04 00 00 48 03 8C 32 
+2025-11-05 15:01:50 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:50 [DEBUG] [PSB] Raw registers: [505]=0x0000, [506]=0x4803
+2025-11-05 15:01:50 [DEBUG] [PSB] Combined 32-bit state: 0x00004803
+2025-11-05 15:01:50 [DEBUG] [PSB] Parsed state:
+2025-11-05 15:01:50 [DEBUG] [PSB]   Control Location: 0x03
+2025-11-05 15:01:50 [DEBUG] [PSB]   Output Enabled: NO
+2025-11-05 15:01:50 [DEBUG] [PSB]   Remote Mode: YES
+2025-11-05 15:01:50 [DEBUG] [PSB]   Regulation Mode: 0
+2025-11-05 15:01:50 [DEBUG] [PSB]   Alarms Active: NO
+2025-11-05 15:01:50 [DEBUG] [PSB]   Sink Mode: NO (source)
+2025-11-05 15:01:50 [DEBUG] [PSB] Reading Actual Values
+2025-11-05 15:01:50 [DEBUG] [PSB] TX (8 bytes): 01 03 01 FB 00 03 75 C6 
+2025-11-05 15:01:50 [DEBUG] [PSB] RX (11 bytes): 01 03 06 0C 9A 00 00 00 00 79 A5 
+2025-11-05 15:01:50 [DEBUG] [PSB] Actual values: V=3.69V, I=0.00A, P=0.00W
+2025-11-05 15:01:50 [DEBUG] [PSB] PSB status updated: V=3.69V, I=0.00A, P=0.00W, Remote=ON
+2025-11-05 15:01:50 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:50 [DEBUG] [DTB] RX: :02030400B800FA45
+
+2025-11-05 15:01:50 [DEBUG] [DTB] Received frame: :02030400B800FA45
+ (length=19)
+2025-11-05 15:01:50 [DEBUG] [DTB] RX: :02030400B800FA45
+
+2025-11-05 15:01:50 [DEBUG] [DTB] Received frame: :02030400B800FA45
+ (length=19)
+2025-11-05 15:01:50 [DEBUG] [DTB] Response hex data: 02030400B800FA45
+2025-11-05 15:01:50 [DEBUG] [DTB] Transaction completed successfully in 0.153 seconds
+2025-11-05 15:01:50 [DEBUG] [DTB] DTB slave 2 quick read: Temp=18.4 deg C, SP=25.0 deg C
+2025-11-05 15:01:50 [DEBUG] [DTB] TX: :030310000002E8
+
+2025-11-05 15:01:50 [DEBUG] [DTB] Sending frame: :030310000002E8
+ (length=17)
+2025-11-05 15:01:50 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:50 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:50 [DEBUG] [DTB] RX: :03030400BB00FA41
+
+2025-11-05 15:01:50 [DEBUG] [DTB] Received frame: :03030400BB00FA41
+ (length=19)
+2025-11-05 15:01:50 [DEBUG] [DTB] RX: :03030400BB00FA41
+
+2025-11-05 15:01:50 [DEBUG] [DTB] Received frame: :03030400BB00FA41
+ (length=19)
+2025-11-05 15:01:50 [DEBUG] [DTB] Response hex data: 03030400BB00FA41
+2025-11-05 15:01:50 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:50 [DEBUG] [DTB] DTB slave 3 quick read: Temp=18.7 deg C, SP=25.0 deg C
+2025-11-05 15:01:52 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-05 15:01:52 [DEBUG] [PSB] Reading Device State (Reg 505)
+2025-11-05 15:01:52 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-05 15:01:52 [DEBUG] [PSB] TX (8 bytes): 01 03 01 F9 00 02 15 C6 
+2025-11-05 15:01:52 [INFO] [BIO] ========================================
+2025-11-05 15:01:52 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-05 15:01:52 [INFO] [BIO] ========================================
+2025-11-05 15:01:52 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-05 15:01:52 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-05 15:01:52 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-05 15:01:52 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-05 15:01:52 [INFO] [BIO] 
+2025-11-05 15:01:52 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-05 15:01:52 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-05 15:01:52 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-05 15:01:52 [ERROR] [BIO] Possible causes:
+2025-11-05 15:01:52 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-05 15:01:52 [ERROR] [BIO]   - Device is not powered on
+2025-11-05 15:01:52 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-05 15:01:52 [ERROR] [BIO]   - Wrong device number specified
+2025-11-05 15:01:52 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-05 15:01:52 [ERROR] [BIO] 
+2025-11-05 15:01:52 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-05 15:01:52 [DEBUG] [BIO] Reconnection failed: Unknown BioLogic program error (code: -2109)
+2025-11-05 15:01:52 [DEBUG] [DTB] TX: :020310000002E9
+
+2025-11-05 15:01:52 [DEBUG] [DTB] Sending frame: :020310000002E9
+ (length=17)
+2025-11-05 15:01:52 [DEBUG] [PSB] RX (9 bytes): 01 03 04 00 00 48 03 8C 32 
+2025-11-05 15:01:52 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:52 [DEBUG] [PSB] Raw registers: [505]=0x0000, [506]=0x4803
+2025-11-05 15:01:52 [DEBUG] [PSB] Combined 32-bit state: 0x00004803
+2025-11-05 15:01:52 [DEBUG] [PSB] Parsed state:
+2025-11-05 15:01:52 [DEBUG] [PSB]   Control Location: 0x03
+2025-11-05 15:01:52 [DEBUG] [PSB]   Output Enabled: NO
+2025-11-05 15:01:52 [DEBUG] [PSB]   Remote Mode: YES
+2025-11-05 15:01:52 [DEBUG] [PSB]   Regulation Mode: 0
+2025-11-05 15:01:52 [DEBUG] [PSB]   Alarms Active: NO
+2025-11-05 15:01:52 [DEBUG] [PSB]   Sink Mode: NO (source)
+2025-11-05 15:01:52 [DEBUG] [PSB] Reading Actual Values
+2025-11-05 15:01:52 [DEBUG] [PSB] TX (8 bytes): 01 03 01 FB 00 03 75 C6 
+2025-11-05 15:01:52 [DEBUG] [PSB] RX (11 bytes): 01 03 06 0C 9A 00 00 00 00 79 A5 
+2025-11-05 15:01:52 [DEBUG] [PSB] Actual values: V=3.69V, I=0.00A, P=0.00W
+2025-11-05 15:01:52 [DEBUG] [PSB] PSB status updated: V=3.69V, I=0.00A, P=0.00W, Remote=ON
+2025-11-05 15:01:52 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:52 [DEBUG] [DTB] RX: :02030400B800FA45
+
+2025-11-05 15:01:52 [DEBUG] [DTB] Received frame: :02030400B800FA45
+ (length=19)
+2025-11-05 15:01:52 [DEBUG] [DTB] RX: :02030400B800FA45
+
+2025-11-05 15:01:52 [DEBUG] [DTB] Received frame: :02030400B800FA45
+ (length=19)
+2025-11-05 15:01:52 [DEBUG] [DTB] Response hex data: 02030400B800FA45
+2025-11-05 15:01:52 [DEBUG] [DTB] Transaction completed successfully in 0.154 seconds
+2025-11-05 15:01:52 [DEBUG] [DTB] DTB slave 2 quick read: Temp=18.4 deg C, SP=25.0 deg C
+2025-11-05 15:01:52 [DEBUG] [DTB] TX: :030310000002E8
+
+2025-11-05 15:01:52 [DEBUG] [DTB] Sending frame: :030310000002E8
+ (length=17)
+2025-11-05 15:01:52 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:53 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:53 [DEBUG] [DTB] RX: :03030400BB00FA41
+
+2025-11-05 15:01:53 [DEBUG] [DTB] Received frame: :03030400BB00FA41
+ (length=19)
+2025-11-05 15:01:53 [DEBUG] [DTB] RX: :03030400BB00FA41
+
+2025-11-05 15:01:53 [DEBUG] [DTB] Received frame: :03030400BB00FA41
+ (length=19)
+2025-11-05 15:01:53 [DEBUG] [DTB] Response hex data: 03030400BB00FA41
+2025-11-05 15:01:53 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:53 [DEBUG] [DTB] DTB slave 3 quick read: Temp=18.7 deg C, SP=25.0 deg C
+2025-11-05 15:01:53 [DEBUG] [BIO] Running OCV via EC-Lab OLE COM
+2025-11-05 15:01:53 [INFO] [BIO] Starting OCV measurement via EC-Lab
+2025-11-05 15:01:53 [INFO] [BIO]   Settings: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_settings\ocv_default.mps
+2025-11-05 15:01:53 [INFO] [BIO]   Output: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251105_150153.mpr
+2025-11-05 15:01:53 [INFO] [BIO] Loading settings from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_settings\ocv_default.mps
+2025-11-05 15:01:53 [ERROR] [BIO] LoadSettings failed (returned -2147221008)
+2025-11-05 15:01:53 [ERROR] [BIO] Failed to load settings: Invalid or corrupt .mps file
+2025-11-05 15:01:54 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-05 15:01:54 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-05 15:01:54 [INFO] [BIO] ========================================
+2025-11-05 15:01:54 [DEBUG] [PSB] Reading Device State (Reg 505)
+2025-11-05 15:01:54 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-05 15:01:54 [DEBUG] [PSB] TX (8 bytes): 01 03 01 F9 00 02 15 C6 
+2025-11-05 15:01:54 [INFO] [BIO] ========================================
+2025-11-05 15:01:54 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-05 15:01:54 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-05 15:01:54 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-05 15:01:54 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-05 15:01:54 [INFO] [BIO] 
+2025-11-05 15:01:54 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-05 15:01:54 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-05 15:01:54 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-05 15:01:54 [ERROR] [BIO] Possible causes:
+2025-11-05 15:01:54 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-05 15:01:54 [ERROR] [BIO]   - Device is not powered on
+2025-11-05 15:01:54 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-05 15:01:54 [ERROR] [BIO]   - Wrong device number specified
+2025-11-05 15:01:54 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-05 15:01:54 [ERROR] [BIO] 
+2025-11-05 15:01:54 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-05 15:01:54 [DEBUG] [BIO] Reconnection failed: Unknown BioLogic program error (code: -2109)
+2025-11-05 15:01:54 [DEBUG] [DTB] TX: :020310000002E9
+
+2025-11-05 15:01:54 [DEBUG] [DTB] Sending frame: :020310000002E9
+ (length=17)
+2025-11-05 15:01:54 [DEBUG] [PSB] RX (9 bytes): 01 03 04 00 00 48 03 8C 32 
+2025-11-05 15:01:54 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:54 [DEBUG] [PSB] Raw registers: [505]=0x0000, [506]=0x4803
+2025-11-05 15:01:54 [DEBUG] [PSB] Combined 32-bit state: 0x00004803
+2025-11-05 15:01:54 [DEBUG] [PSB] Parsed state:
+2025-11-05 15:01:54 [DEBUG] [PSB]   Control Location: 0x03
+2025-11-05 15:01:54 [DEBUG] [PSB]   Output Enabled: NO
+2025-11-05 15:01:54 [DEBUG] [PSB]   Remote Mode: YES
+2025-11-05 15:01:54 [DEBUG] [PSB]   Regulation Mode: 0
+2025-11-05 15:01:54 [DEBUG] [PSB]   Alarms Active: NO
+2025-11-05 15:01:54 [DEBUG] [PSB]   Sink Mode: NO (source)
+2025-11-05 15:01:54 [DEBUG] [PSB] Reading Actual Values
+2025-11-05 15:01:54 [DEBUG] [PSB] TX (8 bytes): 01 03 01 FB 00 03 75 C6 
+2025-11-05 15:01:54 [DEBUG] [PSB] RX (11 bytes): 01 03 06 0C 9A 00 00 00 00 79 A5 
+2025-11-05 15:01:55 [DEBUG] [PSB] Actual values: V=3.69V, I=0.00A, P=0.00W
+2025-11-05 15:01:55 [DEBUG] [PSB] PSB status updated: V=3.69V, I=0.00A, P=0.00W, Remote=ON
+2025-11-05 15:01:55 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:55 [DEBUG] [DTB] RX: :02030400B800FA45
+
+2025-11-05 15:01:55 [DEBUG] [DTB] Received frame: :02030400B800FA45
+ (length=19)
+2025-11-05 15:01:55 [DEBUG] [DTB] RX: :02030400B800FA45
+
+2025-11-05 15:01:55 [DEBUG] [DTB] Received frame: :02030400B800FA45
+ (length=19)
+2025-11-05 15:01:55 [DEBUG] [DTB] Response hex data: 02030400B800FA45
+2025-11-05 15:01:55 [DEBUG] [DTB] Transaction completed successfully in 0.154 seconds
+2025-11-05 15:01:55 [DEBUG] [DTB] DTB slave 2 quick read: Temp=18.4 deg C, SP=25.0 deg C
+2025-11-05 15:01:55 [DEBUG] [DTB] TX: :030310000002E8
+
+2025-11-05 15:01:55 [DEBUG] [DTB] Sending frame: :030310000002E8
+ (length=17)
+2025-11-05 15:01:55 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:01:55 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:01:55 [DEBUG] [DTB] RX: :03030400BB00FA41
+
+2025-11-05 15:01:55 [DEBUG] [DTB] Received frame: :03030400BB00FA41
+ (length=19)
+2025-11-05 15:01:55 [DEBUG] [DTB] RX: :03030400BB00FA41
+
+2025-11-05 15:01:55 [DEBUG] [DTB] Received frame: :03030400BB00FA41
+ (length=19)
+2025-11-05 15:01:55 [DEBUG] [DTB] Response hex data: 03030400BB00FA41
+2025-11-05 15:01:55 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:01:55 [DEBUG] [DTB] DTB slave 3 quick read: Temp=18.7 deg C, SP=25.0 deg C
+2025-11-05 15:01:56 [INFO] ========================================
+2025-11-05 15:01:56 [INFO] Shutting down Battery Tester application
+2025-11-05 15:01:56 [INFO] ========================================
+2025-11-05 15:01:56 [INFO] [TNY] Setting 2 pins
+2025-11-05 15:01:56 [DEBUG] [TNY] TX: D00L
+2025-11-05 15:01:56 [DEBUG] [TNY] RX: 00
+2025-11-05 15:01:56 [DEBUG] [TNY] Raw response: '00
+', Clean response: '00' (len=2)
+2025-11-05 15:01:56 [DEBUG] [TNY] Parsed single-digit response: pin=0, state=0
+2025-11-05 15:01:56 [DEBUG] [TNY] Successfully set pin 0 to LOW
+2025-11-05 15:01:56 [DEBUG] [TNY] TX: D01L
+2025-11-05 15:01:56 [DEBUG] [TNY] RX: 10
+2025-11-05 15:01:56 [DEBUG] [TNY] Raw response: '10
+', Clean response: '10' (len=2)
+2025-11-05 15:01:56 [DEBUG] [TNY] Parsed single-digit response: pin=1, state=0
+2025-11-05 15:01:56 [DEBUG] [TNY] Successfully set pin 1 to LOW
+2025-11-05 15:01:56 [INFO] Stopping status monitoring...
+2025-11-05 15:01:56 [INFO] Stopping device status monitoring...
+2025-11-05 15:01:56 [INFO] Status module state: RUNNING -> STOPPING
+2025-11-05 15:01:57 [INFO] Status timer thread stopped
+2025-11-05 15:01:57 [INFO] Status module state: STOPPING -> STOPPED
+2025-11-05 15:01:57 [INFO] Status monitoring stopped
+2025-11-05 15:01:57 [INFO] Cleaning up pressure safety monitoring...
+2025-11-05 15:01:57 [INFO] Cleaning up pressure safety module...
+2025-11-05 15:01:57 [INFO] Pressure safety module cleaned up
+2025-11-05 15:01:57 [INFO] Cleaning up cDAQ module...
+2025-11-05 15:01:57 [INFO] Cleaning up cDAQ current slot...
+2025-11-05 15:01:57 [INFO] Cleaned up cDAQ slot 1 task
+2025-11-05 15:01:57 [INFO] cDAQ current slot cleaned up
+2025-11-05 15:01:57 [INFO] Cleaning up cDAQ module...
+2025-11-05 15:01:58 [INFO] Cleaned up cDAQ slot 2 task
+2025-11-05 15:01:59 [INFO] Cleaned up cDAQ slot 3 task
+2025-11-05 15:01:59 [INFO] cDAQ module cleaned up
+2025-11-05 15:01:59 [INFO] Shutting down PSB queue manager...
+2025-11-05 15:01:59 [INFO] [PSB] Shutting down PSB 10000 queue manager...
+2025-11-05 15:01:59 [INFO] [PSB] Waiting for processing thread to complete...
+2025-11-05 15:01:59 [INFO] [PSB] All queues empty, processing thread exiting
+2025-11-05 15:01:59 [INFO] [PSB] PSB 10000 queue processing thread stopped
+2025-11-05 15:01:59 [INFO] [PSB] Setting output: OFF
+2025-11-05 15:01:59 [DEBUG] [PSB] TX (8 bytes): 01 05 01 95 00 00 DC 1A 
+2025-11-05 15:01:59 [DEBUG] [PSB] RX (8 bytes): 01 05 01 95 00 00 DC 1A 
+2025-11-05 15:01:59 [INFO] [PSB] Setting remote mode: OFF
+2025-11-05 15:01:59 [DEBUG] [PSB] TX (8 bytes): 01 05 01 92 00 00 6D DB 
+2025-11-05 15:01:59 [DEBUG] [PSB] RX (8 bytes): 01 05 01 92 00 00 6D DB 
+2025-11-05 15:02:00 [INFO] [PSB] Closing connection on COM3
+2025-11-05 15:02:00 [INFO] [PSB] Disconnected from PSB 10000
+2025-11-05 15:02:00 [INFO] Device queue manager shut down
+2025-11-05 15:02:00 [INFO] Shutting down BioLogic abstraction layer...
+2025-11-05 15:02:00 [INFO] [BIO] Shutting down BioLogic abstraction layer
+2025-11-05 15:02:00 [INFO] [BIO] Shutting down EC-Lab backend
+2025-11-05 15:02:00 [INFO] [BIO] Shutting down EC-Lab OLE COM connection
+2025-11-05 15:02:00 [INFO] [BIO] EC-Lab OLE COM connection shutdown complete
+2025-11-05 15:02:00 [INFO] [BIO] EC-Lab backend shutdown complete
+2025-11-05 15:02:00 [INFO] [BIO] BioLogic abstraction layer shutdown complete
+2025-11-05 15:02:00 [INFO] Shutting down DTB queue manager...
+2025-11-05 15:02:00 [INFO] [DTB] Shutting down DTB 4848 queue manager...
+2025-11-05 15:02:00 [INFO] [DTB] Waiting for processing thread to complete...
+2025-11-05 15:02:00 [INFO] [DTB] All queues empty, processing thread exiting
+2025-11-05 15:02:00 [INFO] [DTB] DTB 4848 queue processing thread stopped
+2025-11-05 15:02:00 [INFO] [DTB] Stopping DTB slave 2...
+2025-11-05 15:02:00 [INFO] [DTB] Setting Run/Stop: STOP
+2025-11-05 15:02:00 [DEBUG] [DTB] TX: :020508140000DD
+
+2025-11-05 15:02:00 [DEBUG] [DTB] Sending frame: :020508140000DD
+ (length=17)
+2025-11-05 15:02:00 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:02:00 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:02:00 [DEBUG] [DTB] RX: :020508140000DD
+
+2025-11-05 15:02:00 [DEBUG] [DTB] Received frame: :020508140000DD
+ (length=17)
+2025-11-05 15:02:00 [DEBUG] [DTB] RX: :020508140000DD
+
+2025-11-05 15:02:00 [DEBUG] [DTB] Received frame: :020508140000DD
+ (length=17)
+2025-11-05 15:02:00 [DEBUG] [DTB] Response hex data: 020508140000DD
+2025-11-05 15:02:00 [DEBUG] [DTB] Transaction completed successfully in 0.155 seconds
+2025-11-05 15:02:00 [INFO] [DTB] Stopping DTB slave 3...
+2025-11-05 15:02:00 [INFO] [DTB] Setting Run/Stop: STOP
+2025-11-05 15:02:00 [DEBUG] [DTB] TX: :030508140000DC
+
+2025-11-05 15:02:00 [DEBUG] [DTB] Sending frame: :030508140000DC
+ (length=17)
+2025-11-05 15:02:00 [DEBUG] [DTB] Successfully wrote 17 bytes
+2025-11-05 15:02:00 [DEBUG] [DTB] Waiting for response (timeout=1.0 seconds)...
+2025-11-05 15:02:00 [DEBUG] [DTB] RX: :030508140000DC
+
+2025-11-05 15:02:00 [DEBUG] [DTB] Received frame: :030508140000DC
+ (length=17)
+2025-11-05 15:02:00 [DEBUG] [DTB] RX: :030508140000DC
+
+2025-11-05 15:02:00 [DEBUG] [DTB] Received frame: :030508140000DC
+ (length=17)
+2025-11-05 15:02:00 [DEBUG] [DTB] Response hex data: 030508140000DC
+2025-11-05 15:02:00 [DEBUG] [DTB] Transaction completed successfully in 0.156 seconds
+2025-11-05 15:02:00 [INFO] [DTB] Closing COM5
+2025-11-05 15:02:00 [INFO] [DTB] Disconnected all DTB devices from COM5
+2025-11-05 15:02:00 [INFO] [DTB] Disconnected from DTB 4848
+2025-11-05 15:02:00 [INFO] Device queue manager shut down
+2025-11-05 15:02:00 [INFO] Shutting down Alicat queue manager...
+2025-11-05 15:02:00 [INFO] [ALI] Shutting down ALICAT BASIS 2 queue manager...
+2025-11-05 15:02:00 [INFO] [ALI] Waiting for processing thread to complete...
+2025-11-05 15:02:00 [INFO] [ALI] All queues empty, processing thread exiting
+2025-11-05 15:02:00 [INFO] [ALI] ALICAT BASIS 2 queue processing thread stopped
+2025-11-05 15:02:00 [INFO] [ALI] Stopping ALICAT address 1...
+2025-11-05 15:02:00 [INFO] [ALI] Setting setpoint: 0.000
+2025-11-05 15:02:00 [DEBUG] [ALI] Sent Modbus frame: 13 bytes
+2025-11-05 15:02:00 [DEBUG] [ALI] Received response: 8 bytes
+2025-11-05 15:02:00 [DEBUG] [ALI] Transaction completed successfully
+2025-11-05 15:02:00 [INFO] [ALI] Disconnecting from COM7
+2025-11-05 15:02:01 [INFO] [ALI] Disconnected all ALICAT devices from COM7
+2025-11-05 15:02:01 [INFO] [ALI] Disconnected from ALICAT BASIS 2
+2025-11-05 15:02:01 [INFO] Device queue manager shut down
+2025-11-05 15:02:01 [INFO] Shutting down Teensy queue manager...
+2025-11-05 15:02:01 [INFO] [TNY] Shutting down Teensy queue manager...
+2025-11-05 15:02:01 [INFO] [TNY] Waiting for processing thread to complete...
+2025-11-05 15:02:01 [INFO] [TNY] All queues empty, processing thread exiting
+2025-11-05 15:02:01 [INFO] [TNY] Teensy queue processing thread stopped
+2025-11-05 15:02:01 [INFO] [TNY] Closing connection on COM6
+2025-11-05 15:02:01 [INFO] [TNY] Disconnected from Teensy
+2025-11-05 15:02:01 [INFO] Device queue manager shut down
+2025-11-05 15:02:01 [INFO] Cleaning up controls module...
+2025-11-05 15:02:01 [INFO] Controls module cleaned up
+2025-11-05 15:02:01 [INFO] Cleaning up status monitoring...
+2025-11-05 15:02:01 [INFO] Status module state: STOPPED -> UNINITIALIZED
+2025-11-05 15:02:01 [INFO] Status module cleaned up
+2025-11-05 15:02:01 [INFO] Shutting down thread pool...
+2025-11-05 15:02:01 [INFO] Cleanup complete. Exiting application.
+2025-11-05 15:02:01 [INFO] ========================================
+=== Battery Tester Log Ended: 2025-11-05 15:02:01 ===
