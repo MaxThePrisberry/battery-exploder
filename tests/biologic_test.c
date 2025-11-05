@@ -8,6 +8,7 @@
 #include "BatteryExploder.h"
 #include "biologic_test.h"
 #include "biologic_queue.h"
+#include "biologic_abstract.h"
 #include "common.h"
 #include "logging.h"
 #include <stdio.h>
