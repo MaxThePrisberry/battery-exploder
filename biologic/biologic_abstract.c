@@ -359,10 +359,19 @@ int BIO_Abstract_Connect(void) {
 
     switch (g_abstractConfig.mode) {
         case BIO_MODE_DIRECT_DLL:
-            return BIO_ConnectQueued(g_abstractConfig.dll.deviceAddress,
-                                    DEVICE_PRIORITY_NORMAL);
+            // For Direct DLL mode, reconnect using stored configuration
+            {
+                TDeviceInfos_t deviceInfo;
+                int result = BIO_ConnectQueued(g_abstractConfig.dll.deviceAddress,
+                                              g_abstractConfig.dll.timeout,
+                                              &g_abstractConfig.dll.deviceID,
+                                              &deviceInfo,
+                                              DEVICE_PRIORITY_NORMAL);
+                return result;
+            }
 
         case BIO_MODE_ECLAB_OLECOM:
+            // For EC-Lab mode, use simple reconnect wrapper
             return BIO_ECLAB_Connect();
 
         default:
