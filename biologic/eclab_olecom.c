@@ -444,34 +444,41 @@ int ECLAB_ConnectDevice(ECLabConnection *conn, int deviceNumber) {
     int retVal = conn->pInterface->lpVtbl->ConnectDevice(conn->pInterface, deviceNumber);
 
     // EC-Lab returns 1 if connected, 0 otherwise (per manual section 3.2.1)
-    if (retVal == 0) {
-        LogErrorEx(LOG_DEVICE_BIO, "ERROR: ConnectDevice failed (returned 0)");
+    // Any other value (negative, COM errors) indicates failure
+    if (retVal == 1) {
+        LogMessageEx(LOG_DEVICE_BIO, "ConnectDevice returned: 1 (success)");
+
+        conn->deviceNumber = deviceNumber;
+        conn->isConnected = true;
+
+        // Immediately verify connection with TestConnection
+        LogMessageEx(LOG_DEVICE_BIO, "Verifying connection with TestConnection...");
+        int testRetVal = conn->pInterface->lpVtbl->TestConnection(conn->pInterface, deviceNumber);
+
+        if (testRetVal == 1) {
+            LogMessageEx(LOG_DEVICE_BIO, "TestConnection returned: 1 (device confirmed connected)");
+        } else {
+            LogWarningEx(LOG_DEVICE_BIO, "WARNING: TestConnection returned: %d (device reports NOT connected)", testRetVal);
+            LogWarningEx(LOG_DEVICE_BIO, "ConnectDevice succeeded but TestConnection failed immediately!");
+            LogWarningEx(LOG_DEVICE_BIO, "This may indicate a device/channel configuration issue in EC-Lab.");
+            // Keep isConnected = true since ConnectDevice succeeded, but log the discrepancy
+        }
+    } else {
+        LogErrorEx(LOG_DEVICE_BIO, "ERROR: ConnectDevice failed (returned %d)", retVal);
+        if (retVal == 0) {
+            LogErrorEx(LOG_DEVICE_BIO, "Return value 0 means: Device not connected");
+        } else {
+            LogErrorEx(LOG_DEVICE_BIO, "Return value 0x%08X is a COM/OLE error", retVal);
+        }
         LogErrorEx(LOG_DEVICE_BIO, "Possible causes:");
         LogErrorEx(LOG_DEVICE_BIO, "  - Device %d is not physically connected", deviceNumber);
         LogErrorEx(LOG_DEVICE_BIO, "  - Device is not powered on");
         LogErrorEx(LOG_DEVICE_BIO, "  - Device is already in use by another application");
         LogErrorEx(LOG_DEVICE_BIO, "  - Wrong device number specified");
+        LogErrorEx(LOG_DEVICE_BIO, "  - EC-Lab is in a bad state (try restarting EC-Lab)");
         LogErrorEx(LOG_DEVICE_BIO, "");
         LogErrorEx(LOG_DEVICE_BIO, "Check EC-Lab's device list to verify available devices.");
         return ECLAB_ERR_DEVICE_NOT_FOUND;
-    }
-
-    LogMessageEx(LOG_DEVICE_BIO, "ConnectDevice returned: %d (success)", retVal);
-
-    conn->deviceNumber = deviceNumber;
-    conn->isConnected = true;
-
-    // Immediately verify connection with TestConnection
-    LogMessageEx(LOG_DEVICE_BIO, "Verifying connection with TestConnection...");
-    int testRetVal = conn->pInterface->lpVtbl->TestConnection(conn->pInterface, deviceNumber);
-
-    if (testRetVal == 1) {
-        LogMessageEx(LOG_DEVICE_BIO, "TestConnection returned: 1 (device confirmed connected)");
-    } else {
-        LogWarningEx(LOG_DEVICE_BIO, "WARNING: TestConnection returned: %d (device reports NOT connected)", testRetVal);
-        LogWarningEx(LOG_DEVICE_BIO, "ConnectDevice succeeded but TestConnection failed immediately!");
-        LogWarningEx(LOG_DEVICE_BIO, "This may indicate a device/channel configuration issue in EC-Lab.");
-        // Keep isConnected = true since ConnectDevice succeeded, but log the discrepancy
     }
 
     LogMessageEx(LOG_DEVICE_BIO, "========================================");
@@ -489,18 +496,17 @@ int ECLAB_DisconnectDevice(ECLabConnection *conn) {
     // Call DisconnectDevice method directly through vtable
     int retVal = conn->pInterface->lpVtbl->DisconnectDevice(conn->pInterface, conn->deviceNumber);
 
-    // EC-Lab returns 1 if success, 0 if failed
-    if (retVal == 0) {
-        LogWarningEx(LOG_DEVICE_BIO, "DisconnectDevice failed (returned 0)");
+    // EC-Lab returns 1 if success, 0 or other values if failed (per manual convention)
+    if (retVal == 1) {
+        // Only update flag if disconnect succeeded
+        conn->isConnected = false;
+        LogMessageEx(LOG_DEVICE_BIO, "Disconnected from EC-Lab device");
+        return SUCCESS;
+    } else {
+        LogWarningEx(LOG_DEVICE_BIO, "DisconnectDevice failed (returned %d)", retVal);
         // Do NOT set isConnected = false here - disconnect failed!
         return ECLAB_ERR_COM_INVOKE_FAILED;
     }
-
-    // Only update flag if disconnect succeeded
-    conn->isConnected = false;
-
-    LogMessageEx(LOG_DEVICE_BIO, "Disconnected from EC-Lab device");
-    return SUCCESS;
 }
 
 int ECLAB_TestConnection(ECLabConnection *conn) {
@@ -553,14 +559,14 @@ int ECLAB_LoadSettings(ECLabConnection *conn, int device, int channel,
 
     SysFreeString(bstrFilePath);
 
-    // EC-Lab returns 1 if success, 0 if failed (per manual section 3.2.5)
-    if (retVal == 0) {
-        LogErrorEx(LOG_DEVICE_BIO, "LoadSettings failed (returned 0)");
+    // EC-Lab returns 1 if success, 0 or other values if failed (per manual section 3.2.5)
+    if (retVal == 1) {
+        LogMessageEx(LOG_DEVICE_BIO, "Settings loaded successfully");
+        return SUCCESS;
+    } else {
+        LogErrorEx(LOG_DEVICE_BIO, "LoadSettings failed (returned %d)", retVal);
         return ECLAB_ERR_INVALID_MPS_FILE;
     }
-
-    LogMessageEx(LOG_DEVICE_BIO, "Settings loaded successfully");
-    return SUCCESS;
 }
 
 int ECLAB_RunChannel(ECLabConnection *conn, int device, int channel,
@@ -583,14 +589,14 @@ int ECLAB_RunChannel(ECLabConnection *conn, int device, int channel,
 
     SysFreeString(bstrOutputPath);
 
-    // EC-Lab returns 1 if success, 0 if failed (per manual section 3.2.6)
-    if (retVal == 0) {
-        LogErrorEx(LOG_DEVICE_BIO, "RunChannel failed (returned 0)");
+    // EC-Lab returns 1 if success, 0 or other values if failed (per manual section 3.2.6)
+    if (retVal == 1) {
+        LogMessageEx(LOG_DEVICE_BIO, "Measurement started");
+        return SUCCESS;
+    } else {
+        LogErrorEx(LOG_DEVICE_BIO, "RunChannel failed (returned %d)", retVal);
         return ECLAB_ERR_RUN_FAILED;
     }
-
-    LogMessageEx(LOG_DEVICE_BIO, "Measurement started");
-    return SUCCESS;
 }
 
 int ECLAB_StopChannel(ECLabConnection *conn, int device, int channel) {
@@ -602,14 +608,14 @@ int ECLAB_StopChannel(ECLabConnection *conn, int device, int channel) {
     // Call StopChannel method directly through vtable
     int retVal = conn->pInterface->lpVtbl->StopChannel(conn->pInterface, device, channel);
 
-    // EC-Lab returns 1 if success, 0 if failed (per manual section 3.2.7)
-    if (retVal == 0) {
-        LogWarningEx(LOG_DEVICE_BIO, "StopChannel failed (returned 0)");
+    // EC-Lab returns 1 if success, 0 or other values if failed (per manual section 3.2.7)
+    if (retVal == 1) {
+        LogMessageEx(LOG_DEVICE_BIO, "Measurement stopped");
+        return SUCCESS;
+    } else {
+        LogWarningEx(LOG_DEVICE_BIO, "StopChannel failed (returned %d)", retVal);
         return ECLAB_ERR_COM_INVOKE_FAILED;
     }
-
-    LogMessageEx(LOG_DEVICE_BIO, "Measurement stopped");
-    return SUCCESS;
 }
 
 /******************************************************************************
@@ -630,9 +636,9 @@ int ECLAB_MeasureStatus(ECLabConnection *conn, int device, int channel,
     int retVal = conn->pInterface->lpVtbl->MeasureStatus(conn->pInterface,
                                                          device, channel, &statusResult);
 
-    // EC-Lab returns 1 if success, 0 if failed (per manual section 3.2.9)
-    if (retVal == 0) {
-        LogErrorEx(LOG_DEVICE_BIO, "MeasureStatus failed (returned 0)");
+    // EC-Lab returns 1 if success, 0 or other values if failed (per manual section 3.2.9)
+    if (retVal != 1) {
+        LogErrorEx(LOG_DEVICE_BIO, "MeasureStatus failed (returned %d)", retVal);
         VariantClear(&statusResult);
         return ECLAB_ERR_COM_INVOKE_FAILED;
     }
@@ -811,13 +817,13 @@ int ECLAB_EnableMessagesWindows(ECLabConnection *conn, bool enable) {
         return ECLAB_ERR_COM_INVOKE_FAILED;
     }
 
-    // EC-Lab returns 1 if success, 0 if failed (per manual convention)
-    if (functionResult == 0) {
-        LogWarningEx(LOG_DEVICE_BIO, "EnableMessagesWindows failed (returned 0)");
+    // EC-Lab returns 1 if success, 0 or other values if failed (per manual convention)
+    if (functionResult == 1) {
+        LogDebugEx(LOG_DEVICE_BIO, "EnableMessagesWindows succeeded (messages %s)",
+                  enable ? "enabled" : "disabled");
+        return SUCCESS;
+    } else {
+        LogWarningEx(LOG_DEVICE_BIO, "EnableMessagesWindows failed (returned %d)", functionResult);
         return ECLAB_ERR_COM_INVOKE_FAILED;
     }
-
-    LogDebugEx(LOG_DEVICE_BIO, "EnableMessagesWindows succeeded (messages %s)",
-              enable ? "enabled" : "disabled");
-    return SUCCESS;
 }
