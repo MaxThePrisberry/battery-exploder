@@ -461,6 +461,19 @@ int ECLAB_ConnectDevice(ECLabConnection *conn, int deviceNumber) {
     conn->deviceNumber = deviceNumber;
     conn->isConnected = true;
 
+    // Immediately verify connection with TestConnection
+    LogMessageEx(LOG_DEVICE_BIO, "Verifying connection with TestConnection...");
+    int testRetVal = conn->pInterface->lpVtbl->TestConnection(conn->pInterface, deviceNumber);
+
+    if (testRetVal == 1) {
+        LogMessageEx(LOG_DEVICE_BIO, "TestConnection returned: 1 (device confirmed connected)");
+    } else {
+        LogWarningEx(LOG_DEVICE_BIO, "WARNING: TestConnection returned: %d (device reports NOT connected)", testRetVal);
+        LogWarningEx(LOG_DEVICE_BIO, "ConnectDevice succeeded but TestConnection failed immediately!");
+        LogWarningEx(LOG_DEVICE_BIO, "This may indicate a device/channel configuration issue in EC-Lab.");
+        // Keep isConnected = true since ConnectDevice succeeded, but log the discrepancy
+    }
+
     LogMessageEx(LOG_DEVICE_BIO, "========================================");
     LogMessageEx(LOG_DEVICE_BIO, "Successfully connected to device %d!", deviceNumber);
     LogMessageEx(LOG_DEVICE_BIO, "========================================");
