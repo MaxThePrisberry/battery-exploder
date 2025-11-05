@@ -535,30 +535,37 @@ static void PSB_RequestStatusUpdate(void) {
 }
 
 static void BIO_RequestStatusUpdate(void) {
-    // BioLogic has no status functions, so update UI based on queue connection state
+    // BioLogic status monitoring uses abstraction layer (works in both DLL and EC-Lab modes)
     g_status.devices[DEVICE_BIOLOGIC].pendingCall = false;
-    
-    BioQueueManager *mgr = BIO_GetGlobalQueueManager();
-    if (mgr) {
-        BioQueueStats stats;
-        BIO_QueueGetStats(mgr, &stats);
-        
-        if (stats.isConnected) {
-            g_status.devices[DEVICE_BIOLOGIC].lastState = CONN_STATE_CONNECTED;
-            UpdateDeviceLED(DEVICE_BIOLOGIC, CONN_STATE_CONNECTED);
-            UpdateDeviceStatus(DEVICE_BIOLOGIC, "BioLogic Connected");
-            LogDebugEx(LOG_DEVICE_BIO, "BioLogic queue connected");
-        } else {
-            g_status.devices[DEVICE_BIOLOGIC].lastState = CONN_STATE_ERROR;
-            UpdateDeviceLED(DEVICE_BIOLOGIC, CONN_STATE_ERROR);
-            UpdateDeviceStatus(DEVICE_BIOLOGIC, "BioLogic Not Connected");
-            LogDebugEx(LOG_DEVICE_BIO, "BioLogic queue disconnected");
-        }
+
+    // Check if abstraction layer is initialized
+    if (!BIO_IsAbstractInitialized()) {
+        g_status.devices[DEVICE_BIOLOGIC].lastState = CONN_STATE_ERROR;
+        UpdateDeviceLED(DEVICE_BIOLOGIC, CONN_STATE_ERROR);
+        UpdateDeviceStatus(DEVICE_BIOLOGIC, "BioLogic Not Initialized");
+        return;
+    }
+
+    // Test connection using abstraction layer (routes to DLL or EC-Lab automatically)
+    int testResult = BIO_Abstract_TestConnection();
+
+    if (testResult == SUCCESS) {
+        g_status.devices[DEVICE_BIOLOGIC].lastState = CONN_STATE_CONNECTED;
+        UpdateDeviceLED(DEVICE_BIOLOGIC, CONN_STATE_CONNECTED);
+
+        // Show current mode in status
+        BIO_ControlMode mode = BIO_GetCurrentMode();
+        const char *modeStr = BIO_GetModeName(mode);
+        char statusMsg[64];
+        snprintf(statusMsg, sizeof(statusMsg), "BioLogic Connected (%s)", modeStr);
+        UpdateDeviceStatus(DEVICE_BIOLOGIC, statusMsg);
+
+        LogDebugEx(LOG_DEVICE_BIO, "BioLogic connected via %s", modeStr);
     } else {
         g_status.devices[DEVICE_BIOLOGIC].lastState = CONN_STATE_ERROR;
         UpdateDeviceLED(DEVICE_BIOLOGIC, CONN_STATE_ERROR);
-        UpdateDeviceStatus(DEVICE_BIOLOGIC, "BioLogic Queue Error");
-        LogErrorEx(LOG_DEVICE_BIO, "BioLogic queue manager not available");
+        UpdateDeviceStatus(DEVICE_BIOLOGIC, "BioLogic Connection Lost");
+        LogDebugEx(LOG_DEVICE_BIO, "BioLogic connection test failed: %s", GetErrorString(testResult));
     }
 }
 
