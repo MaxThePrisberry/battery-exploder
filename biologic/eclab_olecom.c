@@ -476,13 +476,15 @@ int ECLAB_DisconnectDevice(ECLabConnection *conn) {
     // Call DisconnectDevice method directly through vtable
     int retVal = conn->pInterface->lpVtbl->DisconnectDevice(conn->pInterface, conn->deviceNumber);
 
-    conn->isConnected = false;
-
     // EC-Lab returns 1 if success, 0 if failed
     if (retVal == 0) {
         LogWarningEx(LOG_DEVICE_BIO, "DisconnectDevice failed (returned 0)");
+        // Do NOT set isConnected = false here - disconnect failed!
         return ECLAB_ERR_COM_INVOKE_FAILED;
     }
+
+    // Only update flag if disconnect succeeded
+    conn->isConnected = false;
 
     LogMessageEx(LOG_DEVICE_BIO, "Disconnected from EC-Lab device");
     return SUCCESS;
@@ -490,13 +492,22 @@ int ECLAB_DisconnectDevice(ECLabConnection *conn) {
 
 int ECLAB_TestConnection(ECLabConnection *conn) {
     if (!conn || !conn->pInterface) return ECLAB_ERR_INVALID_CONNECTION;
-    if (!conn->isConnected) return ECLAB_ERR_NOT_CONNECTED;
+
+    // Always test the actual connection - don't rely on cached flag
+    // The purpose of TestConnection is to actively verify device connectivity
 
     // Call TestConnection method directly through vtable
     int retVal = conn->pInterface->lpVtbl->TestConnection(conn->pInterface, conn->deviceNumber);
 
-    // EC-Lab returns 1 if connected, 0 otherwise (per manual section 3.2.2)
-    return (retVal == 1) ? SUCCESS : ECLAB_ERR_NOT_CONNECTED;
+    // EC-Lab returns 1 if connected, 0 otherwise (per manual section 3.2.3)
+    if (retVal == 1) {
+        conn->isConnected = true;   // Update flag based on actual test
+        return SUCCESS;
+    } else {
+        conn->isConnected = false;  // Update flag based on actual test
+        LogWarningEx(LOG_DEVICE_BIO, "TestConnection: Device %d is not connected", conn->deviceNumber);
+        return ECLAB_ERR_NOT_CONNECTED;
+    }
 }
 
 /******************************************************************************
@@ -529,7 +540,7 @@ int ECLAB_LoadSettings(ECLabConnection *conn, int device, int channel,
 
     SysFreeString(bstrFilePath);
 
-    // EC-Lab returns 1 if success, 0 if failed (per manual section 3.2.3)
+    // EC-Lab returns 1 if success, 0 if failed (per manual section 3.2.5)
     if (retVal == 0) {
         LogErrorEx(LOG_DEVICE_BIO, "LoadSettings failed (returned 0)");
         return ECLAB_ERR_INVALID_MPS_FILE;
@@ -559,7 +570,7 @@ int ECLAB_RunChannel(ECLabConnection *conn, int device, int channel,
 
     SysFreeString(bstrOutputPath);
 
-    // EC-Lab returns 1 if success, 0 if failed (per manual section 3.2.4)
+    // EC-Lab returns 1 if success, 0 if failed (per manual section 3.2.6)
     if (retVal == 0) {
         LogErrorEx(LOG_DEVICE_BIO, "RunChannel failed (returned 0)");
         return ECLAB_ERR_RUN_FAILED;
@@ -578,7 +589,7 @@ int ECLAB_StopChannel(ECLabConnection *conn, int device, int channel) {
     // Call StopChannel method directly through vtable
     int retVal = conn->pInterface->lpVtbl->StopChannel(conn->pInterface, device, channel);
 
-    // EC-Lab returns 1 if success, 0 if failed (per manual section 3.2.5)
+    // EC-Lab returns 1 if success, 0 if failed (per manual section 3.2.7)
     if (retVal == 0) {
         LogWarningEx(LOG_DEVICE_BIO, "StopChannel failed (returned 0)");
         return ECLAB_ERR_COM_INVOKE_FAILED;
