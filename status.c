@@ -15,6 +15,7 @@
 #include "BatteryExploder.h"
 #include "psb10000_queue.h"
 #include "biologic_queue.h"
+#include "biologic_abstract.h"
 #include "dtb4848_queue.h"
 #include "logging.h"
 #include "controls.h"
