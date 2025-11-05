@@ -6,6 +6,7 @@
  ******************************************************************************/
 
 #include "biologic_queue.h"
+#include "biologic_abstract.h"
 #include "logging.h"
 #include <ansi_c.h>
 
@@ -265,7 +266,8 @@ static int BIO_AdapterExecuteCommand(void *deviceContext, int commandType, void 
         }
             
         case BIO_CMD_TEST_CONNECTION: {
-            cmdResult->errorCode = BIO_TestConnection(ctx->deviceID);
+            // Use abstraction layer to support both Direct DLL and EC-Lab modes
+            cmdResult->errorCode = BIO_Abstract_TestConnection();
             break;
         }
             
