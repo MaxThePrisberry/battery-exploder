@@ -1,0 +1,1928 @@
+
+=== Battery Tester Log Started: 2025-11-06 15:06:10 ===
+Log file location: c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\BatteryExploder.log
+2025-11-06 15:06:10 [INFO] Initializing cDAQ module...
+2025-11-06 15:06:10 [INFO] Initializing cDAQ thermocouple slots 2 and 3...
+2025-11-06 15:06:12 [INFO] cDAQ slot 2 initialized with 16 thermocouples
+2025-11-06 15:06:13 [INFO] cDAQ slot 3 initialized with 16 thermocouples
+2025-11-06 15:06:13 [INFO] cDAQ module initialized successfully
+2025-11-06 15:06:13 [INFO] cDAQ thermocouple slots initialized successfully
+2025-11-06 15:06:13 [INFO] Initializing cDAQ slot 1 for 4-20mA current sensors (NI 9202)...
+2025-11-06 15:06:13 [INFO] cDAQ slot 1 initialized with 16 voltage channels (4-20mA mode)
+2025-11-06 15:06:13 [INFO] Shunt resistor: 250.0 ohms, Range: 1.0-5.0V (4-20mA)
+2025-11-06 15:06:13 [INFO] cDAQ current sensor slot initialized successfully (4-20mA)
+2025-11-06 15:06:13 [INFO] Initializing pressure safety monitoring...
+2025-11-06 15:06:13 [INFO] Initializing pressure safety monitoring module...
+2025-11-06 15:06:13 [INFO] Pressure safety module initialized
+2025-11-06 15:06:13 [INFO] Pressure safety monitoring initialized successfully
+2025-11-06 15:06:13 [INFO] Initializing PSB queue manager on COM3...
+2025-11-06 15:06:13 [INFO] Attempting to connect to PSB 10000...
+2025-11-06 15:06:13 [INFO] [PSB] Connecting to PSB on COM3...
+2025-11-06 15:06:13 [INFO] [PSB] Initializing on COM3, slave 1, 9600 baud
+2025-11-06 15:06:13 [INFO] [PSB] Successfully initialized
+2025-11-06 15:06:13 [INFO] [PSB] Setting remote mode: ON
+2025-11-06 15:06:13 [INFO] [PSB] Setting output: OFF
+2025-11-06 15:06:13 [INFO] Successfully connected to PSB 10000
+2025-11-06 15:06:13 [INFO] PSB 10000 queue manager initialized
+2025-11-06 15:06:13 [INFO] PSB queue manager initialized and connected on COM3
+2025-11-06 15:06:13 [INFO] Initializing PSB to safe state...
+2025-11-06 15:06:13 [INFO] [PSB] Setting PSB safe limits...
+2025-11-06 15:06:13 [INFO] [PSB] PSB 10000 queue processing thread started
+2025-11-06 15:06:13 [INFO] [PSB] Setting min voltage: 0.00V
+2025-11-06 15:06:13 [INFO] [PSB] Setting max voltage: 61.20V
+2025-11-06 15:06:13 [INFO] [PSB] Setting min current: 0.00A
+2025-11-06 15:06:13 [INFO] [PSB] Setting max current: 61.20A
+2025-11-06 15:06:14 [INFO] [PSB] Setting sink max current: 61.20A
+2025-11-06 15:06:14 [INFO] [PSB] Setting sink min current: 0.00A
+2025-11-06 15:06:14 [INFO] [PSB] Setting max power: 1224.00W
+2025-11-06 15:06:14 [INFO] [PSB] Setting sink max power: 1224.00W
+2025-11-06 15:06:14 [INFO] [PSB] PSB safe limits set successfully
+2025-11-06 15:06:14 [INFO] [PSB] Zeroing all PSB values...
+2025-11-06 15:06:14 [INFO] [PSB] Setting output: OFF
+2025-11-06 15:06:15 [INFO] [PSB] Setting voltage: 0.00V (0x0000)
+2025-11-06 15:06:15 [INFO] [PSB] Setting current: 0.00A (0x0000)
+2025-11-06 15:06:15 [INFO] [PSB] Setting power: 0.00W (0x0000)
+2025-11-06 15:06:16 [INFO] [PSB] Setting sink current: 0.00A (0x0000)
+2025-11-06 15:06:16 [INFO] [PSB] Setting sink power: 0.00W (0x0000)
+2025-11-06 15:06:16 [INFO] [PSB] All PSB values zeroed successfully
+2025-11-06 15:06:16 [INFO] PSB initialization complete
+2025-11-06 15:06:16 [INFO] Initializing BioLogic abstraction layer...
+2025-11-06 15:06:16 [INFO]   Mode: EC-Lab OLE COM
+2025-11-06 15:06:16 [INFO] [BIO] Initializing BioLogic abstraction layer
+2025-11-06 15:06:16 [INFO] [BIO]   Mode: EC-Lab OLE COM
+2025-11-06 15:06:16 [INFO] [BIO] Initializing EC-Lab OLE COM mode
+2025-11-06 15:06:16 [INFO] [BIO]   Settings dir: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_settings
+2025-11-06 15:06:16 [INFO] [BIO]   Data dir: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data
+2025-11-06 15:06:16 [INFO] [BIO] Initializing EC-Lab backend
+2025-11-06 15:06:16 [INFO] [BIO]   Settings dir: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_settings
+2025-11-06 15:06:16 [INFO] [BIO]   Data dir: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data
+2025-11-06 15:06:16 [INFO] [BIO]   Device: 0, Channel: 1
+2025-11-06 15:06:16 [INFO] [BIO] ========================================
+2025-11-06 15:06:16 [INFO] [BIO] Initializing EC-Lab OLE COM connection
+2025-11-06 15:06:16 [INFO] [BIO] ========================================
+2025-11-06 15:06:16 [INFO] [BIO] Working directory: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data
+2025-11-06 15:06:16 [INFO] [BIO] Step 1: Initializing COM...
+2025-11-06 15:06:16 [INFO] [BIO] COM initialized successfully
+2025-11-06 15:06:16 [INFO] [BIO] Step 2: Resolving ProgID 'EClabCOM.EClabExe'...
+2025-11-06 15:06:16 [INFO] [BIO] ProgID resolved successfully. EC-Lab is registered.
+2025-11-06 15:06:16 [INFO] [BIO] Step 3: Checking if EC-Lab is running...
+2025-11-06 15:06:16 [INFO] [BIO] EC-Lab process detected - proceeding with COM connection
+2025-11-06 15:06:16 [INFO] [BIO] Step 4: Creating EC-Lab COM instance...
+2025-11-06 15:06:16 [INFO] [BIO] NOTE: This will connect to the running EC-Lab application.
+2025-11-06 15:06:16 [INFO] [BIO] NOTE: Using custom IEClabExe interface (NOT IDispatch)
+2025-11-06 15:06:16 [INFO] [BIO] Requesting IEClabExe interface...
+2025-11-06 15:06:16 [INFO] [BIO] EC-Lab COM instance created successfully!
+2025-11-06 15:06:16 [INFO] [BIO] ========================================
+2025-11-06 15:06:16 [INFO] [BIO] EC-Lab OLE COM connection initialized
+2025-11-06 15:06:16 [INFO] [BIO] ========================================
+2025-11-06 15:06:16 [INFO] [BIO] ========================================
+2025-11-06 15:06:16 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:06:16 [INFO] [BIO] ========================================
+2025-11-06 15:06:16 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:06:16 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:06:16 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:06:16 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:06:16 [INFO] [BIO] 
+2025-11-06 15:06:16 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:06:16 [INFO] [BIO] ConnectDevice returned: 1 (success)
+2025-11-06 15:06:16 [INFO] [BIO] Verifying connection with TestConnection...
+2025-11-06 15:06:16 [INFO] [BIO] TestConnection returned: 1 (device confirmed connected)
+2025-11-06 15:06:16 [INFO] [BIO] ========================================
+2025-11-06 15:06:16 [INFO] [BIO] Successfully connected to device 0!
+2025-11-06 15:06:16 [INFO] [BIO] ========================================
+2025-11-06 15:06:16 [INFO] [BIO] Running connection diagnostic (5 tests over ~5 seconds)...
+2025-11-06 15:06:16 [INFO] [BIO]   [Test 1 @ 0.0s] Connection: OK
+2025-11-06 15:06:17 [INFO] [BIO]   [Test 2 @ 1.0s] Connection: OK
+2025-11-06 15:06:18 [INFO] [BIO]   [Test 3 @ 2.0s] Connection: OK
+2025-11-06 15:06:19 [INFO] [BIO]   [Test 4 @ 3.0s] Connection: OK
+2025-11-06 15:06:20 [INFO] [BIO]   [Test 5 @ 4.0s] Connection: OK
+2025-11-06 15:06:20 [INFO] [BIO] Connection diagnostic complete: 5/5 tests passed
+2025-11-06 15:06:20 [INFO] [BIO] EC-Lab backend initialized successfully
+2025-11-06 15:06:20 [INFO] [BIO] BioLogic abstraction layer initialized successfully
+2025-11-06 15:06:20 [INFO] BioLogic abstraction layer initialized successfully
+2025-11-06 15:06:20 [INFO] Initializing DTB queue manager on COM5 with 2 devices...
+2025-11-06 15:06:20 [INFO] [DTB] DTB_QueueInit: Will initialize slave address 2
+2025-11-06 15:06:20 [INFO] [DTB] DTB_QueueInit: Will initialize slave address 3
+2025-11-06 15:06:20 [INFO] Attempting to connect to DTB 4848...
+2025-11-06 15:06:20 [INFO] [DTB] Connecting to DTB slave 2 on COM5...
+2025-11-06 15:06:20 [INFO] [DTB] Initializing on COM5, slave 2, 9600 baud
+2025-11-06 15:06:20 [INFO] [DTB] Successfully initialized
+2025-11-06 15:06:20 [INFO] [DTB] Successfully connected to DTB slave 2
+2025-11-06 15:06:20 [INFO] [DTB] Connecting to DTB slave 3 on COM5...
+2025-11-06 15:06:20 [INFO] [DTB] Initializing on COM5, slave 3, 9600 baud
+2025-11-06 15:06:20 [INFO] [DTB] Successfully initialized
+2025-11-06 15:06:20 [INFO] [DTB] Successfully connected to DTB slave 3
+2025-11-06 15:06:20 [INFO] [DTB] Connected to 2 of 2 DTB devices
+2025-11-06 15:06:21 [INFO] Successfully connected to DTB 4848
+2025-11-06 15:06:21 [INFO] DTB 4848 queue manager initialized
+2025-11-06 15:06:21 [INFO] [DTB] DTB_QueueInit: Successfully created queue manager for 2 devices
+2025-11-06 15:06:21 [INFO] DTB queue manager initialized and connected on COM5
+2025-11-06 15:06:21 [INFO] Enabling DTB write access for all devices...
+2025-11-06 15:06:21 [INFO] [DTB] Enabling write access for all 2 DTB devices...
+2025-11-06 15:06:21 [INFO] [DTB] DTB 4848 queue processing thread started
+2025-11-06 15:06:21 [INFO] [DTB] Enabling write access...
+2025-11-06 15:06:21 [INFO] [DTB] Write access enabled
+2025-11-06 15:06:21 [INFO] [DTB] Enabling write access...
+2025-11-06 15:06:22 [INFO] [DTB] Write access enabled
+2025-11-06 15:06:22 [INFO] [DTB] Successfully enabled write access for all DTB devices
+2025-11-06 15:06:22 [INFO] DTB write access enabled successfully for all devices
+2025-11-06 15:06:22 [INFO] Configuring all DTB4848 devices for K-type thermocouple with PID control...
+2025-11-06 15:06:22 [INFO] [DTB] Write access status: ENABLED
+2025-11-06 15:06:22 [INFO] DTB slave 2 write access currently: ENABLED
+2025-11-06 15:06:22 [INFO] [DTB] Configuring DTB4848...
+2025-11-06 15:06:22 [INFO] [DTB] Setting sensor type: 0
+2025-11-06 15:06:22 [INFO] [DTB] Setting heating/cooling mode: 0
+2025-11-06 15:06:23 [INFO] [DTB] Setting control method: 0
+2025-11-06 15:06:23 [INFO] [DTB] Setting PID mode: 4 (AUTO)
+2025-11-06 15:06:24 [INFO] [DTB] Configuration complete
+2025-11-06 15:06:24 [INFO] DTB4848 slave 2 configured successfully
+2025-11-06 15:06:24 [INFO] [DTB] Write access status: ENABLED
+2025-11-06 15:06:24 [INFO] DTB slave 3 write access currently: ENABLED
+2025-11-06 15:06:24 [INFO] [DTB] Configuring DTB4848...
+2025-11-06 15:06:24 [INFO] [DTB] Setting sensor type: 0
+2025-11-06 15:06:24 [INFO] [DTB] Setting heating/cooling mode: 0
+2025-11-06 15:06:25 [INFO] [DTB] Setting control method: 0
+2025-11-06 15:06:26 [INFO] [DTB] Setting PID mode: 4 (AUTO)
+2025-11-06 15:06:26 [INFO] [DTB] Configuration complete
+2025-11-06 15:06:26 [INFO] DTB4848 slave 3 configured successfully
+2025-11-06 15:06:26 [INFO] DTB initialization complete
+2025-11-06 15:06:26 [INFO] Initializing ALICAT queue manager on COM7 with 1 devices...
+2025-11-06 15:06:26 [INFO] [ALI] ALICAT_QueueInit: Will initialize address 1
+2025-11-06 15:06:26 [INFO] Attempting to connect to ALICAT BASIS 2...
+2025-11-06 15:06:26 [INFO] [ALI] Connecting to ALICAT address 1 on COM7...
+2025-11-06 15:06:26 [INFO] [ALI] Initializing on COM7, address 1, 38400 baud
+2025-11-06 15:06:26 [INFO] [ALI] Serial Number: B036829     
+2025-11-06 15:06:26 [INFO] [ALI] Successfully initialized
+2025-11-06 15:06:26 [INFO] [ALI] Successfully connected to ALICAT address 1
+2025-11-06 15:06:26 [INFO] [ALI] Connected to 1 of 1 ALICAT devices
+2025-11-06 15:06:26 [INFO] Successfully connected to ALICAT BASIS 2
+2025-11-06 15:06:26 [INFO] ALICAT BASIS 2 queue manager initialized
+2025-11-06 15:06:26 [INFO] [ALI] ALICAT_QueueInit: Successfully created queue manager for 1 devices
+2025-11-06 15:06:26 [INFO] ALICAT queue manager initialized and connected on COM7
+2025-11-06 15:06:26 [INFO] Configuring all ALICAT devices with default settings...
+2025-11-06 15:06:26 [INFO] ALICAT BASIS 2 queue processing thread started
+2025-11-06 15:06:26 [INFO] [ALI] Configuring ALICAT...
+2025-11-06 15:06:26 [INFO] [ALI] Setting gas type: 0 (Air)
+2025-11-06 15:06:26 [INFO] [ALI] Setting setpoint source: 2
+2025-11-06 15:06:26 [INFO] [ALI] Setting reference temperature: 25.0 deg C
+2025-11-06 15:06:26 [INFO] [ALI] Setting flow averaging: 100 ms
+2025-11-06 15:06:26 [INFO] [ALI] Setting autotare: ENABLED
+2025-11-06 15:06:27 [INFO] [ALI] Setting PID parameters: P 500, I 5000
+2025-11-06 15:06:27 [INFO] [ALI] Configuration complete
+2025-11-06 15:06:27 [INFO] ALICAT address 1 configured successfully
+2025-11-06 15:06:27 [INFO] [ALI] Setting gas type: 3 (Nitrogen)
+2025-11-06 15:06:27 [INFO] ALICAT address 1 gas set to Nitrogen
+2025-11-06 15:06:27 [INFO] Taring ALICAT address 1...
+2025-11-06 15:06:27 [INFO] [ALI] Performing tare...
+2025-11-06 15:06:27 [INFO] ALICAT address 1 tared successfully
+2025-11-06 15:06:27 [INFO] ALICAT initialization complete
+2025-11-06 15:06:27 [INFO] Initializing Teensy queue manager on COM6...
+2025-11-06 15:06:27 [INFO] Attempting to connect to Teensy...
+2025-11-06 15:06:27 [INFO] [TNY] Connecting to Teensy on COM6...
+2025-11-06 15:06:27 [INFO] [TNY] Initializing Teensy on COM6 at 9600 baud
+2025-11-06 15:06:27 [INFO] [TNY] Successfully connected to Teensy on COM6
+2025-11-06 15:06:27 [INFO] Successfully connected to Teensy
+2025-11-06 15:06:27 [INFO] Teensy queue manager initialized
+2025-11-06 15:06:27 [INFO] Teensy queue manager initialized and connected on COM6
+2025-11-06 15:06:27 [INFO] [TNY] Teensy queue processing thread started
+2025-11-06 15:06:27 [INFO] [TNY] Initializing 2 pins (2 low, 0 high)
+2025-11-06 15:06:27 [INFO] Committed transaction 1 with 2 commands to normal priority queue
+2025-11-06 15:06:27 [INFO] [TNY] Pin initialization transaction committed
+2025-11-06 15:06:27 [INFO] [TNY] Starting transaction 1 with 2 commands
+2025-11-06 15:06:27 [INFO] Status module state: UNINITIALIZED -> INITIALIZING
+2025-11-06 15:06:27 [INFO] Device states initialized (DTB devices: 2)
+2025-11-06 15:06:27 [INFO] Status monitoring module initialized
+2025-11-06 15:06:27 [INFO] Controls module initialized with 2 DTB devices
+2025-11-06 15:06:27 [INFO] Controls module initialized for ALICAT Mass Flow Controller
+2025-11-06 15:06:27 [INFO] Starting device status monitoring...
+2025-11-06 15:06:27 [INFO] Status module state: INITIALIZING -> RUNNING
+2025-11-06 15:06:27 [INFO] Status timer thread started
+2025-11-06 15:06:27 [INFO] Status monitoring started successfully
+2025-11-06 15:06:27 [INFO] Starting controls module - syncing with device states...
+2025-11-06 15:06:27 [INFO] [TNY] Completed transaction 1
+2025-11-06 15:06:27 [INFO] PSB remote mode: ON
+2025-11-06 15:06:30 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:06:30 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:06:30 [INFO] [BIO] ========================================
+2025-11-06 15:06:30 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:06:30 [INFO] [BIO] ========================================
+2025-11-06 15:06:30 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:06:30 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:06:30 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:06:30 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:06:30 [INFO] [BIO] 
+2025-11-06 15:06:30 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:06:30 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:06:30 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:06:30 [ERROR] [BIO] Possible causes:
+2025-11-06 15:06:30 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:06:30 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:06:30 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:06:30 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:06:30 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:06:30 [ERROR] [BIO] 
+2025-11-06 15:06:30 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:06:32 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:06:32 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:06:32 [INFO] [BIO] ========================================
+2025-11-06 15:06:32 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:06:32 [INFO] [BIO] ========================================
+2025-11-06 15:06:32 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:06:32 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:06:32 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:06:32 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:06:32 [INFO] [BIO] 
+2025-11-06 15:06:32 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:06:32 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:06:32 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:06:32 [ERROR] [BIO] Possible causes:
+2025-11-06 15:06:32 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:06:32 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:06:32 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:06:32 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:06:32 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:06:32 [ERROR] [BIO] 
+2025-11-06 15:06:32 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:06:33 [INFO] Controls module started
+2025-11-06 15:06:34 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:06:34 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:06:34 [INFO] [BIO] ========================================
+2025-11-06 15:06:34 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:06:34 [INFO] [BIO] ========================================
+2025-11-06 15:06:34 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:06:34 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:06:34 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:06:34 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:06:34 [INFO] [BIO] 
+2025-11-06 15:06:34 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:06:34 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:06:34 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:06:34 [ERROR] [BIO] Possible causes:
+2025-11-06 15:06:34 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:06:34 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:06:34 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:06:34 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:06:34 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:06:34 [ERROR] [BIO] 
+2025-11-06 15:06:34 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:06:37 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:06:37 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:06:37 [INFO] [BIO] ========================================
+2025-11-06 15:06:37 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:06:37 [INFO] [BIO] ========================================
+2025-11-06 15:06:37 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:06:37 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:06:37 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:06:37 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:06:37 [INFO] [BIO] 
+2025-11-06 15:06:37 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:06:37 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:06:37 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:06:37 [ERROR] [BIO] Possible causes:
+2025-11-06 15:06:37 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:06:37 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:06:37 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:06:37 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:06:37 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:06:37 [ERROR] [BIO] 
+2025-11-06 15:06:37 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:06:39 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:06:39 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:06:39 [INFO] [BIO] ========================================
+2025-11-06 15:06:39 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:06:39 [INFO] [BIO] ========================================
+2025-11-06 15:06:39 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:06:39 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:06:39 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:06:39 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:06:39 [INFO] [BIO] 
+2025-11-06 15:06:39 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:06:39 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:06:39 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:06:39 [ERROR] [BIO] Possible causes:
+2025-11-06 15:06:39 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:06:39 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:06:39 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:06:39 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:06:39 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:06:39 [ERROR] [BIO] 
+2025-11-06 15:06:39 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:06:41 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:06:41 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:06:41 [INFO] [BIO] ========================================
+2025-11-06 15:06:41 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:06:41 [INFO] [BIO] ========================================
+2025-11-06 15:06:41 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:06:41 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:06:41 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:06:41 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:06:41 [INFO] [BIO] 
+2025-11-06 15:06:41 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:06:41 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:06:41 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:06:41 [ERROR] [BIO] Possible causes:
+2025-11-06 15:06:41 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:06:41 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:06:41 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:06:41 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:06:41 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:06:41 [ERROR] [BIO] 
+2025-11-06 15:06:41 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:06:44 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:06:44 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:06:44 [INFO] [BIO] ========================================
+2025-11-06 15:06:44 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:06:44 [INFO] [BIO] ========================================
+2025-11-06 15:06:44 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:06:44 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:06:44 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:06:44 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:06:44 [INFO] [BIO] 
+2025-11-06 15:06:44 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:06:44 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:06:44 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:06:44 [ERROR] [BIO] Possible causes:
+2025-11-06 15:06:44 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:06:44 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:06:44 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:06:44 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:06:44 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:06:44 [ERROR] [BIO] 
+2025-11-06 15:06:44 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:06:46 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:06:46 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:06:46 [INFO] [BIO] ========================================
+2025-11-06 15:06:46 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:06:46 [INFO] [BIO] ========================================
+2025-11-06 15:06:46 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:06:46 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:06:46 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:06:46 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:06:46 [INFO] [BIO] 
+2025-11-06 15:06:46 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:06:46 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:06:46 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:06:46 [ERROR] [BIO] Possible causes:
+2025-11-06 15:06:46 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:06:46 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:06:46 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:06:46 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:06:46 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:06:46 [ERROR] [BIO] 
+2025-11-06 15:06:46 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:06:48 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:06:48 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:06:48 [INFO] [BIO] ========================================
+2025-11-06 15:06:48 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:06:48 [INFO] [BIO] ========================================
+2025-11-06 15:06:48 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:06:48 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:06:48 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:06:48 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:06:48 [INFO] [BIO] 
+2025-11-06 15:06:48 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:06:48 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:06:48 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:06:48 [ERROR] [BIO] Possible causes:
+2025-11-06 15:06:48 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:06:48 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:06:48 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:06:48 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:06:48 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:06:48 [ERROR] [BIO] 
+2025-11-06 15:06:48 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:06:51 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:06:51 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:06:51 [INFO] [BIO] ========================================
+2025-11-06 15:06:51 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:06:51 [INFO] [BIO] ========================================
+2025-11-06 15:06:51 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:06:51 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:06:51 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:06:51 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:06:51 [INFO] [BIO] 
+2025-11-06 15:06:51 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:06:51 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:06:51 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:06:51 [ERROR] [BIO] Possible causes:
+2025-11-06 15:06:51 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:06:51 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:06:51 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:06:51 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:06:51 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:06:51 [ERROR] [BIO] 
+2025-11-06 15:06:51 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:06:53 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:06:53 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:06:53 [INFO] [BIO] ========================================
+2025-11-06 15:06:53 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:06:53 [INFO] [BIO] ========================================
+2025-11-06 15:06:53 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:06:53 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:06:53 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:06:53 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:06:53 [INFO] [BIO] 
+2025-11-06 15:06:53 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:06:53 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:06:53 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:06:53 [ERROR] [BIO] Possible causes:
+2025-11-06 15:06:53 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:06:53 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:06:53 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:06:53 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:06:53 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:06:53 [ERROR] [BIO] 
+2025-11-06 15:06:53 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:06:55 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:06:55 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:06:55 [INFO] [BIO] ========================================
+2025-11-06 15:06:55 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:06:55 [INFO] [BIO] ========================================
+2025-11-06 15:06:55 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:06:55 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:06:55 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:06:55 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:06:55 [INFO] [BIO] 
+2025-11-06 15:06:55 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:06:55 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:06:55 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:06:55 [ERROR] [BIO] Possible causes:
+2025-11-06 15:06:55 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:06:55 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:06:55 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:06:55 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:06:55 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:06:55 [ERROR] [BIO] 
+2025-11-06 15:06:55 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:06:57 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:06:57 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:06:57 [INFO] [BIO] ========================================
+2025-11-06 15:06:57 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:06:57 [INFO] [BIO] ========================================
+2025-11-06 15:06:57 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:06:57 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:06:57 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:06:57 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:06:57 [INFO] [BIO] 
+2025-11-06 15:06:57 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:06:57 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:06:57 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:06:57 [ERROR] [BIO] Possible causes:
+2025-11-06 15:06:57 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:06:57 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:06:57 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:06:57 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:06:57 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:06:57 [ERROR] [BIO] 
+2025-11-06 15:06:57 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:07:00 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:07:00 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:07:00 [INFO] [BIO] ========================================
+2025-11-06 15:07:00 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:07:00 [INFO] [BIO] ========================================
+2025-11-06 15:07:00 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:07:00 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:07:00 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:07:00 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:07:00 [INFO] [BIO] 
+2025-11-06 15:07:00 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:07:00 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:07:00 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:07:00 [ERROR] [BIO] Possible causes:
+2025-11-06 15:07:00 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:07:00 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:07:00 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:07:00 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:07:00 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:07:00 [ERROR] [BIO] 
+2025-11-06 15:07:00 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:07:02 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:07:02 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:07:02 [INFO] [BIO] ========================================
+2025-11-06 15:07:02 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:07:02 [INFO] [BIO] ========================================
+2025-11-06 15:07:02 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:07:02 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:07:02 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:07:02 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:07:02 [INFO] [BIO] 
+2025-11-06 15:07:02 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:07:02 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:07:02 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:07:02 [ERROR] [BIO] Possible causes:
+2025-11-06 15:07:02 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:07:02 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:07:02 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:07:02 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:07:02 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:07:02 [ERROR] [BIO] 
+2025-11-06 15:07:02 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:07:04 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:07:04 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:07:04 [INFO] [BIO] ========================================
+2025-11-06 15:07:04 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:07:04 [INFO] [BIO] ========================================
+2025-11-06 15:07:04 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:07:04 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:07:04 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:07:04 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:07:04 [INFO] [BIO] 
+2025-11-06 15:07:04 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:07:04 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:07:04 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:07:04 [ERROR] [BIO] Possible causes:
+2025-11-06 15:07:04 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:07:04 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:07:04 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:07:04 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:07:04 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:07:04 [ERROR] [BIO] 
+2025-11-06 15:07:04 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:07:07 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:07:07 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:07:07 [INFO] [BIO] ========================================
+2025-11-06 15:07:07 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:07:07 [INFO] [BIO] ========================================
+2025-11-06 15:07:07 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:07:07 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:07:07 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:07:07 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:07:07 [INFO] [BIO] 
+2025-11-06 15:07:07 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:07:07 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:07:07 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:07:07 [ERROR] [BIO] Possible causes:
+2025-11-06 15:07:07 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:07:07 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:07:07 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:07:07 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:07:07 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:07:07 [ERROR] [BIO] 
+2025-11-06 15:07:07 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:07:09 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:07:09 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:07:09 [INFO] [BIO] ========================================
+2025-11-06 15:07:09 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:07:09 [INFO] [BIO] ========================================
+2025-11-06 15:07:09 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:07:09 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:07:09 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:07:09 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:07:09 [INFO] [BIO] 
+2025-11-06 15:07:09 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:07:09 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:07:09 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:07:09 [ERROR] [BIO] Possible causes:
+2025-11-06 15:07:09 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:07:09 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:07:09 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:07:09 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:07:09 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:07:09 [ERROR] [BIO] 
+2025-11-06 15:07:09 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:07:11 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:07:11 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:07:11 [INFO] [BIO] ========================================
+2025-11-06 15:07:11 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:07:11 [INFO] [BIO] ========================================
+2025-11-06 15:07:11 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:07:11 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:07:11 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:07:11 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:07:11 [INFO] [BIO] 
+2025-11-06 15:07:11 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:07:11 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:07:11 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:07:11 [ERROR] [BIO] Possible causes:
+2025-11-06 15:07:11 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:07:11 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:07:11 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:07:11 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:07:11 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:07:11 [ERROR] [BIO] 
+2025-11-06 15:07:11 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:07:14 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:07:14 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:07:14 [INFO] [BIO] ========================================
+2025-11-06 15:07:14 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:07:14 [INFO] [BIO] ========================================
+2025-11-06 15:07:14 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:07:14 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:07:14 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:07:14 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:07:14 [INFO] [BIO] 
+2025-11-06 15:07:14 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:07:14 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:07:14 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:07:14 [ERROR] [BIO] Possible causes:
+2025-11-06 15:07:14 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:07:14 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:07:14 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:07:14 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:07:14 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:07:14 [ERROR] [BIO] 
+2025-11-06 15:07:14 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:07:16 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:07:16 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:07:16 [INFO] [BIO] ========================================
+2025-11-06 15:07:16 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:07:16 [INFO] [BIO] ========================================
+2025-11-06 15:07:16 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:07:16 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:07:16 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:07:16 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:07:16 [INFO] [BIO] 
+2025-11-06 15:07:16 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:07:16 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:07:16 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:07:16 [ERROR] [BIO] Possible causes:
+2025-11-06 15:07:16 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:07:16 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:07:16 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:07:16 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:07:16 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:07:16 [ERROR] [BIO] 
+2025-11-06 15:07:16 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:07:18 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:07:18 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:07:18 [INFO] [BIO] ========================================
+2025-11-06 15:07:18 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:07:18 [INFO] [BIO] ========================================
+2025-11-06 15:07:18 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:07:18 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:07:18 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:07:18 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:07:18 [INFO] [BIO] 
+2025-11-06 15:07:18 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:07:18 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:07:18 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:07:18 [ERROR] [BIO] Possible causes:
+2025-11-06 15:07:18 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:07:18 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:07:18 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:07:18 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:07:18 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:07:18 [ERROR] [BIO] 
+2025-11-06 15:07:18 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:07:20 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:07:20 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:07:20 [INFO] [BIO] ========================================
+2025-11-06 15:07:20 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:07:20 [INFO] [BIO] ========================================
+2025-11-06 15:07:20 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:07:20 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:07:20 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:07:20 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:07:20 [INFO] [BIO] 
+2025-11-06 15:07:20 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:07:20 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:07:20 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:07:20 [ERROR] [BIO] Possible causes:
+2025-11-06 15:07:20 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:07:20 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:07:20 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:07:20 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:07:20 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:07:20 [ERROR] [BIO] 
+2025-11-06 15:07:20 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:07:23 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:07:23 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:07:23 [INFO] [BIO] ========================================
+2025-11-06 15:07:23 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:07:23 [INFO] [BIO] ========================================
+2025-11-06 15:07:23 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:07:23 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:07:23 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:07:23 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:07:23 [INFO] [BIO] 
+2025-11-06 15:07:23 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:07:23 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:07:23 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:07:23 [ERROR] [BIO] Possible causes:
+2025-11-06 15:07:23 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:07:23 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:07:23 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:07:23 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:07:23 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:07:23 [ERROR] [BIO] 
+2025-11-06 15:07:23 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:07:25 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:07:25 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:07:25 [INFO] [BIO] ========================================
+2025-11-06 15:07:25 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:07:25 [INFO] [BIO] ========================================
+2025-11-06 15:07:25 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:07:25 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:07:25 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:07:25 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:07:25 [INFO] [BIO] 
+2025-11-06 15:07:25 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:07:25 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:07:25 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:07:25 [ERROR] [BIO] Possible causes:
+2025-11-06 15:07:25 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:07:25 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:07:25 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:07:25 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:07:25 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:07:25 [ERROR] [BIO] 
+2025-11-06 15:07:25 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:07:27 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:07:27 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:07:27 [INFO] [BIO] ========================================
+2025-11-06 15:07:27 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:07:27 [INFO] [BIO] ========================================
+2025-11-06 15:07:27 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:07:27 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:07:27 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:07:27 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:07:27 [INFO] [BIO] 
+2025-11-06 15:07:27 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:07:27 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:07:27 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:07:27 [ERROR] [BIO] Possible causes:
+2025-11-06 15:07:27 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:07:27 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:07:27 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:07:27 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:07:27 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:07:27 [ERROR] [BIO] 
+2025-11-06 15:07:27 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:07:30 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:07:30 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:07:30 [INFO] [BIO] ========================================
+2025-11-06 15:07:30 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:07:30 [INFO] [BIO] ========================================
+2025-11-06 15:07:30 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:07:30 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:07:30 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:07:30 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:07:30 [INFO] [BIO] 
+2025-11-06 15:07:30 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:07:30 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:07:30 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:07:30 [ERROR] [BIO] Possible causes:
+2025-11-06 15:07:30 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:07:30 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:07:30 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:07:30 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:07:30 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:07:30 [ERROR] [BIO] 
+2025-11-06 15:07:30 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:07:32 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:07:32 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:07:32 [INFO] [BIO] ========================================
+2025-11-06 15:07:32 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:07:32 [INFO] [BIO] ========================================
+2025-11-06 15:07:32 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:07:32 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:07:32 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:07:32 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:07:32 [INFO] [BIO] 
+2025-11-06 15:07:32 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:07:32 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:07:32 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:07:32 [ERROR] [BIO] Possible causes:
+2025-11-06 15:07:32 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:07:32 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:07:32 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:07:32 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:07:32 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:07:32 [ERROR] [BIO] 
+2025-11-06 15:07:32 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:07:34 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:07:34 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:07:34 [INFO] [BIO] ========================================
+2025-11-06 15:07:34 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:07:34 [INFO] [BIO] ========================================
+2025-11-06 15:07:34 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:07:34 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:07:34 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:07:34 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:07:34 [INFO] [BIO] 
+2025-11-06 15:07:34 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:07:34 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:07:34 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:07:34 [ERROR] [BIO] Possible causes:
+2025-11-06 15:07:34 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:07:34 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:07:34 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:07:34 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:07:34 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:07:34 [ERROR] [BIO] 
+2025-11-06 15:07:34 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:07:37 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:07:37 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:07:37 [INFO] [BIO] ========================================
+2025-11-06 15:07:37 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:07:37 [INFO] [BIO] ========================================
+2025-11-06 15:07:37 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:07:37 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:07:37 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:07:37 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:07:37 [INFO] [BIO] 
+2025-11-06 15:07:37 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:07:37 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:07:37 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:07:37 [ERROR] [BIO] Possible causes:
+2025-11-06 15:07:37 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:07:37 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:07:37 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:07:37 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:07:37 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:07:37 [ERROR] [BIO] 
+2025-11-06 15:07:37 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:07:39 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:07:39 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:07:39 [INFO] [BIO] ========================================
+2025-11-06 15:07:39 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:07:39 [INFO] [BIO] ========================================
+2025-11-06 15:07:39 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:07:39 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:07:39 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:07:39 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:07:39 [INFO] [BIO] 
+2025-11-06 15:07:39 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:07:39 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:07:39 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:07:39 [ERROR] [BIO] Possible causes:
+2025-11-06 15:07:39 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:07:39 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:07:39 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:07:39 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:07:39 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:07:39 [ERROR] [BIO] 
+2025-11-06 15:07:39 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:07:41 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:07:41 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:07:41 [INFO] [BIO] ========================================
+2025-11-06 15:07:41 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:07:41 [INFO] [BIO] ========================================
+2025-11-06 15:07:41 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:07:41 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:07:41 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:07:41 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:07:41 [INFO] [BIO] 
+2025-11-06 15:07:41 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:07:41 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:07:41 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:07:41 [ERROR] [BIO] Possible causes:
+2025-11-06 15:07:41 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:07:41 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:07:41 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:07:41 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:07:41 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:07:41 [ERROR] [BIO] 
+2025-11-06 15:07:41 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:07:43 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:07:43 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:07:43 [INFO] [BIO] ========================================
+2025-11-06 15:07:43 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:07:43 [INFO] [BIO] ========================================
+2025-11-06 15:07:43 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:07:43 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:07:43 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:07:43 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:07:43 [INFO] [BIO] 
+2025-11-06 15:07:43 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:07:43 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:07:43 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:07:43 [ERROR] [BIO] Possible causes:
+2025-11-06 15:07:43 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:07:43 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:07:43 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:07:43 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:07:43 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:07:43 [ERROR] [BIO] 
+2025-11-06 15:07:43 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:07:46 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:07:46 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:07:46 [INFO] [BIO] ========================================
+2025-11-06 15:07:46 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:07:46 [INFO] [BIO] ========================================
+2025-11-06 15:07:46 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:07:46 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:07:46 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:07:46 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:07:46 [INFO] [BIO] 
+2025-11-06 15:07:46 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:07:46 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:07:46 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:07:46 [ERROR] [BIO] Possible causes:
+2025-11-06 15:07:46 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:07:46 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:07:46 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:07:46 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:07:46 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:07:46 [ERROR] [BIO] 
+2025-11-06 15:07:46 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:07:48 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:07:48 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:07:48 [INFO] [BIO] ========================================
+2025-11-06 15:07:48 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:07:48 [INFO] [BIO] ========================================
+2025-11-06 15:07:48 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:07:48 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:07:48 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:07:48 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:07:48 [INFO] [BIO] 
+2025-11-06 15:07:48 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:07:48 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:07:48 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:07:48 [ERROR] [BIO] Possible causes:
+2025-11-06 15:07:48 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:07:48 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:07:48 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:07:48 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:07:48 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:07:48 [ERROR] [BIO] 
+2025-11-06 15:07:48 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:07:50 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:07:50 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:07:50 [INFO] [BIO] ========================================
+2025-11-06 15:07:50 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:07:50 [INFO] [BIO] ========================================
+2025-11-06 15:07:50 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:07:50 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:07:50 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:07:50 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:07:50 [INFO] [BIO] 
+2025-11-06 15:07:50 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:07:50 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:07:50 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:07:50 [ERROR] [BIO] Possible causes:
+2025-11-06 15:07:50 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:07:50 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:07:50 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:07:50 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:07:50 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:07:50 [ERROR] [BIO] 
+2025-11-06 15:07:50 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:07:53 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:07:53 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:07:53 [INFO] [BIO] ========================================
+2025-11-06 15:07:53 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:07:53 [INFO] [BIO] ========================================
+2025-11-06 15:07:53 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:07:53 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:07:53 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:07:53 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:07:53 [INFO] [BIO] 
+2025-11-06 15:07:53 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:07:53 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:07:53 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:07:53 [ERROR] [BIO] Possible causes:
+2025-11-06 15:07:53 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:07:53 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:07:53 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:07:53 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:07:53 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:07:53 [ERROR] [BIO] 
+2025-11-06 15:07:53 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:07:55 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:07:55 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:07:55 [INFO] [BIO] ========================================
+2025-11-06 15:07:55 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:07:55 [INFO] [BIO] ========================================
+2025-11-06 15:07:55 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:07:55 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:07:55 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:07:55 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:07:55 [INFO] [BIO] 
+2025-11-06 15:07:55 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:07:55 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:07:55 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:07:55 [ERROR] [BIO] Possible causes:
+2025-11-06 15:07:55 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:07:55 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:07:55 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:07:55 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:07:55 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:07:55 [ERROR] [BIO] 
+2025-11-06 15:07:55 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:07:57 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:07:57 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:07:57 [INFO] [BIO] ========================================
+2025-11-06 15:07:57 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:07:57 [INFO] [BIO] ========================================
+2025-11-06 15:07:57 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:07:57 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:07:57 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:07:57 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:07:57 [INFO] [BIO] 
+2025-11-06 15:07:57 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:07:57 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:07:57 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:07:57 [ERROR] [BIO] Possible causes:
+2025-11-06 15:07:57 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:07:57 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:07:57 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:07:57 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:07:57 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:07:57 [ERROR] [BIO] 
+2025-11-06 15:07:57 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:08:00 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:08:00 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:08:00 [INFO] [BIO] ========================================
+2025-11-06 15:08:00 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:08:00 [INFO] [BIO] ========================================
+2025-11-06 15:08:00 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:08:00 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:08:00 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:08:00 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:08:00 [INFO] [BIO] 
+2025-11-06 15:08:00 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:08:00 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:08:00 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:08:00 [ERROR] [BIO] Possible causes:
+2025-11-06 15:08:00 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:08:00 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:08:00 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:08:00 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:08:00 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:08:00 [ERROR] [BIO] 
+2025-11-06 15:08:00 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:08:02 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:08:02 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:08:02 [INFO] [BIO] ========================================
+2025-11-06 15:08:02 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:08:02 [INFO] [BIO] ========================================
+2025-11-06 15:08:02 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:08:02 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:08:02 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:08:02 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:08:02 [INFO] [BIO] 
+2025-11-06 15:08:02 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:08:02 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:08:02 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:08:02 [ERROR] [BIO] Possible causes:
+2025-11-06 15:08:02 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:08:02 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:08:02 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:08:02 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:08:02 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:08:02 [ERROR] [BIO] 
+2025-11-06 15:08:02 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:08:04 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:08:04 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:08:04 [INFO] [BIO] ========================================
+2025-11-06 15:08:04 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:08:04 [INFO] [BIO] ========================================
+2025-11-06 15:08:04 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:08:04 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:08:04 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:08:04 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:08:04 [INFO] [BIO] 
+2025-11-06 15:08:04 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:08:04 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:08:04 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:08:04 [ERROR] [BIO] Possible causes:
+2025-11-06 15:08:04 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:08:04 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:08:04 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:08:04 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:08:04 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:08:04 [ERROR] [BIO] 
+2025-11-06 15:08:04 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:08:06 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:08:06 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:08:06 [INFO] [BIO] ========================================
+2025-11-06 15:08:06 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:08:06 [INFO] [BIO] ========================================
+2025-11-06 15:08:06 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:08:06 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:08:06 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:08:06 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:08:06 [INFO] [BIO] 
+2025-11-06 15:08:06 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:08:06 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:08:06 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:08:06 [ERROR] [BIO] Possible causes:
+2025-11-06 15:08:06 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:08:06 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:08:06 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:08:06 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:08:06 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:08:06 [ERROR] [BIO] 
+2025-11-06 15:08:06 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:08:09 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:08:09 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:08:09 [INFO] [BIO] ========================================
+2025-11-06 15:08:09 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:08:09 [INFO] [BIO] ========================================
+2025-11-06 15:08:09 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:08:09 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:08:09 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:08:09 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:08:09 [INFO] [BIO] 
+2025-11-06 15:08:09 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:08:09 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:08:09 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:08:09 [ERROR] [BIO] Possible causes:
+2025-11-06 15:08:09 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:08:09 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:08:09 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:08:09 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:08:09 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:08:09 [ERROR] [BIO] 
+2025-11-06 15:08:09 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:08:11 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:08:11 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:08:11 [INFO] [BIO] ========================================
+2025-11-06 15:08:11 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:08:11 [INFO] [BIO] ========================================
+2025-11-06 15:08:11 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:08:11 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:08:11 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:08:11 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:08:11 [INFO] [BIO] 
+2025-11-06 15:08:11 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:08:11 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:08:11 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:08:11 [ERROR] [BIO] Possible causes:
+2025-11-06 15:08:11 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:08:11 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:08:11 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:08:11 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:08:11 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:08:11 [ERROR] [BIO] 
+2025-11-06 15:08:11 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:08:13 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:08:13 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:08:13 [INFO] [BIO] ========================================
+2025-11-06 15:08:13 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:08:13 [INFO] [BIO] ========================================
+2025-11-06 15:08:13 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:08:13 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:08:13 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:08:13 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:08:13 [INFO] [BIO] 
+2025-11-06 15:08:13 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:08:13 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:08:13 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:08:13 [ERROR] [BIO] Possible causes:
+2025-11-06 15:08:13 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:08:13 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:08:13 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:08:13 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:08:13 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:08:13 [ERROR] [BIO] 
+2025-11-06 15:08:13 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:08:16 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:08:16 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:08:16 [INFO] [BIO] ========================================
+2025-11-06 15:08:16 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:08:16 [INFO] [BIO] ========================================
+2025-11-06 15:08:16 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:08:16 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:08:16 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:08:16 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:08:16 [INFO] [BIO] 
+2025-11-06 15:08:16 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:08:16 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:08:16 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:08:16 [ERROR] [BIO] Possible causes:
+2025-11-06 15:08:16 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:08:16 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:08:16 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:08:16 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:08:16 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:08:16 [ERROR] [BIO] 
+2025-11-06 15:08:16 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:08:18 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:08:18 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:08:18 [INFO] [BIO] ========================================
+2025-11-06 15:08:18 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:08:18 [INFO] [BIO] ========================================
+2025-11-06 15:08:18 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:08:18 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:08:18 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:08:18 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:08:18 [INFO] [BIO] 
+2025-11-06 15:08:18 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:08:18 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:08:18 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:08:18 [ERROR] [BIO] Possible causes:
+2025-11-06 15:08:18 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:08:18 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:08:18 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:08:18 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:08:18 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:08:18 [ERROR] [BIO] 
+2025-11-06 15:08:18 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:08:20 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:08:20 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:08:20 [INFO] [BIO] ========================================
+2025-11-06 15:08:20 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:08:20 [INFO] [BIO] ========================================
+2025-11-06 15:08:20 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:08:20 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:08:20 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:08:20 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:08:20 [INFO] [BIO] 
+2025-11-06 15:08:20 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:08:20 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:08:20 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:08:20 [ERROR] [BIO] Possible causes:
+2025-11-06 15:08:20 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:08:20 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:08:20 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:08:20 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:08:20 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:08:20 [ERROR] [BIO] 
+2025-11-06 15:08:20 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:08:23 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:08:23 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:08:23 [INFO] [BIO] ========================================
+2025-11-06 15:08:23 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:08:23 [INFO] [BIO] ========================================
+2025-11-06 15:08:23 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:08:23 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:08:23 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:08:23 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:08:23 [INFO] [BIO] 
+2025-11-06 15:08:23 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:08:23 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:08:23 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:08:23 [ERROR] [BIO] Possible causes:
+2025-11-06 15:08:23 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:08:23 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:08:23 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:08:23 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:08:23 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:08:23 [ERROR] [BIO] 
+2025-11-06 15:08:23 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:08:25 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:08:25 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:08:25 [INFO] [BIO] ========================================
+2025-11-06 15:08:25 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:08:25 [INFO] [BIO] ========================================
+2025-11-06 15:08:25 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:08:25 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:08:25 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:08:25 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:08:25 [INFO] [BIO] 
+2025-11-06 15:08:25 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:08:25 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:08:25 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:08:25 [ERROR] [BIO] Possible causes:
+2025-11-06 15:08:25 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:08:25 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:08:25 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:08:25 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:08:25 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:08:25 [ERROR] [BIO] 
+2025-11-06 15:08:25 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:08:27 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:08:27 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:08:27 [INFO] [BIO] ========================================
+2025-11-06 15:08:27 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:08:27 [INFO] [BIO] ========================================
+2025-11-06 15:08:27 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:08:27 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:08:27 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:08:27 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:08:27 [INFO] [BIO] 
+2025-11-06 15:08:27 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:08:27 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:08:27 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:08:27 [ERROR] [BIO] Possible causes:
+2025-11-06 15:08:27 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:08:27 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:08:27 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:08:27 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:08:27 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:08:27 [ERROR] [BIO] 
+2025-11-06 15:08:27 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:08:29 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:08:29 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:08:29 [INFO] [BIO] ========================================
+2025-11-06 15:08:29 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:08:29 [INFO] [BIO] ========================================
+2025-11-06 15:08:29 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:08:29 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:08:29 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:08:29 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:08:29 [INFO] [BIO] 
+2025-11-06 15:08:29 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:08:29 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:08:29 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:08:29 [ERROR] [BIO] Possible causes:
+2025-11-06 15:08:29 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:08:29 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:08:29 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:08:29 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:08:29 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:08:29 [ERROR] [BIO] 
+2025-11-06 15:08:29 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:08:32 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:08:32 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:08:32 [INFO] [BIO] ========================================
+2025-11-06 15:08:32 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:08:32 [INFO] [BIO] ========================================
+2025-11-06 15:08:32 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:08:32 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:08:32 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:08:32 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:08:32 [INFO] [BIO] 
+2025-11-06 15:08:32 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:08:32 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:08:32 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:08:32 [ERROR] [BIO] Possible causes:
+2025-11-06 15:08:32 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:08:32 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:08:32 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:08:32 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:08:32 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:08:32 [ERROR] [BIO] 
+2025-11-06 15:08:32 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:08:34 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:08:34 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:08:34 [INFO] [BIO] ========================================
+2025-11-06 15:08:34 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:08:34 [INFO] [BIO] ========================================
+2025-11-06 15:08:34 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:08:34 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:08:34 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:08:34 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:08:34 [INFO] [BIO] 
+2025-11-06 15:08:34 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:08:34 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:08:34 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:08:34 [ERROR] [BIO] Possible causes:
+2025-11-06 15:08:34 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:08:34 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:08:34 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:08:34 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:08:34 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:08:34 [ERROR] [BIO] 
+2025-11-06 15:08:34 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:08:36 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:08:36 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:08:36 [INFO] [BIO] ========================================
+2025-11-06 15:08:36 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:08:36 [INFO] [BIO] ========================================
+2025-11-06 15:08:36 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:08:36 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:08:36 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:08:36 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:08:36 [INFO] [BIO] 
+2025-11-06 15:08:36 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:08:36 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:08:36 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:08:36 [ERROR] [BIO] Possible causes:
+2025-11-06 15:08:36 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:08:36 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:08:36 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:08:36 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:08:36 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:08:36 [ERROR] [BIO] 
+2025-11-06 15:08:36 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:08:39 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:08:39 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:08:39 [INFO] [BIO] ========================================
+2025-11-06 15:08:39 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:08:39 [INFO] [BIO] ========================================
+2025-11-06 15:08:39 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:08:39 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:08:39 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:08:39 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:08:39 [INFO] [BIO] 
+2025-11-06 15:08:39 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:08:39 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:08:39 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:08:39 [ERROR] [BIO] Possible causes:
+2025-11-06 15:08:39 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:08:39 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:08:39 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:08:39 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:08:39 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:08:39 [ERROR] [BIO] 
+2025-11-06 15:08:39 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:08:41 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:08:41 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:08:41 [INFO] [BIO] ========================================
+2025-11-06 15:08:41 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:08:41 [INFO] [BIO] ========================================
+2025-11-06 15:08:41 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:08:41 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:08:41 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:08:41 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:08:41 [INFO] [BIO] 
+2025-11-06 15:08:41 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:08:41 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:08:41 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:08:41 [ERROR] [BIO] Possible causes:
+2025-11-06 15:08:41 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:08:41 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:08:41 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:08:41 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:08:41 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:08:41 [ERROR] [BIO] 
+2025-11-06 15:08:41 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:08:43 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:08:43 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:08:43 [INFO] [BIO] ========================================
+2025-11-06 15:08:43 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:08:43 [INFO] [BIO] ========================================
+2025-11-06 15:08:43 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:08:43 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:08:43 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:08:43 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:08:43 [INFO] [BIO] 
+2025-11-06 15:08:43 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:08:43 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:08:43 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:08:43 [ERROR] [BIO] Possible causes:
+2025-11-06 15:08:43 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:08:43 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:08:43 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:08:43 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:08:43 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:08:43 [ERROR] [BIO] 
+2025-11-06 15:08:43 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:08:46 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:08:46 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:08:46 [INFO] [BIO] ========================================
+2025-11-06 15:08:46 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:08:46 [INFO] [BIO] ========================================
+2025-11-06 15:08:46 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:08:46 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:08:46 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:08:46 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:08:46 [INFO] [BIO] 
+2025-11-06 15:08:46 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:08:46 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:08:46 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:08:46 [ERROR] [BIO] Possible causes:
+2025-11-06 15:08:46 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:08:46 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:08:46 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:08:46 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:08:46 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:08:46 [ERROR] [BIO] 
+2025-11-06 15:08:46 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:08:48 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:08:48 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:08:48 [INFO] [BIO] ========================================
+2025-11-06 15:08:48 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:08:48 [INFO] [BIO] ========================================
+2025-11-06 15:08:48 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:08:48 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:08:48 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:08:48 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:08:48 [INFO] [BIO] 
+2025-11-06 15:08:48 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:08:48 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:08:48 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:08:48 [ERROR] [BIO] Possible causes:
+2025-11-06 15:08:48 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:08:48 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:08:48 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:08:48 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:08:48 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:08:48 [ERROR] [BIO] 
+2025-11-06 15:08:48 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:08:50 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:08:50 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:08:50 [INFO] [BIO] ========================================
+2025-11-06 15:08:50 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:08:50 [INFO] [BIO] ========================================
+2025-11-06 15:08:50 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:08:50 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:08:50 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:08:50 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:08:50 [INFO] [BIO] 
+2025-11-06 15:08:50 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:08:50 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:08:50 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:08:50 [ERROR] [BIO] Possible causes:
+2025-11-06 15:08:50 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:08:50 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:08:50 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:08:50 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:08:50 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:08:50 [ERROR] [BIO] 
+2025-11-06 15:08:50 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:08:53 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:08:53 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:08:53 [INFO] [BIO] ========================================
+2025-11-06 15:08:53 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:08:53 [INFO] [BIO] ========================================
+2025-11-06 15:08:53 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:08:53 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:08:53 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:08:53 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:08:53 [INFO] [BIO] 
+2025-11-06 15:08:53 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:08:53 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:08:53 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:08:53 [ERROR] [BIO] Possible causes:
+2025-11-06 15:08:53 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:08:53 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:08:53 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:08:53 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:08:53 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:08:53 [ERROR] [BIO] 
+2025-11-06 15:08:53 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:08:55 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:08:55 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:08:55 [INFO] [BIO] ========================================
+2025-11-06 15:08:55 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:08:55 [INFO] [BIO] ========================================
+2025-11-06 15:08:55 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:08:55 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:08:55 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:08:55 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:08:55 [INFO] [BIO] 
+2025-11-06 15:08:55 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:08:55 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:08:55 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:08:55 [ERROR] [BIO] Possible causes:
+2025-11-06 15:08:55 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:08:55 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:08:55 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:08:55 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:08:55 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:08:55 [ERROR] [BIO] 
+2025-11-06 15:08:55 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:08:57 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:08:57 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:08:57 [INFO] [BIO] ========================================
+2025-11-06 15:08:57 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:08:57 [INFO] [BIO] ========================================
+2025-11-06 15:08:57 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:08:57 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:08:57 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:08:57 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:08:57 [INFO] [BIO] 
+2025-11-06 15:08:57 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:08:57 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:08:57 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:08:57 [ERROR] [BIO] Possible causes:
+2025-11-06 15:08:57 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:08:57 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:08:57 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:08:57 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:08:57 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:08:57 [ERROR] [BIO] 
+2025-11-06 15:08:57 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:08:59 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:08:59 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:08:59 [INFO] [BIO] ========================================
+2025-11-06 15:08:59 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:08:59 [INFO] [BIO] ========================================
+2025-11-06 15:08:59 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:08:59 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:08:59 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:08:59 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:08:59 [INFO] [BIO] 
+2025-11-06 15:08:59 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:08:59 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:08:59 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:08:59 [ERROR] [BIO] Possible causes:
+2025-11-06 15:08:59 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:08:59 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:08:59 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:08:59 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:08:59 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:08:59 [ERROR] [BIO] 
+2025-11-06 15:08:59 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:09:01 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:09:02 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:09:02 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:09:02 [INFO] [BIO] ========================================
+2025-11-06 15:09:02 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:09:02 [INFO] [BIO] ========================================
+2025-11-06 15:09:02 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:09:02 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:09:02 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:09:02 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:09:02 [INFO] [BIO] 
+2025-11-06 15:09:02 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:09:02 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:09:02 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:09:02 [ERROR] [BIO] Possible causes:
+2025-11-06 15:09:02 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:09:02 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:09:02 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:09:02 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:09:02 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:09:02 [ERROR] [BIO] 
+2025-11-06 15:09:02 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:09:04 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:09:04 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:09:04 [INFO] [BIO] ========================================
+2025-11-06 15:09:04 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:09:04 [INFO] [BIO] ========================================
+2025-11-06 15:09:04 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:09:04 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:09:04 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:09:04 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:09:04 [INFO] [BIO] 
+2025-11-06 15:09:04 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:09:04 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:09:04 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:09:04 [ERROR] [BIO] Possible causes:
+2025-11-06 15:09:04 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:09:04 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:09:04 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:09:04 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:09:04 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:09:04 [ERROR] [BIO] 
+2025-11-06 15:09:04 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:09:06 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:09:06 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:09:06 [INFO] [BIO] ========================================
+2025-11-06 15:09:06 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:09:06 [INFO] [BIO] ========================================
+2025-11-06 15:09:06 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:09:06 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:09:06 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:09:06 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:09:06 [INFO] [BIO] 
+2025-11-06 15:09:06 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:09:06 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:09:06 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:09:06 [ERROR] [BIO] Possible causes:
+2025-11-06 15:09:06 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:09:06 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:09:06 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:09:06 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:09:06 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:09:06 [ERROR] [BIO] 
+2025-11-06 15:09:06 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:09:09 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:09:09 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:09:09 [INFO] [BIO] ========================================
+2025-11-06 15:09:09 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:09:09 [INFO] [BIO] ========================================
+2025-11-06 15:09:09 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:09:09 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:09:09 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:09:09 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:09:09 [INFO] [BIO] 
+2025-11-06 15:09:09 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:09:09 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:09:09 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:09:09 [ERROR] [BIO] Possible causes:
+2025-11-06 15:09:09 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:09:09 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:09:09 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:09:09 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:09:09 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:09:09 [ERROR] [BIO] 
+2025-11-06 15:09:09 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:09:11 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:09:11 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:09:11 [INFO] [BIO] ========================================
+2025-11-06 15:09:11 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:09:11 [INFO] [BIO] ========================================
+2025-11-06 15:09:11 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:09:11 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:09:11 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:09:11 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:09:11 [INFO] [BIO] 
+2025-11-06 15:09:11 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:09:11 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:09:11 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:09:11 [ERROR] [BIO] Possible causes:
+2025-11-06 15:09:11 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:09:11 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:09:11 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:09:11 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:09:11 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:09:11 [ERROR] [BIO] 
+2025-11-06 15:09:11 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:09:13 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:09:13 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:09:13 [INFO] [BIO] ========================================
+2025-11-06 15:09:13 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:09:13 [INFO] [BIO] ========================================
+2025-11-06 15:09:13 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:09:13 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:09:13 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:09:13 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:09:13 [INFO] [BIO] 
+2025-11-06 15:09:13 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:09:13 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:09:13 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:09:13 [ERROR] [BIO] Possible causes:
+2025-11-06 15:09:13 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:09:13 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:09:13 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:09:13 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:09:13 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:09:13 [ERROR] [BIO] 
+2025-11-06 15:09:13 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:09:16 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:09:16 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:09:16 [INFO] [BIO] ========================================
+2025-11-06 15:09:16 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:09:16 [INFO] [BIO] ========================================
+2025-11-06 15:09:16 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:09:16 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:09:16 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:09:16 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:09:16 [INFO] [BIO] 
+2025-11-06 15:09:16 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:09:16 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:09:16 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:09:16 [ERROR] [BIO] Possible causes:
+2025-11-06 15:09:16 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:09:16 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:09:16 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:09:16 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:09:16 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:09:16 [ERROR] [BIO] 
+2025-11-06 15:09:16 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:09:18 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:09:18 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:09:18 [INFO] [BIO] ========================================
+2025-11-06 15:09:18 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:09:18 [INFO] [BIO] ========================================
+2025-11-06 15:09:18 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:09:18 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:09:18 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:09:18 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:09:18 [INFO] [BIO] 
+2025-11-06 15:09:18 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:09:18 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:09:18 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:09:18 [ERROR] [BIO] Possible causes:
+2025-11-06 15:09:18 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:09:18 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:09:18 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:09:18 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:09:18 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:09:18 [ERROR] [BIO] 
+2025-11-06 15:09:18 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:09:20 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:09:20 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:09:20 [INFO] [BIO] ========================================
+2025-11-06 15:09:20 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:09:20 [INFO] [BIO] ========================================
+2025-11-06 15:09:20 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:09:20 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:09:20 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:09:20 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:09:20 [INFO] [BIO] 
+2025-11-06 15:09:20 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:09:20 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:09:20 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:09:20 [ERROR] [BIO] Possible causes:
+2025-11-06 15:09:20 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:09:20 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:09:20 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:09:20 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:09:20 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:09:20 [ERROR] [BIO] 
+2025-11-06 15:09:20 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:09:22 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:09:22 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:09:22 [INFO] [BIO] ========================================
+2025-11-06 15:09:22 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:09:22 [INFO] [BIO] ========================================
+2025-11-06 15:09:22 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:09:22 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:09:22 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:09:22 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:09:22 [INFO] [BIO] 
+2025-11-06 15:09:22 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:09:22 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:09:22 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:09:22 [ERROR] [BIO] Possible causes:
+2025-11-06 15:09:22 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:09:22 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:09:22 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:09:22 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:09:22 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:09:22 [ERROR] [BIO] 
+2025-11-06 15:09:22 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:09:23 [INFO] [BIO] Starting OCV measurement via EC-Lab
+2025-11-06 15:09:23 [INFO] [BIO]   Settings: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_settings\ocv_default.mps
+2025-11-06 15:09:23 [INFO] [BIO]   Output: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251106_150923.mpr
+2025-11-06 15:09:23 [INFO] [BIO] Loading settings from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_settings\ocv_default.mps
+2025-11-06 15:09:23 [ERROR] [BIO] LoadSettings failed (returned -2147221008)
+2025-11-06 15:09:23 [ERROR] [BIO] Failed to load settings: Invalid or corrupt .mps file
+2025-11-06 15:09:25 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:09:25 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:09:25 [INFO] [BIO] ========================================
+2025-11-06 15:09:25 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:09:25 [INFO] [BIO] ========================================
+2025-11-06 15:09:25 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:09:25 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:09:25 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:09:25 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:09:25 [INFO] [BIO] 
+2025-11-06 15:09:25 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:09:25 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:09:25 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:09:25 [ERROR] [BIO] Possible causes:
+2025-11-06 15:09:25 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:09:25 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:09:25 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:09:25 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:09:25 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:09:25 [ERROR] [BIO] 
+2025-11-06 15:09:25 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:09:27 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:09:27 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:09:27 [INFO] [BIO] ========================================
+2025-11-06 15:09:27 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:09:27 [INFO] [BIO] ========================================
+2025-11-06 15:09:27 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:09:27 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:09:27 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:09:27 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:09:27 [INFO] [BIO] 
+2025-11-06 15:09:27 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:09:27 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147221008)
+2025-11-06 15:09:27 [ERROR] [BIO] Return value 0x800401F0 is a COM/OLE error
+2025-11-06 15:09:27 [ERROR] [BIO] Possible causes:
+2025-11-06 15:09:27 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:09:27 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:09:27 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:09:27 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:09:27 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:09:27 [ERROR] [BIO] 
+2025-11-06 15:09:27 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:09:29 [INFO] ========================================
+2025-11-06 15:09:29 [INFO] Shutting down Battery Tester application
+2025-11-06 15:09:29 [INFO] ========================================
+2025-11-06 15:09:29 [INFO] [TNY] Setting 2 pins
+2025-11-06 15:09:29 [INFO] Stopping status monitoring...
+2025-11-06 15:09:29 [INFO] Stopping device status monitoring...
+2025-11-06 15:09:29 [INFO] Status module state: RUNNING -> STOPPING
+2025-11-06 15:09:29 [INFO] Status timer thread stopped
+2025-11-06 15:09:29 [INFO] Status module state: STOPPING -> STOPPED
+2025-11-06 15:09:29 [INFO] Status monitoring stopped
+2025-11-06 15:09:30 [INFO] Cleaning up pressure safety monitoring...
+2025-11-06 15:09:30 [INFO] Cleaning up pressure safety module...
+2025-11-06 15:09:30 [INFO] Pressure safety module cleaned up
+2025-11-06 15:09:30 [INFO] Cleaning up cDAQ module...
+2025-11-06 15:09:30 [INFO] Cleaning up cDAQ current slot...
+2025-11-06 15:09:30 [INFO] Cleaned up cDAQ slot 1 task
+2025-11-06 15:09:30 [INFO] cDAQ current slot cleaned up
+2025-11-06 15:09:30 [INFO] Cleaning up cDAQ module...
+2025-11-06 15:09:31 [INFO] Cleaned up cDAQ slot 2 task
+2025-11-06 15:09:32 [INFO] Cleaned up cDAQ slot 3 task
+2025-11-06 15:09:32 [INFO] cDAQ module cleaned up
+2025-11-06 15:09:32 [INFO] Shutting down PSB queue manager...
+2025-11-06 15:09:32 [INFO] [PSB] Shutting down PSB 10000 queue manager...
+2025-11-06 15:09:32 [INFO] [PSB] Waiting for processing thread to complete...
+2025-11-06 15:09:32 [INFO] [PSB] All queues empty, processing thread exiting
+2025-11-06 15:09:32 [INFO] [PSB] PSB 10000 queue processing thread stopped
+2025-11-06 15:09:32 [INFO] [PSB] Setting output: OFF
+2025-11-06 15:09:32 [INFO] [PSB] Setting remote mode: OFF
+2025-11-06 15:09:32 [INFO] [PSB] Closing connection on COM3
+2025-11-06 15:09:32 [INFO] [PSB] Disconnected from PSB 10000
+2025-11-06 15:09:32 [INFO] Device queue manager shut down
+2025-11-06 15:09:32 [INFO] Shutting down BioLogic abstraction layer...
+2025-11-06 15:09:32 [INFO] [BIO] Shutting down BioLogic abstraction layer
+2025-11-06 15:09:32 [INFO] [BIO] Shutting down EC-Lab backend
+2025-11-06 15:09:32 [INFO] [BIO] Shutting down EC-Lab OLE COM connection
+2025-11-06 15:09:32 [INFO] [BIO] EC-Lab OLE COM connection shutdown complete
+2025-11-06 15:09:32 [INFO] [BIO] EC-Lab backend shutdown complete
+2025-11-06 15:09:32 [INFO] [BIO] BioLogic abstraction layer shutdown complete
+2025-11-06 15:09:32 [INFO] Shutting down DTB queue manager...
+2025-11-06 15:09:32 [INFO] [DTB] Shutting down DTB 4848 queue manager...
+2025-11-06 15:09:32 [INFO] [DTB] Waiting for processing thread to complete...
+2025-11-06 15:09:32 [INFO] [DTB] All queues empty, processing thread exiting
+2025-11-06 15:09:32 [INFO] [DTB] DTB 4848 queue processing thread stopped
+2025-11-06 15:09:32 [INFO] [DTB] Stopping DTB slave 2...
+2025-11-06 15:09:32 [INFO] [DTB] Setting Run/Stop: STOP
+2025-11-06 15:09:32 [INFO] [DTB] Stopping DTB slave 3...
+2025-11-06 15:09:32 [INFO] [DTB] Setting Run/Stop: STOP
+2025-11-06 15:09:33 [INFO] [DTB] Closing COM5
+2025-11-06 15:09:33 [INFO] [DTB] Disconnected all DTB devices from COM5
+2025-11-06 15:09:33 [INFO] [DTB] Disconnected from DTB 4848
+2025-11-06 15:09:33 [INFO] Device queue manager shut down
+2025-11-06 15:09:33 [INFO] Shutting down Alicat queue manager...
+2025-11-06 15:09:33 [INFO] [ALI] Shutting down ALICAT BASIS 2 queue manager...
+2025-11-06 15:09:33 [INFO] [ALI] Waiting for processing thread to complete...
+2025-11-06 15:09:33 [INFO] [ALI] All queues empty, processing thread exiting
+2025-11-06 15:09:33 [INFO] [ALI] ALICAT BASIS 2 queue processing thread stopped
+2025-11-06 15:09:33 [INFO] [ALI] Stopping ALICAT address 1...
+2025-11-06 15:09:33 [INFO] [ALI] Setting setpoint: 0.000
+2025-11-06 15:09:33 [INFO] [ALI] Disconnecting from COM7
+2025-11-06 15:09:33 [INFO] [ALI] Disconnected all ALICAT devices from COM7
+2025-11-06 15:09:33 [INFO] [ALI] Disconnected from ALICAT BASIS 2
+2025-11-06 15:09:33 [INFO] Device queue manager shut down
+2025-11-06 15:09:33 [INFO] Shutting down Teensy queue manager...
+2025-11-06 15:09:33 [INFO] [TNY] Shutting down Teensy queue manager...
+2025-11-06 15:09:33 [INFO] [TNY] Waiting for processing thread to complete...
+2025-11-06 15:09:33 [INFO] [TNY] All queues empty, processing thread exiting
+2025-11-06 15:09:33 [INFO] [TNY] Teensy queue processing thread stopped
+2025-11-06 15:09:33 [INFO] [TNY] Closing connection on COM6
+2025-11-06 15:09:33 [INFO] [TNY] Disconnected from Teensy
+2025-11-06 15:09:33 [INFO] Device queue manager shut down
+2025-11-06 15:09:33 [INFO] Cleaning up controls module...
+2025-11-06 15:09:33 [INFO] Controls module cleaned up
+2025-11-06 15:09:33 [INFO] Cleaning up status monitoring...
+2025-11-06 15:09:33 [INFO] Status module state: STOPPED -> UNINITIALIZED
+2025-11-06 15:09:33 [INFO] Status module cleaned up
+2025-11-06 15:09:33 [INFO] Shutting down thread pool...
+2025-11-06 15:09:34 [INFO] Cleanup complete. Exiting application.
+2025-11-06 15:09:34 [INFO] ========================================
+=== Battery Tester Log Ended: 2025-11-06 15:09:34 ===

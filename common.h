@@ -80,7 +80,7 @@
 #define ECLAB_SETTINGS_DIR              "C:\\Users\\CV166\\Documents\\LabWindowsCVI\\BatteryApplication\\battery-exploder\\eclab_settings"
 #define ECLAB_DATA_DIR                  "C:\\Users\\CV166\\Documents\\LabWindowsCVI\\BatteryApplication\\battery-exploder\\eclab_data"
 #define ECLAB_DEVICE_NUMBER             0       // EC-Lab device index (depends on configuration)
-#define ECLAB_CHANNEL_NUMBER            1       // EC-Lab channel index (depends on configuration)
+#define ECLAB_CHANNEL_NUMBER            0       // EC-Lab channel index (depends on configuration)
 #define ECLAB_EXECUTABLE_PATH           "C:\\Program Files (x86)\\EC-Lab\\11.63\\EClab.exe"
 
 // .mps template filenames (place these in ECLAB_SETTINGS_DIR)

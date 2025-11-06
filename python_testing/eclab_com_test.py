@@ -164,7 +164,7 @@ logging.info(f"Log file location: {os.path.abspath(log_filename)}")
 class ECLabTester:
     """EC-Lab OLE COM test interface"""
 
-    def __init__(self, device_number=0, channel=1):
+    def __init__(self, device_number=0, channel=0):
         self.interface = None
         self.device_number = device_number
         self.channel = channel
