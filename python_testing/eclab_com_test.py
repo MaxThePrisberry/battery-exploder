@@ -675,7 +675,7 @@ def main():
     time.sleep(2)
 
     # Test 3: LoadSettings (requires .mps file path)
-    mps_path = "C:\\Users\\CV166\\Documents\\LabWindowsCVI\\BatteryApplication\\battery-exploder\\python_testing\\templates\\simple_ocv.mps"
+    mps_path = os.path.join(os.path.dirname(__file__), "templates", "simple_eis.mps")
     if os.path.exists(mps_path):
         results['immediate_load_settings'] = test_3_immediate_load_settings(mps_path)
         time.sleep(2)

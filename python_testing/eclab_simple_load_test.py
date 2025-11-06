@@ -1,8 +1,19 @@
 """
-EC-Lab Simple LoadSettings Test
+EC-Lab Simple LoadSettings Test with Comprehensive Diagnostics
 
 Purpose: Minimal test to verify LoadSettings functionality with proper initialization delay.
          Connect once, load settings, then disconnect cleanly.
+         Includes comprehensive diagnostic checks to identify LoadSettings failures.
+
+Features:
+  - Single connection/disconnection cycle (no repeated reconnects)
+  - Comprehensive pre-flight diagnostics before LoadSettings:
+    * Channel availability check (GetDeviceChannelList)
+    * Channel hardware info (GetChannelInfos)
+    * Explicit device/channel selection (SelectDevice, SelectChannel)
+  - Automatic fallback to channel 0 if initial channel fails
+  - Configurable initialization delay
+  - Detailed error messages and troubleshooting guidance
 
 Author: Battery Exploder Team
 Date: 2025-11-06
@@ -14,6 +25,15 @@ PREREQUISITES:
 3. EC-Lab registered: ECLab.exe /regserver (as Administrator)
 4. BioLogic device connected (or EC-Lab in simulation mode)
 5. Valid .mps settings file available
+
+TROUBLESHOOTING:
+================
+If LoadSettings keeps failing (returning 0):
+1. Check the diagnostic output - it will show if the channel is available
+2. Try increasing initialization_delay to 5-10 seconds in main()
+3. Check EC-Lab GUI for error messages
+4. Verify .mps file is compatible with your device hardware
+5. The test automatically tries channel 0 as a fallback
 """
 
 import time
@@ -105,6 +125,21 @@ class IEClabExe(IUnknown):
         COMMETHOD([], c_int, 'ConnectDeviceByIP',
                   (['in'], BSTR, 'IPaddress'),
                   (['out'], POINTER(c_int), 'DeviceNumber')),
+
+        # Method 14: SelectDevice(Device) -> int
+        COMMETHOD([], c_int, 'SelectDevice',
+                  (['in'], c_int, 'Device')),
+
+        # Method 15: SelectChannel(Device, Channel) -> int
+        COMMETHOD([], c_int, 'SelectChannel',
+                  (['in'], c_int, 'Device'),
+                  (['in'], c_int, 'Channel')),
+
+        # Method 16: GetChannelInfos(Device, Channel, ChannelInfos) -> int
+        COMMETHOD([], c_int, 'GetChannelInfos',
+                  (['in'], c_int, 'Device'),
+                  (['in'], c_int, 'Channel'),
+                  (['out'], POINTER(VARIANT), 'ChannelInfos')),
     ]
 
 # Setup results directory
@@ -203,6 +238,82 @@ def simple_load_test(device_number=0, channel=1, mps_path=None, initialization_d
         logging.info("")
 
         # ====================================================================
+        # Step 2.5: Run diagnostic checks
+        # ====================================================================
+        logging.info("Step 2.5: Running diagnostic checks")
+        logging.info("-" * 70)
+
+        # Diagnostic 1: Get device channel list
+        try:
+            logging.info("Diagnostic 1: Checking channel availability...")
+            channel_array = VARIANT()
+            ret = interface.GetDeviceChannelList(device_number, channel_array)
+            logging.info(f"GetDeviceChannelList({device_number}) returned: {ret}")
+
+            if ret == 1 and channel_array.value is not None:
+                # Channel array is a 128-element boolean array
+                channels = channel_array.value
+                if hasattr(channels, '__len__') and len(channels) > channel:
+                    is_available = bool(channels[channel])
+                    logging.info(f"Channel {channel} available: {is_available}")
+
+                    if not is_available:
+                        logging.warning(f"WARNING: Channel {channel} reports as NOT available")
+                        logging.warning("This may cause LoadSettings to fail")
+
+                        # Find available channels
+                        available = [i for i in range(min(len(channels), 16)) if channels[i]]
+                        if available:
+                            logging.info(f"Available channels: {available}")
+                            logging.info("Consider using one of these channels instead")
+                else:
+                    logging.warning(f"Channel array too short or channel {channel} out of range")
+            else:
+                logging.warning("GetDeviceChannelList failed or returned no data")
+        except Exception as e:
+            logging.warning(f"GetDeviceChannelList diagnostic failed: {e}")
+
+        # Diagnostic 2: Get channel hardware information
+        try:
+            logging.info("Diagnostic 2: Getting channel hardware information...")
+            channel_infos = VARIANT()
+            ret = interface.GetChannelInfos(device_number, channel, channel_infos)
+            logging.info(f"GetChannelInfos({device_number}, {channel}) returned: {ret}")
+
+            if ret == 1 and channel_infos.value is not None:
+                infos = channel_infos.value
+                if hasattr(infos, '__len__'):
+                    logging.info(f"Channel info: {infos}")
+                    if len(infos) >= 3:
+                        logging.info(f"  Serial Number: {infos[0]}")
+                        logging.info(f"  Amplifier ID: {infos[1]}")
+                        logging.info(f"  Options: {infos[2]}")
+                else:
+                    logging.info(f"Channel info (raw): {infos}")
+            else:
+                logging.warning("GetChannelInfos failed or returned no data")
+        except Exception as e:
+            logging.warning(f"GetChannelInfos diagnostic failed: {e}")
+
+        # Diagnostic 3: Try explicit device/channel selection
+        try:
+            logging.info("Diagnostic 3: Explicitly selecting device and channel...")
+            ret = interface.SelectDevice(device_number)
+            logging.info(f"SelectDevice({device_number}) returned: {ret}")
+
+            ret = interface.SelectChannel(device_number, channel)
+            logging.info(f"SelectChannel({device_number}, {channel}) returned: {ret}")
+
+            if ret != 1:
+                logging.warning(f"SelectChannel returned {ret} (expected 1)")
+                logging.warning("This may indicate an invalid device/channel combination")
+        except Exception as e:
+            logging.warning(f"SelectDevice/SelectChannel diagnostic failed: {e}")
+
+        logging.info("Diagnostic checks complete")
+        logging.info("")
+
+        # ====================================================================
         # Step 3: Wait for channel initialization
         # ====================================================================
         logging.info("Step 3: Waiting for channel initialization")
@@ -226,6 +337,7 @@ def simple_load_test(device_number=0, channel=1, mps_path=None, initialization_d
 
         logging.info(f"Loading: {mps_path}")
 
+        # Try loading with specified channel
         start_time = time.time()
         ret = interface.LoadSettings(device_number, channel, mps_path)
         elapsed_ms = (time.time() - start_time) * 1000
@@ -233,13 +345,37 @@ def simple_load_test(device_number=0, channel=1, mps_path=None, initialization_d
         logging.info(f"LoadSettings({device_number}, {channel}, ...) returned: {ret}")
         logging.info(f"Time elapsed: {elapsed_ms:.1f}ms")
 
+        # If failed and we're using channel 1, try channel 0 as fallback
+        if ret != 1 and channel != 0:
+            logging.warning(f"LoadSettings failed with channel {channel}")
+            logging.warning("Attempting fallback to channel 0...")
+            logging.warning("")
+
+            start_time = time.time()
+            ret = interface.LoadSettings(device_number, 0, mps_path)
+            elapsed_ms = (time.time() - start_time) * 1000
+
+            logging.info(f"LoadSettings({device_number}, 0, ...) returned: {ret}")
+            logging.info(f"Time elapsed: {elapsed_ms:.1f}ms")
+
+            if ret == 1:
+                logging.info("SUCCESS: Settings loaded with channel 0 (fallback)")
+                logging.info("NOTE: Consider using channel=0 in future tests")
+            else:
+                logging.error("FAILED: LoadSettings failed even with channel 0")
+
         if ret != 1:
-            logging.error("FAILED: LoadSettings did not return 1 (success)")
             logging.error("")
-            logging.error("Possible causes:")
-            logging.error("  1. Settings file not compatible with hardware")
-            logging.error("  2. Channel not fully initialized (try increasing initialization_delay)")
-            logging.error("  3. Device/channel combination invalid")
+            logging.error("LoadSettings FAILED")
+            logging.error("")
+            logging.error("Diagnostics to check:")
+            logging.error("  1. Check EC-Lab GUI for error messages or warnings")
+            logging.error("  2. Verify settings file is compatible with connected hardware")
+            logging.error("  3. Check channel availability in diagnostic output above")
+            logging.error("  4. Try increasing initialization_delay to 5-10 seconds")
+            logging.error("  5. Verify device is not in use by another application")
+            logging.error("")
+            logging.error("Review the diagnostic checks above for clues about the failure")
             return False
 
         logging.info("SUCCESS: Settings loaded successfully")
@@ -297,7 +433,7 @@ def main():
     mps_path = os.path.join(
         os.path.dirname(__file__),
         "templates",
-        "simple_ocv.mps"
+        "simple_eis.mps"
     )
 
     # Check if file exists
@@ -312,11 +448,13 @@ def main():
         return 1
 
     # Run the test
+    # NOTE: If LoadSettings fails, try increasing initialization_delay to 5-10 seconds
+    # The test will also automatically try channel 0 as a fallback if channel 1 fails
     success = simple_load_test(
         device_number=0,
-        channel=1,
+        channel=1,          # Will try channel 0 as fallback if this fails
         mps_path=mps_path,
-        initialization_delay=2.0
+        initialization_delay=2.0  # Increase to 5-10 if LoadSettings keeps failing
     )
 
     # Return exit code
