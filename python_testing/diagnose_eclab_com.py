@@ -22,7 +22,7 @@ print("=" * 70)
 # 1. Check if EC-Lab process is running
 print("\n1. Checking if EC-Lab is running...")
 try:
-    result = subprocess.run(['tasklist', '/FI', 'IMAGENAME eq ECLab.exe'],
+    result = subprocess.run(['tasklist', '/FI', 'IMAGENAME eq EClab.exe'],
                           capture_output=True, text=True)
     if 'ECLab.exe' in result.stdout:
         print("   ✓ EC-Lab.exe is running")
@@ -54,9 +54,8 @@ for progid in progids:
 print("\n3. Checking expected CLSID...")
 clsid = '{77FE5C93-42EE-4127-944B-5BA14FD33447}'
 try:
-    key = winreg.OpenKey(winreg.HKEY_CLASSES_ROOT, f'CLSID\\{clsid}')
+    key = winreg.OpenKey(winreg.HKEY_CLASSES_ROOT, f'WOW6432Node\\CLSID\\{clsid}')
     print(f"   ✓ CLSID {clsid} is registered")
-
     try:
         server_key = winreg.OpenKey(key, 'LocalServer32')
         server_path = winreg.QueryValue(server_key, '')
@@ -87,7 +86,7 @@ try:
 except FileNotFoundError:
     print(f"   ✗ CLSID {clsid} NOT registered")
     print("   → Run: ECLab.exe /regserver (as Administrator)")
-    print("   → Example: cd \"C:\\Program Files (x86)\\EC-Lab\" && ECLab.exe /regserver")
+    print("   → Example: cd \"C:\\Program Files (x86)\\11.63\\EC-Lab\" && ECLab.exe /regserver")
 
 # 4. Search for all EC-Lab related COM registrations
 print("\n4. Searching for all EC-Lab related COM entries...")
@@ -147,10 +146,7 @@ else:
 # 6. Check for EC-Lab installation
 print("\n6. Searching for EC-Lab installation...")
 common_paths = [
-    r"C:\Program Files (x86)\EC-Lab\ECLab.exe",
-    r"C:\Program Files\EC-Lab\ECLab.exe",
-    r"C:\Program Files (x86)\BioLogic\EC-Lab\ECLab.exe",
-    r"C:\Program Files\BioLogic\EC-Lab\ECLab.exe",
+    r"C:\Program Files (x86)\EC-Lab\11.63\ECLab.exe",
 ]
 
 found_installation = False
