@@ -39,6 +39,7 @@ from datetime import datetime
 
 # comtypes for custom COM interface support
 from comtypes import GUID, IUnknown, COMMETHOD, HRESULT, POINTER, BSTR
+from comtypes.automation import VARIANT
 from comtypes.client import CreateObject
 import comtypes
 from ctypes import c_int
@@ -74,13 +75,13 @@ class IEClabExe(IUnknown):
         COMMETHOD([], c_int, 'MeasureDcValue',
                   (['in'], BSTR, 'FileName'),
                   (['in'], c_int, 'DataIndex'),
-                  (['out'], POINTER(comtypes.VARIANT), 'Data')),
+                  (['out'], POINTER(VARIANT), 'Data')),
 
         # Method 4: MeasureEisValue(FileName, DataIndex, Data) -> int
         COMMETHOD([], c_int, 'MeasureEisValue',
                   (['in'], BSTR, 'FileName'),
                   (['in'], c_int, 'DataIndex'),
-                  (['out'], POINTER(comtypes.VARIANT), 'Data')),
+                  (['out'], POINTER(VARIANT), 'Data')),
 
         # Method 5: MeasureNumberOfPoints(FileName) -> int
         COMMETHOD([], c_int, 'MeasureNumberOfPoints',
@@ -89,7 +90,7 @@ class IEClabExe(IUnknown):
         # Method 6: GetDeviceChannelList(Device, ChannelArray) -> int
         COMMETHOD([], c_int, 'GetDeviceChannelList',
                   (['in'], c_int, 'Device'),
-                  (['out'], POINTER(comtypes.VARIANT), 'ChannelArray')),
+                  (['out'], POINTER(VARIANT), 'ChannelArray')),
 
         # Method 7: LoadSettings(Device, Channel, FileName) -> int
         COMMETHOD([], c_int, 'LoadSettings',
@@ -113,13 +114,13 @@ class IEClabExe(IUnknown):
                   (['in'], c_int, 'Device'),
                   (['in'], c_int, 'Channel'),
                   (['in'], c_int, 'Technique'),
-                  (['out'], POINTER(comtypes.VARIANT), 'FileName')),
+                  (['out'], POINTER(VARIANT), 'FileName')),
 
         # Method 11: MeasureStatus(Device, Channel, CurrentValues) -> int
         COMMETHOD([], c_int, 'MeasureStatus',
                   (['in'], c_int, 'Device'),
                   (['in'], c_int, 'Channel'),
-                  (['out'], POINTER(comtypes.VARIANT), 'CurrentValues')),
+                  (['out'], POINTER(VARIANT), 'CurrentValues')),
 
         # Method 12: TestConnection(DeviceNumber) -> int
         COMMETHOD([], c_int, 'TestConnection',
