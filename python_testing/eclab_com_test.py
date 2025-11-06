@@ -99,18 +99,30 @@ class IEClabExe(IUnknown):
 RESULTS_DIR = "results"
 if not os.path.exists(RESULTS_DIR):
     os.makedirs(RESULTS_DIR)
+    print(f"Created results directory: {os.path.abspath(RESULTS_DIR)}")
 
 # Setup logging
 log_filename = os.path.join(RESULTS_DIR, f'test_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log')
+
+# Print log location for user
+print("=" * 70)
+print(f"Log file: {os.path.abspath(log_filename)}")
+print("=" * 70)
+
+# Configure logging
 logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s.%(msecs)03d - %(levelname)s - %(message)s',
     datefmt='%H:%M:%S',
     handlers=[
-        logging.FileHandler(log_filename),
+        logging.FileHandler(log_filename, mode='w', encoding='utf-8'),
         logging.StreamHandler(sys.stdout)
     ]
 )
+
+# Test that logging works
+logging.info("Logging initialized successfully")
+logging.info(f"Log file location: {os.path.abspath(log_filename)}")
 
 class ECLabTester:
     """EC-Lab OLE COM test interface"""
@@ -597,7 +609,8 @@ def main():
     logging.info("=" * 70)
     logging.info("EC-Lab OLE COM Connection Stability Test Suite")
     logging.info("=" * 70)
-    logging.info(f"Log file: {log_filename}")
+    logging.info(f"Working directory: {os.getcwd()}")
+    logging.info(f"Log file: {os.path.abspath(log_filename)}")
     logging.info("")
 
     results = {}
