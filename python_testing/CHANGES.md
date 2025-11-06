@@ -2,6 +2,41 @@
 
 ## Date: 2025-11-05
 
+## Major Update: Switched to comtypes for Custom Interface Support
+
+**Date: 2025-11-05 (Update 2)**
+
+### Critical Discovery
+Testing revealed that EC-Lab does NOT support IDispatch interface. When attempting to connect:
+- Error: `-2147467262` (0x80004002) = `E_NOINTERFACE`
+- This means EC-Lab only supports the custom `IEClabExe` interface
+- `win32com.client.Dispatch()` and `gencache.EnsureDispatch()` both require IDispatch
+
+### Solution: comtypes Library
+Switched from `win32com` to `comtypes` library which can directly access custom COM interfaces without requiring IDispatch.
+
+**Changes:**
+1. Replaced `win32com.client` with `comtypes`
+2. Manually defined `IEClabExe` interface using comtypes COMMETHOD
+3. Use `CreateObject(CLSID, interface=IEClabExe)` for direct interface access
+4. Interface definition includes: ConnectDevice, DisconnectDevice, TestConnection, LoadSettings, RunChannel, StopChannel
+5. Methods return `int` (1=success, 0=failure) not HRESULT
+
+**Installation:**
+```bash
+pip install comtypes  # Instead of pywin32
+```
+
+**Benefits:**
+- Direct vtable access like C code
+- No IDispatch dependency
+- Exact match to C implementation
+- Better error messages
+
+---
+
+## Date: 2025-11-05 (Original)
+
 ## Issues Found and Fixed
 
 ### Issue 1: Wrong ProgID

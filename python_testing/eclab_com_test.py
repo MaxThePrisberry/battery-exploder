@@ -9,38 +9,93 @@ Date: 2025-11-05
 
 IMPORTANT NOTES:
 ================
-1. This script uses EARLY BINDING (not IDispatch) to match the C code implementation
+1. This script uses CUSTOM INTERFACE (IEClabExe) via comtypes library
 2. ProgID: "EClabCOM.EClabExe" (NOT "ECLabCOM.ECLabInterface")
 3. CLSID: {77FE5C93-42EE-4127-944B-5BA14FD33447}
-4. Uses win32com.client.gencache.EnsureDispatch() for vtable-like access
-5. LoadSettings requires 3 parameters: (device, channel, filepath)
+4. IID: {642C68D2-85BD-494B-93EB-583CCBB11794}
+5. Uses comtypes to directly access custom COM interface (NOT IDispatch)
+6. LoadSettings requires 3 parameters: (device, channel, filepath)
 
 PREREQUISITES:
 ==============
 1. EC-Lab must be running BEFORE running this script
-2. Python packages: pip install pywin32
+2. Python packages: pip install comtypes
 3. EC-Lab must be registered: ECLab.exe /regserver (as Administrator)
-4. For early binding, makepy may generate type library on first run
 
 COM INTERFACE NOTES:
 ====================
 The C code uses direct vtable calls via IEClabExe custom interface.
-This Python script attempts early binding via gencache which provides
-similar vtable-like access. If that fails, it falls back to IDispatch
-(late binding), which may not work if EC-Lab doesn't support it.
+EC-Lab does NOT support IDispatch, so we use comtypes to directly
+access the custom interface, matching the C code's approach exactly.
+
+Interface definition manually created from ECLabCOM_EClabExeInterface.txt
 """
 
-import win32com.client
-import pythoncom
 import time
 import logging
 import os
 import sys
 from datetime import datetime
 
-# EC-Lab COM identifiers (must match C code)
-ECLAB_PROGID = "EClabCOM.EClabExe"
-ECLAB_CLSID = "{77FE5C93-42EE-4127-944B-5BA14FD33447}"
+# comtypes for custom COM interface support
+from comtypes import GUID, IUnknown, COMMETHOD, HRESULT, POINTER
+from comtypes.client import CreateObject
+import comtypes
+import ctypes
+from ctypes.wintypes import BSTR
+from ctypes import c_int, POINTER as C_POINTER
+
+# EC-Lab COM identifiers (must match C code and interface definition)
+CLSID_EClabExe = GUID("{77FE5C93-42EE-4127-944B-5BA14FD33447}")
+IID_IEClabExe = GUID("{642C68D2-85BD-494B-93EB-583CCBB11794}")
+
+# Define IEClabExe COM Interface
+# This matches the interface definition from ECLabCOM_EClabExeInterface.txt
+class IEClabExe(IUnknown):
+    """EC-Lab IEClabExe COM Interface
+
+    This is the custom COM interface that EC-Lab exposes.
+    Methods return int (1=success, 0=failure) not HRESULT.
+    """
+    _iid_ = IID_IEClabExe
+    _methods_ = [
+        # ConnectDevice(DeviceNumber) -> int
+        COMMETHOD([], c_int, 'ConnectDevice',
+                  (['in'], c_int, 'DeviceNumber')),
+
+        # DisconnectDevice(DeviceNumber) -> int
+        COMMETHOD([], c_int, 'DisconnectDevice',
+                  (['in'], c_int, 'DeviceNumber')),
+
+        # MeasureDcValue - not used in tests
+        # MeasureEisValue - not used in tests
+        # MeasureNumberOfPoints - not used in tests
+        # GetDeviceChannelList - not used in tests
+
+        # LoadSettings(Device, Channel, FileName) -> int
+        COMMETHOD([], c_int, 'LoadSettings',
+                  (['in'], c_int, 'Device'),
+                  (['in'], c_int, 'Channel'),
+                  (['in'], BSTR, 'FileName')),
+
+        # RunChannel(Device, Channel, FileName) -> int
+        COMMETHOD([], c_int, 'RunChannel',
+                  (['in'], c_int, 'Device'),
+                  (['in'], c_int, 'Channel'),
+                  (['in'], BSTR, 'FileName')),
+
+        # StopChannel(Device, Channel) -> int
+        COMMETHOD([], c_int, 'StopChannel',
+                  (['in'], c_int, 'Device'),
+                  (['in'], c_int, 'Channel')),
+
+        # GetDataFileName - not used in tests
+        # MeasureStatus - not used in tests
+
+        # TestConnection(DeviceNumber) -> int
+        COMMETHOD([], c_int, 'TestConnection',
+                  (['in'], c_int, 'DeviceNumber')),
+    ]
 
 # Setup results directory
 RESULTS_DIR = "results"
@@ -69,53 +124,60 @@ class ECLabTester:
         self.connected = False
 
     def connect_to_eclab(self):
-        """Initialize COM connection to EC-Lab using early binding"""
+        """Initialize COM connection to EC-Lab using comtypes custom interface"""
         try:
             logging.info("=" * 70)
-            logging.info("Initializing COM connection to EC-Lab")
+            logging.info("Initializing COM connection to EC-Lab via comtypes")
             logging.info("=" * 70)
 
-            # Initialize COM
-            logging.info("Step 1: Initializing COM library...")
-            try:
-                pythoncom.CoInitialize()
-                logging.info("COM initialized successfully")
-            except Exception as e:
-                logging.warning(f"COM already initialized: {e}")
+            logging.info(f"Step 1: Creating COM instance")
+            logging.info(f"  CLSID: {CLSID_EClabExe}")
+            logging.info(f"  IID:   {IID_IEClabExe}")
+            logging.info(f"  Using custom IEClabExe interface (NOT IDispatch)")
 
-            # Attempt early binding first (faster, type-safe)
-            logging.info(f"Step 2: Attempting early binding with ProgID: {ECLAB_PROGID}")
-            logging.info(f"         CLSID: {ECLAB_CLSID}")
+            # Create COM instance with custom interface
+            # This is equivalent to CoCreateInstance(&CLSID_EClabExe, ..., &IID_IEClabExe, ...)
+            self.interface = CreateObject(CLSID_EClabExe, interface=IEClabExe)
 
-            try:
-                # Try to use early binding via gencache
-                # This generates Python wrapper from type library for direct vtable access
-                self.interface = win32com.client.gencache.EnsureDispatch(ECLAB_PROGID)
-                logging.info("SUCCESS: Early binding established (gencache)")
-                logging.info("NOTE: This provides vtable-like access similar to C code")
-            except Exception as e:
-                logging.warning(f"Early binding failed: {e}")
-                logging.info("Step 3: Falling back to late binding (IDispatch)...")
-
-                # Fall back to late binding (IDispatch)
-                # NOTE: This may not work if EC-Lab doesn't support IDispatch
-                self.interface = win32com.client.Dispatch(ECLAB_PROGID)
-                logging.info("Late binding established (IDispatch)")
-                logging.warning("WARNING: Using IDispatch may fail if EC-Lab only supports custom interface")
-
-            logging.info("COM connection established successfully")
+            logging.info("SUCCESS: COM instance created with custom interface")
+            logging.info("NOTE: Direct vtable access like C code - no IDispatch")
             logging.info("=" * 70)
             return True
 
-        except Exception as e:
+        except OSError as e:
             logging.error("=" * 70)
             logging.error(f"FAILED to connect to EC-Lab COM server: {e}")
             logging.error("")
+
+            # Decode common COM error codes
+            if hasattr(e, 'winerror'):
+                error_code = e.winerror
+                if error_code == -2147221005:  # 0x80040153
+                    logging.error("Error: REGDB_E_CLASSNOTREG - COM class not registered")
+                    logging.error("Solution: Run 'ECLab.exe /regserver' as Administrator")
+                elif error_code == -2147221164:  # 0x800401F4
+                    logging.error("Error: CO_E_APPNOTFOUND - EC-Lab application not found")
+                elif error_code == -2147467262:  # 0x80004002
+                    logging.error("Error: E_NOINTERFACE - Interface not supported")
+                    logging.error("This should not happen with comtypes + custom interface")
+                elif error_code == -2147023174:  # 0x800706BA
+                    logging.error("Error: RPC_S_SERVER_UNAVAILABLE - EC-Lab not running")
+                    logging.error("Solution: Start EC-Lab application first")
+                else:
+                    logging.error(f"Error code: 0x{error_code & 0xFFFFFFFF:08X}")
+
+            logging.error("")
             logging.error("Common causes:")
-            logging.error("  1. EC-Lab is not running")
+            logging.error("  1. EC-Lab is not running - START EC-Lab first")
             logging.error("  2. EC-Lab not registered: run 'ECLab.exe /regserver' as Administrator")
-            logging.error(f"  3. Wrong ProgID (expected: {ECLAB_PROGID})")
-            logging.error("  4. Version mismatch")
+            logging.error("  3. Incorrect CLSID/IID")
+            logging.error("  4. EC-Lab version doesn't support OLE COM")
+            logging.error("=" * 70)
+            return False
+
+        except Exception as e:
+            logging.error("=" * 70)
+            logging.error(f"Unexpected error: {e}")
             logging.error("=" * 70)
             return False
 
@@ -204,15 +266,9 @@ class ECLabTester:
         if self.connected:
             self.disconnect_device()
 
-        # Release interface
+        # Release interface (comtypes handles reference counting)
         if self.interface is not None:
             self.interface = None
-
-        # Uninitialize COM
-        try:
-            pythoncom.CoUninitialize()
-        except:
-            pass  # May already be uninitialized
 
 # ============================================================================
 # Test 1: Baseline Auto-Disconnect Timing
