@@ -38,12 +38,10 @@ import sys
 from datetime import datetime
 
 # comtypes for custom COM interface support
-from comtypes import GUID, IUnknown, COMMETHOD, HRESULT, POINTER
+from comtypes import GUID, IUnknown, COMMETHOD, HRESULT, POINTER, BSTR
 from comtypes.client import CreateObject
 import comtypes
-import ctypes
-from ctypes.wintypes import BSTR
-from ctypes import c_int, POINTER as C_POINTER
+from ctypes import c_int
 
 # EC-Lab COM identifiers (must match C code and interface definition)
 CLSID_EClabExe = GUID("{77FE5C93-42EE-4127-944B-5BA14FD33447}")
