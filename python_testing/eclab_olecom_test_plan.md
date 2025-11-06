@@ -171,7 +171,7 @@ python_testing/
 1. Connect to device
 2. Wait for auto-disconnect
 3. Release COM interface (`interface = None`)
-4. Recreate interface (`win32com.client.Dispatch("ECLabCOM.ECLabInterface")`)
+4. Recreate interface (`win32com.client.gencache.EnsureDispatch("EClabCOM.EClabExe")`)
 5. Call `ConnectDevice()`
 6. Record return value and success/failure
 
@@ -318,11 +318,13 @@ class ECLabTester:
         self.connected = False
 
     def connect_to_eclab(self):
-        """Initialize COM connection to EC-Lab"""
+        """Initialize COM connection to EC-Lab using early binding"""
         try:
             logging.info("Connecting to EC-Lab COM server...")
-            self.interface = win32com.client.Dispatch("ECLabCOM.ECLabInterface")
-            logging.info("COM connection established")
+            # Use early binding (gencache) to match C code's vtable access
+            # ProgID: "EClabCOM.EClabExe" (NOT "ECLabCOM.ECLabInterface")
+            self.interface = win32com.client.gencache.EnsureDispatch("EClabCOM.EClabExe")
+            logging.info("COM connection established (early binding)")
             return True
         except Exception as e:
             logging.error(f"Failed to connect to EC-Lab COM server: {e}")
@@ -379,11 +381,20 @@ class ECLabTester:
             logging.error(f"Exception during TestConnection: {e}")
             return False
 
-    def load_settings(self, mps_path):
-        """Load settings from .mps file"""
+    def load_settings(self, mps_path, device=None, channel=None):
+        """Load settings from .mps file
+
+        Note: LoadSettings requires 3 parameters per EC-Lab interface:
+              LoadSettings(device, channel, filepath)
+        """
+        if device is None:
+            device = self.device_number
+        if channel is None:
+            channel = self.channel
+
         try:
-            logging.info(f"Calling LoadSettings('{mps_path}')...")
-            ret = self.interface.LoadSettings(mps_path)
+            logging.info(f"Calling LoadSettings({device}, {channel}, '{mps_path}')...")
+            ret = self.interface.LoadSettings(device, channel, mps_path)
             logging.info(f"LoadSettings returned: {ret}")
 
             if ret == 1:

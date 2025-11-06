@@ -6,14 +6,41 @@ Purpose: Systematically test connection behavior to identify optimal
 
 Author: Battery Exploder Team
 Date: 2025-11-05
+
+IMPORTANT NOTES:
+================
+1. This script uses EARLY BINDING (not IDispatch) to match the C code implementation
+2. ProgID: "EClabCOM.EClabExe" (NOT "ECLabCOM.ECLabInterface")
+3. CLSID: {77FE5C93-42EE-4127-944B-5BA14FD33447}
+4. Uses win32com.client.gencache.EnsureDispatch() for vtable-like access
+5. LoadSettings requires 3 parameters: (device, channel, filepath)
+
+PREREQUISITES:
+==============
+1. EC-Lab must be running BEFORE running this script
+2. Python packages: pip install pywin32
+3. EC-Lab must be registered: ECLab.exe /regserver (as Administrator)
+4. For early binding, makepy may generate type library on first run
+
+COM INTERFACE NOTES:
+====================
+The C code uses direct vtable calls via IEClabExe custom interface.
+This Python script attempts early binding via gencache which provides
+similar vtable-like access. If that fails, it falls back to IDispatch
+(late binding), which may not work if EC-Lab doesn't support it.
 """
 
 import win32com.client
+import pythoncom
 import time
 import logging
 import os
 import sys
 from datetime import datetime
+
+# EC-Lab COM identifiers (must match C code)
+ECLAB_PROGID = "EClabCOM.EClabExe"
+ECLAB_CLSID = "{77FE5C93-42EE-4127-944B-5BA14FD33447}"
 
 # Setup results directory
 RESULTS_DIR = "results"
@@ -35,20 +62,61 @@ logging.basicConfig(
 class ECLabTester:
     """EC-Lab OLE COM test interface"""
 
-    def __init__(self, device_number=1):
+    def __init__(self, device_number=1, channel=0):
         self.interface = None
         self.device_number = device_number
+        self.channel = channel
         self.connected = False
 
     def connect_to_eclab(self):
-        """Initialize COM connection to EC-Lab"""
+        """Initialize COM connection to EC-Lab using early binding"""
         try:
-            logging.info("Connecting to EC-Lab COM server...")
-            self.interface = win32com.client.Dispatch("ECLabCOM.ECLabInterface")
-            logging.info("COM connection established")
+            logging.info("=" * 70)
+            logging.info("Initializing COM connection to EC-Lab")
+            logging.info("=" * 70)
+
+            # Initialize COM
+            logging.info("Step 1: Initializing COM library...")
+            try:
+                pythoncom.CoInitialize()
+                logging.info("COM initialized successfully")
+            except Exception as e:
+                logging.warning(f"COM already initialized: {e}")
+
+            # Attempt early binding first (faster, type-safe)
+            logging.info(f"Step 2: Attempting early binding with ProgID: {ECLAB_PROGID}")
+            logging.info(f"         CLSID: {ECLAB_CLSID}")
+
+            try:
+                # Try to use early binding via gencache
+                # This generates Python wrapper from type library for direct vtable access
+                self.interface = win32com.client.gencache.EnsureDispatch(ECLAB_PROGID)
+                logging.info("SUCCESS: Early binding established (gencache)")
+                logging.info("NOTE: This provides vtable-like access similar to C code")
+            except Exception as e:
+                logging.warning(f"Early binding failed: {e}")
+                logging.info("Step 3: Falling back to late binding (IDispatch)...")
+
+                # Fall back to late binding (IDispatch)
+                # NOTE: This may not work if EC-Lab doesn't support IDispatch
+                self.interface = win32com.client.Dispatch(ECLAB_PROGID)
+                logging.info("Late binding established (IDispatch)")
+                logging.warning("WARNING: Using IDispatch may fail if EC-Lab only supports custom interface")
+
+            logging.info("COM connection established successfully")
+            logging.info("=" * 70)
             return True
+
         except Exception as e:
-            logging.error(f"Failed to connect to EC-Lab COM server: {e}")
+            logging.error("=" * 70)
+            logging.error(f"FAILED to connect to EC-Lab COM server: {e}")
+            logging.error("")
+            logging.error("Common causes:")
+            logging.error("  1. EC-Lab is not running")
+            logging.error("  2. EC-Lab not registered: run 'ECLab.exe /regserver' as Administrator")
+            logging.error(f"  3. Wrong ProgID (expected: {ECLAB_PROGID})")
+            logging.error("  4. Version mismatch")
+            logging.error("=" * 70)
             return False
 
     def connect_device(self):
@@ -102,11 +170,22 @@ class ECLabTester:
             logging.error(f"Exception during TestConnection: {e}")
             return False
 
-    def load_settings(self, mps_path):
-        """Load settings from .mps file"""
+    def load_settings(self, mps_path, device=None, channel=None):
+        """Load settings from .mps file
+
+        Args:
+            mps_path: Path to .mps settings file
+            device: Device number (defaults to self.device_number)
+            channel: Channel number (defaults to self.channel)
+        """
+        if device is None:
+            device = self.device_number
+        if channel is None:
+            channel = self.channel
+
         try:
-            logging.info(f"Calling LoadSettings('{mps_path}')...")
-            ret = self.interface.LoadSettings(mps_path)
+            logging.info(f"Calling LoadSettings({device}, {channel}, '{mps_path}')...")
+            ret = self.interface.LoadSettings(device, channel, mps_path)
             logging.info(f"LoadSettings returned: {ret}")
 
             if ret == 1:
@@ -117,13 +196,23 @@ class ECLabTester:
 
         except Exception as e:
             logging.error(f"Exception during LoadSettings: {e}")
+            logging.error(f"Signature: LoadSettings(device={device}, channel={channel}, path='{mps_path}')")
             return False
 
     def cleanup(self):
         """Release COM resources"""
         if self.connected:
             self.disconnect_device()
-        self.interface = None
+
+        # Release interface
+        if self.interface is not None:
+            self.interface = None
+
+        # Uninitialize COM
+        try:
+            pythoncom.CoUninitialize()
+        except:
+            pass  # May already be uninitialized
 
 # ============================================================================
 # Test 1: Baseline Auto-Disconnect Timing

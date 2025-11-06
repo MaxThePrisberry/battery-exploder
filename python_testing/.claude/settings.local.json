@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(mkdir:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nAdd Python test suite for EC-Lab OLE COM connection stability investigation\n\nCreated comprehensive test infrastructure to systematically investigate and resolve the EC-Lab OLE COM auto-disconnect issue observed in the BioLogic SP-150e interface. The device disconnects after ~10-14 seconds of idle time, and this test suite will identify the optimal keep-alive or reconnection strategy.\n\nTest suite includes:\n- Baseline auto-disconnect timing measurement\n- Keep-alive strategy testing at multiple intervals (1s, 2s, 3s, 5s)\n- LoadSettings immediate call testing\n- Three reconnection strategies (simple, explicit disconnect, interface recreation)\n- Mixed workload simulation matching Battery Exploder initialization pattern\n\nFiles added:\n- python_testing/eclab_com_test.py - Main test script with 7 test scenarios\n- python_testing/eclab_olecom_test_plan.md - Comprehensive test plan documentation\n- python_testing/results/ - Directory for test logs\n- python_testing/templates/ - Directory for .mps template files\n\nThis testing will inform implementation of connection stability fixes in the C codebase.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": []
