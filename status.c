@@ -21,6 +21,7 @@
 #include "controls.h"
 #include "cdaq_utils.h"
 #include <toolbox.h>
+#include <objbase.h>  // For COM (CoInitialize, CoUninitialize, HRESULT)
 
 /******************************************************************************
  * Module State and Configuration
@@ -342,7 +343,16 @@ static void Status_InitializeDeviceStates(void) {
 
 static int CVICALLBACK Status_TimerThread(void *functionData) {
     LogMessage("Status timer thread started");
-    
+
+    // Initialize COM for this thread (required for EC-Lab OLE COM operations)
+    // Each thread that uses COM must call CoInitialize independently
+    HRESULT hr = CoInitialize(NULL);
+    if (FAILED(hr) && hr != RPC_E_CHANGED_MODE) {
+        LogError("Status thread: CoInitialize failed (0x%08X)", hr);
+        LogError("EC-Lab reconnection will not work from status monitoring");
+        // Continue anyway - other devices will still work
+    }
+
     while (Status_GetState() != STATUS_STATE_STOPPING) {
         // Process device updates if in running state
         if (Status_ShouldProcessUpdates()) {
@@ -404,7 +414,10 @@ static int CVICALLBACK Status_TimerThread(void *functionData) {
         // Sleep for timer interval
         Delay(0.01);  // 10ms
     }
-    
+
+    // Uninitialize COM before thread exits
+    CoUninitialize();
+
     LogMessage("Status timer thread stopped");
     return 0;
 }
