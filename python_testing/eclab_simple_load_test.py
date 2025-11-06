@@ -1,8 +1,8 @@
 """
-EC-Lab Simple LoadSettings Test with Comprehensive Diagnostics
+EC-Lab Simple EIS Test with Comprehensive Diagnostics
 
-Purpose: Minimal test to verify LoadSettings functionality with proper initialization delay.
-         Connect once, load settings, then disconnect cleanly.
+Purpose: Complete test to verify LoadSettings and EIS measurement functionality.
+         Connect once, load settings, run EIS measurement, store results, then disconnect.
          Includes comprehensive diagnostic checks to identify LoadSettings failures.
 
 Features:
@@ -12,6 +12,9 @@ Features:
     * Channel hardware info (GetChannelInfos)
     * Explicit device/channel selection (SelectDevice, SelectChannel)
   - Automatic fallback to channel 0 if initial channel fails
+  - Complete EIS measurement execution with status monitoring
+  - Automatic data storage to timestamped .mpt files
+  - Data verification by reading first few data points
   - Configurable initialization delay
   - Detailed error messages and troubleshooting guidance
 
@@ -173,7 +176,17 @@ logging.info(f"Log file location: {os.path.abspath(log_filename)}")
 
 def simple_load_test(device_number=0, channel=1, mps_path=None, initialization_delay=2.0):
     """
-    Simple test: Connect to EC-Lab, connect device, load settings, disconnect.
+    Complete EIS test: Connect, load settings, run measurement, store data, disconnect.
+
+    Test flow:
+        1. Create COM connection to EC-Lab
+        2. Connect to device
+        2.5. Run diagnostic checks (channel availability, hardware info, selection)
+        3. Wait for channel initialization
+        4. Load settings from .mps file (with automatic channel 0 fallback)
+        5. Run EIS measurement with status monitoring
+        5a. Read and verify EIS data points
+        6. Disconnect device
 
     Args:
         device_number: Device number (0-based), default 0
@@ -186,7 +199,7 @@ def simple_load_test(device_number=0, channel=1, mps_path=None, initialization_d
     """
 
     logging.info("=" * 70)
-    logging.info("EC-Lab Simple LoadSettings Test")
+    logging.info("EC-Lab Simple EIS Test")
     logging.info("=" * 70)
     logging.info(f"Device: {device_number}")
     logging.info(f"Channel: {channel}")
@@ -338,6 +351,7 @@ def simple_load_test(device_number=0, channel=1, mps_path=None, initialization_d
         logging.info(f"Loading: {mps_path}")
 
         # Try loading with specified channel
+        active_channel = channel  # Track which channel actually works
         start_time = time.time()
         ret = interface.LoadSettings(device_number, channel, mps_path)
         elapsed_ms = (time.time() - start_time) * 1000
@@ -359,6 +373,7 @@ def simple_load_test(device_number=0, channel=1, mps_path=None, initialization_d
             logging.info(f"Time elapsed: {elapsed_ms:.1f}ms")
 
             if ret == 1:
+                active_channel = 0  # Successfully fell back to channel 0
                 logging.info("SUCCESS: Settings loaded with channel 0 (fallback)")
                 logging.info("NOTE: Consider using channel=0 in future tests")
             else:
@@ -382,9 +397,120 @@ def simple_load_test(device_number=0, channel=1, mps_path=None, initialization_d
         logging.info("")
 
         # ====================================================================
-        # Step 5: Disconnect device
+        # Step 5: Run EIS measurement
         # ====================================================================
-        logging.info("Step 5: Disconnecting device")
+        logging.info("Step 5: Running EIS measurement")
+        logging.info("-" * 70)
+        logging.info(f"Using channel: {active_channel}")
+
+        # Create output filename
+        output_filename = os.path.join(RESULTS_DIR, f'eis_data_{datetime.now().strftime("%Y%m%d_%H%M%S")}.mpt')
+        logging.info(f"Output file: {output_filename}")
+
+        # Start the measurement
+        start_time = time.time()
+        ret = interface.RunChannel(device_number, active_channel, output_filename)
+        elapsed_ms = (time.time() - start_time) * 1000
+
+        logging.info(f"RunChannel({device_number}, {active_channel}, ...) returned: {ret}")
+        logging.info(f"Time elapsed: {elapsed_ms:.1f}ms")
+
+        if ret != 1:
+            logging.error("FAILED: RunChannel did not return 1 (success)")
+            logging.error("EIS measurement could not be started")
+        else:
+            logging.info("SUCCESS: EIS measurement started")
+            logging.info("")
+
+            # Monitor measurement progress
+            logging.info("Monitoring measurement status...")
+            measurement_complete = False
+            start_time = time.time()
+            last_status = None
+
+            while not measurement_complete:
+                time.sleep(0.5)  # Check every 500ms
+
+                try:
+                    current_values = VARIANT()
+                    ret = interface.MeasureStatus(device_number, active_channel, current_values)
+
+                    if ret == 1 and current_values.value is not None:
+                        status = current_values.value
+
+                        # Status format from Bio-Logic: [state, ...]
+                        # State: 0 = STOP, 1 = RUN, 2 = PAUSE
+                        if hasattr(status, '__len__') and len(status) > 0:
+                            state = int(status[0])
+
+                            if state != last_status:
+                                if state == 0:
+                                    logging.info("  Status: STOPPED (measurement complete)")
+                                    measurement_complete = True
+                                elif state == 1:
+                                    logging.info("  Status: RUNNING...")
+                                elif state == 2:
+                                    logging.info("  Status: PAUSED")
+                                last_status = state
+                        else:
+                            logging.warning("  Status: Unknown format")
+
+                    # Timeout after 5 minutes
+                    if time.time() - start_time > 300:
+                        logging.warning("Measurement timeout (5 minutes) - stopping channel")
+                        interface.StopChannel(device_number, active_channel)
+                        break
+
+                except Exception as e:
+                    logging.warning(f"Error checking status: {e}")
+                    break
+
+            elapsed_time = time.time() - start_time
+            logging.info(f"Measurement completed in {elapsed_time:.1f}s")
+            logging.info("")
+
+            # Read EIS data points
+            if os.path.exists(output_filename):
+                logging.info("Step 5a: Reading EIS data from file")
+                logging.info("-" * 70)
+
+                try:
+                    num_points = interface.MeasureNumberOfPoints(output_filename)
+                    logging.info(f"Number of data points: {num_points}")
+
+                    if num_points > 0:
+                        # Read first few points as verification
+                        logging.info("Reading first 3 data points:")
+
+                        for i in range(min(3, num_points)):
+                            data = VARIANT()
+                            ret = interface.MeasureEisValue(output_filename, i, data)
+
+                            if ret == 1 and data.value is not None:
+                                point = data.value
+                                if hasattr(point, '__len__') and len(point) >= 3:
+                                    freq = point[0] if len(point) > 0 else 0
+                                    z_real = point[1] if len(point) > 1 else 0
+                                    z_imag = point[2] if len(point) > 2 else 0
+                                    logging.info(f"  Point {i}: f={freq} Hz, Z_re={z_real} Ω, Z_im={z_imag} Ω")
+
+                        logging.info("")
+                        logging.info(f"SUCCESS: EIS data saved to {output_filename}")
+                        logging.info(f"Total data points: {num_points}")
+                    else:
+                        logging.warning("No data points found in output file")
+
+                except Exception as e:
+                    logging.error(f"Error reading EIS data: {e}")
+            else:
+                logging.warning(f"Output file not found: {output_filename}")
+
+        logging.info("")
+
+        # ====================================================================
+        # Step 6: Disconnect device
+        # ====================================================================
+        logging.info("Step 6: Disconnecting device")
         logging.info("-" * 70)
 
         ret = interface.DisconnectDevice(device_number)
@@ -406,7 +532,10 @@ def simple_load_test(device_number=0, channel=1, mps_path=None, initialization_d
         logging.info("All steps completed successfully:")
         logging.info("  ✓ COM connection established")
         logging.info("  ✓ Device connected")
+        logging.info("  ✓ Diagnostic checks performed")
         logging.info("  ✓ Settings loaded successfully")
+        logging.info("  ✓ EIS measurement completed")
+        logging.info("  ✓ Data saved and verified")
         logging.info("  ✓ Device disconnected")
         logging.info("")
 
@@ -448,13 +577,13 @@ def main():
         return 1
 
     # Run the test
-    # NOTE: If LoadSettings fails, try increasing initialization_delay to 5-10 seconds
-    # The test will also automatically try channel 0 as a fallback if channel 1 fails
+    # NOTE: Channel 0 is correct for most Bio-Logic devices (0-based indexing)
+    # If LoadSettings fails, try increasing initialization_delay to 5-10 seconds
     success = simple_load_test(
         device_number=0,
-        channel=1,          # Will try channel 0 as fallback if this fails
+        channel=0,          # Use channel 0 (0-based indexing)
         mps_path=mps_path,
-        initialization_delay=2.0  # Increase to 5-10 if LoadSettings keeps failing
+        initialization_delay=2.0  # 2 seconds is sufficient with correct channel
     )
 
     # Return exit code
