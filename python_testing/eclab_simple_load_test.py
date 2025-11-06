@@ -259,13 +259,13 @@ def simple_load_test(device_number=0, channel=1, mps_path=None, initialization_d
         # Diagnostic 1: Get device channel list
         try:
             logging.info("Diagnostic 1: Checking channel availability...")
-            channel_array = VARIANT()
-            ret = interface.GetDeviceChannelList(device_number, channel_array)
-            logging.info(f"GetDeviceChannelList({device_number}) returned: {ret}")
+            # comtypes returns out parameters automatically
+            channel_array = interface.GetDeviceChannelList(device_number)
+            logging.info(f"GetDeviceChannelList({device_number}) succeeded")
 
-            if ret == 1 and channel_array.value is not None:
+            if channel_array is not None:
                 # Channel array is a 128-element boolean array
-                channels = channel_array.value
+                channels = channel_array
                 if hasattr(channels, '__len__') and len(channels) > channel:
                     is_available = bool(channels[channel])
                     logging.info(f"Channel {channel} available: {is_available}")
@@ -282,19 +282,19 @@ def simple_load_test(device_number=0, channel=1, mps_path=None, initialization_d
                 else:
                     logging.warning(f"Channel array too short or channel {channel} out of range")
             else:
-                logging.warning("GetDeviceChannelList failed or returned no data")
+                logging.warning("GetDeviceChannelList returned no data")
         except Exception as e:
             logging.warning(f"GetDeviceChannelList diagnostic failed: {e}")
 
         # Diagnostic 2: Get channel hardware information
         try:
             logging.info("Diagnostic 2: Getting channel hardware information...")
-            channel_infos = VARIANT()
-            ret = interface.GetChannelInfos(device_number, channel, channel_infos)
-            logging.info(f"GetChannelInfos({device_number}, {channel}) returned: {ret}")
+            # comtypes returns out parameters automatically
+            channel_infos = interface.GetChannelInfos(device_number, channel)
+            logging.info(f"GetChannelInfos({device_number}, {channel}) succeeded")
 
-            if ret == 1 and channel_infos.value is not None:
-                infos = channel_infos.value
+            if channel_infos is not None:
+                infos = channel_infos
                 if hasattr(infos, '__len__'):
                     logging.info(f"Channel info: {infos}")
                     if len(infos) >= 3:
@@ -304,7 +304,7 @@ def simple_load_test(device_number=0, channel=1, mps_path=None, initialization_d
                 else:
                     logging.info(f"Channel info (raw): {infos}")
             else:
-                logging.warning("GetChannelInfos failed or returned no data")
+                logging.warning("GetChannelInfos returned no data")
         except Exception as e:
             logging.warning(f"GetChannelInfos diagnostic failed: {e}")
 
@@ -432,11 +432,11 @@ def simple_load_test(device_number=0, channel=1, mps_path=None, initialization_d
                 time.sleep(0.5)  # Check every 500ms
 
                 try:
-                    current_values = VARIANT()
-                    ret = interface.MeasureStatus(device_number, active_channel, current_values)
+                    # comtypes returns out parameters automatically
+                    current_values = interface.MeasureStatus(device_number, active_channel)
 
-                    if ret == 1 and current_values.value is not None:
-                        status = current_values.value
+                    if current_values is not None:
+                        status = current_values
 
                         # Status format from Bio-Logic: [state, ...]
                         # State: 0 = STOP, 1 = RUN, 2 = PAUSE
@@ -483,11 +483,11 @@ def simple_load_test(device_number=0, channel=1, mps_path=None, initialization_d
                         logging.info("Reading first 3 data points:")
 
                         for i in range(min(3, num_points)):
-                            data = VARIANT()
-                            ret = interface.MeasureEisValue(output_filename, i, data)
+                            # comtypes returns out parameters automatically
+                            data = interface.MeasureEisValue(output_filename, i)
 
-                            if ret == 1 and data.value is not None:
-                                point = data.value
+                            if data is not None:
+                                point = data
                                 if hasattr(point, '__len__') and len(point) >= 3:
                                     freq = point[0] if len(point) > 0 else 0
                                     z_real = point[1] if len(point) > 1 else 0
