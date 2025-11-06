@@ -49,50 +49,86 @@ IID_IEClabExe = GUID("{642C68D2-85BD-494B-93EB-583CCBB11794}")
 
 # Define IEClabExe COM Interface
 # This matches the interface definition from ECLabCOM_EClabExeInterface.txt
+# CRITICAL: ALL methods must be defined in exact vtable order, even if unused!
 class IEClabExe(IUnknown):
     """EC-Lab IEClabExe COM Interface
 
     This is the custom COM interface that EC-Lab exposes.
     Methods return int (1=success, 0=failure) not HRESULT.
+
+    IMPORTANT: vtable order MUST match interface definition exactly.
+    Skipping methods will cause access violations!
     """
     _iid_ = IID_IEClabExe
     _methods_ = [
-        # ConnectDevice(DeviceNumber) -> int
+        # Method 1: ConnectDevice(DeviceNumber) -> int
         COMMETHOD([], c_int, 'ConnectDevice',
                   (['in'], c_int, 'DeviceNumber')),
 
-        # DisconnectDevice(DeviceNumber) -> int
+        # Method 2: DisconnectDevice(DeviceNumber) -> int
         COMMETHOD([], c_int, 'DisconnectDevice',
                   (['in'], c_int, 'DeviceNumber')),
 
-        # MeasureDcValue - not used in tests
-        # MeasureEisValue - not used in tests
-        # MeasureNumberOfPoints - not used in tests
-        # GetDeviceChannelList - not used in tests
+        # Method 3: MeasureDcValue(FileName, DataIndex, Data) -> int
+        # Must be defined even if not used!
+        COMMETHOD([], c_int, 'MeasureDcValue',
+                  (['in'], BSTR, 'FileName'),
+                  (['in'], c_int, 'DataIndex'),
+                  (['out'], POINTER(comtypes.VARIANT), 'Data')),
 
-        # LoadSettings(Device, Channel, FileName) -> int
+        # Method 4: MeasureEisValue(FileName, DataIndex, Data) -> int
+        COMMETHOD([], c_int, 'MeasureEisValue',
+                  (['in'], BSTR, 'FileName'),
+                  (['in'], c_int, 'DataIndex'),
+                  (['out'], POINTER(comtypes.VARIANT), 'Data')),
+
+        # Method 5: MeasureNumberOfPoints(FileName) -> int
+        COMMETHOD([], c_int, 'MeasureNumberOfPoints',
+                  (['in'], BSTR, 'FileName')),
+
+        # Method 6: GetDeviceChannelList(Device, ChannelArray) -> int
+        COMMETHOD([], c_int, 'GetDeviceChannelList',
+                  (['in'], c_int, 'Device'),
+                  (['out'], POINTER(comtypes.VARIANT), 'ChannelArray')),
+
+        # Method 7: LoadSettings(Device, Channel, FileName) -> int
         COMMETHOD([], c_int, 'LoadSettings',
                   (['in'], c_int, 'Device'),
                   (['in'], c_int, 'Channel'),
                   (['in'], BSTR, 'FileName')),
 
-        # RunChannel(Device, Channel, FileName) -> int
+        # Method 8: RunChannel(Device, Channel, FileName) -> int
         COMMETHOD([], c_int, 'RunChannel',
                   (['in'], c_int, 'Device'),
                   (['in'], c_int, 'Channel'),
                   (['in'], BSTR, 'FileName')),
 
-        # StopChannel(Device, Channel) -> int
+        # Method 9: StopChannel(Device, Channel) -> int
         COMMETHOD([], c_int, 'StopChannel',
                   (['in'], c_int, 'Device'),
                   (['in'], c_int, 'Channel')),
 
-        # GetDataFileName - not used in tests
-        # MeasureStatus - not used in tests
+        # Method 10: GetDataFileName(Device, Channel, Technique, FileName) -> int
+        COMMETHOD([], c_int, 'GetDataFileName',
+                  (['in'], c_int, 'Device'),
+                  (['in'], c_int, 'Channel'),
+                  (['in'], c_int, 'Technique'),
+                  (['out'], POINTER(comtypes.VARIANT), 'FileName')),
 
-        # TestConnection(DeviceNumber) -> int
+        # Method 11: MeasureStatus(Device, Channel, CurrentValues) -> int
+        COMMETHOD([], c_int, 'MeasureStatus',
+                  (['in'], c_int, 'Device'),
+                  (['in'], c_int, 'Channel'),
+                  (['out'], POINTER(comtypes.VARIANT), 'CurrentValues')),
+
+        # Method 12: TestConnection(DeviceNumber) -> int
         COMMETHOD([], c_int, 'TestConnection',
                   (['in'], c_int, 'DeviceNumber')),
+
+        # Method 13: ConnectDeviceByIP(IPaddress, DeviceNumber) -> int
+        COMMETHOD([], c_int, 'ConnectDeviceByIP',
+                  (['in'], BSTR, 'IPaddress'),
+                  (['out'], POINTER(c_int), 'DeviceNumber')),
     ]
 
 # Setup results directory
