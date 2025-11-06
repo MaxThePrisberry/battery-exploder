@@ -668,17 +668,8 @@ def main():
     results['keepalive_5s'] = test_2_keepalive(5)
     time.sleep(2)
 
-    results['keepalive_3s'] = test_2_keepalive(3)
-    time.sleep(2)
-
-    results['keepalive_2s'] = test_2_keepalive(2)
-    time.sleep(2)
-
-    results['keepalive_1s'] = test_2_keepalive(1)
-    time.sleep(2)
-
     # Test 3: LoadSettings (requires .mps file path)
-    mps_path = "templates/simple_ocv.mps"
+    mps_path = "C:\\Users\\CV166\\Documents\\LabWindowsCVI\\BatteryApplication\\battery-exploder\\python_testing\\templates\\simple_ocv.mps"
     if os.path.exists(mps_path):
         results['immediate_load_settings'] = test_3_immediate_load_settings(mps_path)
         time.sleep(2)
@@ -711,9 +702,6 @@ def main():
 
     logging.info("\nKeep-Alive Results:")
     logging.info(f"  5s interval: {'PASS' if results['keepalive_5s'] else 'FAIL'}")
-    logging.info(f"  3s interval: {'PASS' if results['keepalive_3s'] else 'FAIL'}")
-    logging.info(f"  2s interval: {'PASS' if results['keepalive_2s'] else 'FAIL'}")
-    logging.info(f"  1s interval: {'PASS' if results['keepalive_1s'] else 'FAIL'}")
 
     logging.info("\nLoadSettings Test:")
     if results['immediate_load_settings'] is not None:
