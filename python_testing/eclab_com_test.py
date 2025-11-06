@@ -410,9 +410,9 @@ def test_2_keepalive(interval_seconds):
 # ============================================================================
 
 def test_3_immediate_load_settings(mps_path):
-    """Test if LoadSettings prevents disconnect"""
+    """Test if LoadSettings prevents disconnect (with initialization delay)"""
     logging.info("=" * 70)
-    logging.info("TEST 3: Immediate LoadSettings After Connection")
+    logging.info("TEST 3: LoadSettings After Connection (with 2s initialization delay)")
     logging.info("=" * 70)
 
     tester = ECLabTester()
@@ -420,8 +420,14 @@ def test_3_immediate_load_settings(mps_path):
     if not tester.connect_to_eclab() or not tester.connect_device():
         return False
 
-    # Load settings immediately
-    logging.info("Loading settings immediately after connection...")
+    # Add delay to allow EC-Lab to fully initialize the channel
+    # EC-Lab needs time after ConnectDevice() before it can accept LoadSettings()
+    initialization_delay = 2.0  # seconds
+    logging.info(f"Waiting {initialization_delay}s for channel initialization...")
+    time.sleep(initialization_delay)
+
+    # Load settings after initialization delay
+    logging.info("Loading settings after initialization delay...")
     if not tester.load_settings(mps_path):
         logging.error("LoadSettings failed - cannot proceed")
         tester.cleanup()
