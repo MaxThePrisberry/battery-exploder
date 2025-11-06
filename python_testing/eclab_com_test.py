@@ -96,7 +96,7 @@ class IEClabExe(IUnknown):
     ]
 
 # Setup results directory
-RESULTS_DIR = "results"
+RESULTS_DIR = "C:\\Users\\CV166\\Documents\\LabWindowsCVI\\BatteryApplication\\battery-exploder\\python_testing\\results"
 if not os.path.exists(RESULTS_DIR):
     os.makedirs(RESULTS_DIR)
     print(f"Created results directory: {os.path.abspath(RESULTS_DIR)}")
