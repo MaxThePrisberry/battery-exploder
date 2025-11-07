@@ -652,12 +652,11 @@ int ECLAB_MeasureStatus(ECLabConnection *conn, int device, int channel,
         return ECLAB_ERR_COM_INVOKE_FAILED;
     }
 
-    // Diagnostic: Check what VARIANT type we actually received
-    LogMessageEx(LOG_DEVICE_BIO, "MeasureStatus returned VARIANT type: 0x%04X (expected 0x%04X)",
-                V_VT(&statusResult), (VT_ARRAY | VT_VARIANT));
+    // Parse status array - EC-Lab returns SAFEARRAY of doubles (VT_R8), not VARIANTs
+    // Both VT_ARRAY|VT_R8 and VT_ARRAY|VT_VARIANT are acceptable
+    VARTYPE vt = V_VT(&statusResult);
 
-    // Parse status array (should be SAFEARRAY of 32 variants)
-    if (V_VT(&statusResult) == (VT_ARRAY | VT_VARIANT)) {
+    if (vt == (VT_ARRAY | VT_R8) || vt == (VT_ARRAY | VT_VARIANT)) {
         SAFEARRAY *psa = V_ARRAY(&statusResult);
         LONG lBound, uBound;
         SafeArrayGetLBound(psa, 1, &lBound);
@@ -669,16 +668,56 @@ int ECLAB_MeasureStatus(ECLabConnection *conn, int device, int channel,
                         numElements);
         }
 
-        // Extract values (manual section 3.2.9)
-        VARIANT *pData;
-        SafeArrayAccessData(psa, (void**)&pData);
+        // EC-Lab returns SAFEARRAY of doubles directly (VT_R8), not wrapped in VARIANTs
+        // Elements are in this order (Bio-Logic manual section 3.2.9):
+        // [0-14]: Integer values (but stored as doubles)
+        // [15-29]: Floating point values
+        // [30-31]: Integer values (but stored as doubles)
+        if (vt == (VT_ARRAY | VT_R8) && numElements >= 32) {
+            double *pData;
+            SafeArrayAccessData(psa, (void**)&pData);
 
-        // Diagnostic: Log VARIANT types for first few critical fields
-        LogMessageEx(LOG_DEVICE_BIO,
-                    "MeasureStatus VARIANT types: [0]=0x%04X, [5]=0x%04X, [15]=0x%04X, [28]=0x%04X",
-                    V_VT(&pData[0]), V_VT(&pData[5]), V_VT(&pData[15]), V_VT(&pData[28]));
+            // Extract values - integers are stored as doubles in the array
+            status->status = (int)pData[0];
+            status->oxRed = (int)pData[1];
+            status->ocv = (int)pData[2];
+            status->eis = (int)pData[3];
+            status->techniqueNumber = (int)pData[4];
+            status->techniqueCode = (int)pData[5];
+            status->sequenceNumber = (int)pData[6];
+            status->currentLoopIteration = (int)pData[7];
+            status->currentSequenceInLoop = (int)pData[8];
+            status->loopExperimentIteration = (int)pData[9];
+            status->cycleNumber = (int)pData[10];
+            status->counter1 = (int)pData[11];
+            status->counter2 = (int)pData[12];
+            status->counter3 = (int)pData[13];
+            status->bufferSize = (int)pData[14];
+            status->time = pData[15];
+            status->ewe = pData[16];
+            status->ece = pData[17];
+            status->eoc = pData[18];
+            status->current = pData[19];
+            status->charge = pData[20];
+            status->aux1 = pData[21];
+            status->aux2 = pData[22];
+            status->iRange = pData[23];
+            status->rCompensation = pData[24];
+            status->frequency = pData[25];
+            status->zMagnitude = pData[26];
+            status->currentPointIndex = (int)pData[27];
+            status->totalPointIndex = (int)pData[28];
+            status->temperature = pData[29];
+            status->safetyLimit = (int)pData[30];
+            status->connection = (int)pData[31];
 
-        if (numElements >= 32) {
+            SafeArrayUnaccessData(psa);
+
+        } else if (vt == (VT_ARRAY | VT_VARIANT) && numElements >= 32) {
+            // Legacy path: SAFEARRAY of VARIANTs (not currently used by EC-Lab)
+            VARIANT *pData;
+            SafeArrayAccessData(psa, (void**)&pData);
+
             status->status = (V_VT(&pData[0]) == VT_I4) ? V_I4(&pData[0]) : 0;
             status->oxRed = (V_VT(&pData[1]) == VT_I4) ? V_I4(&pData[1]) : 0;
             status->ocv = (V_VT(&pData[2]) == VT_I4) ? V_I4(&pData[2]) : 0;
@@ -712,19 +751,16 @@ int ECLAB_MeasureStatus(ECLabConnection *conn, int device, int channel,
             status->safetyLimit = (V_VT(&pData[30]) == VT_I4) ? V_I4(&pData[30]) : 0;
             status->connection = (V_VT(&pData[31]) == VT_I4) ? V_I4(&pData[31]) : 0;
 
-            // Diagnostic: Log extracted values
-            LogMessageEx(LOG_DEVICE_BIO,
-                        "Extracted values: status=%d, technique=%d, time=%.1f, points=%d",
-                        status->status, status->techniqueCode, status->time, status->totalPointIndex);
+            SafeArrayUnaccessData(psa);
         }
-
-        SafeArrayUnaccessData(psa);
     } else {
-        // VARIANT is not the expected SAFEARRAY type
+        // VARIANT is not a recognized SAFEARRAY type
         LogErrorEx(LOG_DEVICE_BIO,
-                  "MeasureStatus returned unexpected VARIANT type 0x%04X (expected SAFEARRAY=0x%04X)",
-                  V_VT(&statusResult), (VT_ARRAY | VT_VARIANT));
-        LogErrorEx(LOG_DEVICE_BIO, "Status values will remain at zero - cannot parse non-array VARIANT");
+                  "MeasureStatus returned unexpected VARIANT type 0x%04X",
+                  V_VT(&statusResult));
+        LogErrorEx(LOG_DEVICE_BIO, "Expected: 0x%04X (VT_ARRAY|VT_R8) or 0x%04X (VT_ARRAY|VT_VARIANT)",
+                  (VT_ARRAY | VT_R8), (VT_ARRAY | VT_VARIANT));
+        LogErrorEx(LOG_DEVICE_BIO, "Status values will remain at zero - cannot parse this VARIANT type");
     }
 
     VariantClear(&statusResult);
