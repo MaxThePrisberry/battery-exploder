@@ -1,0 +1,514 @@
+
+=== Battery Tester Log Started: 2025-11-06 15:49:44 ===
+Log file location: c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\BatteryExploder.log
+2025-11-06 15:49:44 [INFO] Initializing cDAQ module...
+2025-11-06 15:49:44 [INFO] Initializing cDAQ thermocouple slots 2 and 3...
+2025-11-06 15:49:46 [INFO] cDAQ slot 2 initialized with 16 thermocouples
+2025-11-06 15:49:47 [INFO] cDAQ slot 3 initialized with 16 thermocouples
+2025-11-06 15:49:47 [INFO] cDAQ module initialized successfully
+2025-11-06 15:49:47 [INFO] cDAQ thermocouple slots initialized successfully
+2025-11-06 15:49:47 [INFO] Initializing cDAQ slot 1 for 4-20mA current sensors (NI 9202)...
+2025-11-06 15:49:47 [INFO] cDAQ slot 1 initialized with 16 voltage channels (4-20mA mode)
+2025-11-06 15:49:47 [INFO] Shunt resistor: 250.0 ohms, Range: 1.0-5.0V (4-20mA)
+2025-11-06 15:49:47 [INFO] cDAQ current sensor slot initialized successfully (4-20mA)
+2025-11-06 15:49:47 [INFO] Initializing pressure safety monitoring...
+2025-11-06 15:49:47 [INFO] Initializing pressure safety monitoring module...
+2025-11-06 15:49:47 [INFO] Pressure safety module initialized
+2025-11-06 15:49:47 [INFO] Pressure safety monitoring initialized successfully
+2025-11-06 15:49:47 [INFO] Initializing PSB queue manager on COM3...
+2025-11-06 15:49:47 [INFO] Attempting to connect to PSB 10000...
+2025-11-06 15:49:47 [INFO] [PSB] Connecting to PSB on COM3...
+2025-11-06 15:49:47 [INFO] [PSB] Initializing on COM3, slave 1, 9600 baud
+2025-11-06 15:49:47 [INFO] [PSB] Successfully initialized
+2025-11-06 15:49:47 [INFO] [PSB] Setting remote mode: ON
+2025-11-06 15:49:47 [INFO] [PSB] Setting output: OFF
+2025-11-06 15:49:47 [INFO] Successfully connected to PSB 10000
+2025-11-06 15:49:47 [INFO] PSB 10000 queue manager initialized
+2025-11-06 15:49:47 [INFO] PSB queue manager initialized and connected on COM3
+2025-11-06 15:49:47 [INFO] Initializing PSB to safe state...
+2025-11-06 15:49:47 [INFO] [PSB] Setting PSB safe limits...
+2025-11-06 15:49:47 [INFO] [PSB] PSB 10000 queue processing thread started
+2025-11-06 15:49:47 [INFO] [PSB] Setting min voltage: 0.00V
+2025-11-06 15:49:47 [INFO] [PSB] Setting max voltage: 61.20V
+2025-11-06 15:49:47 [INFO] [PSB] Setting min current: 0.00A
+2025-11-06 15:49:47 [INFO] [PSB] Setting max current: 61.20A
+2025-11-06 15:49:48 [INFO] [PSB] Setting sink max current: 61.20A
+2025-11-06 15:49:48 [INFO] [PSB] Setting sink min current: 0.00A
+2025-11-06 15:49:48 [INFO] [PSB] Setting max power: 1224.00W
+2025-11-06 15:49:48 [INFO] [PSB] Setting sink max power: 1224.00W
+2025-11-06 15:49:48 [INFO] [PSB] PSB safe limits set successfully
+2025-11-06 15:49:48 [INFO] [PSB] Zeroing all PSB values...
+2025-11-06 15:49:48 [INFO] [PSB] Setting output: OFF
+2025-11-06 15:49:49 [INFO] [PSB] Setting voltage: 0.00V (0x0000)
+2025-11-06 15:49:49 [INFO] [PSB] Setting current: 0.00A (0x0000)
+2025-11-06 15:49:49 [INFO] [PSB] Setting power: 0.00W (0x0000)
+2025-11-06 15:49:50 [INFO] [PSB] Setting sink current: 0.00A (0x0000)
+2025-11-06 15:49:50 [INFO] [PSB] Setting sink power: 0.00W (0x0000)
+2025-11-06 15:49:50 [INFO] [PSB] All PSB values zeroed successfully
+2025-11-06 15:49:50 [INFO] PSB initialization complete
+2025-11-06 15:49:50 [INFO] Initializing BioLogic abstraction layer...
+2025-11-06 15:49:50 [INFO]   Mode: EC-Lab OLE COM
+2025-11-06 15:49:50 [INFO] [BIO] Initializing BioLogic abstraction layer
+2025-11-06 15:49:50 [INFO] [BIO]   Mode: EC-Lab OLE COM
+2025-11-06 15:49:50 [INFO] [BIO] Initializing EC-Lab OLE COM mode
+2025-11-06 15:49:50 [INFO] [BIO]   Settings dir: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_settings
+2025-11-06 15:49:50 [INFO] [BIO]   Data dir: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data
+2025-11-06 15:49:50 [INFO] [BIO] Initializing EC-Lab backend
+2025-11-06 15:49:50 [INFO] [BIO]   Settings dir: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_settings
+2025-11-06 15:49:50 [INFO] [BIO]   Data dir: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data
+2025-11-06 15:49:50 [INFO] [BIO]   Device: 0, Channel: 0
+2025-11-06 15:49:50 [INFO] [BIO] ========================================
+2025-11-06 15:49:50 [INFO] [BIO] Initializing EC-Lab OLE COM connection
+2025-11-06 15:49:50 [INFO] [BIO] ========================================
+2025-11-06 15:49:50 [INFO] [BIO] Working directory: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data
+2025-11-06 15:49:50 [INFO] [BIO] Step 1: Initializing COM...
+2025-11-06 15:49:50 [INFO] [BIO] COM initialized successfully
+2025-11-06 15:49:50 [INFO] [BIO] Step 2: Resolving ProgID 'EClabCOM.EClabExe'...
+2025-11-06 15:49:50 [INFO] [BIO] ProgID resolved successfully. EC-Lab is registered.
+2025-11-06 15:49:50 [INFO] [BIO] Step 3: Checking if EC-Lab is running...
+2025-11-06 15:49:50 [INFO] [BIO] EC-Lab process detected - proceeding with COM connection
+2025-11-06 15:49:50 [INFO] [BIO] Step 4: Creating EC-Lab COM instance...
+2025-11-06 15:49:50 [INFO] [BIO] NOTE: This will connect to the running EC-Lab application.
+2025-11-06 15:49:50 [INFO] [BIO] NOTE: Using custom IEClabExe interface (NOT IDispatch)
+2025-11-06 15:49:50 [INFO] [BIO] Requesting IEClabExe interface...
+2025-11-06 15:49:50 [INFO] [BIO] EC-Lab COM instance created successfully!
+2025-11-06 15:49:50 [INFO] [BIO] ========================================
+2025-11-06 15:49:50 [INFO] [BIO] EC-Lab OLE COM connection initialized
+2025-11-06 15:49:50 [INFO] [BIO] ========================================
+2025-11-06 15:49:50 [INFO] [BIO] ========================================
+2025-11-06 15:49:50 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:49:50 [INFO] [BIO] ========================================
+2025-11-06 15:49:50 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:49:50 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:49:50 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:49:50 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:49:50 [INFO] [BIO] 
+2025-11-06 15:49:50 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:49:50 [INFO] [BIO] ConnectDevice returned: 1 (success)
+2025-11-06 15:49:50 [INFO] [BIO] Verifying connection with TestConnection...
+2025-11-06 15:49:50 [INFO] [BIO] TestConnection returned: 1 (device confirmed connected)
+2025-11-06 15:49:50 [INFO] [BIO] ========================================
+2025-11-06 15:49:50 [INFO] [BIO] Successfully connected to device 0!
+2025-11-06 15:49:50 [INFO] [BIO] ========================================
+2025-11-06 15:49:50 [INFO] [BIO] Running connection diagnostic (5 tests over ~5 seconds)...
+2025-11-06 15:49:50 [INFO] [BIO]   [Test 1 @ 0.0s] Connection: OK
+2025-11-06 15:49:51 [INFO] [BIO]   [Test 2 @ 1.0s] Connection: OK
+2025-11-06 15:49:52 [INFO] [BIO]   [Test 3 @ 2.0s] Connection: OK
+2025-11-06 15:49:53 [INFO] [BIO]   [Test 4 @ 3.0s] Connection: OK
+2025-11-06 15:49:54 [INFO] [BIO]   [Test 5 @ 4.0s] Connection: OK
+2025-11-06 15:49:54 [INFO] [BIO] Connection diagnostic complete: 5/5 tests passed
+2025-11-06 15:49:54 [INFO] [BIO] EC-Lab backend initialized successfully
+2025-11-06 15:49:54 [INFO] [BIO] BioLogic abstraction layer initialized successfully
+2025-11-06 15:49:54 [INFO] BioLogic abstraction layer initialized successfully
+2025-11-06 15:49:54 [INFO] Initializing DTB queue manager on COM5 with 2 devices...
+2025-11-06 15:49:54 [INFO] [DTB] DTB_QueueInit: Will initialize slave address 2
+2025-11-06 15:49:54 [INFO] [DTB] DTB_QueueInit: Will initialize slave address 3
+2025-11-06 15:49:54 [INFO] Attempting to connect to DTB 4848...
+2025-11-06 15:49:54 [INFO] [DTB] Connecting to DTB slave 2 on COM5...
+2025-11-06 15:49:54 [INFO] [DTB] Initializing on COM5, slave 2, 9600 baud
+2025-11-06 15:49:54 [INFO] [DTB] Successfully initialized
+2025-11-06 15:49:54 [INFO] [DTB] Successfully connected to DTB slave 2
+2025-11-06 15:49:54 [INFO] [DTB] Connecting to DTB slave 3 on COM5...
+2025-11-06 15:49:54 [INFO] [DTB] Initializing on COM5, slave 3, 9600 baud
+2025-11-06 15:49:54 [INFO] [DTB] Successfully initialized
+2025-11-06 15:49:54 [INFO] [DTB] Successfully connected to DTB slave 3
+2025-11-06 15:49:54 [INFO] [DTB] Connected to 2 of 2 DTB devices
+2025-11-06 15:49:55 [INFO] Successfully connected to DTB 4848
+2025-11-06 15:49:55 [INFO] DTB 4848 queue manager initialized
+2025-11-06 15:49:55 [INFO] [DTB] DTB_QueueInit: Successfully created queue manager for 2 devices
+2025-11-06 15:49:55 [INFO] DTB queue manager initialized and connected on COM5
+2025-11-06 15:49:55 [INFO] Enabling DTB write access for all devices...
+2025-11-06 15:49:55 [INFO] [DTB] DTB 4848 queue processing thread started
+2025-11-06 15:49:55 [INFO] [DTB] Enabling write access for all 2 DTB devices...
+2025-11-06 15:49:55 [INFO] [DTB] Enabling write access...
+2025-11-06 15:49:55 [INFO] [DTB] Write access enabled
+2025-11-06 15:49:55 [INFO] [DTB] Enabling write access...
+2025-11-06 15:49:56 [INFO] [DTB] Write access enabled
+2025-11-06 15:49:56 [INFO] [DTB] Successfully enabled write access for all DTB devices
+2025-11-06 15:49:56 [INFO] DTB write access enabled successfully for all devices
+2025-11-06 15:49:56 [INFO] Configuring all DTB4848 devices for K-type thermocouple with PID control...
+2025-11-06 15:49:56 [INFO] [DTB] Write access status: ENABLED
+2025-11-06 15:49:56 [INFO] DTB slave 2 write access currently: ENABLED
+2025-11-06 15:49:56 [INFO] [DTB] Configuring DTB4848...
+2025-11-06 15:49:56 [INFO] [DTB] Setting sensor type: 0
+2025-11-06 15:49:56 [INFO] [DTB] Setting heating/cooling mode: 0
+2025-11-06 15:49:57 [INFO] [DTB] Setting control method: 0
+2025-11-06 15:49:57 [INFO] [DTB] Setting PID mode: 4 (AUTO)
+2025-11-06 15:49:58 [INFO] [DTB] Configuration complete
+2025-11-06 15:49:58 [INFO] DTB4848 slave 2 configured successfully
+2025-11-06 15:49:58 [INFO] [DTB] Write access status: ENABLED
+2025-11-06 15:49:58 [INFO] DTB slave 3 write access currently: ENABLED
+2025-11-06 15:49:58 [INFO] [DTB] Configuring DTB4848...
+2025-11-06 15:49:58 [INFO] [DTB] Setting sensor type: 0
+2025-11-06 15:49:58 [INFO] [DTB] Setting heating/cooling mode: 0
+2025-11-06 15:49:59 [INFO] [DTB] Setting control method: 0
+2025-11-06 15:50:00 [INFO] [DTB] Setting PID mode: 4 (AUTO)
+2025-11-06 15:50:00 [INFO] [DTB] Configuration complete
+2025-11-06 15:50:00 [INFO] DTB4848 slave 3 configured successfully
+2025-11-06 15:50:00 [INFO] DTB initialization complete
+2025-11-06 15:50:00 [INFO] Initializing ALICAT queue manager on COM7 with 1 devices...
+2025-11-06 15:50:00 [INFO] [ALI] ALICAT_QueueInit: Will initialize address 1
+2025-11-06 15:50:00 [INFO] Attempting to connect to ALICAT BASIS 2...
+2025-11-06 15:50:00 [INFO] [ALI] Connecting to ALICAT address 1 on COM7...
+2025-11-06 15:50:00 [INFO] [ALI] Initializing on COM7, address 1, 38400 baud
+2025-11-06 15:50:00 [INFO] [ALI] Serial Number: B036829     
+2025-11-06 15:50:00 [INFO] [ALI] Successfully initialized
+2025-11-06 15:50:00 [INFO] [ALI] Successfully connected to ALICAT address 1
+2025-11-06 15:50:00 [INFO] [ALI] Connected to 1 of 1 ALICAT devices
+2025-11-06 15:50:00 [INFO] Successfully connected to ALICAT BASIS 2
+2025-11-06 15:50:00 [INFO] ALICAT BASIS 2 queue manager initialized
+2025-11-06 15:50:00 [INFO] ALICAT BASIS 2 queue processing thread started
+2025-11-06 15:50:00 [INFO] [ALI] ALICAT_QueueInit: Successfully created queue manager for 1 devices
+2025-11-06 15:50:00 [INFO] ALICAT queue manager initialized and connected on COM7
+2025-11-06 15:50:00 [INFO] Configuring all ALICAT devices with default settings...
+2025-11-06 15:50:00 [INFO] [ALI] Configuring ALICAT...
+2025-11-06 15:50:00 [INFO] [ALI] Setting gas type: 0 (Air)
+2025-11-06 15:50:00 [INFO] [ALI] Setting setpoint source: 2
+2025-11-06 15:50:00 [INFO] [ALI] Setting reference temperature: 25.0 deg C
+2025-11-06 15:50:00 [INFO] [ALI] Setting flow averaging: 100 ms
+2025-11-06 15:50:01 [INFO] [ALI] Setting autotare: ENABLED
+2025-11-06 15:50:01 [INFO] [ALI] Setting PID parameters: P 500, I 5000
+2025-11-06 15:50:01 [INFO] [ALI] Configuration complete
+2025-11-06 15:50:01 [INFO] ALICAT address 1 configured successfully
+2025-11-06 15:50:01 [INFO] [ALI] Setting gas type: 3 (Nitrogen)
+2025-11-06 15:50:01 [INFO] ALICAT address 1 gas set to Nitrogen
+2025-11-06 15:50:01 [INFO] Taring ALICAT address 1...
+2025-11-06 15:50:01 [INFO] [ALI] Performing tare...
+2025-11-06 15:50:01 [INFO] ALICAT address 1 tared successfully
+2025-11-06 15:50:01 [INFO] ALICAT initialization complete
+2025-11-06 15:50:01 [INFO] Initializing Teensy queue manager on COM6...
+2025-11-06 15:50:01 [INFO] Attempting to connect to Teensy...
+2025-11-06 15:50:01 [INFO] [TNY] Connecting to Teensy on COM6...
+2025-11-06 15:50:01 [INFO] [TNY] Initializing Teensy on COM6 at 9600 baud
+2025-11-06 15:50:01 [INFO] [TNY] Successfully connected to Teensy on COM6
+2025-11-06 15:50:01 [INFO] Successfully connected to Teensy
+2025-11-06 15:50:01 [INFO] Teensy queue manager initialized
+2025-11-06 15:50:01 [INFO] Teensy queue manager initialized and connected on COM6
+2025-11-06 15:50:01 [INFO] [TNY] Initializing 2 pins (2 low, 0 high)
+2025-11-06 15:50:01 [INFO] Teensy queue processing thread started
+2025-11-06 15:50:01 [INFO] [TNY] Starting transaction 1 with 2 commands
+2025-11-06 15:50:01 [INFO] Committed transaction 1 with 2 commands to normal priority queue
+2025-11-06 15:50:01 [INFO] [TNY] Pin initialization transaction committed
+2025-11-06 15:50:01 [INFO] Status module state: UNINITIALIZED -> INITIALIZING
+2025-11-06 15:50:01 [INFO] Device states initialized (DTB devices: 2)
+2025-11-06 15:50:01 [INFO] Status monitoring module initialized
+2025-11-06 15:50:01 [INFO] Controls module initialized with 2 DTB devices
+2025-11-06 15:50:01 [INFO] Controls module initialized for ALICAT Mass Flow Controller
+2025-11-06 15:50:01 [INFO] Starting device status monitoring...
+2025-11-06 15:50:01 [INFO] Status module state: INITIALIZING -> RUNNING
+2025-11-06 15:50:01 [INFO] Status timer thread started
+2025-11-06 15:50:01 [INFO] Status monitoring started successfully
+2025-11-06 15:50:01 [INFO] Starting controls module - syncing with device states...
+2025-11-06 15:50:01 [INFO] [TNY] Completed transaction 1
+2025-11-06 15:50:01 [INFO] PSB remote mode: ON
+2025-11-06 15:50:04 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:50:04 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:50:04 [INFO] [BIO] ========================================
+2025-11-06 15:50:04 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:50:04 [INFO] [BIO] ========================================
+2025-11-06 15:50:04 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:50:04 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:50:04 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:50:04 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:50:04 [INFO] [BIO] 
+2025-11-06 15:50:04 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:50:04 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147417842)
+2025-11-06 15:50:04 [ERROR] [BIO] Return value 0x8001010E is a COM/OLE error
+2025-11-06 15:50:04 [ERROR] [BIO] Possible causes:
+2025-11-06 15:50:04 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:50:04 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:50:04 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:50:04 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:50:04 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:50:04 [ERROR] [BIO] 
+2025-11-06 15:50:04 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:50:06 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:50:06 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:50:06 [INFO] [BIO] ========================================
+2025-11-06 15:50:06 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:50:06 [INFO] [BIO] ========================================
+2025-11-06 15:50:06 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:50:06 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:50:06 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:50:06 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:50:06 [INFO] [BIO] 
+2025-11-06 15:50:06 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:50:06 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147417842)
+2025-11-06 15:50:06 [ERROR] [BIO] Return value 0x8001010E is a COM/OLE error
+2025-11-06 15:50:06 [ERROR] [BIO] Possible causes:
+2025-11-06 15:50:06 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:50:06 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:50:06 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:50:06 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:50:06 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:50:06 [ERROR] [BIO] 
+2025-11-06 15:50:06 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:50:07 [INFO] Controls module started
+2025-11-06 15:50:08 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:50:08 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:50:08 [INFO] [BIO] ========================================
+2025-11-06 15:50:08 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:50:08 [INFO] [BIO] ========================================
+2025-11-06 15:50:08 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:50:08 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:50:08 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:50:08 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:50:08 [INFO] [BIO] 
+2025-11-06 15:50:08 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:50:08 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147417842)
+2025-11-06 15:50:08 [ERROR] [BIO] Return value 0x8001010E is a COM/OLE error
+2025-11-06 15:50:08 [ERROR] [BIO] Possible causes:
+2025-11-06 15:50:08 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:50:08 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:50:08 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:50:08 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:50:08 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:50:08 [ERROR] [BIO] 
+2025-11-06 15:50:08 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:50:11 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:50:11 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:50:11 [INFO] [BIO] ========================================
+2025-11-06 15:50:11 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:50:11 [INFO] [BIO] ========================================
+2025-11-06 15:50:11 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:50:11 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:50:11 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:50:11 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:50:11 [INFO] [BIO] 
+2025-11-06 15:50:11 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:50:11 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147417842)
+2025-11-06 15:50:11 [ERROR] [BIO] Return value 0x8001010E is a COM/OLE error
+2025-11-06 15:50:11 [ERROR] [BIO] Possible causes:
+2025-11-06 15:50:11 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:50:11 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:50:11 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:50:11 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:50:11 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:50:11 [ERROR] [BIO] 
+2025-11-06 15:50:11 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:50:13 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:50:13 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:50:13 [INFO] [BIO] ========================================
+2025-11-06 15:50:13 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:50:13 [INFO] [BIO] ========================================
+2025-11-06 15:50:13 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:50:13 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:50:13 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:50:13 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:50:13 [INFO] [BIO] 
+2025-11-06 15:50:13 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:50:13 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147417842)
+2025-11-06 15:50:13 [ERROR] [BIO] Return value 0x8001010E is a COM/OLE error
+2025-11-06 15:50:13 [ERROR] [BIO] Possible causes:
+2025-11-06 15:50:13 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:50:13 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:50:13 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:50:13 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:50:13 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:50:13 [ERROR] [BIO] 
+2025-11-06 15:50:13 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:50:15 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:50:15 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:50:15 [INFO] [BIO] ========================================
+2025-11-06 15:50:15 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:50:15 [INFO] [BIO] ========================================
+2025-11-06 15:50:15 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:50:15 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:50:15 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:50:15 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:50:15 [INFO] [BIO] 
+2025-11-06 15:50:15 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:50:15 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147417842)
+2025-11-06 15:50:15 [ERROR] [BIO] Return value 0x8001010E is a COM/OLE error
+2025-11-06 15:50:15 [ERROR] [BIO] Possible causes:
+2025-11-06 15:50:15 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:50:15 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:50:15 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:50:15 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:50:15 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:50:15 [ERROR] [BIO] 
+2025-11-06 15:50:15 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:50:18 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:50:18 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:50:18 [INFO] [BIO] ========================================
+2025-11-06 15:50:18 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:50:18 [INFO] [BIO] ========================================
+2025-11-06 15:50:18 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:50:18 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:50:18 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:50:18 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:50:18 [INFO] [BIO] 
+2025-11-06 15:50:18 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:50:18 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147417842)
+2025-11-06 15:50:18 [ERROR] [BIO] Return value 0x8001010E is a COM/OLE error
+2025-11-06 15:50:18 [ERROR] [BIO] Possible causes:
+2025-11-06 15:50:18 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:50:18 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:50:18 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:50:18 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:50:18 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:50:18 [ERROR] [BIO] 
+2025-11-06 15:50:18 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:50:20 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:50:20 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:50:20 [INFO] [BIO] ========================================
+2025-11-06 15:50:20 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:50:20 [INFO] [BIO] ========================================
+2025-11-06 15:50:20 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:50:20 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:50:20 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:50:20 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:50:20 [INFO] [BIO] 
+2025-11-06 15:50:20 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:50:20 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147417842)
+2025-11-06 15:50:20 [ERROR] [BIO] Return value 0x8001010E is a COM/OLE error
+2025-11-06 15:50:20 [ERROR] [BIO] Possible causes:
+2025-11-06 15:50:20 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:50:20 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:50:20 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:50:20 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:50:20 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:50:20 [ERROR] [BIO] 
+2025-11-06 15:50:20 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:50:22 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:50:22 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:50:22 [INFO] [BIO] ========================================
+2025-11-06 15:50:22 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:50:22 [INFO] [BIO] ========================================
+2025-11-06 15:50:22 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:50:22 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:50:22 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:50:22 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:50:22 [INFO] [BIO] 
+2025-11-06 15:50:22 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:50:22 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147417842)
+2025-11-06 15:50:22 [ERROR] [BIO] Return value 0x8001010E is a COM/OLE error
+2025-11-06 15:50:22 [ERROR] [BIO] Possible causes:
+2025-11-06 15:50:22 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:50:22 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:50:22 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:50:22 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:50:22 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:50:22 [ERROR] [BIO] 
+2025-11-06 15:50:22 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:50:25 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:50:25 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:50:25 [INFO] [BIO] ========================================
+2025-11-06 15:50:25 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:50:25 [INFO] [BIO] ========================================
+2025-11-06 15:50:25 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:50:25 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:50:25 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:50:25 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:50:25 [INFO] [BIO] 
+2025-11-06 15:50:25 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:50:25 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147417842)
+2025-11-06 15:50:25 [ERROR] [BIO] Return value 0x8001010E is a COM/OLE error
+2025-11-06 15:50:25 [ERROR] [BIO] Possible causes:
+2025-11-06 15:50:25 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:50:25 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:50:25 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:50:25 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:50:25 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:50:25 [ERROR] [BIO] 
+2025-11-06 15:50:25 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:50:27 [WARN] [BIO] TestConnection: Device 0 is not connected
+2025-11-06 15:50:27 [WARN] [BIO] Connection lost, attempting to reconnect...
+2025-11-06 15:50:27 [INFO] [BIO] ========================================
+2025-11-06 15:50:27 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-06 15:50:27 [INFO] [BIO] ========================================
+2025-11-06 15:50:27 [INFO] [BIO] IMPORTANT: Device must be connected in EC-Lab first!
+2025-11-06 15:50:27 [INFO] [BIO]   1. In EC-Lab, go to Device menu
+2025-11-06 15:50:27 [INFO] [BIO]   2. Select 'Connect Device'
+2025-11-06 15:50:27 [INFO] [BIO]   3. Verify device 0 is connected and active
+2025-11-06 15:50:27 [INFO] [BIO] 
+2025-11-06 15:50:27 [INFO] [BIO] Calling EC-Lab ConnectDevice method...
+2025-11-06 15:50:27 [ERROR] [BIO] ERROR: ConnectDevice failed (returned -2147417842)
+2025-11-06 15:50:27 [ERROR] [BIO] Return value 0x8001010E is a COM/OLE error
+2025-11-06 15:50:27 [ERROR] [BIO] Possible causes:
+2025-11-06 15:50:27 [ERROR] [BIO]   - Device 0 is not physically connected
+2025-11-06 15:50:27 [ERROR] [BIO]   - Device is not powered on
+2025-11-06 15:50:27 [ERROR] [BIO]   - Device is already in use by another application
+2025-11-06 15:50:27 [ERROR] [BIO]   - Wrong device number specified
+2025-11-06 15:50:27 [ERROR] [BIO]   - EC-Lab is in a bad state (try restarting EC-Lab)
+2025-11-06 15:50:27 [ERROR] [BIO] 
+2025-11-06 15:50:27 [ERROR] [BIO] Check EC-Lab's device list to verify available devices.
+2025-11-06 15:50:28 [INFO] ========================================
+2025-11-06 15:50:28 [INFO] Shutting down Battery Tester application
+2025-11-06 15:50:28 [INFO] ========================================
+2025-11-06 15:50:28 [INFO] [TNY] Setting 2 pins
+2025-11-06 15:50:28 [INFO] Stopping status monitoring...
+2025-11-06 15:50:28 [INFO] Stopping device status monitoring...
+2025-11-06 15:50:28 [INFO] Status module state: RUNNING -> STOPPING
+2025-11-06 15:50:29 [INFO] Status timer thread stopped
+2025-11-06 15:50:29 [INFO] Status module state: STOPPING -> STOPPED
+2025-11-06 15:50:29 [INFO] Status monitoring stopped
+2025-11-06 15:50:29 [INFO] Cleaning up pressure safety monitoring...
+2025-11-06 15:50:29 [INFO] Cleaning up pressure safety module...
+2025-11-06 15:50:29 [INFO] Pressure safety module cleaned up
+2025-11-06 15:50:29 [INFO] Cleaning up cDAQ module...
+2025-11-06 15:50:29 [INFO] Cleaning up cDAQ current slot...
+2025-11-06 15:50:29 [INFO] Cleaned up cDAQ slot 1 task
+2025-11-06 15:50:29 [INFO] cDAQ current slot cleaned up
+2025-11-06 15:50:29 [INFO] Cleaning up cDAQ module...
+2025-11-06 15:50:30 [INFO] Cleaned up cDAQ slot 2 task
+2025-11-06 15:50:32 [INFO] Cleaned up cDAQ slot 3 task
+2025-11-06 15:50:32 [INFO] cDAQ module cleaned up
+2025-11-06 15:50:32 [INFO] Shutting down PSB queue manager...
+2025-11-06 15:50:32 [INFO] [PSB] Shutting down PSB 10000 queue manager...
+2025-11-06 15:50:32 [INFO] [PSB] Waiting for processing thread to complete...
+2025-11-06 15:50:32 [INFO] [PSB] All queues empty, processing thread exiting
+2025-11-06 15:50:32 [INFO] [PSB] PSB 10000 queue processing thread stopped
+2025-11-06 15:50:32 [INFO] [PSB] Setting output: OFF
+2025-11-06 15:50:32 [INFO] [PSB] Setting remote mode: OFF
+2025-11-06 15:50:32 [INFO] [PSB] Closing connection on COM3
+2025-11-06 15:50:32 [INFO] [PSB] Disconnected from PSB 10000
+2025-11-06 15:50:32 [INFO] Device queue manager shut down
+2025-11-06 15:50:32 [INFO] Shutting down BioLogic abstraction layer...
+2025-11-06 15:50:32 [INFO] [BIO] Shutting down BioLogic abstraction layer
+2025-11-06 15:50:32 [INFO] [BIO] Shutting down EC-Lab backend
+2025-11-06 15:50:32 [INFO] [BIO] Shutting down EC-Lab OLE COM connection
+2025-11-06 15:50:32 [INFO] [BIO] EC-Lab OLE COM connection shutdown complete
+2025-11-06 15:50:32 [INFO] [BIO] EC-Lab backend shutdown complete
+2025-11-06 15:50:32 [INFO] [BIO] BioLogic abstraction layer shutdown complete
+2025-11-06 15:50:32 [INFO] Shutting down DTB queue manager...
+2025-11-06 15:50:32 [INFO] [DTB] Shutting down DTB 4848 queue manager...
+2025-11-06 15:50:32 [INFO] [DTB] Waiting for processing thread to complete...
+2025-11-06 15:50:32 [INFO] [DTB] All queues empty, processing thread exiting
+2025-11-06 15:50:32 [INFO] [DTB] DTB 4848 queue processing thread stopped
+2025-11-06 15:50:32 [INFO] [DTB] Stopping DTB slave 2...
+2025-11-06 15:50:32 [INFO] [DTB] Setting Run/Stop: STOP
+2025-11-06 15:50:32 [INFO] [DTB] Stopping DTB slave 3...
+2025-11-06 15:50:32 [INFO] [DTB] Setting Run/Stop: STOP
+2025-11-06 15:50:32 [INFO] [DTB] Closing COM5
+2025-11-06 15:50:33 [INFO] [DTB] Disconnected all DTB devices from COM5
+2025-11-06 15:50:33 [INFO] [DTB] Disconnected from DTB 4848
+2025-11-06 15:50:33 [INFO] Device queue manager shut down
+2025-11-06 15:50:33 [INFO] Shutting down Alicat queue manager...
+2025-11-06 15:50:33 [INFO] [ALI] Shutting down ALICAT BASIS 2 queue manager...
+2025-11-06 15:50:33 [INFO] [ALI] Waiting for processing thread to complete...
+2025-11-06 15:50:33 [INFO] [ALI] All queues empty, processing thread exiting
+2025-11-06 15:50:33 [INFO] [ALI] ALICAT BASIS 2 queue processing thread stopped
+2025-11-06 15:50:33 [INFO] [ALI] Stopping ALICAT address 1...
+2025-11-06 15:50:33 [INFO] [ALI] Setting setpoint: 0.000
+2025-11-06 15:50:33 [INFO] [ALI] Disconnecting from COM7
+2025-11-06 15:50:33 [INFO] [ALI] Disconnected all ALICAT devices from COM7
+2025-11-06 15:50:33 [INFO] [ALI] Disconnected from ALICAT BASIS 2
+2025-11-06 15:50:33 [INFO] Device queue manager shut down
+2025-11-06 15:50:33 [INFO] Shutting down Teensy queue manager...
+2025-11-06 15:50:33 [INFO] [TNY] Shutting down Teensy queue manager...
+2025-11-06 15:50:33 [INFO] [TNY] Waiting for processing thread to complete...
+2025-11-06 15:50:33 [INFO] [TNY] All queues empty, processing thread exiting
+2025-11-06 15:50:33 [INFO] [TNY] Teensy queue processing thread stopped
+2025-11-06 15:50:33 [INFO] [TNY] Closing connection on COM6
+2025-11-06 15:50:33 [INFO] [TNY] Disconnected from Teensy
+2025-11-06 15:50:33 [INFO] Device queue manager shut down
+2025-11-06 15:50:33 [INFO] Cleaning up controls module...
+2025-11-06 15:50:33 [INFO] Controls module cleaned up
+2025-11-06 15:50:33 [INFO] Cleaning up status monitoring...
+2025-11-06 15:50:33 [INFO] Status module state: STOPPED -> UNINITIALIZED
+2025-11-06 15:50:33 [INFO] Status module cleaned up
+2025-11-06 15:50:33 [INFO] Shutting down thread pool...
+2025-11-06 15:50:34 [INFO] Cleanup complete. Exiting application.
+2025-11-06 15:50:34 [INFO] ========================================
+=== Battery Tester Log Ended: 2025-11-06 15:50:34 ===
