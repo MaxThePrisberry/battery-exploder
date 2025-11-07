@@ -652,6 +652,10 @@ int ECLAB_MeasureStatus(ECLabConnection *conn, int device, int channel,
         return ECLAB_ERR_COM_INVOKE_FAILED;
     }
 
+    // Diagnostic: Check what VARIANT type we actually received
+    LogMessageEx(LOG_DEVICE_BIO, "MeasureStatus returned VARIANT type: 0x%04X (expected 0x%04X)",
+                V_VT(&statusResult), (VT_ARRAY | VT_VARIANT));
+
     // Parse status array (should be SAFEARRAY of 32 variants)
     if (V_VT(&statusResult) == (VT_ARRAY | VT_VARIANT)) {
         SAFEARRAY *psa = V_ARRAY(&statusResult);
@@ -715,6 +719,12 @@ int ECLAB_MeasureStatus(ECLabConnection *conn, int device, int channel,
         }
 
         SafeArrayUnaccessData(psa);
+    } else {
+        // VARIANT is not the expected SAFEARRAY type
+        LogErrorEx(LOG_DEVICE_BIO,
+                  "MeasureStatus returned unexpected VARIANT type 0x%04X (expected SAFEARRAY=0x%04X)",
+                  V_VT(&statusResult), (VT_ARRAY | VT_VARIANT));
+        LogErrorEx(LOG_DEVICE_BIO, "Status values will remain at zero - cannot parse non-array VARIANT");
     }
 
     VariantClear(&statusResult);
