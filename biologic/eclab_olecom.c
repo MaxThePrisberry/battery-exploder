@@ -669,6 +669,11 @@ int ECLAB_MeasureStatus(ECLabConnection *conn, int device, int channel,
         VARIANT *pData;
         SafeArrayAccessData(psa, (void**)&pData);
 
+        // Diagnostic: Log VARIANT types for first few critical fields
+        LogMessageEx(LOG_DEVICE_BIO,
+                    "MeasureStatus VARIANT types: [0]=0x%04X, [5]=0x%04X, [15]=0x%04X, [28]=0x%04X",
+                    V_VT(&pData[0]), V_VT(&pData[5]), V_VT(&pData[15]), V_VT(&pData[28]));
+
         if (numElements >= 32) {
             status->status = (V_VT(&pData[0]) == VT_I4) ? V_I4(&pData[0]) : 0;
             status->oxRed = (V_VT(&pData[1]) == VT_I4) ? V_I4(&pData[1]) : 0;
@@ -702,6 +707,11 @@ int ECLAB_MeasureStatus(ECLabConnection *conn, int device, int channel,
             status->temperature = (V_VT(&pData[29]) == VT_R8) ? V_R8(&pData[29]) : 0.0;
             status->safetyLimit = (V_VT(&pData[30]) == VT_I4) ? V_I4(&pData[30]) : 0;
             status->connection = (V_VT(&pData[31]) == VT_I4) ? V_I4(&pData[31]) : 0;
+
+            // Diagnostic: Log extracted values
+            LogMessageEx(LOG_DEVICE_BIO,
+                        "Extracted values: status=%d, technique=%d, time=%.1f, points=%d",
+                        status->status, status->techniqueCode, status->time, status->totalPointIndex);
         }
 
         SafeArrayUnaccessData(psa);
