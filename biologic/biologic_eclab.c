@@ -86,10 +86,10 @@ static int MonitorMeasurement(int timeout_ms,
 
         // Log status periodically
         if (pollCount % 10 == 0) {  // Every 5 seconds
-            LogDebugEx(LOG_DEVICE_BIO,
-                      "Status: %d, Technique: %d, Time: %.1f s, Points: %d",
-                      status.status, status.techniqueCode, status.time,
-                      status.totalPointIndex);
+            LogMessageEx(LOG_DEVICE_BIO,
+                        "Status: %d, Technique: %d, Time: %.1f s, Points: %d",
+                        status.status, status.techniqueCode, status.time,
+                        status.totalPointIndex);
         }
         pollCount++;
 
