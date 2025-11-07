@@ -238,11 +238,20 @@ int ECLAB_Initialize(ECLabConnection **conn, const char *workingDir) {
         LogMessageEx(LOG_DEVICE_BIO, "Using current directory: %s", c->workingDir);
     }
 
-    // Initialize COM
-    LogMessageEx(LOG_DEVICE_BIO, "Step 1: Initializing COM...");
-    HRESULT hr = CoInitialize(NULL);
+    // Initialize COM in Multithreaded Apartment (MTA) mode
+    //
+    // CRITICAL: MTA must be used instead of STA (Single-Threaded Apartment) because:
+    // 1. The IEClabExe interface pointer is shared across multiple threads
+    // 2. Status monitoring thread calls TestConnection() on this interface
+    // 3. STA interface pointers CANNOT be used across threads without marshaling
+    // 4. Using STA causes RPC_E_DISCONNECTED (0x8001010E) errors
+    //
+    // MTA allows interface pointers to be safely shared across all threads
+    // that also initialize COM with COINIT_MULTITHREADED.
+    LogMessageEx(LOG_DEVICE_BIO, "Step 1: Initializing COM (MTA mode)...");
+    HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
     if (FAILED(hr) && hr != RPC_E_CHANGED_MODE) {
-        LogErrorEx(LOG_DEVICE_BIO, "ERROR: CoInitialize failed with HRESULT: 0x%08X", hr);
+        LogErrorEx(LOG_DEVICE_BIO, "ERROR: CoInitializeEx failed with HRESULT: 0x%08X", hr);
         LogErrorEx(LOG_DEVICE_BIO, "This indicates a COM system error.");
         free(c);
         return ECLAB_ERR_COM_INIT_FAILED;
@@ -250,7 +259,7 @@ int ECLAB_Initialize(ECLabConnection **conn, const char *workingDir) {
     if (hr == RPC_E_CHANGED_MODE) {
         LogMessageEx(LOG_DEVICE_BIO, "COM already initialized in different mode (this is OK)");
     } else {
-        LogMessageEx(LOG_DEVICE_BIO, "COM initialized successfully");
+        LogMessageEx(LOG_DEVICE_BIO, "COM initialized successfully (MTA mode)");
     }
 
     // Get CLSID for EC-Lab

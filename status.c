@@ -344,13 +344,16 @@ static void Status_InitializeDeviceStates(void) {
 static int CVICALLBACK Status_TimerThread(void *functionData) {
     LogMessage("Status timer thread started");
 
-    // Initialize COM for this thread (required for EC-Lab OLE COM operations)
-    // Each thread that uses COM must call CoInitialize independently
-    HRESULT hr = CoInitialize(NULL);
+    // Initialize COM for this thread in Multithreaded Apartment (MTA) mode
+    // MTA allows sharing interface pointers across threads safely
+    // This MUST match the apartment model used in the main thread (eclab_olecom.c)
+    HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
     if (FAILED(hr) && hr != RPC_E_CHANGED_MODE) {
-        LogError("Status thread: CoInitialize failed (0x%08X)", hr);
+        LogError("Status thread: CoInitializeEx (MTA) failed (0x%08X)", hr);
         LogError("EC-Lab reconnection will not work from status monitoring");
         // Continue anyway - other devices will still work
+    } else {
+        LogMessage("Status thread: COM initialized successfully (MTA mode)");
     }
 
     while (Status_GetState() != STATUS_STATE_STOPPING) {
