@@ -53,6 +53,7 @@ static int MonitorMeasurement(int timeout_ms,
     double startTime = Timer();
     double lastCallbackTime = startTime;
     int pollCount = 0;
+    int measurementStarted = 0;  // Track if measurement has actually started running
 
     LogMessageEx(LOG_DEVICE_BIO, "Monitoring measurement (timeout: %d ms)", timeout_ms);
 
@@ -98,8 +99,17 @@ static int MonitorMeasurement(int timeout_ms,
             lastCallbackTime = Timer();
         }
 
+        // Track measurement state transitions
+        if (status.status == ECLAB_STATUS_RUN) {
+            if (!measurementStarted) {
+                measurementStarted = 1;
+                LogMessageEx(LOG_DEVICE_BIO, "Measurement started running");
+            }
+        }
+
         // Check if measurement is complete
-        if (status.status == ECLAB_STATUS_STOP) {
+        // Only accept STOP after we've seen RUN to avoid detecting initial state
+        if (status.status == ECLAB_STATUS_STOP && measurementStarted) {
             LogMessageEx(LOG_DEVICE_BIO, "Measurement completed (%.1f s, %d points)",
                         status.time, status.totalPointIndex);
             if (finalStatus) {
@@ -318,25 +328,8 @@ int BIO_ECLAB_RunOCV(const char *mpsFilePath,
         return ret;
     }
 
-    // Wait for .mpr file to be created
-    // EC-Lab may report measurement complete before file is fully written
-    LogMessageEx(LOG_DEVICE_BIO, "Waiting for .mpr file to be created: %s", mprPath);
-    double waitStart = Timer();
-    int fileExists = 0;
-    while ((Timer() - waitStart) < 30.0) {  // Wait up to 30 seconds
-        if (GetFileAttributesA(mprPath) != INVALID_FILE_ATTRIBUTES) {
-            fileExists = 1;
-            LogMessageEx(LOG_DEVICE_BIO, ".mpr file appeared after %.1f seconds", Timer() - waitStart);
-            break;
-        }
-        Delay(0.5);  // Check every 500ms
-    }
-
-    if (!fileExists) {
-        LogErrorEx(LOG_DEVICE_BIO, ".mpr file not created within timeout period");
-        LogErrorEx(LOG_DEVICE_BIO, "Expected file: %s", mprPath);
-        return ECLAB_ERR_FILE_NOT_FOUND;
-    }
+    // Small delay to ensure file I/O completes after EC-Lab reports STOP
+    Delay(1.0);
 
     // Convert .mpr data to BIO_TechniqueData
     ret = BIO_ECLAB_ConvertMprToTechniqueData(mprPath, BIO_TECHNIQUE_OCV, result);
@@ -406,25 +399,8 @@ int BIO_ECLAB_RunPEIS(const char *mpsFilePath,
         return ret;
     }
 
-    // Wait for .mpr file to be created
-    // EC-Lab may report measurement complete before file is fully written
-    LogMessageEx(LOG_DEVICE_BIO, "Waiting for .mpr file to be created: %s", mprPath);
-    double waitStart = Timer();
-    int fileExists = 0;
-    while ((Timer() - waitStart) < 30.0) {  // Wait up to 30 seconds
-        if (GetFileAttributesA(mprPath) != INVALID_FILE_ATTRIBUTES) {
-            fileExists = 1;
-            LogMessageEx(LOG_DEVICE_BIO, ".mpr file appeared after %.1f seconds", Timer() - waitStart);
-            break;
-        }
-        Delay(0.5);  // Check every 500ms
-    }
-
-    if (!fileExists) {
-        LogErrorEx(LOG_DEVICE_BIO, ".mpr file not created within timeout period");
-        LogErrorEx(LOG_DEVICE_BIO, "Expected file: %s", mprPath);
-        return ECLAB_ERR_FILE_NOT_FOUND;
-    }
+    // Small delay to ensure file I/O completes after EC-Lab reports STOP
+    Delay(1.0);
 
     // Convert .mpr data to BIO_TechniqueData
     ret = BIO_ECLAB_ConvertMprToTechniqueData(mprPath, BIO_TECHNIQUE_PEIS, result);
@@ -494,25 +470,8 @@ int BIO_ECLAB_RunGEIS(const char *mpsFilePath,
         return ret;
     }
 
-    // Wait for .mpr file to be created
-    // EC-Lab may report measurement complete before file is fully written
-    LogMessageEx(LOG_DEVICE_BIO, "Waiting for .mpr file to be created: %s", mprPath);
-    double waitStart = Timer();
-    int fileExists = 0;
-    while ((Timer() - waitStart) < 30.0) {  // Wait up to 30 seconds
-        if (GetFileAttributesA(mprPath) != INVALID_FILE_ATTRIBUTES) {
-            fileExists = 1;
-            LogMessageEx(LOG_DEVICE_BIO, ".mpr file appeared after %.1f seconds", Timer() - waitStart);
-            break;
-        }
-        Delay(0.5);  // Check every 500ms
-    }
-
-    if (!fileExists) {
-        LogErrorEx(LOG_DEVICE_BIO, ".mpr file not created within timeout period");
-        LogErrorEx(LOG_DEVICE_BIO, "Expected file: %s", mprPath);
-        return ECLAB_ERR_FILE_NOT_FOUND;
-    }
+    // Small delay to ensure file I/O completes after EC-Lab reports STOP
+    Delay(1.0);
 
     // Convert .mpr data to BIO_TechniqueData
     ret = BIO_ECLAB_ConvertMprToTechniqueData(mprPath, BIO_TECHNIQUE_GEIS, result);
