@@ -748,7 +748,7 @@ static int BioLogicCommandManager(CommandContext *ctx) {
 		                           0.0,        // no dT threshold
 		                           0,          // auto E range
 		                           &result,
-		                           60000,      // 60 sec timeout
+		                           OCV_TIMEOUT_MS,  // Use timeout from common.h
 		                           NULL,       // no progress callback
 		                           NULL,       // no user data
 		                           NULL);      // no cancel flag

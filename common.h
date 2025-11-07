@@ -445,7 +445,7 @@ void DimExperimentControls(int mainPanel, int tabPanel, int dim, int *controls, 
 #define OCV_RECORD_EVERY_DE    1.0    // mV threshold
 #define OCV_RECORD_EVERY_DT    1.0    // seconds threshold
 #define OCV_E_RANGE            KBIO_ERANGE_AUTO  // Auto range
-#define OCV_TIMEOUT_MS         60000   // 1 minute
+#define OCV_TIMEOUT_MS         300000  // 5 minutes
 
 // GEIS parameters
 #define GEIS_VS_INITIAL        true   // vs initial
