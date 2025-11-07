@@ -318,6 +318,26 @@ int BIO_ECLAB_RunOCV(const char *mpsFilePath,
         return ret;
     }
 
+    // Wait for .mpr file to be created
+    // EC-Lab may report measurement complete before file is fully written
+    LogMessageEx(LOG_DEVICE_BIO, "Waiting for .mpr file to be created: %s", mprPath);
+    double waitStart = Timer();
+    int fileExists = 0;
+    while ((Timer() - waitStart) < 30.0) {  // Wait up to 30 seconds
+        if (GetFileAttributesA(mprPath) != INVALID_FILE_ATTRIBUTES) {
+            fileExists = 1;
+            LogMessageEx(LOG_DEVICE_BIO, ".mpr file appeared after %.1f seconds", Timer() - waitStart);
+            break;
+        }
+        Delay(0.5);  // Check every 500ms
+    }
+
+    if (!fileExists) {
+        LogErrorEx(LOG_DEVICE_BIO, ".mpr file not created within timeout period");
+        LogErrorEx(LOG_DEVICE_BIO, "Expected file: %s", mprPath);
+        return ECLAB_ERR_FILE_NOT_FOUND;
+    }
+
     // Convert .mpr data to BIO_TechniqueData
     ret = BIO_ECLAB_ConvertMprToTechniqueData(mprPath, BIO_TECHNIQUE_OCV, result);
     if (ret != SUCCESS) {
@@ -386,6 +406,26 @@ int BIO_ECLAB_RunPEIS(const char *mpsFilePath,
         return ret;
     }
 
+    // Wait for .mpr file to be created
+    // EC-Lab may report measurement complete before file is fully written
+    LogMessageEx(LOG_DEVICE_BIO, "Waiting for .mpr file to be created: %s", mprPath);
+    double waitStart = Timer();
+    int fileExists = 0;
+    while ((Timer() - waitStart) < 30.0) {  // Wait up to 30 seconds
+        if (GetFileAttributesA(mprPath) != INVALID_FILE_ATTRIBUTES) {
+            fileExists = 1;
+            LogMessageEx(LOG_DEVICE_BIO, ".mpr file appeared after %.1f seconds", Timer() - waitStart);
+            break;
+        }
+        Delay(0.5);  // Check every 500ms
+    }
+
+    if (!fileExists) {
+        LogErrorEx(LOG_DEVICE_BIO, ".mpr file not created within timeout period");
+        LogErrorEx(LOG_DEVICE_BIO, "Expected file: %s", mprPath);
+        return ECLAB_ERR_FILE_NOT_FOUND;
+    }
+
     // Convert .mpr data to BIO_TechniqueData
     ret = BIO_ECLAB_ConvertMprToTechniqueData(mprPath, BIO_TECHNIQUE_PEIS, result);
     if (ret != SUCCESS) {
@@ -452,6 +492,26 @@ int BIO_ECLAB_RunGEIS(const char *mpsFilePath,
     (void)finalStatus;  // Status retrieved but not currently used
     if (ret != SUCCESS) {
         return ret;
+    }
+
+    // Wait for .mpr file to be created
+    // EC-Lab may report measurement complete before file is fully written
+    LogMessageEx(LOG_DEVICE_BIO, "Waiting for .mpr file to be created: %s", mprPath);
+    double waitStart = Timer();
+    int fileExists = 0;
+    while ((Timer() - waitStart) < 30.0) {  // Wait up to 30 seconds
+        if (GetFileAttributesA(mprPath) != INVALID_FILE_ATTRIBUTES) {
+            fileExists = 1;
+            LogMessageEx(LOG_DEVICE_BIO, ".mpr file appeared after %.1f seconds", Timer() - waitStart);
+            break;
+        }
+        Delay(0.5);  // Check every 500ms
+    }
+
+    if (!fileExists) {
+        LogErrorEx(LOG_DEVICE_BIO, ".mpr file not created within timeout period");
+        LogErrorEx(LOG_DEVICE_BIO, "Expected file: %s", mprPath);
+        return ECLAB_ERR_FILE_NOT_FOUND;
     }
 
     // Convert .mpr data to BIO_TechniqueData
