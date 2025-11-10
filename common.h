@@ -445,7 +445,7 @@ void DimExperimentControls(int mainPanel, int tabPanel, int dim, int *controls, 
 #define OCV_RECORD_EVERY_DE    1.0    // mV threshold
 #define OCV_RECORD_EVERY_DT    1.0    // seconds threshold
 #define OCV_E_RANGE            KBIO_ERANGE_AUTO  // Auto range
-#define OCV_TIMEOUT_MS         300000  // 5 minutes
+#define OCV_TIMEOUT_MS         100000  // 1 minute 40 seconds
 
 // GEIS parameters
 #define GEIS_VS_INITIAL        true   // vs initial
@@ -462,7 +462,7 @@ void DimExperimentControls(int mainPanel, int tabPanel, int dim, int *controls, 
 #define GEIS_CORRECTION        false    // No drift correction
 #define GEIS_WAIT_FOR_STEADY   0.1      // 0.10 period before each frequency
 #define GEIS_I_RANGE           KBIO_IRANGE_1A  // 1A range
-#define GEIS_TIMEOUT_MS        300000  // 5 minutes
+#define GEIS_TIMEOUT_MS        100000  // 1 minute 40 seconds
 
 #define PSB_BATTERY_POWER_MAX  30      // 30W
 

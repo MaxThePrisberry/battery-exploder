@@ -540,10 +540,13 @@ int BIO_ECLAB_GenerateMprFilename(BioTechniqueType type, char *filename) {
     time_t now = time(NULL);
     struct tm *t = localtime(&now);
 
-    snprintf(filename, MAX_PATH, "%s_%04d%02d%02d_%02d%02d%02d.mpr",
+    // Include channel suffix (_C01, _C02, etc.) to match EC-Lab's file naming
+    // EC-Lab automatically appends channel suffix, so we include it in our path
+    snprintf(filename, MAX_PATH, "%s_%04d%02d%02d_%02d%02d%02d_C%02d.mpr",
             prefix,
             t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
-            t->tm_hour, t->tm_min, t->tm_sec);
+            t->tm_hour, t->tm_min, t->tm_sec,
+            g_config.channelNumber + 1);  // 0-based channel -> 1-based suffix (C01, C02, ...)
 
     return SUCCESS;
 }
