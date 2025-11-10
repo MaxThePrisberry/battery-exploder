@@ -304,6 +304,11 @@ int BIO_ECLAB_RunOCV(const char *mpsFilePath,
     LogMessageEx(LOG_DEVICE_BIO, "  Settings: %s", mpsPath);
     LogMessageEx(LOG_DEVICE_BIO, "  Output: %s", mprPath);
 
+    // Stop channel first to clear any error/fault state that may have been
+    // triggered by relay switching (physical disconnection/reconnection).
+    // EC-Lab requires channel to be in IDLE state before LoadSettings can succeed.
+    ECLAB_StopChannel(g_config.conn, g_config.deviceNumber, g_config.channelNumber);
+
     // Load settings
     int ret = ECLAB_LoadSettings(g_config.conn, g_config.deviceNumber,
                                  g_config.channelNumber, mpsPath);
@@ -379,6 +384,11 @@ int BIO_ECLAB_RunPEIS(const char *mpsFilePath,
     LogMessageEx(LOG_DEVICE_BIO, "  Settings: %s", mpsPath);
     LogMessageEx(LOG_DEVICE_BIO, "  Output: %s", mprPath);
 
+    // Stop channel first to clear any error/fault state that may have been
+    // triggered by relay switching (physical disconnection/reconnection).
+    // EC-Lab requires channel to be in IDLE state before LoadSettings can succeed.
+    ECLAB_StopChannel(g_config.conn, g_config.deviceNumber, g_config.channelNumber);
+
     // Load settings
     int ret = ECLAB_LoadSettings(g_config.conn, g_config.deviceNumber,
                                  g_config.channelNumber, mpsPath);
@@ -453,6 +463,11 @@ int BIO_ECLAB_RunGEIS(const char *mpsFilePath,
 
     LogMessageEx(LOG_DEVICE_BIO, "  Settings: %s", mpsPath);
     LogMessageEx(LOG_DEVICE_BIO, "  Output: %s", mprPath);
+
+    // Stop channel first to clear any error/fault state that may have been
+    // triggered by relay switching (physical disconnection/reconnection).
+    // EC-Lab requires channel to be in IDLE state before LoadSettings can succeed.
+    ECLAB_StopChannel(g_config.conn, g_config.deviceNumber, g_config.channelNumber);
 
     // Load settings
     int ret = ECLAB_LoadSettings(g_config.conn, g_config.deviceNumber,
