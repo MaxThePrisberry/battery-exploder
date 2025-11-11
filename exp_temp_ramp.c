@@ -2134,32 +2134,35 @@ static int SwitchToBioLogic(TempRampExperimentContext *ctx) {
 
     LogMessage("Switched to BioLogic");
 
-    // DEBUG: Comprehensive EC-Lab state diagnostics after relay switching
-    LogMessage("=== EC-Lab State Diagnostics After Relay Switch ===");
+    // After relay switching, EC-Lab detects the physical disconnection and marks
+    // the device as "not connected". We need to reconnect to restore the device state.
+    LogMessage("Reconnecting to EC-Lab device after relay switch...");
 
-    // Test 1: Check if COM connection to EC-Lab is still valid
+    // First disconnect (to clear the "not connected" state)
+    int disconnectResult = BIO_ECLAB_Disconnect();
+    if (disconnectResult != SUCCESS) {
+        LogWarning("Disconnect returned: %d (%s) - continuing anyway",
+                  disconnectResult, BIO_GetErrorString(disconnectResult));
+    }
+
+    // Small delay to let EC-Lab process the disconnect
+    Delay(0.5);
+
+    // Now reconnect
+    int reconnectResult = BIO_ECLAB_Connect();
+    if (reconnectResult != SUCCESS) {
+        LogError("Failed to reconnect to EC-Lab device: %s", BIO_GetErrorString(reconnectResult));
+        return reconnectResult;
+    }
+
+    // Verify connection is restored
     int testResult = BIO_ECLAB_TestConnection();
-    LogMessage("[DEBUG] TestConnection result: %d (%s)",
-               testResult, testResult == SUCCESS ? "SUCCESS" : BIO_GetErrorString(testResult));
-
-    // Test 2: Try to get channel status (if available)
-    // Note: This might fail if the abstraction layer doesn't expose this
-    LogMessage("[DEBUG] Attempting to query EC-Lab channel status...");
-
-    // Test 3: Add small delays and retest to see if error persists
-    LogMessage("[DEBUG] Waiting 1 second...");
-    Delay(1.0);
-    testResult = BIO_ECLAB_TestConnection();
-    LogMessage("[DEBUG] TestConnection after 1s: %d (%s)",
-               testResult, testResult == SUCCESS ? "SUCCESS" : BIO_GetErrorString(testResult));
-
-    LogMessage("[DEBUG] Waiting additional 2 seconds...");
-    Delay(2.0);
-    testResult = BIO_ECLAB_TestConnection();
-    LogMessage("[DEBUG] TestConnection after 3s total: %d (%s)",
-               testResult, testResult == SUCCESS ? "SUCCESS" : BIO_GetErrorString(testResult));
-
-    LogMessage("=== End EC-Lab Diagnostics ===");
+    if (testResult == SUCCESS) {
+        LogMessage("EC-Lab device reconnected successfully");
+    } else {
+        LogError("TestConnection still failing after reconnect: %s", BIO_GetErrorString(testResult));
+        return testResult;
+    }
 
     return SUCCESS;
 }

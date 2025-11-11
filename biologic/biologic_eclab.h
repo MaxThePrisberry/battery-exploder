@@ -237,6 +237,16 @@ int BIO_ECLAB_GetDeviceID(void);
 int BIO_ECLAB_Connect(void);
 
 /**
+ * Disconnect from EC-Lab device
+ *
+ * Disconnects from the device. Useful for clearing device fault states
+ * after hardware events like relay switching.
+ *
+ * @return SUCCESS or error code
+ */
+int BIO_ECLAB_Disconnect(void);
+
+/**
  * Test EC-Lab connection
  *
  * Verifies that EC-Lab is still running and device is connected.

@@ -597,6 +597,13 @@ int BIO_ECLAB_Connect(void) {
     return ECLAB_ConnectDevice(g_config.conn, g_config.deviceNumber);
 }
 
+int BIO_ECLAB_Disconnect(void) {
+    if (!g_initialized) return ERR_NOT_INITIALIZED;
+    if (!g_config.conn) return ECLAB_ERR_INVALID_CONNECTION;
+
+    return ECLAB_DisconnectDevice(g_config.conn);
+}
+
 int BIO_ECLAB_TestConnection(void) {
     if (!g_initialized) return ERR_NOT_INITIALIZED;
     if (!g_config.conn) return ECLAB_ERR_INVALID_CONNECTION;
