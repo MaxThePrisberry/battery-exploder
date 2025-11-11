@@ -304,11 +304,6 @@ int BIO_ECLAB_RunOCV(const char *mpsFilePath,
     LogMessageEx(LOG_DEVICE_BIO, "  Settings: %s", mpsPath);
     LogMessageEx(LOG_DEVICE_BIO, "  Output: %s", mprPath);
 
-    // Stop channel first to clear any error/fault state that may have been
-    // triggered by relay switching (physical disconnection/reconnection).
-    // EC-Lab requires channel to be in IDLE state before LoadSettings can succeed.
-    ECLAB_StopChannel(g_config.conn, g_config.deviceNumber, g_config.channelNumber);
-
     // Load settings
     int ret = ECLAB_LoadSettings(g_config.conn, g_config.deviceNumber,
                                  g_config.channelNumber, mpsPath);
@@ -335,10 +330,6 @@ int BIO_ECLAB_RunOCV(const char *mpsFilePath,
 
     // Small delay to ensure file I/O completes after EC-Lab reports STOP
     Delay(1.0);
-
-    // Explicitly stop the channel to ensure EC-Lab is ready for next measurement
-    // This is necessary because LoadSettings requires the channel to be in IDLE state
-    ECLAB_StopChannel(g_config.conn, g_config.deviceNumber, g_config.channelNumber);
 
     // Convert .mpr data to BIO_TechniqueData
     ret = BIO_ECLAB_ConvertMprToTechniqueData(mprPath, BIO_TECHNIQUE_OCV, result);
@@ -384,11 +375,6 @@ int BIO_ECLAB_RunPEIS(const char *mpsFilePath,
     LogMessageEx(LOG_DEVICE_BIO, "  Settings: %s", mpsPath);
     LogMessageEx(LOG_DEVICE_BIO, "  Output: %s", mprPath);
 
-    // Stop channel first to clear any error/fault state that may have been
-    // triggered by relay switching (physical disconnection/reconnection).
-    // EC-Lab requires channel to be in IDLE state before LoadSettings can succeed.
-    ECLAB_StopChannel(g_config.conn, g_config.deviceNumber, g_config.channelNumber);
-
     // Load settings
     int ret = ECLAB_LoadSettings(g_config.conn, g_config.deviceNumber,
                                  g_config.channelNumber, mpsPath);
@@ -415,10 +401,6 @@ int BIO_ECLAB_RunPEIS(const char *mpsFilePath,
 
     // Small delay to ensure file I/O completes after EC-Lab reports STOP
     Delay(1.0);
-
-    // Explicitly stop the channel to ensure EC-Lab is ready for next measurement
-    // This is necessary because LoadSettings requires the channel to be in IDLE state
-    ECLAB_StopChannel(g_config.conn, g_config.deviceNumber, g_config.channelNumber);
 
     // Convert .mpr data to BIO_TechniqueData
     ret = BIO_ECLAB_ConvertMprToTechniqueData(mprPath, BIO_TECHNIQUE_PEIS, result);
@@ -464,11 +446,6 @@ int BIO_ECLAB_RunGEIS(const char *mpsFilePath,
     LogMessageEx(LOG_DEVICE_BIO, "  Settings: %s", mpsPath);
     LogMessageEx(LOG_DEVICE_BIO, "  Output: %s", mprPath);
 
-    // Stop channel first to clear any error/fault state that may have been
-    // triggered by relay switching (physical disconnection/reconnection).
-    // EC-Lab requires channel to be in IDLE state before LoadSettings can succeed.
-    ECLAB_StopChannel(g_config.conn, g_config.deviceNumber, g_config.channelNumber);
-
     // Load settings
     int ret = ECLAB_LoadSettings(g_config.conn, g_config.deviceNumber,
                                  g_config.channelNumber, mpsPath);
@@ -495,10 +472,6 @@ int BIO_ECLAB_RunGEIS(const char *mpsFilePath,
 
     // Small delay to ensure file I/O completes after EC-Lab reports STOP
     Delay(1.0);
-
-    // Explicitly stop the channel to ensure EC-Lab is ready for next measurement
-    // This is necessary because LoadSettings requires the channel to be in IDLE state
-    ECLAB_StopChannel(g_config.conn, g_config.deviceNumber, g_config.channelNumber);
 
     // Convert .mpr data to BIO_TechniqueData
     ret = BIO_ECLAB_ConvertMprToTechniqueData(mprPath, BIO_TECHNIQUE_GEIS, result);
