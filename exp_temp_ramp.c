@@ -2131,8 +2131,36 @@ static int SwitchToBioLogic(TempRampExperimentContext *ctx) {
     }
     
     Delay(TNY_SWITCH_DELAY_MS / 1000.0);
-    
+
     LogMessage("Switched to BioLogic");
+
+    // DEBUG: Comprehensive EC-Lab state diagnostics after relay switching
+    LogMessage("=== EC-Lab State Diagnostics After Relay Switch ===");
+
+    // Test 1: Check if COM connection to EC-Lab is still valid
+    int testResult = BIO_ECLAB_TestConnection();
+    LogMessage("[DEBUG] TestConnection result: %d (%s)",
+               testResult, testResult == SUCCESS ? "SUCCESS" : BIO_GetErrorString(testResult));
+
+    // Test 2: Try to get channel status (if available)
+    // Note: This might fail if the abstraction layer doesn't expose this
+    LogMessage("[DEBUG] Attempting to query EC-Lab channel status...");
+
+    // Test 3: Add small delays and retest to see if error persists
+    LogMessage("[DEBUG] Waiting 1 second...");
+    Delay(1.0);
+    testResult = BIO_ECLAB_TestConnection();
+    LogMessage("[DEBUG] TestConnection after 1s: %d (%s)",
+               testResult, testResult == SUCCESS ? "SUCCESS" : BIO_GetErrorString(testResult));
+
+    LogMessage("[DEBUG] Waiting additional 2 seconds...");
+    Delay(2.0);
+    testResult = BIO_ECLAB_TestConnection();
+    LogMessage("[DEBUG] TestConnection after 3s total: %d (%s)",
+               testResult, testResult == SUCCESS ? "SUCCESS" : BIO_GetErrorString(testResult));
+
+    LogMessage("=== End EC-Lab Diagnostics ===");
+
     return SUCCESS;
 }
 

@@ -573,7 +573,17 @@ int ECLAB_LoadSettings(ECLabConnection *conn, int device, int channel,
         LogMessageEx(LOG_DEVICE_BIO, "Settings loaded successfully");
         return SUCCESS;
     } else {
-        LogErrorEx(LOG_DEVICE_BIO, "LoadSettings failed (returned %d)", retVal);
+        // Log both decimal and hex to understand what EC-Lab is returning
+        LogErrorEx(LOG_DEVICE_BIO, "LoadSettings failed (returned %d / 0x%08X)",
+                  retVal, (unsigned int)retVal);
+        if (retVal == (int)0x8001010E) {
+            LogErrorEx(LOG_DEVICE_BIO, "  Error is RPC_E_DISCONNECTED (0x8001010E)");
+            LogErrorEx(LOG_DEVICE_BIO, "  This typically means EC-Lab has invalidated the interface");
+            LogErrorEx(LOG_DEVICE_BIO, "  Possible causes:");
+            LogErrorEx(LOG_DEVICE_BIO, "    - Device hardware fault detected by EC-Lab");
+            LogErrorEx(LOG_DEVICE_BIO, "    - Voltage transient from relay switching");
+            LogErrorEx(LOG_DEVICE_BIO, "    - Channel in error/fault state");
+        }
         return ECLAB_ERR_INVALID_MPS_FILE;
     }
 }
@@ -622,7 +632,13 @@ int ECLAB_StopChannel(ECLabConnection *conn, int device, int channel) {
         LogMessageEx(LOG_DEVICE_BIO, "Measurement stopped");
         return SUCCESS;
     } else {
-        LogWarningEx(LOG_DEVICE_BIO, "StopChannel failed (returned %d)", retVal);
+        // Log both decimal and hex to understand what EC-Lab is returning
+        LogWarningEx(LOG_DEVICE_BIO, "StopChannel failed (returned %d / 0x%08X)",
+                    retVal, (unsigned int)retVal);
+        if (retVal == (int)0x8001010E) {
+            LogWarningEx(LOG_DEVICE_BIO, "  Error is RPC_E_DISCONNECTED (0x8001010E)");
+            LogWarningEx(LOG_DEVICE_BIO, "  This typically means EC-Lab has invalidated the interface");
+        }
         return ECLAB_ERR_COM_INVOKE_FAILED;
     }
 }
