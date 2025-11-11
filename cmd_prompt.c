@@ -805,9 +805,9 @@ static int BioLogicCommandManager(CommandContext *ctx) {
 			return -1;
 		}
 
-		if (result && result->eisData && result->eisData->numPoints > 0) {
+		if (result && result->rawData && result->rawData->numPoints > 0) {
 			snprintf(message, sizeof(message), "PEIS complete: %d frequency points",
-			        result->eisData->numPoints);
+			        result->rawData->numPoints);
 			LogPromptTextbox(CMD_OUTPUT, message);
 			BIO_FreeTechniqueData(result);
 		} else {
@@ -851,9 +851,9 @@ static int BioLogicCommandManager(CommandContext *ctx) {
 			return -1;
 		}
 
-		if (result && result->eisData && result->eisData->numPoints > 0) {
+		if (result && result->rawData && result->rawData->numPoints > 0) {
 			snprintf(message, sizeof(message), "GEIS complete: %d frequency points",
-			        result->eisData->numPoints);
+			        result->rawData->numPoints);
 			LogPromptTextbox(CMD_OUTPUT, message);
 			BIO_FreeTechniqueData(result);
 		} else {
