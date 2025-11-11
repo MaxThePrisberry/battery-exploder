@@ -1,0 +1,181 @@
+=============================================================================
+EC-LAB RELAY SWITCHING ISSUE - WORK SUMMARY (2025-11-10)
+=============================================================================
+
+PROBLEM STATEMENT
+-----------------
+During temperature ramp experiments, OCV/GEIS measurements fail immediately
+after relay switching with error -2147417842 (0x8001010E = RPC_E_DISCONNECTED).
+
+The same measurements work perfectly when run standalone (outside of ramp
+experiments), so the issue is specifically related to the relay switching
+operation.
+
+
+ROOT CAUSE ANALYSIS
+-------------------
+Through comprehensive debug logging (commit 421500e), we discovered:
+
+1. After relay switching, EC-Lab TestConnection returns:
+   - Error: ECLAB_ERR_NOT_CONNECTED (-2107)
+   - Message: "Device 0 is not connected"
+   - This persists even after 3+ seconds
+
+2. Once EC-Lab believes device is disconnected, ALL method calls fail:
+   - StopChannel: RPC_E_DISCONNECTED (0x8001010E)
+   - LoadSettings: RPC_E_DISCONNECTED (0x8001010E)
+
+3. EC-Lab detects the physical relay disconnection and marks the device
+   as "not connected" internally, invalidating all COM interface calls.
+
+KEY INSIGHT: This is NOT a COM transport issue or channel state issue.
+EC-Lab is detecting the hardware disconnection and invalidating the device.
+
+
+ATTEMPTED SOLUTION (COMMIT 91e4dc6)
+-----------------------------------
+Added reconnect logic to SwitchToBioLogic():
+1. Call ECLAB_DisconnectDevice() to clear fault state
+2. Wait 0.5 seconds
+3. Call ECLAB_ConnectDevice() to reconnect
+4. Verify with TestConnection()
+
+RESULT: Failed with new error sequence (log 2025-11-10-6.txt lines 302-307):
+- Line 304: DisconnectDevice failed (returned -2147417842)
+- Line 305: Disconnect returned: -2102 (ECLAB_ERR_COM_INVOKE_FAILED)
+- Line 306: ConnectDevice failed with -2108 (ECLAB_ERR_ALREADY_CONNECTED)
+
+ANALYSIS:
+- DisconnectDevice fails because device is already in "not connected" state
+- When disconnect fails, conn->isConnected flag remains TRUE
+- ConnectDevice checks isConnected flag and returns ALREADY_CONNECTED error
+- Net result: We're stuck unable to reconnect
+
+
+PROPOSED SOLUTIONS FOR TOMORROW
+--------------------------------
+Option 1: Force reset the isConnected flag
+   - After DisconnectDevice fails, manually set conn->isConnected = false
+   - This allows ConnectDevice to proceed even if disconnect failed
+   - Modify exp_temp_ramp.c to handle the disconnect failure gracefully
+
+Option 2: Skip disconnect entirely
+   - Don't call DisconnectDevice at all
+   - Force conn->isConnected = false directly before calling ConnectDevice
+   - Rationale: If EC-Lab thinks device is disconnected, calling
+     DisconnectDevice is redundant
+
+Option 3: Use lower-level COM reconnection
+   - Release and recreate the IEClabExe COM interface
+   - This is more invasive but might be necessary
+   - Would require modifications to eclab_olecom.c
+
+Option 4: Add "force reconnect" function
+   - Create ECLAB_ForceReconnect() that:
+     a) Forces conn->isConnected = false
+     b) Calls ConnectDevice()
+   - This is cleaner than modifying flags from outside
+
+RECOMMENDED: Try Option 4 first (cleanest), then Option 2 if needed.
+
+
+RELEVANT CODE LOCATIONS
+-----------------------
+exp_temp_ramp.c:2116-2168         - SwitchToBioLogic() function (reconnect logic)
+biologic/eclab_olecom.c:438-497   - ECLAB_ConnectDevice() implementation
+biologic/eclab_olecom.c:499-519   - ECLAB_DisconnectDevice() implementation
+biologic/biologic_eclab.c:593-605 - Wrapper functions
+
+Key variables:
+  conn->isConnected - Flag that prevents ConnectDevice when TRUE
+
+
+COMMITS RELATED TO THIS ISSUE
+------------------------------
+47dbc4a - Fix MPR filename mismatch and reduce EIS timeouts
+5f0334e - Fix EC-Lab channel state for consecutive measurements
+afaccc5 - Add StopChannel before LoadSettings to clear relay-induced faults
+421500e - Add comprehensive debug logging for EC-Lab relay-switching issue
+91e4dc6 - Fix relay-switching issue by reconnecting to EC-Lab device (FAILED)
+
+
+TEST LOGS
+---------
+log 2025-11-06-6.txt - Original failure (before MeasureStatus fix)
+log 2025-11-10-1.txt - Failure after various fixes
+log 2025-11-10-2.txt - Repeated failures during ramp
+log 2025-11-10-3.txt - Shows standalone OCV working, ramp failing
+log 2025-11-10-4.txt - After StopChannel fix (still failing)
+log 2025-11-10-5.txt - Debug logging reveals "Device not connected"
+log 2025-11-10-6.txt - Reconnect attempt fails (ALREADY_CONNECTED)
+
+
+WORKING SCENARIOS
+-----------------
+✅ Standalone BIO OCV measurements (log 2025-11-10-3.txt lines 206-237)
+✅ Multiple consecutive OCV measurements (log 2025-11-10-3.txt lines 238-263)
+✅ OCV after experiment cleanup and app restart
+
+
+FAILING SCENARIOS
+-----------------
+❌ First OCV measurement during temperature ramp (after relay switch)
+❌ All subsequent retries (3 attempts, all fail the same way)
+
+
+ADDITIONAL OBSERVATIONS
+-----------------------
+- Standalone BIO OCV measurements work perfectly
+- The issue ONLY occurs during temperature ramp experiments
+- Relay switching involves:
+  1. Disconnect PSB relay (TNY_PSB_PIN)
+  2. Delay (TNY_SWITCH_DELAY_MS)
+  3. Connect BioLogic relay (TNY_BIOLOGIC_PIN)
+  4. Delay (TNY_SWITCH_DELAY_MS)
+- After experiment cleanup, subsequent standalone OCV works again
+- This suggests something in experiment cleanup resets EC-Lab's state
+
+
+QUESTIONS TO INVESTIGATE TOMORROW
+----------------------------------
+1. Can we add ECLAB_ForceReconnect() that ignores isConnected flag?
+2. Is there an EC-Lab method to "refresh" device status without disconnect?
+3. Does increasing delay after relay switch help EC-Lab detect reconnection?
+4. What does experiment cleanup do that allows subsequent OCV to work?
+5. Can we query EC-Lab's device list to see what it thinks is connected?
+6. Could we restart/reset EC-Lab programmatically after relay switch?
+
+
+ALTERNATIVE HYPOTHESIS
+----------------------
+Perhaps EC-Lab automatically recovers from the disconnection if given enough
+time, but our immediate attempt to use the device interrupts that recovery.
+
+Consider testing:
+- Adding 5-10 second delay after relay switch before any EC-Lab interaction
+- Polling TestConnection in a loop until it succeeds (with timeout)
+- Checking if EC-Lab has background tasks that need to complete
+
+
+IMPLEMENTATION PLAN FOR TOMORROW
+---------------------------------
+1. Add ECLAB_ForceReconnect() function to eclab_olecom.c:
+   - Forces conn->isConnected = false
+   - Calls ConnectDevice()
+   - Returns result
+
+2. Modify SwitchToBioLogic() in exp_temp_ramp.c:
+   - Remove DisconnectDevice() call
+   - Call ECLAB_ForceReconnect() instead
+   - Keep verification with TestConnection()
+
+3. Test with temperature ramp experiment
+
+4. If still fails, try polling TestConnection() in loop:
+   - Wait up to 10 seconds for EC-Lab to recognize device
+   - Check every 0.5 seconds
+   - Proceed once TestConnection succeeds
+
+=============================================================================
+END OF WORK SUMMARY
+=============================================================================
