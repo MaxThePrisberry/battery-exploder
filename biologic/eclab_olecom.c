@@ -518,6 +518,52 @@ int ECLAB_DisconnectDevice(ECLabConnection *conn) {
     }
 }
 
+int ECLAB_ForceReconnect(ECLabConnection *conn, int deviceNumber) {
+    if (!conn || !conn->pInterface) return ECLAB_ERR_INVALID_CONNECTION;
+
+    LogMessageEx(LOG_DEVICE_BIO, "========================================");
+    LogMessageEx(LOG_DEVICE_BIO, "Force reconnecting to EC-Lab device %d", deviceNumber);
+    LogMessageEx(LOG_DEVICE_BIO, "========================================");
+    LogMessageEx(LOG_DEVICE_BIO, "This function is used when EC-Lab has detected a hardware");
+    LogMessageEx(LOG_DEVICE_BIO, "disconnection (e.g., relay switch) and marked the device as");
+    LogMessageEx(LOG_DEVICE_BIO, "'not connected' internally, but the device is now reconnected.");
+    LogMessageEx(LOG_DEVICE_BIO, "");
+
+    // Force the isConnected flag to false
+    // This is necessary when EC-Lab thinks the device is disconnected but our
+    // internal flag still shows connected, which prevents ConnectDevice from working.
+    // This typically happens after relay switching when:
+    //   1. EC-Lab detects the physical disconnection
+    //   2. We try to call DisconnectDevice, but it fails because EC-Lab already
+    //      considers the device disconnected
+    //   3. The failed DisconnectDevice leaves our isConnected flag as true
+    //   4. ConnectDevice then refuses to work because isConnected is true
+    bool wasConnected = conn->isConnected;
+    conn->isConnected = false;
+
+    if (wasConnected) {
+        LogMessageEx(LOG_DEVICE_BIO, "Forced isConnected flag from TRUE to FALSE");
+    } else {
+        LogMessageEx(LOG_DEVICE_BIO, "isConnected flag was already FALSE");
+    }
+
+    // Now call the standard ConnectDevice function
+    LogMessageEx(LOG_DEVICE_BIO, "Calling ConnectDevice to re-establish connection...");
+    int result = ECLAB_ConnectDevice(conn, deviceNumber);
+
+    if (result == SUCCESS) {
+        LogMessageEx(LOG_DEVICE_BIO, "========================================");
+        LogMessageEx(LOG_DEVICE_BIO, "Force reconnect succeeded!");
+        LogMessageEx(LOG_DEVICE_BIO, "========================================");
+    } else {
+        LogErrorEx(LOG_DEVICE_BIO, "========================================");
+        LogErrorEx(LOG_DEVICE_BIO, "Force reconnect FAILED: %s", ECLAB_GetErrorString(result));
+        LogErrorEx(LOG_DEVICE_BIO, "========================================");
+    }
+
+    return result;
+}
+
 int ECLAB_TestConnection(ECLabConnection *conn) {
     if (!conn || !conn->pInterface) return ECLAB_ERR_INVALID_CONNECTION;
 

@@ -247,6 +247,19 @@ int BIO_ECLAB_Connect(void);
 int BIO_ECLAB_Disconnect(void);
 
 /**
+ * Force reconnect to EC-Lab device
+ *
+ * Forces a reconnection by resetting internal state and reconnecting.
+ * Use this when EC-Lab has detected a hardware disconnection (e.g., relay
+ * switching) and marked the device as "not connected", but the device is
+ * now physically reconnected. This bypasses the normal disconnect/connect
+ * sequence which may fail in this state.
+ *
+ * @return SUCCESS or error code
+ */
+int BIO_ECLAB_ForceReconnect(void);
+
+/**
  * Test EC-Lab connection
  *
  * Verifies that EC-Lab is still running and device is connected.

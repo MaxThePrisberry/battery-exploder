@@ -2115,56 +2115,81 @@ static int SaveEISMeasurementData(TempRampExperimentContext *ctx, TempRampEISMea
 
 static int SwitchToBioLogic(TempRampExperimentContext *ctx) {
     LogMessage("Switching to BioLogic...");
-    
+
     int result = TNY_SetPinQueued(TNY_PSB_PIN, TNY_STATE_DISCONNECTED, DEVICE_PRIORITY_NORMAL);
     if (result != SUCCESS) {
         LogError("Failed to disconnect PSB relay: %s", GetErrorString(result));
         return result;
     }
-    
+
     Delay(TNY_SWITCH_DELAY_MS / 1000.0);
-    
+
     result = TNY_SetPinQueued(TNY_BIOLOGIC_PIN, TNY_STATE_CONNECTED, DEVICE_PRIORITY_NORMAL);
     if (result != SUCCESS) {
         LogError("Failed to connect BioLogic relay: %s", GetErrorString(result));
         return result;
     }
-    
+
     Delay(TNY_SWITCH_DELAY_MS / 1000.0);
 
-    LogMessage("Switched to BioLogic");
+    LogMessage("Relay switching complete - hardware reconnected");
 
     // After relay switching, EC-Lab detects the physical disconnection and marks
-    // the device as "not connected". We need to reconnect to restore the device state.
-    LogMessage("Reconnecting to EC-Lab device after relay switch...");
+    // the device as "not connected" internally. We need to force reconnect to restore
+    // the device state. This uses ECLAB_ForceReconnect which bypasses the normal
+    // disconnect/connect sequence (which fails because EC-Lab already thinks the
+    // device is disconnected, but our internal flag still shows connected).
+    LogMessage("Force reconnecting to EC-Lab device after relay switch...");
 
-    // First disconnect (to clear the "not connected" state)
-    int disconnectResult = BIO_ECLAB_Disconnect();
-    if (disconnectResult != SUCCESS) {
-        LogWarning("Disconnect returned: %d (%s) - continuing anyway",
-                  disconnectResult, BIO_GetErrorString(disconnectResult));
-    }
-
-    // Small delay to let EC-Lab process the disconnect
-    Delay(0.5);
-
-    // Now reconnect
-    int reconnectResult = BIO_ECLAB_Connect();
+    // Use force reconnect to bypass the failed disconnect issue
+    int reconnectResult = BIO_ECLAB_ForceReconnect();
     if (reconnectResult != SUCCESS) {
-        LogError("Failed to reconnect to EC-Lab device: %s", BIO_GetErrorString(reconnectResult));
-        return reconnectResult;
+        LogError("Initial force reconnect failed: %s", BIO_GetErrorString(reconnectResult));
+        LogMessage("This may be temporary - EC-Lab might need time to detect the reconnection");
     }
 
-    // Verify connection is restored
-    int testResult = BIO_ECLAB_TestConnection();
-    if (testResult == SUCCESS) {
-        LogMessage("EC-Lab device reconnected successfully");
-    } else {
-        LogError("TestConnection still failing after reconnect: %s", BIO_GetErrorString(testResult));
-        return testResult;
+    // Poll TestConnection for up to 10 seconds to allow EC-Lab time to recognize
+    // the device. EC-Lab may need a few seconds to detect the hardware reconnection
+    // after the relay switching event.
+    const int MAX_POLL_ATTEMPTS = 20;  // 20 attempts
+    const double POLL_INTERVAL_SEC = 0.5;  // 0.5 seconds between attempts
+    const double MAX_WAIT_TIME = MAX_POLL_ATTEMPTS * POLL_INTERVAL_SEC;  // 10 seconds total
+
+    LogMessage("Polling TestConnection for up to %.1f seconds...", MAX_WAIT_TIME);
+
+    int testResult = ECLAB_ERR_NOT_CONNECTED;
+    for (int attempt = 1; attempt <= MAX_POLL_ATTEMPTS; attempt++) {
+        testResult = BIO_ECLAB_TestConnection();
+
+        if (testResult == SUCCESS) {
+            LogMessage("EC-Lab device recognized on attempt %d (%.1f seconds)",
+                      attempt, attempt * POLL_INTERVAL_SEC);
+            LogMessage("EC-Lab device reconnected successfully!");
+            return SUCCESS;
+        }
+
+        // Log progress every 2 seconds (every 4 attempts)
+        if (attempt % 4 == 0) {
+            LogMessage("Still waiting for EC-Lab to recognize device... (%.1f/%.1f seconds)",
+                      attempt * POLL_INTERVAL_SEC, MAX_WAIT_TIME);
+        }
+
+        // Wait before next attempt (unless this was the last attempt)
+        if (attempt < MAX_POLL_ATTEMPTS) {
+            Delay(POLL_INTERVAL_SEC);
+        }
     }
 
-    return SUCCESS;
+    // If we get here, all polling attempts failed
+    LogError("EC-Lab device not recognized after %.1f seconds", MAX_WAIT_TIME);
+    LogError("Final TestConnection result: %s", BIO_GetErrorString(testResult));
+    LogError("Possible causes:");
+    LogError("  - EC-Lab needs to be restarted");
+    LogError("  - Device is not properly connected in EC-Lab");
+    LogError("  - Hardware issue with the Bio-Logic device");
+    LogError("  - Relay switching timing issue");
+
+    return testResult;
 }
 
 static int SafeDisconnectAllDevices(TempRampExperimentContext *ctx) {

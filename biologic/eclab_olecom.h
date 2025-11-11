@@ -240,6 +240,24 @@ int ECLAB_ConnectDevice(ECLabConnection *conn, int deviceNumber);
 int ECLAB_DisconnectDevice(ECLabConnection *conn);
 
 /**
+ * Force reconnect to EC-Lab device
+ *
+ * Forces a reconnection to the device by resetting the internal connection
+ * state and calling ConnectDevice. This is used when EC-Lab has detected a
+ * hardware disconnection (e.g., relay switching) and marked the device as
+ * "not connected" internally, but the device is now physically reconnected.
+ *
+ * This bypasses the normal disconnect/connect sequence which may fail when
+ * EC-Lab already considers the device disconnected but the internal flag
+ * still shows connected.
+ *
+ * @param conn          Connection handle
+ * @param deviceNumber  EC-Lab device index (0-based)
+ * @return SUCCESS or error code
+ */
+int ECLAB_ForceReconnect(ECLabConnection *conn, int deviceNumber);
+
+/**
  * Test connection to device
  *
  * Verifies that the device is still connected and responding.
