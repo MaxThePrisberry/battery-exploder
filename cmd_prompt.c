@@ -772,6 +772,97 @@ static int BioLogicCommandManager(CommandContext *ctx) {
 		return 0;
 	}
 
+	// BIO PEIS - Run quick PEIS test
+	if (strcmp(ctx->command, "PEIS") == 0) {
+		LogPromptTextbox(CMD_OUTPUT, "Running PEIS measurement (10kHz-0.1Hz, 10mV amplitude)...");
+
+		BIO_TechniqueData *result = NULL;
+		error = BIO_Abstract_RunPEIS(
+			0,                   // channel 0
+			true,                // vs_initial
+			0.0,                 // initial_voltage_step (V)
+			1.0,                 // duration_step (s)
+			0.0,                 // record_every_dT (s)
+			0.0,                 // record_every_dI (A)
+			10000.0,             // initial_freq: 10 kHz
+			0.1,                 // final_freq: 0.1 Hz
+			false,               // sweep_linear (logarithmic)
+			0.010,               // amplitude_voltage: 10 mV
+			11,                  // frequency_number (5 decades)
+			2,                   // average_n_times
+			false,               // correction
+			0.1,                 // wait_for_steady (periods)
+			&result,
+			100000,              // timeout_ms (100 seconds)
+			NULL,                // no progress callback
+			NULL,                // no user data
+			NULL);               // no cancel flag
+
+		if (error != SUCCESS) {
+			snprintf(message, sizeof(message), "PEIS failed: %d : %s",
+			        error, GetErrorString(error));
+			LogPromptTextbox(CMD_ERROR, message);
+			return -1;
+		}
+
+		if (result && result->eisData && result->eisData->numPoints > 0) {
+			snprintf(message, sizeof(message), "PEIS complete: %d frequency points",
+			        result->eisData->numPoints);
+			LogPromptTextbox(CMD_OUTPUT, message);
+			BIO_FreeTechniqueData(result);
+		} else {
+			LogPromptTextbox(CMD_ERROR, "PEIS returned no data");
+		}
+
+		return 0;
+	}
+
+	// BIO GEIS - Run quick GEIS test
+	if (strcmp(ctx->command, "GEIS") == 0) {
+		LogPromptTextbox(CMD_OUTPUT, "Running GEIS measurement (10kHz-0.1Hz, 500mA amplitude)...");
+
+		BIO_TechniqueData *result = NULL;
+		error = BIO_Abstract_RunGEIS(
+			0,                   // channel 0
+			GEIS_VS_INITIAL,     // vs_initial
+			GEIS_INITIAL_CURRENT,// initial_current_step (A)
+			GEIS_DURATION_S,     // duration_step (s)
+			GEIS_RECORD_EVERY_DT,// record_every_dT (s)
+			GEIS_RECORD_EVERY_DE,// record_every_dE (V)
+			GEIS_INITIAL_FREQ,   // initial_freq: 10 kHz
+			GEIS_FINAL_FREQ,     // final_freq: 0.1 Hz
+			GEIS_SWEEP_LINEAR,   // sweep_linear (logarithmic)
+			GEIS_AMPLITUDE_I,    // amplitude_current: 500 mA
+			GEIS_FREQ_NUMBER,    // frequency_number
+			GEIS_AVERAGE_N,      // average_n_times
+			GEIS_CORRECTION,     // correction
+			GEIS_WAIT_FOR_STEADY,// wait_for_steady (periods)
+			GEIS_I_RANGE,        // i_range (1A range)
+			&result,
+			GEIS_TIMEOUT_MS,     // timeout_ms
+			NULL,                // no progress callback
+			NULL,                // no user data
+			NULL);               // no cancel flag
+
+		if (error != SUCCESS) {
+			snprintf(message, sizeof(message), "GEIS failed: %d : %s",
+			        error, GetErrorString(error));
+			LogPromptTextbox(CMD_ERROR, message);
+			return -1;
+		}
+
+		if (result && result->eisData && result->eisData->numPoints > 0) {
+			snprintf(message, sizeof(message), "GEIS complete: %d frequency points",
+			        result->eisData->numPoints);
+			LogPromptTextbox(CMD_OUTPUT, message);
+			BIO_FreeTechniqueData(result);
+		} else {
+			LogPromptTextbox(CMD_ERROR, "GEIS returned no data");
+		}
+
+		return 0;
+	}
+
 	// BIO HELP - Show help
 	if (strcmp(ctx->command, "HELP") == 0) {
 		LogPromptTextbox(CMD_OUTPUT, "BioLogic Abstraction Commands:");
@@ -779,6 +870,8 @@ static int BioLogicCommandManager(CommandContext *ctx) {
 		LogPromptTextbox(CMD_OUTPUT, "  BIO TEST               - Test connection to device");
 		LogPromptTextbox(CMD_OUTPUT, "  BIO ID                 - Get device ID");
 		LogPromptTextbox(CMD_OUTPUT, "  BIO OCV                - Run quick 10s OCV test");
+		LogPromptTextbox(CMD_OUTPUT, "  BIO PEIS               - Run quick PEIS test (10kHz-0.1Hz, 10mV)");
+		LogPromptTextbox(CMD_OUTPUT, "  BIO GEIS               - Run quick GEIS test (10kHz-0.1Hz, 500mA)");
 		LogPromptTextbox(CMD_OUTPUT, "  BIO HELP               - Show this help");
 		LogPromptTextbox(CMD_OUTPUT, "");
 		LogPromptTextbox(CMD_OUTPUT, "Note: Uses abstraction layer (auto DLL/EC-Lab mode)");
