@@ -439,60 +439,36 @@ int ECLAB_ConnectDevice(ECLabConnection *conn, int deviceNumber) {
     if (!conn || !conn->pInterface) return ECLAB_ERR_INVALID_CONNECTION;
     if (conn->isConnected) return ECLAB_ERR_ALREADY_CONNECTED;
 
-    LogMessageEx(LOG_DEVICE_BIO, "========================================");
     LogMessageEx(LOG_DEVICE_BIO, "Connecting to EC-Lab device %d", deviceNumber);
-    LogMessageEx(LOG_DEVICE_BIO, "========================================");
-    LogMessageEx(LOG_DEVICE_BIO, "IMPORTANT: Device must be connected in EC-Lab first!");
-    LogMessageEx(LOG_DEVICE_BIO, "  1. In EC-Lab, go to Device menu");
-    LogMessageEx(LOG_DEVICE_BIO, "  2. Select 'Connect Device'");
-    LogMessageEx(LOG_DEVICE_BIO, "  3. Verify device %d is connected and active", deviceNumber);
-    LogMessageEx(LOG_DEVICE_BIO, "");
 
     // Call ConnectDevice method directly through vtable
-    LogMessageEx(LOG_DEVICE_BIO, "Calling EC-Lab ConnectDevice method...");
     int retVal = conn->pInterface->lpVtbl->ConnectDevice(conn->pInterface, deviceNumber);
 
     // EC-Lab returns 1 if connected, 0 otherwise (per manual section 3.2.1)
     // Any other value (negative, COM errors) indicates failure
     if (retVal == 1) {
-        LogMessageEx(LOG_DEVICE_BIO, "ConnectDevice returned: 1 (success)");
-
         conn->deviceNumber = deviceNumber;
         conn->isConnected = true;
 
         // Immediately verify connection with TestConnection
-        LogMessageEx(LOG_DEVICE_BIO, "Verifying connection with TestConnection...");
         int testRetVal = conn->pInterface->lpVtbl->TestConnection(conn->pInterface, deviceNumber);
 
         if (testRetVal == 1) {
-            LogMessageEx(LOG_DEVICE_BIO, "TestConnection returned: 1 (device confirmed connected)");
+            LogMessageEx(LOG_DEVICE_BIO, "Connected to EC-Lab device %d successfully", deviceNumber);
         } else {
-            LogWarningEx(LOG_DEVICE_BIO, "WARNING: TestConnection returned: %d (device reports NOT connected)", testRetVal);
-            LogWarningEx(LOG_DEVICE_BIO, "ConnectDevice succeeded but TestConnection failed immediately!");
-            LogWarningEx(LOG_DEVICE_BIO, "This may indicate a device/channel configuration issue in EC-Lab.");
-            // Keep isConnected = true since ConnectDevice succeeded, but log the discrepancy
+            LogWarningEx(LOG_DEVICE_BIO, "ConnectDevice succeeded but TestConnection failed (device may not be fully ready)");
+            // Keep isConnected = true since ConnectDevice succeeded
         }
     } else {
-        LogErrorEx(LOG_DEVICE_BIO, "ERROR: ConnectDevice failed (returned %d)", retVal);
+        LogErrorEx(LOG_DEVICE_BIO, "ConnectDevice failed (returned %d)", retVal);
         if (retVal == 0) {
-            LogErrorEx(LOG_DEVICE_BIO, "Return value 0 means: Device not connected");
+            LogErrorEx(LOG_DEVICE_BIO, "Device %d not connected in EC-Lab", deviceNumber);
         } else {
-            LogErrorEx(LOG_DEVICE_BIO, "Return value 0x%08X is a COM/OLE error", retVal);
+            LogErrorEx(LOG_DEVICE_BIO, "COM error 0x%08X - check EC-Lab status", retVal);
         }
-        LogErrorEx(LOG_DEVICE_BIO, "Possible causes:");
-        LogErrorEx(LOG_DEVICE_BIO, "  - Device %d is not physically connected", deviceNumber);
-        LogErrorEx(LOG_DEVICE_BIO, "  - Device is not powered on");
-        LogErrorEx(LOG_DEVICE_BIO, "  - Device is already in use by another application");
-        LogErrorEx(LOG_DEVICE_BIO, "  - Wrong device number specified");
-        LogErrorEx(LOG_DEVICE_BIO, "  - EC-Lab is in a bad state (try restarting EC-Lab)");
-        LogErrorEx(LOG_DEVICE_BIO, "");
-        LogErrorEx(LOG_DEVICE_BIO, "Check EC-Lab's device list to verify available devices.");
         return ECLAB_ERR_DEVICE_NOT_FOUND;
     }
 
-    LogMessageEx(LOG_DEVICE_BIO, "========================================");
-    LogMessageEx(LOG_DEVICE_BIO, "Successfully connected to device %d!", deviceNumber);
-    LogMessageEx(LOG_DEVICE_BIO, "========================================");
     return SUCCESS;
 }
 
