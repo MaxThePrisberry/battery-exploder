@@ -16,6 +16,7 @@
 #include <analysis.h>
 #include <utility.h>
 #include <time.h>
+#include <windows.h>  // For COM initialization (CoInitializeEx, CoUninitialize)
 
 /******************************************************************************
  * Module Variables
@@ -318,9 +319,21 @@ static int TempRampExperimentThread(void *functionData) {
     TempRampExperimentContext *ctx = (TempRampExperimentContext*)functionData;
     char message[LARGE_BUFFER_SIZE];
     int result = SUCCESS;
-    
+
+    // Initialize COM for this thread (MTA mode to match main thread)
+    // Each thread that uses COM interfaces must call CoInitializeEx, even in MTA mode.
+    // This is critical for EC-Lab OLE COM operations to work from this thread.
+    HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
+    if (FAILED(hr) && hr != RPC_E_CHANGED_MODE) {
+        LogError("Experiment thread: CoInitializeEx failed (0x%08X)", hr);
+        LogError("EC-Lab operations may fail from this thread!");
+        // Continue anyway - non-EC-Lab devices will still work
+    } else {
+        LogMessage("Experiment thread: COM initialized successfully (MTA mode)");
+    }
+
     LogMessage("=== Starting Temperature Ramp EIS Experiment ===");
-    
+
     ctx->experimentStartTime = Timer();
     
     if (CheckCancellation(ctx)) {
@@ -585,9 +598,12 @@ cleanup:
     CmtGetLock(g_busyLock);
     g_systemBusy = 0;
     CmtReleaseLock(g_busyLock);
-    
+
     g_experimentThreadId = 0;
-    
+
+    // Uninitialize COM for this thread
+    CoUninitialize();
+
     return 0;
 }
 
