@@ -11,6 +11,8 @@
 #include "biologic_eclab.h"
 #include "logging.h"
 #include <time.h>
+#include <string.h>
+#include <stdlib.h>
 
 /******************************************************************************
  * Module State
@@ -577,8 +579,18 @@ int BIO_ECLAB_ConvertMprToTechniqueData(const char *mprPath,
     }
 
     for (int i = 0; i < numVars; i++) {
-        techData->convertedData->variableNames[i] = _strdup(varNames[i]);
-        techData->convertedData->variableUnits[i] = _strdup(varUnits[i]);
+        // Manually duplicate strings for C99 compatibility
+        size_t nameLen = strlen(varNames[i]) + 1;
+        techData->convertedData->variableNames[i] = (char*)malloc(nameLen);
+        if (techData->convertedData->variableNames[i]) {
+            strcpy(techData->convertedData->variableNames[i], varNames[i]);
+        }
+
+        size_t unitLen = strlen(varUnits[i]) + 1;
+        techData->convertedData->variableUnits[i] = (char*)malloc(unitLen);
+        if (techData->convertedData->variableUnits[i]) {
+            strcpy(techData->convertedData->variableUnits[i], varUnits[i]);
+        }
     }
 
     // Allocate 2D data array [numVars][numPoints]
