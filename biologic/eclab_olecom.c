@@ -45,6 +45,13 @@
 #endif
 
 /******************************************************************************
+ * Forward Declarations
+ ******************************************************************************/
+
+// Forward declare function from biologic_eclab.c to avoid circular includes
+extern ECLabConnection* BIO_ECLAB_GetConnection(void);
+
+/******************************************************************************
  * Internal Helper Functions
  ******************************************************************************/
 
@@ -813,46 +820,243 @@ int ECLAB_MeasureStatus(ECLabConnection *conn, int device, int channel,
 int ECLAB_MeasureNumberOfPoints(const char *mprPath, int *numPoints) {
     if (!mprPath || !numPoints) return ERR_NULL_POINTER;
 
-    // This function is typically called statically, so we need to create
-    // a temporary COM instance or require an existing connection
-    // For simplicity, we'll document that the connection must be initialized
+    // Get global connection - these file reading methods can be called
+    // independently of channel operations
+    ECLabConnection *conn = BIO_ECLAB_GetConnection();
+    if (!conn || !conn->pInterface) return ECLAB_ERR_INVALID_CONNECTION;
 
-    LogWarningEx(LOG_DEVICE_BIO, "ECLAB_MeasureNumberOfPoints not yet implemented");
-    LogWarningEx(LOG_DEVICE_BIO, "This requires static COM access or connection parameter");
+    LogMessageEx(LOG_DEVICE_BIO, "Reading number of points from: %s", mprPath);
 
-    *numPoints = 0;
-    return ERR_NOT_IMPLEMENTED_YET;
+    // Convert file path to BSTR
+    BSTR bstrPath = StringToBSTR(mprPath);
+    if (!bstrPath) {
+        LogErrorEx(LOG_DEVICE_BIO, "Failed to convert path to BSTR");
+        return ECLAB_ERR_BSTR_CONVERSION;
+    }
+
+    // Call MeasureNumberOfPoints - returns int directly
+    int retVal = conn->pInterface->lpVtbl->MeasureNumberOfPoints(conn->pInterface,
+                                                                 bstrPath);
+
+    SysFreeString(bstrPath);
+
+    if (retVal >= 0) {
+        *numPoints = retVal;
+        LogMessageEx(LOG_DEVICE_BIO, "File contains %d data points", retVal);
+        return SUCCESS;
+    } else {
+        LogErrorEx(LOG_DEVICE_BIO, "MeasureNumberOfPoints failed (returned %d)", retVal);
+        *numPoints = 0;
+        return ECLAB_ERR_COM_INVOKE_FAILED;
+    }
 }
 
 int ECLAB_MeasureDcValue(const char *mprPath, int dataIndex,
                         double *time, double *voltage, double *current) {
     if (!mprPath || !time || !voltage || !current) return ERR_NULL_POINTER;
 
-    // Similar to above - needs implementation with COM access
-    LogWarningEx(LOG_DEVICE_BIO, "ECLAB_MeasureDcValue not yet implemented");
+    ECLabConnection *conn = BIO_ECLAB_GetConnection();
+    if (!conn || !conn->pInterface) return ECLAB_ERR_INVALID_CONNECTION;
 
-    *time = *voltage = *current = 0.0;
-    return ERR_NOT_IMPLEMENTED_YET;
+    LogMessageEx(LOG_DEVICE_BIO, "Reading DC value at index %d from: %s",
+                dataIndex, mprPath);
+
+    // Convert file path to BSTR
+    BSTR bstrPath = StringToBSTR(mprPath);
+    if (!bstrPath) {
+        LogErrorEx(LOG_DEVICE_BIO, "Failed to convert path to BSTR");
+        return ECLAB_ERR_BSTR_CONVERSION;
+    }
+
+    // Call MeasureDcValue - returns int, output in VARIANT
+    VARIANT dataResult;
+    VariantInit(&dataResult);
+
+    int retVal = conn->pInterface->lpVtbl->MeasureDcValue(conn->pInterface,
+                                                         bstrPath, dataIndex,
+                                                         &dataResult);
+
+    SysFreeString(bstrPath);
+
+    if (retVal != 1) {
+        LogErrorEx(LOG_DEVICE_BIO, "MeasureDcValue failed (returned %d)", retVal);
+        VariantClear(&dataResult);
+        *time = *voltage = *current = 0.0;
+        return ECLAB_ERR_COM_INVOKE_FAILED;
+    }
+
+    // Parse result array - should contain [time/s, Ewe/V, I/mA]
+    // EC-Lab returns SAFEARRAY of doubles (VT_R8)
+    VARTYPE vt = V_VT(&dataResult);
+
+    if (vt == (VT_ARRAY | VT_R8)) {
+        SAFEARRAY *psa = V_ARRAY(&dataResult);
+        LONG lBound, uBound;
+        SafeArrayGetLBound(psa, 1, &lBound);
+        SafeArrayGetUBound(psa, 1, &uBound);
+        LONG numElements = uBound - lBound + 1;
+
+        if (numElements >= 3) {
+            double *pData;
+            SafeArrayAccessData(psa, (void**)&pData);
+
+            *time = pData[0];      // time/s
+            *voltage = pData[1];   // Ewe/V
+            *current = pData[2];   // I/mA
+
+            SafeArrayUnaccessData(psa);
+
+            LogMessageEx(LOG_DEVICE_BIO, "DC data: t=%.3f s, V=%.6f V, I=%.6f mA",
+                        *time, *voltage, *current);
+        } else {
+            LogErrorEx(LOG_DEVICE_BIO,
+                      "MeasureDcValue returned array with %d elements (expected 3)",
+                      numElements);
+            VariantClear(&dataResult);
+            *time = *voltage = *current = 0.0;
+            return ECLAB_ERR_VARIANT_TYPE;
+        }
+    } else {
+        LogErrorEx(LOG_DEVICE_BIO,
+                  "MeasureDcValue returned unexpected VARIANT type 0x%04X (expected 0x%04X)",
+                  vt, (VT_ARRAY | VT_R8));
+        VariantClear(&dataResult);
+        *time = *voltage = *current = 0.0;
+        return ECLAB_ERR_VARIANT_TYPE;
+    }
+
+    VariantClear(&dataResult);
+    return SUCCESS;
 }
 
 int ECLAB_MeasureEisValue(const char *mprPath, int dataIndex,
                          double *time, double *freq, double *zReal, double *zImag) {
     if (!mprPath || !time || !freq || !zReal || !zImag) return ERR_NULL_POINTER;
 
-    LogWarningEx(LOG_DEVICE_BIO, "ECLAB_MeasureEisValue not yet implemented");
+    ECLabConnection *conn = BIO_ECLAB_GetConnection();
+    if (!conn || !conn->pInterface) return ECLAB_ERR_INVALID_CONNECTION;
 
-    *time = *freq = *zReal = *zImag = 0.0;
-    return ERR_NOT_IMPLEMENTED_YET;
+    LogMessageEx(LOG_DEVICE_BIO, "Reading EIS value at index %d from: %s",
+                dataIndex, mprPath);
+
+    // Convert file path to BSTR
+    BSTR bstrPath = StringToBSTR(mprPath);
+    if (!bstrPath) {
+        LogErrorEx(LOG_DEVICE_BIO, "Failed to convert path to BSTR");
+        return ECLAB_ERR_BSTR_CONVERSION;
+    }
+
+    // Call MeasureEisValue - returns int, output in VARIANT
+    VARIANT dataResult;
+    VariantInit(&dataResult);
+
+    int retVal = conn->pInterface->lpVtbl->MeasureEisValue(conn->pInterface,
+                                                          bstrPath, dataIndex,
+                                                          &dataResult);
+
+    SysFreeString(bstrPath);
+
+    if (retVal != 1) {
+        LogErrorEx(LOG_DEVICE_BIO, "MeasureEisValue failed (returned %d)", retVal);
+        VariantClear(&dataResult);
+        *time = *freq = *zReal = *zImag = 0.0;
+        return ECLAB_ERR_COM_INVOKE_FAILED;
+    }
+
+    // Parse result array - should contain [time/s, freq/Hz, Re(Z)/Ohm, -Im(Z)/Ohm]
+    // EC-Lab returns SAFEARRAY of doubles (VT_R8)
+    VARTYPE vt = V_VT(&dataResult);
+
+    if (vt == (VT_ARRAY | VT_R8)) {
+        SAFEARRAY *psa = V_ARRAY(&dataResult);
+        LONG lBound, uBound;
+        SafeArrayGetLBound(psa, 1, &lBound);
+        SafeArrayGetUBound(psa, 1, &uBound);
+        LONG numElements = uBound - lBound + 1;
+
+        if (numElements >= 4) {
+            double *pData;
+            SafeArrayAccessData(psa, (void**)&pData);
+
+            *time = pData[0];    // time/s
+            *freq = pData[1];    // freq/Hz
+            *zReal = pData[2];   // Re(Z)/Ohm
+            *zImag = pData[3];   // -Im(Z)/Ohm
+
+            SafeArrayUnaccessData(psa);
+
+            LogMessageEx(LOG_DEVICE_BIO,
+                        "EIS data: t=%.3f s, f=%.3f Hz, Re(Z)=%.6f Ohm, -Im(Z)=%.6f Ohm",
+                        *time, *freq, *zReal, *zImag);
+        } else {
+            LogErrorEx(LOG_DEVICE_BIO,
+                      "MeasureEisValue returned array with %d elements (expected 4)",
+                      numElements);
+            VariantClear(&dataResult);
+            *time = *freq = *zReal = *zImag = 0.0;
+            return ECLAB_ERR_VARIANT_TYPE;
+        }
+    } else {
+        LogErrorEx(LOG_DEVICE_BIO,
+                  "MeasureEisValue returned unexpected VARIANT type 0x%04X (expected 0x%04X)",
+                  vt, (VT_ARRAY | VT_R8));
+        VariantClear(&dataResult);
+        *time = *freq = *zReal = *zImag = 0.0;
+        return ECLAB_ERR_VARIANT_TYPE;
+    }
+
+    VariantClear(&dataResult);
+    return SUCCESS;
 }
 
 int ECLAB_MeasureValueByCode(const char *mprPath, int varCode, int dataIndex,
                             double *value) {
     if (!mprPath || !value) return ERR_NULL_POINTER;
 
-    LogWarningEx(LOG_DEVICE_BIO, "ECLAB_MeasureValueByCode not yet implemented");
+    ECLabConnection *conn = BIO_ECLAB_GetConnection();
+    if (!conn || !conn->pInterface) return ECLAB_ERR_INVALID_CONNECTION;
 
-    *value = 0.0;
-    return ERR_NOT_IMPLEMENTED_YET;
+    LogMessageEx(LOG_DEVICE_BIO,
+                "Reading variable code %d at index %d from: %s",
+                varCode, dataIndex, mprPath);
+
+    // Convert file path to BSTR
+    BSTR bstrPath = StringToBSTR(mprPath);
+    if (!bstrPath) {
+        LogErrorEx(LOG_DEVICE_BIO, "Failed to convert path to BSTR");
+        return ECLAB_ERR_BSTR_CONVERSION;
+    }
+
+    // Call MeasureValueByCode - returns HRESULT, outputs double and int
+    double dataValue = 0.0;
+    int funcResult = 0;
+
+    HRESULT hr = conn->pInterface->lpVtbl->MeasureValueByCode(conn->pInterface,
+                                                              bstrPath, varCode,
+                                                              dataIndex,
+                                                              &dataValue,
+                                                              &funcResult);
+
+    SysFreeString(bstrPath);
+
+    if (FAILED(hr)) {
+        LogErrorEx(LOG_DEVICE_BIO,
+                  "MeasureValueByCode failed with HRESULT 0x%08X", hr);
+        *value = 0.0;
+        return ECLAB_ERR_COM_INVOKE_FAILED;
+    }
+
+    if (funcResult != 1) {
+        LogErrorEx(LOG_DEVICE_BIO,
+                  "MeasureValueByCode function result: %d (expected 1)", funcResult);
+        *value = 0.0;
+        return ECLAB_ERR_COM_INVOKE_FAILED;
+    }
+
+    *value = dataValue;
+    LogMessageEx(LOG_DEVICE_BIO, "Variable code %d = %.6f", varCode, dataValue);
+
+    return SUCCESS;
 }
 
 /******************************************************************************
