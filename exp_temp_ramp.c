@@ -2013,48 +2013,67 @@ static int ProcessGEISData(BIO_TechniqueData *geisData, TempRampEISMeasurement *
         LogWarning("No GEIS data to process");
         return ERR_INVALID_PARAMETER;
     }
-    
+
     BIO_ConvertedData *convData = geisData->convertedData;
     int processIndex = -1;
-    
+
     if (geisData->rawData) {
         processIndex = geisData->rawData->processIndex;
     }
-    
-    LogDebug("Processing GEIS: %d points, %d variables (process %d)", 
+
+    LogDebug("Processing GEIS: %d points, %d variables (process %d)",
              convData->numPoints, convData->numVariables, processIndex);
-    
+
+    // Allocate impedance arrays
+    measurement->frequencies = (double*)calloc(convData->numPoints, sizeof(double));
+    measurement->zReal = (double*)calloc(convData->numPoints, sizeof(double));
+    measurement->zImag = (double*)calloc(convData->numPoints, sizeof(double));
+
+    if (!measurement->frequencies || !measurement->zReal || !measurement->zImag) {
+        LogError("Failed to allocate impedance arrays");
+        if (measurement->frequencies) free(measurement->frequencies);
+        if (measurement->zReal) free(measurement->zReal);
+        if (measurement->zImag) free(measurement->zImag);
+        measurement->frequencies = NULL;
+        measurement->zReal = NULL;
+        measurement->zImag = NULL;
+        return ERR_OUT_OF_MEMORY;
+    }
+
+    // Handle both Direct DLL and EC-Lab formats
     if (processIndex == 1 && convData->numVariables >= 11) {
-        measurement->frequencies = (double*)calloc(convData->numPoints, sizeof(double));
-        measurement->zReal = (double*)calloc(convData->numPoints, sizeof(double));
-        measurement->zImag = (double*)calloc(convData->numPoints, sizeof(double));
-        
-        if (!measurement->frequencies || !measurement->zReal || !measurement->zImag) {
-            LogError("Failed to allocate impedance arrays");
-            if (measurement->frequencies) free(measurement->frequencies);
-            if (measurement->zReal) free(measurement->zReal);
-            if (measurement->zImag) free(measurement->zImag);
-            measurement->frequencies = NULL;
-            measurement->zReal = NULL;
-            measurement->zImag = NULL;
-            return ERR_OUT_OF_MEMORY;
-        }
-        
+        // Direct DLL format: freq at [0], Re(Z) at [4], -Im(Z) at [5]
+        LogDebug("Using Direct DLL format (process 1, %d variables)", convData->numVariables);
         for (int i = 0; i < convData->numPoints; i++) {
             measurement->frequencies[i] = convData->data[0][i];
             measurement->zReal[i] = convData->data[4][i];
             measurement->zImag[i] = convData->data[5][i];
         }
-        
-        measurement->numPoints = convData->numPoints;
-        LogDebug("Extracted %d impedance points", measurement->numPoints);
-        
+
+    } else if (convData->numVariables == 4) {
+        // EC-Lab format: time at [0], freq at [1], Re(Z) at [2], -Im(Z) at [3]
+        LogDebug("Using EC-Lab format (4 variables)");
+        for (int i = 0; i < convData->numPoints; i++) {
+            measurement->frequencies[i] = convData->data[1][i];
+            measurement->zReal[i] = convData->data[2][i];
+            measurement->zImag[i] = convData->data[3][i];
+        }
+
     } else {
-        LogWarning("Unexpected GEIS format: process %d, %d variables", 
+        LogWarning("Unexpected GEIS format: process %d, %d variables",
                   processIndex, convData->numVariables);
+        free(measurement->frequencies);
+        free(measurement->zReal);
+        free(measurement->zImag);
+        measurement->frequencies = NULL;
+        measurement->zReal = NULL;
+        measurement->zImag = NULL;
         return ERR_OPERATION_FAILED;
     }
-    
+
+    measurement->numPoints = convData->numPoints;
+    LogDebug("Extracted %d impedance points", measurement->numPoints);
+
     return SUCCESS;
 }
 
