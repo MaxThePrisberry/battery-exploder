@@ -501,28 +501,140 @@ int BIO_ECLAB_ConvertMprToTechniqueData(const char *mprPath,
         return ECLAB_ERR_FILE_NOT_FOUND;
     }
 
-    // TODO: Implement .mpr file parsing
-    // For now, create empty data structure as placeholder
+    // Get number of data points in file
+    int numPoints = 0;
+    int ret = ECLAB_MeasureNumberOfPoints(mprPath, &numPoints);
+    if (ret != SUCCESS) {
+        LogErrorEx(LOG_DEVICE_BIO, "Failed to read number of points: %s",
+                  ECLAB_GetErrorString(ret));
+        return ret;
+    }
 
-    LogWarningEx(LOG_DEVICE_BIO, ".mpr file parsing not yet implemented");
-    LogWarningEx(LOG_DEVICE_BIO, "Returning placeholder data structure");
+    if (numPoints <= 0) {
+        LogWarningEx(LOG_DEVICE_BIO, "File contains no data points");
+        numPoints = 0;
+    }
 
+    LogMessageEx(LOG_DEVICE_BIO, "Reading %d data points from .mpr file", numPoints);
+
+    // Allocate main structure
     BIO_TechniqueData *techData = (BIO_TechniqueData*)calloc(1, sizeof(BIO_TechniqueData));
     if (!techData) return ERR_OUT_OF_MEMORY;
 
-    // Allocate placeholder raw data
+    // Allocate placeholder raw data (EC-Lab mode doesn't have raw device buffer)
     techData->rawData = (BIO_RawDataBuffer*)calloc(1, sizeof(BIO_RawDataBuffer));
     if (!techData->rawData) {
         free(techData);
         return ERR_OUT_OF_MEMORY;
     }
+    techData->rawData->numPoints = numPoints;
+    techData->rawData->numVariables = 0;  // No raw data in EC-Lab mode
+    techData->rawData->rawData = NULL;
+    techData->rawData->bufferSize = 0;
 
-    techData->rawData->numPoints = 0;
-    techData->rawData->numVariables = 0;
-    techData->convertedData = NULL;
+    // Allocate converted data structure
+    techData->convertedData = (BIO_ConvertedData*)calloc(1, sizeof(BIO_ConvertedData));
+    if (!techData->convertedData) {
+        free(techData->rawData);
+        free(techData);
+        return ERR_OUT_OF_MEMORY;
+    }
+
+    // Determine number of variables based on technique type
+    int numVars = 0;
+    const char **varNames = NULL;
+    const char **varUnits = NULL;
+
+    if (type == BIO_TECHNIQUE_OCV) {
+        // OCV: time, voltage, current
+        numVars = 3;
+        static const char *ocvNames[] = {"time", "Ewe", "I"};
+        static const char *ocvUnits[] = {"s", "V", "mA"};
+        varNames = ocvNames;
+        varUnits = ocvUnits;
+    } else if (type == BIO_TECHNIQUE_PEIS || type == BIO_TECHNIQUE_GEIS) {
+        // EIS: time, frequency, Re(Z), -Im(Z)
+        numVars = 4;
+        static const char *eisNames[] = {"time", "freq", "Re(Z)", "-Im(Z)"};
+        static const char *eisUnits[] = {"s", "Hz", "Ohm", "Ohm"};
+        varNames = eisNames;
+        varUnits = eisUnits;
+    } else {
+        LogErrorEx(LOG_DEVICE_BIO, "Unknown technique type: %d", type);
+        BIO_FreeTechniqueData(techData);
+        return ERR_INVALID_PARAMETER;
+    }
+
+    techData->convertedData->numPoints = numPoints;
+    techData->convertedData->numVariables = numVars;
+
+    // Allocate variable names and units
+    techData->convertedData->variableNames = (char**)malloc(numVars * sizeof(char*));
+    techData->convertedData->variableUnits = (char**)malloc(numVars * sizeof(char*));
+    if (!techData->convertedData->variableNames || !techData->convertedData->variableUnits) {
+        BIO_FreeTechniqueData(techData);
+        return ERR_OUT_OF_MEMORY;
+    }
+
+    for (int i = 0; i < numVars; i++) {
+        techData->convertedData->variableNames[i] = _strdup(varNames[i]);
+        techData->convertedData->variableUnits[i] = _strdup(varUnits[i]);
+    }
+
+    // Allocate 2D data array [numVars][numPoints]
+    techData->convertedData->data = (double**)malloc(numVars * sizeof(double*));
+    if (!techData->convertedData->data) {
+        BIO_FreeTechniqueData(techData);
+        return ERR_OUT_OF_MEMORY;
+    }
+
+    for (int i = 0; i < numVars; i++) {
+        techData->convertedData->data[i] = (double*)malloc(numPoints * sizeof(double));
+        if (!techData->convertedData->data[i]) {
+            BIO_FreeTechniqueData(techData);
+            return ERR_OUT_OF_MEMORY;
+        }
+    }
+
+    // Read data points from .mpr file
+    if (type == BIO_TECHNIQUE_OCV) {
+        // Read OCV data (time, voltage, current)
+        for (int i = 0; i < numPoints; i++) {
+            double time, voltage, current;
+            ret = ECLAB_MeasureDcValue(mprPath, i, &time, &voltage, &current);
+            if (ret != SUCCESS) {
+                LogErrorEx(LOG_DEVICE_BIO, "Failed to read DC value at index %d: %s",
+                          i, ECLAB_GetErrorString(ret));
+                BIO_FreeTechniqueData(techData);
+                return ret;
+            }
+
+            techData->convertedData->data[0][i] = time;
+            techData->convertedData->data[1][i] = voltage;
+            techData->convertedData->data[2][i] = current;
+        }
+    } else {
+        // Read EIS data (time, frequency, Re(Z), -Im(Z))
+        for (int i = 0; i < numPoints; i++) {
+            double time, freq, zReal, zImag;
+            ret = ECLAB_MeasureEisValue(mprPath, i, &time, &freq, &zReal, &zImag);
+            if (ret != SUCCESS) {
+                LogErrorEx(LOG_DEVICE_BIO, "Failed to read EIS value at index %d: %s",
+                          i, ECLAB_GetErrorString(ret));
+                BIO_FreeTechniqueData(techData);
+                return ret;
+            }
+
+            techData->convertedData->data[0][i] = time;
+            techData->convertedData->data[1][i] = freq;
+            techData->convertedData->data[2][i] = zReal;
+            techData->convertedData->data[3][i] = zImag;
+        }
+    }
+
+    LogMessageEx(LOG_DEVICE_BIO, "Successfully converted %d data points", numPoints);
 
     *data = techData;
-
     return SUCCESS;
 }
 
