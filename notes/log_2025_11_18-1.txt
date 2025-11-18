@@ -1,0 +1,458 @@
+
+=== Battery Tester Log Started: 2025-11-18 15:27:30 ===
+Log file location: c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\BatteryExploder.log
+2025-11-18 15:27:30 [INFO] Initializing cDAQ module...
+2025-11-18 15:27:30 [INFO] Initializing cDAQ thermocouple slots 2 and 3...
+2025-11-18 15:27:31 [INFO] cDAQ slot 2 initialized with 16 thermocouples
+2025-11-18 15:27:32 [INFO] cDAQ slot 3 initialized with 16 thermocouples
+2025-11-18 15:27:32 [INFO] cDAQ module initialized successfully
+2025-11-18 15:27:32 [INFO] cDAQ thermocouple slots initialized successfully
+2025-11-18 15:27:32 [INFO] Initializing cDAQ slot 1 for 4-20mA current sensors (NI 9202)...
+2025-11-18 15:27:32 [INFO] cDAQ slot 1 initialized with 16 voltage channels (4-20mA mode)
+2025-11-18 15:27:32 [INFO] Shunt resistor: 250.0 ohms, Range: 1.0-5.0V (4-20mA)
+2025-11-18 15:27:32 [INFO] cDAQ current sensor slot initialized successfully (4-20mA)
+2025-11-18 15:27:32 [INFO] Initializing pressure safety monitoring...
+2025-11-18 15:27:32 [INFO] Initializing pressure safety monitoring module...
+2025-11-18 15:27:32 [INFO] Pressure safety module initialized
+2025-11-18 15:27:32 [INFO] Pressure safety monitoring initialized successfully
+2025-11-18 15:27:32 [INFO] Initializing PSB queue manager on COM3...
+2025-11-18 15:27:32 [INFO] Attempting to connect to PSB 10000...
+2025-11-18 15:27:32 [INFO] [PSB] Connecting to PSB on COM3...
+2025-11-18 15:27:32 [INFO] [PSB] Initializing on COM3, slave 1, 9600 baud
+2025-11-18 15:27:32 [INFO] [PSB] Successfully initialized
+2025-11-18 15:27:32 [INFO] [PSB] Setting remote mode: ON
+2025-11-18 15:27:32 [INFO] [PSB] Setting output: OFF
+2025-11-18 15:27:33 [INFO] Successfully connected to PSB 10000
+2025-11-18 15:27:33 [INFO] PSB 10000 queue manager initialized
+2025-11-18 15:27:33 [INFO] PSB 10000 queue processing thread started
+2025-11-18 15:27:33 [INFO] PSB queue manager initialized and connected on COM3
+2025-11-18 15:27:33 [INFO] Initializing PSB to safe state...
+2025-11-18 15:27:33 [INFO] [PSB] Setting PSB safe limits...
+2025-11-18 15:27:33 [INFO] [PSB] Setting min voltage: 0.00V
+2025-11-18 15:27:33 [INFO] [PSB] Setting max voltage: 61.20V
+2025-11-18 15:27:33 [INFO] [PSB] Setting min current: 0.00A
+2025-11-18 15:27:33 [INFO] [PSB] Setting max current: 61.20A
+2025-11-18 15:27:33 [INFO] [PSB] Setting sink max current: 61.20A
+2025-11-18 15:27:33 [INFO] [PSB] Setting sink min current: 0.00A
+2025-11-18 15:27:33 [INFO] [PSB] Setting max power: 1224.00W
+2025-11-18 15:27:34 [INFO] [PSB] Setting sink max power: 1224.00W
+2025-11-18 15:27:34 [INFO] [PSB] PSB safe limits set successfully
+2025-11-18 15:27:34 [INFO] [PSB] Zeroing all PSB values...
+2025-11-18 15:27:34 [INFO] [PSB] Setting output: OFF
+2025-11-18 15:27:34 [INFO] [PSB] Setting voltage: 0.00V (0x0000)
+2025-11-18 15:27:35 [INFO] [PSB] Setting current: 0.00A (0x0000)
+2025-11-18 15:27:35 [INFO] [PSB] Setting power: 0.00W (0x0000)
+2025-11-18 15:27:35 [INFO] [PSB] Setting sink current: 0.00A (0x0000)
+2025-11-18 15:27:35 [INFO] [PSB] Setting sink power: 0.00W (0x0000)
+2025-11-18 15:27:36 [INFO] [PSB] All PSB values zeroed successfully
+2025-11-18 15:27:36 [INFO] PSB initialization complete
+2025-11-18 15:27:36 [INFO] Initializing BioLogic abstraction layer...
+2025-11-18 15:27:36 [INFO]   Mode: EC-Lab OLE COM
+2025-11-18 15:27:36 [INFO] [BIO] Initializing BioLogic abstraction layer
+2025-11-18 15:27:36 [INFO] [BIO]   Mode: EC-Lab OLE COM
+2025-11-18 15:27:36 [INFO] [BIO] Initializing EC-Lab OLE COM mode
+2025-11-18 15:27:36 [INFO] [BIO]   Settings dir: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_settings
+2025-11-18 15:27:36 [INFO] [BIO]   Data dir: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data
+2025-11-18 15:27:36 [INFO] [BIO] Initializing EC-Lab backend
+2025-11-18 15:27:36 [INFO] [BIO]   Settings dir: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_settings
+2025-11-18 15:27:36 [INFO] [BIO]   Data dir: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data
+2025-11-18 15:27:36 [INFO] [BIO]   Device: 0, Channel: 0
+2025-11-18 15:27:36 [INFO] [BIO] ========================================
+2025-11-18 15:27:36 [INFO] [BIO] Initializing EC-Lab OLE COM connection
+2025-11-18 15:27:36 [INFO] [BIO] ========================================
+2025-11-18 15:27:36 [INFO] [BIO] Working directory: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data
+2025-11-18 15:27:36 [INFO] [BIO] Step 1: Initializing COM (MTA mode)...
+2025-11-18 15:27:36 [INFO] [BIO] COM initialized successfully (MTA mode)
+2025-11-18 15:27:36 [INFO] [BIO] Step 2: Resolving ProgID 'EClabCOM.EClabExe'...
+2025-11-18 15:27:36 [INFO] [BIO] ProgID resolved successfully. EC-Lab is registered.
+2025-11-18 15:27:36 [INFO] [BIO] Step 3: Checking if EC-Lab is running...
+2025-11-18 15:27:36 [INFO] [BIO] EC-Lab process detected - proceeding with COM connection
+2025-11-18 15:27:36 [INFO] [BIO] Step 4: Creating EC-Lab COM instance...
+2025-11-18 15:27:36 [INFO] [BIO] NOTE: This will connect to the running EC-Lab application.
+2025-11-18 15:27:36 [INFO] [BIO] NOTE: Using custom IEClabExe interface (NOT IDispatch)
+2025-11-18 15:27:36 [INFO] [BIO] Requesting IEClabExe interface...
+2025-11-18 15:27:36 [INFO] [BIO] EC-Lab COM instance created successfully!
+2025-11-18 15:27:36 [INFO] [BIO] ========================================
+2025-11-18 15:27:36 [INFO] [BIO] EC-Lab OLE COM connection initialized
+2025-11-18 15:27:36 [INFO] [BIO] ========================================
+2025-11-18 15:27:36 [INFO] [BIO] Connecting to EC-Lab device 0
+2025-11-18 15:27:36 [INFO] [BIO] Connected to EC-Lab device 0 successfully
+2025-11-18 15:27:36 [INFO] [BIO] Running connection diagnostic (5 tests over ~5 seconds)...
+2025-11-18 15:27:36 [INFO] [BIO]   [Test 1 @ 0.0s] Connection: OK
+2025-11-18 15:27:37 [INFO] [BIO]   [Test 2 @ 1.0s] Connection: OK
+2025-11-18 15:27:38 [INFO] [BIO]   [Test 3 @ 2.0s] Connection: OK
+2025-11-18 15:27:39 [INFO] [BIO]   [Test 4 @ 3.0s] Connection: OK
+2025-11-18 15:27:40 [INFO] [BIO]   [Test 5 @ 4.0s] Connection: OK
+2025-11-18 15:27:40 [INFO] [BIO] Connection diagnostic complete: 5/5 tests passed
+2025-11-18 15:27:40 [INFO] [BIO] EC-Lab backend initialized successfully
+2025-11-18 15:27:40 [INFO] [BIO] BioLogic abstraction layer initialized successfully
+2025-11-18 15:27:40 [INFO] BioLogic abstraction layer initialized successfully
+2025-11-18 15:27:40 [INFO] Initializing DTB queue manager on COM5 with 2 devices...
+2025-11-18 15:27:40 [INFO] [DTB] DTB_QueueInit: Will initialize slave address 2
+2025-11-18 15:27:40 [INFO] [DTB] DTB_QueueInit: Will initialize slave address 3
+2025-11-18 15:27:40 [INFO] Attempting to connect to DTB 4848...
+2025-11-18 15:27:40 [INFO] [DTB] Connecting to DTB slave 2 on COM5...
+2025-11-18 15:27:40 [INFO] [DTB] Initializing on COM5, slave 2, 9600 baud
+2025-11-18 15:27:40 [INFO] [DTB] Successfully initialized
+2025-11-18 15:27:40 [INFO] [DTB] Successfully connected to DTB slave 2
+2025-11-18 15:27:40 [INFO] [DTB] Connecting to DTB slave 3 on COM5...
+2025-11-18 15:27:40 [INFO] [DTB] Initializing on COM5, slave 3, 9600 baud
+2025-11-18 15:27:40 [INFO] [DTB] Successfully initialized
+2025-11-18 15:27:40 [INFO] [DTB] Successfully connected to DTB slave 3
+2025-11-18 15:27:40 [INFO] [DTB] Connected to 2 of 2 DTB devices
+2025-11-18 15:27:40 [INFO] Successfully connected to DTB 4848
+2025-11-18 15:27:40 [INFO] DTB 4848 queue manager initialized
+2025-11-18 15:27:40 [INFO] DTB 4848 queue processing thread started
+2025-11-18 15:27:40 [INFO] [DTB] DTB_QueueInit: Successfully created queue manager for 2 devices
+2025-11-18 15:27:40 [INFO] DTB queue manager initialized and connected on COM5
+2025-11-18 15:27:40 [INFO] Enabling DTB write access for all devices...
+2025-11-18 15:27:40 [INFO] [DTB] Enabling write access for all 2 DTB devices...
+2025-11-18 15:27:40 [INFO] [DTB] Enabling write access...
+2025-11-18 15:27:41 [INFO] [DTB] Write access enabled
+2025-11-18 15:27:41 [INFO] [DTB] Enabling write access...
+2025-11-18 15:27:41 [INFO] [DTB] Write access enabled
+2025-11-18 15:27:41 [INFO] [DTB] Successfully enabled write access for all DTB devices
+2025-11-18 15:27:41 [INFO] DTB write access enabled successfully for all devices
+2025-11-18 15:27:41 [INFO] Configuring all DTB4848 devices for K-type thermocouple with PID control...
+2025-11-18 15:27:41 [INFO] [DTB] Write access status: ENABLED
+2025-11-18 15:27:42 [INFO] DTB slave 2 write access currently: ENABLED
+2025-11-18 15:27:42 [INFO] [DTB] Configuring DTB4848...
+2025-11-18 15:27:42 [INFO] [DTB] Setting sensor type: 0
+2025-11-18 15:27:42 [INFO] [DTB] Setting heating/cooling mode: 0
+2025-11-18 15:27:43 [INFO] [DTB] Setting control method: 0
+2025-11-18 15:27:43 [INFO] [DTB] Setting PID mode: 4 (AUTO)
+2025-11-18 15:27:43 [INFO] [DTB] Configuration complete
+2025-11-18 15:27:43 [INFO] DTB4848 slave 2 configured successfully
+2025-11-18 15:27:44 [INFO] [DTB] Write access status: ENABLED
+2025-11-18 15:27:44 [INFO] DTB slave 3 write access currently: ENABLED
+2025-11-18 15:27:44 [INFO] [DTB] Configuring DTB4848...
+2025-11-18 15:27:44 [INFO] [DTB] Setting sensor type: 0
+2025-11-18 15:27:44 [INFO] [DTB] Setting heating/cooling mode: 0
+2025-11-18 15:27:45 [INFO] [DTB] Setting control method: 0
+2025-11-18 15:27:45 [INFO] [DTB] Setting PID mode: 4 (AUTO)
+2025-11-18 15:27:46 [INFO] [DTB] Configuration complete
+2025-11-18 15:27:46 [INFO] DTB4848 slave 3 configured successfully
+2025-11-18 15:27:46 [INFO] DTB initialization complete
+2025-11-18 15:27:46 [INFO] Initializing ALICAT queue manager on COM7 with 1 devices...
+2025-11-18 15:27:46 [INFO] [ALI] ALICAT_QueueInit: Will initialize address 1
+2025-11-18 15:27:46 [INFO] Attempting to connect to ALICAT BASIS 2...
+2025-11-18 15:27:46 [INFO] [ALI] Connecting to ALICAT address 1 on COM7...
+2025-11-18 15:27:46 [INFO] [ALI] Initializing on COM7, address 1, 38400 baud
+2025-11-18 15:27:46 [INFO] [ALI] Serial Number: B036829     
+2025-11-18 15:27:46 [INFO] [ALI] Successfully initialized
+2025-11-18 15:27:46 [INFO] [ALI] Successfully connected to ALICAT address 1
+2025-11-18 15:27:46 [INFO] [ALI] Connected to 1 of 1 ALICAT devices
+2025-11-18 15:27:46 [INFO] Successfully connected to ALICAT BASIS 2
+2025-11-18 15:27:46 [INFO] ALICAT BASIS 2 queue manager initialized
+2025-11-18 15:27:46 [INFO] [ALI] ALICAT_QueueInit: Successfully created queue manager for 1 devices
+2025-11-18 15:27:46 [INFO] ALICAT queue manager initialized and connected on COM7
+2025-11-18 15:27:46 [INFO] Configuring all ALICAT devices with default settings...
+2025-11-18 15:27:46 [INFO] ALICAT BASIS 2 queue processing thread started
+2025-11-18 15:27:46 [INFO] [ALI] Configuring ALICAT...
+2025-11-18 15:27:46 [INFO] [ALI] Setting gas type: 0 (Air)
+2025-11-18 15:27:46 [INFO] [ALI] Setting setpoint source: 2
+2025-11-18 15:27:46 [INFO] [ALI] Setting reference temperature: 25.0 deg C
+2025-11-18 15:27:46 [INFO] [ALI] Setting flow averaging: 100 ms
+2025-11-18 15:27:46 [INFO] [ALI] Setting autotare: ENABLED
+2025-11-18 15:27:46 [INFO] [ALI] Setting PID parameters: P 500, I 5000
+2025-11-18 15:27:46 [INFO] [ALI] Configuration complete
+2025-11-18 15:27:46 [INFO] ALICAT address 1 configured successfully
+2025-11-18 15:27:46 [INFO] [ALI] Setting gas type: 3 (Nitrogen)
+2025-11-18 15:27:47 [INFO] ALICAT address 1 gas set to Nitrogen
+2025-11-18 15:27:47 [INFO] Taring ALICAT address 1...
+2025-11-18 15:27:47 [INFO] [ALI] Performing tare...
+2025-11-18 15:27:47 [INFO] ALICAT address 1 tared successfully
+2025-11-18 15:27:47 [INFO] ALICAT initialization complete
+2025-11-18 15:27:47 [INFO] Initializing Teensy queue manager on COM6...
+2025-11-18 15:27:47 [INFO] Attempting to connect to Teensy...
+2025-11-18 15:27:47 [INFO] [TNY] Connecting to Teensy on COM6...
+2025-11-18 15:27:47 [INFO] [TNY] Initializing Teensy on COM6 at 9600 baud
+2025-11-18 15:27:47 [INFO] [TNY] Successfully connected to Teensy on COM6
+2025-11-18 15:27:47 [INFO] Successfully connected to Teensy
+2025-11-18 15:27:47 [INFO] Teensy queue manager initialized
+2025-11-18 15:27:47 [INFO] Teensy queue processing thread started
+2025-11-18 15:27:47 [INFO] Teensy queue manager initialized and connected on COM6
+2025-11-18 15:27:47 [INFO] [TNY] Initializing 2 pins (2 low, 0 high)
+2025-11-18 15:27:47 [INFO] Committed transaction 1 with 2 commands to normal priority queue
+2025-11-18 15:27:47 [INFO] [TNY] Pin initialization transaction committed
+2025-11-18 15:27:47 [INFO] [TNY] Starting transaction 1 with 2 commands
+2025-11-18 15:27:47 [INFO] Status module state: UNINITIALIZED -> INITIALIZING
+2025-11-18 15:27:47 [INFO] Device states initialized (DTB devices: 2)
+2025-11-18 15:27:47 [INFO] Status monitoring module initialized
+2025-11-18 15:27:47 [INFO] Controls module initialized with 2 DTB devices
+2025-11-18 15:27:47 [INFO] Controls module initialized for ALICAT Mass Flow Controller
+2025-11-18 15:27:47 [INFO] Starting device status monitoring...
+2025-11-18 15:27:47 [INFO] Status module state: INITIALIZING -> RUNNING
+2025-11-18 15:27:47 [INFO] Status timer thread started
+2025-11-18 15:27:47 [INFO] Status monitoring started successfully
+2025-11-18 15:27:47 [INFO] Status thread: COM initialized successfully (MTA mode)
+2025-11-18 15:27:47 [INFO] Starting controls module - syncing with device states...
+2025-11-18 15:27:47 [INFO] [TNY] Completed transaction 1
+2025-11-18 15:27:47 [INFO] PSB remote mode: ON
+2025-11-18 15:27:53 [INFO] Controls module started
+2025-11-18 15:35:22 [INFO] BioLogic initialized in EC-Lab OLE COM mode
+2025-11-18 15:35:22 [INFO] All required devices verified and ready
+2025-11-18 15:35:22 [INFO] Experiment thread: COM initialized successfully (MTA mode)
+2025-11-18 15:35:22 [INFO] === Starting Overcharge Thermal Runaway Experiment ===
+2025-11-18 15:35:25 [INFO] Experiment file system created: data\exp_overcharge_20251118_153525
+2025-11-18 15:35:25 [INFO] Experiment settings saved
+2025-11-18 15:35:49 [INFO] Graphs configured successfully
+2025-11-18 15:35:49 [INFO] Initializing relay states...
+2025-11-18 15:35:49 [INFO] Checking fume hood ventilation conditions...
+2025-11-18 15:35:49 [INFO] Pre-start check: Ventilation OK (3.00 V)
+2025-11-18 15:35:49 [INFO] Ventilation check PASSED (3.00 V) - safe to start
+2025-11-18 15:35:49 [INFO] Starting pressure safety monitoring...
+2025-11-18 15:35:49 [INFO] Starting pressure safety monitoring...
+2025-11-18 15:35:49 [INFO]   Initial temperature: 25.0 °C
+2025-11-18 15:35:49 [INFO]   Safe temperature threshold: 30.0 °C
+2025-11-18 15:35:49 [INFO]   Pressure OK threshold: > 2.95 V
+2025-11-18 15:35:49 [INFO]   Pressure LOST threshold: < 2.85 V
+2025-11-18 15:35:49 [INFO]   Starting phase: SAFE
+2025-11-18 15:35:49 [INFO] Pressure safety monitoring started
+2025-11-18 15:35:49 [INFO] Pressure monitoring thread started
+2025-11-18 15:35:49 [INFO] Pressure safety monitoring started successfully
+2025-11-18 15:35:49 [INFO] === Performing Initial EIS Measurement ===
+2025-11-18 15:35:49 [INFO] Performing initial baseline EIS measurement...
+2025-11-18 15:35:59 [INFO] Switching to Bio-Logic (EIS mode)...
+2025-11-18 15:35:59 [INFO] [PSB] Setting output: OFF
+2025-11-18 15:36:00 [INFO] Switched to Bio-Logic successfully
+2025-11-18 15:36:00 [INFO] Measuring open-circuit voltage...
+2025-11-18 15:36:00 [INFO] [BIO] Starting OCV measurement via EC-Lab
+2025-11-18 15:36:00 [INFO] [BIO]   Settings: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_settings\ocv_default.mps
+2025-11-18 15:36:00 [INFO] [BIO]   Output: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251118_153600_C01.mpr
+2025-11-18 15:36:00 [INFO] [BIO] Loading settings from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_settings\ocv_default.mps
+2025-11-18 15:36:01 [INFO] [BIO] Settings loaded successfully
+2025-11-18 15:36:01 [INFO] [BIO] Starting measurement, output: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251118_153600_C01.mpr
+2025-11-18 15:36:01 [INFO] [BIO] Measurement started
+2025-11-18 15:36:01 [INFO] [BIO] Monitoring measurement (timeout: 100000 ms)
+2025-11-18 15:36:01 [INFO] [BIO] Status: 0, Technique: 11, Time: 71.3 s, Points: 31
+2025-11-18 15:36:04 [INFO] [BIO] Measurement started running
+2025-11-18 15:36:06 [INFO] [BIO] Status: 1, Technique: 11, Time: 2.3 s, Points: 31
+2025-11-18 15:36:11 [INFO] [BIO] Status: 1, Technique: 11, Time: 7.7 s, Points: 31
+2025-11-18 15:36:14 [INFO] [BIO] Measurement completed (10.0 s, 31 points)
+2025-11-18 15:36:15 [INFO] [BIO] Converting .mpr file to BIO_TechniqueData: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251118_153600_C01.mpr
+2025-11-18 15:36:15 [INFO] [BIO] Reading number of points from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251118_153600_C01.mpr
+2025-11-18 15:36:15 [INFO] [BIO] File contains 10 data points
+2025-11-18 15:36:15 [INFO] [BIO] Reading 10 data points from .mpr file
+2025-11-18 15:36:15 [INFO] [BIO] Reading DC value at index 0 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251118_153600_C01.mpr
+2025-11-18 15:36:15 [INFO] [BIO] DC data: t=1.000 s, V=3.726122 V, I=0.000000 mA
+2025-11-18 15:36:15 [INFO] [BIO] Reading DC value at index 1 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251118_153600_C01.mpr
+2025-11-18 15:36:15 [INFO] [BIO] DC data: t=2.000 s, V=3.726044 V, I=0.000000 mA
+2025-11-18 15:36:15 [INFO] [BIO] Reading DC value at index 2 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251118_153600_C01.mpr
+2025-11-18 15:36:15 [INFO] [BIO] DC data: t=3.000 s, V=3.726029 V, I=0.000000 mA
+2025-11-18 15:36:15 [INFO] [BIO] Reading DC value at index 3 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251118_153600_C01.mpr
+2025-11-18 15:36:15 [INFO] [BIO] DC data: t=4.000 s, V=3.726023 V, I=0.000000 mA
+2025-11-18 15:36:15 [INFO] [BIO] Reading DC value at index 4 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251118_153600_C01.mpr
+2025-11-18 15:36:15 [INFO] [BIO] DC data: t=5.000 s, V=3.726022 V, I=0.000000 mA
+2025-11-18 15:36:15 [INFO] [BIO] Reading DC value at index 5 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251118_153600_C01.mpr
+2025-11-18 15:36:15 [INFO] [BIO] DC data: t=6.000 s, V=3.726020 V, I=0.000000 mA
+2025-11-18 15:36:15 [INFO] [BIO] Reading DC value at index 6 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251118_153600_C01.mpr
+2025-11-18 15:36:15 [INFO] [BIO] DC data: t=7.000 s, V=3.726017 V, I=0.000000 mA
+2025-11-18 15:36:15 [INFO] [BIO] Reading DC value at index 7 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251118_153600_C01.mpr
+2025-11-18 15:36:15 [INFO] [BIO] DC data: t=8.000 s, V=3.726015 V, I=0.000000 mA
+2025-11-18 15:36:15 [INFO] [BIO] Reading DC value at index 8 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251118_153600_C01.mpr
+2025-11-18 15:36:15 [INFO] [BIO] DC data: t=9.000 s, V=3.726013 V, I=0.000000 mA
+2025-11-18 15:36:15 [INFO] [BIO] Reading DC value at index 9 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251118_153600_C01.mpr
+2025-11-18 15:36:15 [INFO] [BIO] DC data: t=10.000 s, V=3.726013 V, I=0.000000 mA
+2025-11-18 15:36:15 [INFO] [BIO] Successfully converted 10 data points
+2025-11-18 15:36:15 [INFO] [BIO] OCV measurement completed successfully
+2025-11-18 15:36:15 [INFO] OCV: 3.7260 V
+2025-11-18 15:36:15 [INFO] Performing GEIS measurement...
+2025-11-18 15:36:15 [INFO] [BIO] Starting GEIS measurement via EC-Lab
+2025-11-18 15:36:15 [INFO] [BIO]   Settings: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_settings\geis_default.mps
+2025-11-18 15:36:15 [INFO] [BIO]   Output: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:36:15 [INFO] [BIO] Loading settings from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_settings\geis_default.mps
+2025-11-18 15:36:16 [INFO] [BIO] Settings loaded successfully
+2025-11-18 15:36:16 [INFO] [BIO] Starting measurement, output: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:36:16 [INFO] [BIO] Measurement started
+2025-11-18 15:36:16 [INFO] [BIO] Monitoring measurement (timeout: 100000 ms)
+2025-11-18 15:36:16 [INFO] [BIO] Status: 0, Technique: 30, Time: 10.0 s, Points: 31
+2025-11-18 15:36:19 [INFO] [BIO] Measurement started running
+2025-11-18 15:36:21 [INFO] [BIO] Status: 1, Technique: 30, Time: 2.4 s, Points: 31
+2025-11-18 15:36:26 [INFO] [BIO] Status: 1, Technique: 30, Time: 7.8 s, Points: 31
+2025-11-18 15:36:32 [INFO] [BIO] Status: 1, Technique: 30, Time: 13.1 s, Points: 31
+2025-11-18 15:36:37 [INFO] [BIO] Status: 1, Technique: 30, Time: 18.4 s, Points: 31
+2025-11-18 15:36:42 [INFO] [BIO] Status: 1, Technique: 30, Time: 23.8 s, Points: 31
+2025-11-18 15:36:48 [INFO] [BIO] Status: 1, Technique: 30, Time: 29.1 s, Points: 31
+2025-11-18 15:36:53 [INFO] [BIO] Status: 1, Technique: 30, Time: 34.4 s, Points: 31
+2025-11-18 15:36:58 [INFO] [BIO] Status: 1, Technique: 30, Time: 39.7 s, Points: 31
+2025-11-18 15:37:03 [INFO] [BIO] Measurement completed (43.5 s, 31 points)
+2025-11-18 15:37:04 [INFO] [BIO] Converting .mpr file to BIO_TechniqueData: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] Reading number of points from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] File contains 30 data points
+2025-11-18 15:37:04 [INFO] [BIO] Reading 30 data points from .mpr file
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 0 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=0.724 s, f=10002.226 Hz, Re(Z)=0.028811 Ohm, -Im(Z)=-0.027127 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 1 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=1.270 s, f=6811.067 Hz, Re(Z)=0.028038 Ohm, -Im(Z)=-0.018557 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 2 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=1.959 s, f=4641.485 Hz, Re(Z)=0.027658 Ohm, -Im(Z)=-0.012663 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 3 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=2.649 s, f=3161.012 Hz, Re(Z)=0.027449 Ohm, -Im(Z)=-0.008277 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 4 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=3.339 s, f=2155.690 Hz, Re(Z)=0.027438 Ohm, -Im(Z)=-0.005271 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 5 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=4.029 s, f=1468.590 Hz, Re(Z)=0.027603 Ohm, -Im(Z)=-0.003117 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 6 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=4.719 s, f=1000.320 Hz, Re(Z)=0.027887 Ohm, -Im(Z)=-0.001515 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 7 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=5.408 s, f=681.090 Hz, Re(Z)=0.028257 Ohm, -Im(Z)=-0.000388 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 8 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=6.097 s, f=463.961 Hz, Re(Z)=0.028715 Ohm, -Im(Z)=0.000394 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 9 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=6.783 s, f=316.316 Hz, Re(Z)=0.029233 Ohm, -Im(Z)=0.000921 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 10 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=7.471 s, f=215.345 Hz, Re(Z)=0.029742 Ohm, -Im(Z)=0.001202 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 11 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=8.153 s, f=146.737 Hz, Re(Z)=0.030280 Ohm, -Im(Z)=0.001395 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 12 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=8.842 s, f=100.032 Hz, Re(Z)=0.030797 Ohm, -Im(Z)=0.001356 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 13 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=9.548 s, f=68.104 Hz, Re(Z)=0.031219 Ohm, -Im(Z)=0.001268 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 14 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=10.218 s, f=46.442 Hz, Re(Z)=0.031570 Ohm, -Im(Z)=0.001110 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 15 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=10.877 s, f=31.630 Hz, Re(Z)=0.031842 Ohm, -Im(Z)=0.000926 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 16 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=11.524 s, f=21.552 Hz, Re(Z)=0.032040 Ohm, -Im(Z)=0.000791 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 17 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=12.226 s, f=14.685 Hz, Re(Z)=0.032167 Ohm, -Im(Z)=0.000578 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 18 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=43.478 s, f=9.973 Hz, Re(Z)=0.032289 Ohm, -Im(Z)=0.000480 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 19 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=43.478 s, f=6.782 Hz, Re(Z)=0.032342 Ohm, -Im(Z)=0.000396 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 20 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=43.479 s, f=4.687 Hz, Re(Z)=0.032406 Ohm, -Im(Z)=0.000361 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 21 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=43.479 s, f=3.191 Hz, Re(Z)=0.032446 Ohm, -Im(Z)=0.000341 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 22 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=43.480 s, f=2.194 Hz, Re(Z)=0.032487 Ohm, -Im(Z)=0.000349 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 23 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=43.480 s, f=1.496 Hz, Re(Z)=0.032551 Ohm, -Im(Z)=0.000383 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 24 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=43.481 s, f=0.997 Hz, Re(Z)=0.032611 Ohm, -Im(Z)=0.000439 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 25 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=43.481 s, f=0.698 Hz, Re(Z)=0.032666 Ohm, -Im(Z)=0.000535 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 26 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=43.482 s, f=0.499 Hz, Re(Z)=0.032753 Ohm, -Im(Z)=0.000617 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 27 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=43.482 s, f=0.299 Hz, Re(Z)=0.032922 Ohm, -Im(Z)=0.000848 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 28 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=43.483 s, f=0.199 Hz, Re(Z)=0.033098 Ohm, -Im(Z)=0.001040 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 29 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=43.483 s, f=0.100 Hz, Re(Z)=0.033463 Ohm, -Im(Z)=0.001491 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Successfully converted 30 data points
+2025-11-18 15:37:04 [INFO] [BIO] GEIS measurement completed successfully
+2025-11-18 15:37:04 [INFO] Processing GEIS: 30 points, 4 variables (process 0)
+2025-11-18 15:37:04 [INFO] Using EC-Lab format (4 variables)
+2025-11-18 15:37:04 [INFO] Extracted 30 impedance points (10002.23 Hz to 0.10 Hz)
+2025-11-18 15:37:04 [INFO] Saved EIS measurement to: eis_000_0.0mAh_0.0pct.csv
+2025-11-18 15:37:04 [INFO] EIS measurement successful (Z at 1 kHz: 0.0288 + -0.0271j Ohm)
+2025-11-18 15:37:04 [INFO] Initial EIS measurement completed successfully
+2025-11-18 15:37:04 [INFO] === Starting Main Charging Loop ===
+2025-11-18 15:37:04 [INFO] Starting main charging loop...
+2025-11-18 15:37:04 [INFO] Switching to PSB (power supply mode)...
+2025-11-18 15:37:05 [INFO] Switched to PSB successfully
+2025-11-18 15:37:05 [INFO] Configuring PSB for constant-current mode at 1.00 A
+2025-11-18 15:37:05 [INFO] [PSB] Setting current: 1.00A (0x0369)
+2025-11-18 15:37:06 [INFO] [PSB] Setting voltage: 60.00V (0xCCCB)
+2025-11-18 15:37:06 [INFO] [PSB] Setting min current: 0.00A
+2025-11-18 15:37:06 [INFO] [PSB] Setting max current: 1.10A
+2025-11-18 15:37:06 [INFO] Enabling PSB output...
+2025-11-18 15:37:06 [INFO] [PSB] Setting output: ON
+2025-11-18 15:37:07 [INFO] Charging loop started. EIS interval: 10.0 minutes
+2025-11-18 15:42:25 [INFO] User requested to stop overcharge experiment
+2025-11-18 15:42:33 [INFO] Charging loop cancelled
+2025-11-18 15:42:33 [INFO] Disabling PSB output...
+2025-11-18 15:42:33 [INFO] [PSB] Setting output: OFF
+2025-11-18 15:42:34 [INFO] Charging loop completed
+2025-11-18 15:42:34 [INFO] Stopping pressure safety monitoring...
+2025-11-18 15:42:35 [INFO] Pressure monitoring thread stopped
+2025-11-18 15:42:35 [INFO] Pressure safety monitoring stopped
+2025-11-18 15:42:35 [INFO] Cleaning up overcharge experiment...
+2025-11-18 15:42:35 [INFO] Safely disconnecting all devices...
+2025-11-18 15:42:35 [INFO] [PSB] Setting output: OFF
+2025-11-18 15:42:35 [INFO] All devices safely disconnected
+2025-11-18 15:42:35 [INFO] Cleanup complete
+2025-11-18 15:44:35 [INFO] ========================================
+2025-11-18 15:44:35 [INFO] Shutting down Battery Tester application
+2025-11-18 15:44:35 [INFO] ========================================
+2025-11-18 15:44:35 [INFO] [TNY] Setting 2 pins
+2025-11-18 15:44:35 [INFO] Stopping status monitoring...
+2025-11-18 15:44:35 [INFO] Stopping device status monitoring...
+2025-11-18 15:44:35 [INFO] Status module state: RUNNING -> STOPPING
+2025-11-18 15:44:36 [INFO] Status timer thread stopped
+2025-11-18 15:44:36 [INFO] Status module state: STOPPING -> STOPPED
+2025-11-18 15:44:36 [INFO] Status monitoring stopped
+2025-11-18 15:44:36 [INFO] Cleaning up pressure safety monitoring...
+2025-11-18 15:44:36 [INFO] Cleaning up pressure safety module...
+2025-11-18 15:44:36 [INFO] Pressure safety module cleaned up
+2025-11-18 15:44:36 [INFO] Cleaning up cDAQ module...
+2025-11-18 15:44:36 [INFO] Cleaning up cDAQ current slot...
+2025-11-18 15:44:36 [INFO] Cleaned up cDAQ slot 1 task
+2025-11-18 15:44:36 [INFO] cDAQ current slot cleaned up
+2025-11-18 15:44:36 [INFO] Cleaning up cDAQ module...
+2025-11-18 15:44:37 [INFO] Cleaned up cDAQ slot 2 task
+2025-11-18 15:44:38 [INFO] Cleaned up cDAQ slot 3 task
+2025-11-18 15:44:38 [INFO] cDAQ module cleaned up
+2025-11-18 15:44:38 [INFO] Shutting down PSB queue manager...
+2025-11-18 15:44:38 [INFO] [PSB] Shutting down PSB 10000 queue manager...
+2025-11-18 15:44:38 [INFO] [PSB] Waiting for processing thread to complete...
+2025-11-18 15:44:38 [INFO] [PSB] All queues empty, processing thread exiting
+2025-11-18 15:44:38 [INFO] [PSB] PSB 10000 queue processing thread stopped
+2025-11-18 15:44:38 [INFO] [PSB] Setting output: OFF
+2025-11-18 15:44:38 [INFO] [PSB] Setting remote mode: OFF
+2025-11-18 15:44:38 [INFO] [PSB] Closing connection on COM3
+2025-11-18 15:44:38 [INFO] [PSB] Disconnected from PSB 10000
+2025-11-18 15:44:38 [INFO] Device queue manager shut down
+2025-11-18 15:44:38 [INFO] Shutting down BioLogic abstraction layer...
+2025-11-18 15:44:38 [INFO] [BIO] Shutting down BioLogic abstraction layer
+2025-11-18 15:44:38 [INFO] [BIO] Shutting down EC-Lab backend
+2025-11-18 15:44:38 [INFO] [BIO] Shutting down EC-Lab OLE COM connection
+2025-11-18 15:44:38 [INFO] [BIO] Disconnecting from EC-Lab device 0
+2025-11-18 15:44:39 [INFO] [BIO] Disconnected from EC-Lab device
+2025-11-18 15:44:39 [INFO] [BIO] EC-Lab OLE COM connection shutdown complete
+2025-11-18 15:44:39 [INFO] [BIO] EC-Lab backend shutdown complete
+2025-11-18 15:44:39 [INFO] [BIO] BioLogic abstraction layer shutdown complete
+2025-11-18 15:44:39 [INFO] Shutting down DTB queue manager...
+2025-11-18 15:44:39 [INFO] [DTB] Shutting down DTB 4848 queue manager...
+2025-11-18 15:44:39 [INFO] [DTB] Waiting for processing thread to complete...
+2025-11-18 15:44:39 [INFO] [DTB] All queues empty, processing thread exiting
+2025-11-18 15:44:39 [INFO] [DTB] DTB 4848 queue processing thread stopped
+2025-11-18 15:44:39 [INFO] [DTB] Stopping DTB slave 2...
+2025-11-18 15:44:39 [INFO] [DTB] Setting Run/Stop: STOP
+2025-11-18 15:44:39 [INFO] [DTB] Stopping DTB slave 3...
+2025-11-18 15:44:39 [INFO] [DTB] Setting Run/Stop: STOP
+2025-11-18 15:44:39 [INFO] [DTB] Closing COM5
+2025-11-18 15:44:39 [INFO] [DTB] Disconnected all DTB devices from COM5
+2025-11-18 15:44:39 [INFO] [DTB] Disconnected from DTB 4848
+2025-11-18 15:44:39 [INFO] Device queue manager shut down
+2025-11-18 15:44:39 [INFO] Shutting down Alicat queue manager...
+2025-11-18 15:44:39 [INFO] [ALI] Shutting down ALICAT BASIS 2 queue manager...
+2025-11-18 15:44:39 [INFO] [ALI] Waiting for processing thread to complete...
+2025-11-18 15:44:39 [INFO] [ALI] All queues empty, processing thread exiting
+2025-11-18 15:44:39 [INFO] [ALI] ALICAT BASIS 2 queue processing thread stopped
+2025-11-18 15:44:40 [INFO] [ALI] Stopping ALICAT address 1...
+2025-11-18 15:44:40 [INFO] [ALI] Setting setpoint: 0.000
+2025-11-18 15:44:40 [INFO] [ALI] Disconnecting from COM7
+2025-11-18 15:44:40 [INFO] [ALI] Disconnected all ALICAT devices from COM7
+2025-11-18 15:44:40 [INFO] [ALI] Disconnected from ALICAT BASIS 2
+2025-11-18 15:44:40 [INFO] Device queue manager shut down
+2025-11-18 15:44:40 [INFO] Shutting down Teensy queue manager...
+2025-11-18 15:44:40 [INFO] [TNY] Shutting down Teensy queue manager...
+2025-11-18 15:44:40 [INFO] [TNY] Waiting for processing thread to complete...
+2025-11-18 15:44:40 [INFO] [TNY] All queues empty, processing thread exiting
+2025-11-18 15:44:40 [INFO] [TNY] Teensy queue processing thread stopped
+2025-11-18 15:44:40 [INFO] [TNY] Closing connection on COM6
+2025-11-18 15:44:40 [INFO] [TNY] Disconnected from Teensy
+2025-11-18 15:44:40 [INFO] Device queue manager shut down
+2025-11-18 15:44:40 [INFO] Cleaning up controls module...
+2025-11-18 15:44:40 [INFO] Controls module cleaned up
+2025-11-18 15:44:40 [INFO] Cleaning up status monitoring...
+2025-11-18 15:44:40 [INFO] Status module state: STOPPED -> UNINITIALIZED
+2025-11-18 15:44:40 [INFO] Status module cleaned up
+2025-11-18 15:44:40 [INFO] Cleaning up overcharge experiment...
+2025-11-18 15:44:40 [INFO] Shutting down thread pool...
+2025-11-18 15:44:40 [INFO] Cleanup complete. Exiting application.
+2025-11-18 15:44:40 [INFO] ========================================
+=== Battery Tester Log Ended: 2025-11-18 15:44:40 ===

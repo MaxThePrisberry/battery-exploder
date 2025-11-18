@@ -1,0 +1,5 @@
+NON-FATAL RUN-TIME ERROR:   "exp_overcharge.c", line 1799, col 5, thread id 13132, function id 6:   Function PlotY: (return value == -14 [0xfffffff2]). Value is invalid or out of range
+NON-FATAL RUN-TIME ERROR:   "exp_overcharge.c", line 1804, col 5, thread id 13132, function id 6:   Function PlotY: (return value == -14 [0xfffffff2]). Value is invalid or out of range
+NON-FATAL RUN-TIME ERROR:   "exp_overcharge.c", line 1816, col 5, thread id 13132, function id 6:   Function PlotY: (return value == -14 [0xfffffff2]). Value is invalid or out of range
+NON-FATAL RUN-TIME ERROR:   "exp_overcharge.c", line 1821, col 5, thread id 13132, function id 6:   Function PlotY: (return value == -14 [0xfffffff2]). Value is invalid or out of range
+NON-FATAL RUN-TIME ERROR:   "exp_overcharge.c", line 1832, col 5, thread id 13132, function id 6:   Function PlotXY: (return value == -14 [0xfffffff2]). Value is invalid or out of range

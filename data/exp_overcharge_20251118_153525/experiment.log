@@ -1,0 +1,178 @@
+2025-11-18 15:35:25 [INFO] Experiment settings saved
+2025-11-18 15:35:49 [INFO] Graphs configured successfully
+2025-11-18 15:35:49 [INFO] Initializing relay states...
+2025-11-18 15:35:49 [INFO] Checking fume hood ventilation conditions...
+2025-11-18 15:35:49 [INFO] Pre-start check: Ventilation OK (3.00 V)
+2025-11-18 15:35:49 [INFO] Ventilation check PASSED (3.00 V) - safe to start
+2025-11-18 15:35:49 [INFO] Starting pressure safety monitoring...
+2025-11-18 15:35:49 [INFO] Starting pressure safety monitoring...
+2025-11-18 15:35:49 [INFO]   Initial temperature: 25.0 °C
+2025-11-18 15:35:49 [INFO]   Safe temperature threshold: 30.0 °C
+2025-11-18 15:35:49 [INFO]   Pressure OK threshold: > 2.95 V
+2025-11-18 15:35:49 [INFO]   Pressure LOST threshold: < 2.85 V
+2025-11-18 15:35:49 [INFO]   Starting phase: SAFE
+2025-11-18 15:35:49 [INFO] Pressure safety monitoring started
+2025-11-18 15:35:49 [INFO] Pressure monitoring thread started
+2025-11-18 15:35:49 [INFO] Pressure safety monitoring started successfully
+2025-11-18 15:35:49 [INFO] === Performing Initial EIS Measurement ===
+2025-11-18 15:35:49 [INFO] Performing initial baseline EIS measurement...
+2025-11-18 15:35:59 [INFO] Switching to Bio-Logic (EIS mode)...
+2025-11-18 15:35:59 [INFO] [PSB] Setting output: OFF
+2025-11-18 15:36:00 [INFO] Switched to Bio-Logic successfully
+2025-11-18 15:36:00 [INFO] Measuring open-circuit voltage...
+2025-11-18 15:36:00 [INFO] [BIO] Starting OCV measurement via EC-Lab
+2025-11-18 15:36:00 [INFO] [BIO]   Settings: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_settings\ocv_default.mps
+2025-11-18 15:36:00 [INFO] [BIO]   Output: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251118_153600_C01.mpr
+2025-11-18 15:36:00 [INFO] [BIO] Loading settings from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_settings\ocv_default.mps
+2025-11-18 15:36:01 [INFO] [BIO] Settings loaded successfully
+2025-11-18 15:36:01 [INFO] [BIO] Starting measurement, output: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251118_153600_C01.mpr
+2025-11-18 15:36:01 [INFO] [BIO] Measurement started
+2025-11-18 15:36:01 [INFO] [BIO] Monitoring measurement (timeout: 100000 ms)
+2025-11-18 15:36:01 [INFO] [BIO] Status: 0, Technique: 11, Time: 71.3 s, Points: 31
+2025-11-18 15:36:04 [INFO] [BIO] Measurement started running
+2025-11-18 15:36:06 [INFO] [BIO] Status: 1, Technique: 11, Time: 2.3 s, Points: 31
+2025-11-18 15:36:11 [INFO] [BIO] Status: 1, Technique: 11, Time: 7.7 s, Points: 31
+2025-11-18 15:36:14 [INFO] [BIO] Measurement completed (10.0 s, 31 points)
+2025-11-18 15:36:15 [INFO] [BIO] Converting .mpr file to BIO_TechniqueData: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251118_153600_C01.mpr
+2025-11-18 15:36:15 [INFO] [BIO] Reading number of points from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251118_153600_C01.mpr
+2025-11-18 15:36:15 [INFO] [BIO] File contains 10 data points
+2025-11-18 15:36:15 [INFO] [BIO] Reading 10 data points from .mpr file
+2025-11-18 15:36:15 [INFO] [BIO] Reading DC value at index 0 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251118_153600_C01.mpr
+2025-11-18 15:36:15 [INFO] [BIO] DC data: t=1.000 s, V=3.726122 V, I=0.000000 mA
+2025-11-18 15:36:15 [INFO] [BIO] Reading DC value at index 1 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251118_153600_C01.mpr
+2025-11-18 15:36:15 [INFO] [BIO] DC data: t=2.000 s, V=3.726044 V, I=0.000000 mA
+2025-11-18 15:36:15 [INFO] [BIO] Reading DC value at index 2 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251118_153600_C01.mpr
+2025-11-18 15:36:15 [INFO] [BIO] DC data: t=3.000 s, V=3.726029 V, I=0.000000 mA
+2025-11-18 15:36:15 [INFO] [BIO] Reading DC value at index 3 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251118_153600_C01.mpr
+2025-11-18 15:36:15 [INFO] [BIO] DC data: t=4.000 s, V=3.726023 V, I=0.000000 mA
+2025-11-18 15:36:15 [INFO] [BIO] Reading DC value at index 4 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251118_153600_C01.mpr
+2025-11-18 15:36:15 [INFO] [BIO] DC data: t=5.000 s, V=3.726022 V, I=0.000000 mA
+2025-11-18 15:36:15 [INFO] [BIO] Reading DC value at index 5 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251118_153600_C01.mpr
+2025-11-18 15:36:15 [INFO] [BIO] DC data: t=6.000 s, V=3.726020 V, I=0.000000 mA
+2025-11-18 15:36:15 [INFO] [BIO] Reading DC value at index 6 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251118_153600_C01.mpr
+2025-11-18 15:36:15 [INFO] [BIO] DC data: t=7.000 s, V=3.726017 V, I=0.000000 mA
+2025-11-18 15:36:15 [INFO] [BIO] Reading DC value at index 7 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251118_153600_C01.mpr
+2025-11-18 15:36:15 [INFO] [BIO] DC data: t=8.000 s, V=3.726015 V, I=0.000000 mA
+2025-11-18 15:36:15 [INFO] [BIO] Reading DC value at index 8 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251118_153600_C01.mpr
+2025-11-18 15:36:15 [INFO] [BIO] DC data: t=9.000 s, V=3.726013 V, I=0.000000 mA
+2025-11-18 15:36:15 [INFO] [BIO] Reading DC value at index 9 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\ocv_20251118_153600_C01.mpr
+2025-11-18 15:36:15 [INFO] [BIO] DC data: t=10.000 s, V=3.726013 V, I=0.000000 mA
+2025-11-18 15:36:15 [INFO] [BIO] Successfully converted 10 data points
+2025-11-18 15:36:15 [INFO] [BIO] OCV measurement completed successfully
+2025-11-18 15:36:15 [INFO] OCV: 3.7260 V
+2025-11-18 15:36:15 [INFO] Performing GEIS measurement...
+2025-11-18 15:36:15 [INFO] [BIO] Starting GEIS measurement via EC-Lab
+2025-11-18 15:36:15 [INFO] [BIO]   Settings: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_settings\geis_default.mps
+2025-11-18 15:36:15 [INFO] [BIO]   Output: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:36:15 [INFO] [BIO] Loading settings from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_settings\geis_default.mps
+2025-11-18 15:36:16 [INFO] [BIO] Settings loaded successfully
+2025-11-18 15:36:16 [INFO] [BIO] Starting measurement, output: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:36:16 [INFO] [BIO] Measurement started
+2025-11-18 15:36:16 [INFO] [BIO] Monitoring measurement (timeout: 100000 ms)
+2025-11-18 15:36:16 [INFO] [BIO] Status: 0, Technique: 30, Time: 10.0 s, Points: 31
+2025-11-18 15:36:19 [INFO] [BIO] Measurement started running
+2025-11-18 15:36:21 [INFO] [BIO] Status: 1, Technique: 30, Time: 2.4 s, Points: 31
+2025-11-18 15:36:26 [INFO] [BIO] Status: 1, Technique: 30, Time: 7.8 s, Points: 31
+2025-11-18 15:36:32 [INFO] [BIO] Status: 1, Technique: 30, Time: 13.1 s, Points: 31
+2025-11-18 15:36:37 [INFO] [BIO] Status: 1, Technique: 30, Time: 18.4 s, Points: 31
+2025-11-18 15:36:42 [INFO] [BIO] Status: 1, Technique: 30, Time: 23.8 s, Points: 31
+2025-11-18 15:36:48 [INFO] [BIO] Status: 1, Technique: 30, Time: 29.1 s, Points: 31
+2025-11-18 15:36:53 [INFO] [BIO] Status: 1, Technique: 30, Time: 34.4 s, Points: 31
+2025-11-18 15:36:58 [INFO] [BIO] Status: 1, Technique: 30, Time: 39.7 s, Points: 31
+2025-11-18 15:37:03 [INFO] [BIO] Measurement completed (43.5 s, 31 points)
+2025-11-18 15:37:04 [INFO] [BIO] Converting .mpr file to BIO_TechniqueData: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] Reading number of points from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] File contains 30 data points
+2025-11-18 15:37:04 [INFO] [BIO] Reading 30 data points from .mpr file
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 0 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=0.724 s, f=10002.226 Hz, Re(Z)=0.028811 Ohm, -Im(Z)=-0.027127 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 1 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=1.270 s, f=6811.067 Hz, Re(Z)=0.028038 Ohm, -Im(Z)=-0.018557 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 2 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=1.959 s, f=4641.485 Hz, Re(Z)=0.027658 Ohm, -Im(Z)=-0.012663 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 3 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=2.649 s, f=3161.012 Hz, Re(Z)=0.027449 Ohm, -Im(Z)=-0.008277 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 4 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=3.339 s, f=2155.690 Hz, Re(Z)=0.027438 Ohm, -Im(Z)=-0.005271 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 5 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=4.029 s, f=1468.590 Hz, Re(Z)=0.027603 Ohm, -Im(Z)=-0.003117 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 6 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=4.719 s, f=1000.320 Hz, Re(Z)=0.027887 Ohm, -Im(Z)=-0.001515 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 7 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=5.408 s, f=681.090 Hz, Re(Z)=0.028257 Ohm, -Im(Z)=-0.000388 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 8 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=6.097 s, f=463.961 Hz, Re(Z)=0.028715 Ohm, -Im(Z)=0.000394 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 9 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=6.783 s, f=316.316 Hz, Re(Z)=0.029233 Ohm, -Im(Z)=0.000921 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 10 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=7.471 s, f=215.345 Hz, Re(Z)=0.029742 Ohm, -Im(Z)=0.001202 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 11 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=8.153 s, f=146.737 Hz, Re(Z)=0.030280 Ohm, -Im(Z)=0.001395 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 12 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=8.842 s, f=100.032 Hz, Re(Z)=0.030797 Ohm, -Im(Z)=0.001356 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 13 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=9.548 s, f=68.104 Hz, Re(Z)=0.031219 Ohm, -Im(Z)=0.001268 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 14 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=10.218 s, f=46.442 Hz, Re(Z)=0.031570 Ohm, -Im(Z)=0.001110 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 15 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=10.877 s, f=31.630 Hz, Re(Z)=0.031842 Ohm, -Im(Z)=0.000926 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 16 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=11.524 s, f=21.552 Hz, Re(Z)=0.032040 Ohm, -Im(Z)=0.000791 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 17 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=12.226 s, f=14.685 Hz, Re(Z)=0.032167 Ohm, -Im(Z)=0.000578 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 18 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=43.478 s, f=9.973 Hz, Re(Z)=0.032289 Ohm, -Im(Z)=0.000480 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 19 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=43.478 s, f=6.782 Hz, Re(Z)=0.032342 Ohm, -Im(Z)=0.000396 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 20 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=43.479 s, f=4.687 Hz, Re(Z)=0.032406 Ohm, -Im(Z)=0.000361 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 21 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=43.479 s, f=3.191 Hz, Re(Z)=0.032446 Ohm, -Im(Z)=0.000341 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 22 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=43.480 s, f=2.194 Hz, Re(Z)=0.032487 Ohm, -Im(Z)=0.000349 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 23 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=43.480 s, f=1.496 Hz, Re(Z)=0.032551 Ohm, -Im(Z)=0.000383 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 24 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=43.481 s, f=0.997 Hz, Re(Z)=0.032611 Ohm, -Im(Z)=0.000439 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 25 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=43.481 s, f=0.698 Hz, Re(Z)=0.032666 Ohm, -Im(Z)=0.000535 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 26 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=43.482 s, f=0.499 Hz, Re(Z)=0.032753 Ohm, -Im(Z)=0.000617 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 27 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=43.482 s, f=0.299 Hz, Re(Z)=0.032922 Ohm, -Im(Z)=0.000848 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 28 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=43.483 s, f=0.199 Hz, Re(Z)=0.033098 Ohm, -Im(Z)=0.001040 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Reading EIS value at index 29 from: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\eclab_data\geis_20251118_153615_C01.mpr
+2025-11-18 15:37:04 [INFO] [BIO] EIS data: t=43.483 s, f=0.100 Hz, Re(Z)=0.033463 Ohm, -Im(Z)=0.001491 Ohm
+2025-11-18 15:37:04 [INFO] [BIO] Successfully converted 30 data points
+2025-11-18 15:37:04 [INFO] [BIO] GEIS measurement completed successfully
+2025-11-18 15:37:04 [INFO] Processing GEIS: 30 points, 4 variables (process 0)
+2025-11-18 15:37:04 [INFO] Using EC-Lab format (4 variables)
+2025-11-18 15:37:04 [INFO] Extracted 30 impedance points (10002.23 Hz to 0.10 Hz)
+2025-11-18 15:37:04 [INFO] Saved EIS measurement to: eis_000_0.0mAh_0.0pct.csv
+2025-11-18 15:37:04 [INFO] EIS measurement successful (Z at 1 kHz: 0.0288 + -0.0271j Ohm)
+2025-11-18 15:37:04 [INFO] Initial EIS measurement completed successfully
+2025-11-18 15:37:04 [INFO] === Starting Main Charging Loop ===
+2025-11-18 15:37:04 [INFO] Starting main charging loop...
+2025-11-18 15:37:04 [INFO] Switching to PSB (power supply mode)...
+2025-11-18 15:37:05 [INFO] Switched to PSB successfully
+2025-11-18 15:37:05 [INFO] Configuring PSB for constant-current mode at 1.00 A
+2025-11-18 15:37:05 [INFO] [PSB] Setting current: 1.00A (0x0369)
+2025-11-18 15:37:06 [INFO] [PSB] Setting voltage: 60.00V (0xCCCB)
+2025-11-18 15:37:06 [INFO] [PSB] Setting min current: 0.00A
+2025-11-18 15:37:06 [INFO] [PSB] Setting max current: 1.10A
+2025-11-18 15:37:06 [INFO] Enabling PSB output...
+2025-11-18 15:37:06 [INFO] [PSB] Setting output: ON
+2025-11-18 15:37:07 [INFO] Charging loop started. EIS interval: 10.0 minutes
+2025-11-18 15:42:25 [INFO] User requested to stop overcharge experiment
+2025-11-18 15:42:33 [INFO] Charging loop cancelled
+2025-11-18 15:42:33 [INFO] Disabling PSB output...
+2025-11-18 15:42:33 [INFO] [PSB] Setting output: OFF
+2025-11-18 15:42:34 [INFO] Charging loop completed
+2025-11-18 15:42:34 [INFO] Stopping pressure safety monitoring...
+2025-11-18 15:42:35 [INFO] Pressure monitoring thread stopped
+2025-11-18 15:42:35 [INFO] Pressure safety monitoring stopped
+2025-11-18 15:42:35 [INFO] Cleaning up overcharge experiment...
+2025-11-18 15:42:35 [INFO] Safely disconnecting all devices...
+2025-11-18 15:42:35 [INFO] [PSB] Setting output: OFF
+2025-11-18 15:42:35 [INFO] All devices safely disconnected

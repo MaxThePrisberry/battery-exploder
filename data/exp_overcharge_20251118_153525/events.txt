@@ -1,0 +1,6 @@
+# Overcharge Experiment Events Log
+# Format: Timestamp_s,Event_Type,Details
+26.82,EXPERIMENT_START,Current=1.00A Duration=20 min
+26.82,Initial_EIS_Started,Baseline EIS before charging
+101.18,Initial_EIS_Completed,Baseline EIS successful
+101.18,Charging_Started,Beginning constant-current overcharge
