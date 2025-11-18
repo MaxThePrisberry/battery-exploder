@@ -107,8 +107,8 @@ typedef struct {
     int pauseChargeDuringEIS;       // 1 = pause, 0 = continue
 
     // Logging (adaptive)
-    unsigned int logIntervalSlow;   // Data logging interval when SOC < threshold (seconds)
-    unsigned int logIntervalFast;   // Data logging interval when SOC >= threshold (seconds)
+    double logIntervalSlow;   // Data logging interval when SOC < threshold (seconds)
+    double logIntervalFast;   // Data logging interval when SOC >= threshold (seconds)
 } OverchargeParams;
 
 // Temperature data point (reuse from exp_temp_ramp)
