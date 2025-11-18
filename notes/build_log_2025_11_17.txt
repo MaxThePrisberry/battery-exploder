@@ -1,0 +1,61 @@
+Build Status (BatteryExploder.prj - Debug)
+ BatteryExploder.c - 1 error
+  486, 13    error: implicit declaration of function 'OverchargeExperiment_Cleanup' is invalid in C99. Make sure that you include the function prototype. 
+      486, 13    note: did you mean 'TempRampExperiment_Cleanup'?
+  "exp_temp_ramp.h"(221,1)    note: 'TempRampExperiment_Cleanup' declared here
+ alicat_test.c
+ biologic_test.c
+ cmd_prompt.c - 2 warnings
+  453, 1    warning: unused variable 'time1Str' 
+  454, 1    warning: unused variable 'time2Str' 
+ common.c
+ controls.c
+ device_queue_test.c
+ dtb_ramp_soak_test.c
+ exp_overcharge.c - 20 errors
+  87, 13    error: conflicting types for 'ClearAllGraphs'
+  "common.h"(261,6)    note: previous declaration is here
+  157, 23    error: use of undeclared identifier 'OVERCHARGE_NUM_VENT_THRESHOLD_PCT'
+  176, 22    error: too many arguments to function call, expected 2, have 3
+  "psb10000_dll.h"(30,1)    note: expanded from macro 'PSB_SAFE_CURRENT_MAX'
+  "userint.h"(2867,1)    note: 'MessagePopupAnsi' declared here
+  214, 22    error: too many arguments to function call, expected 2, have 4
+  "exp_overcharge.h"(43,1)    note: expanded from macro 'OVERCHARGE_MIN_EIS_INTERVAL'
+  "userint.h"(2867,1)    note: 'MessagePopupAnsi' declared here
+  226, 22    error: too many arguments to function call, expected 2, have 4
+  "exp_overcharge.h"(43,1)    note: expanded from macro 'OVERCHARGE_MIN_EIS_INTERVAL'
+  "userint.h"(2867,1)    note: 'MessagePopupAnsi' declared here
+  554, 10    error: no member named 'experimentEndTime' in 'OverchargeExperimentContext'
+  558, 22    error: no member named 'experimentEndTime' in 'OverchargeExperimentContext'
+  847, 9    error: implicit declaration of function 'BIO_IsConnectedQueued' is invalid in C99. Make sure that you include the function prototype. 
+      847, 9    note: did you mean 'BIO_ConnectQueued'?
+  "biologic_queue.h"(413,1)    note: 'BIO_ConnectQueued' declared here
+  848, 9    error: implicit declaration of function 'BIO_SetOutputEnableQueued' is invalid in C99. Make sure that you include the function prototype. 
+      848, 9    note: did you mean 'PSB_SetOutputEnableQueued'?
+  "psb10000_queue.h"(173,1)    note: 'PSB_SetOutputEnableQueued' declared here
+  853, 22    error: use of undeclared identifier 'TNY_PIN_RELAY_PSB'
+  854, 22    error: use of undeclared identifier 'TNY_PIN_RELAY_BIOLOGIC'
+  866, 9    error: implicit declaration of function 'PSB_IsConnectedQueued' is invalid in C99. Make sure that you include the function prototype. 
+      866, 9    note: did you mean 'BIO_IsConnectedQueued'?
+      847, 9    note: 'BIO_IsConnectedQueued' declared here
+  872, 22    error: use of undeclared identifier 'TNY_PIN_RELAY_PSB'
+  873, 22    error: use of undeclared identifier 'TNY_PIN_RELAY_BIOLOGIC'
+  896, 26    error: use of undeclared identifier 'TNY_PIN_RELAY_PSB'
+  897, 26    error: use of undeclared identifier 'TNY_PIN_RELAY_BIOLOGIC'
+  943, 14    error: implicit declaration of function 'PSB_SetCurrentLimitQueued' is invalid in C99. Make sure that you include the function prototype. 
+      943, 14    note: did you mean 'PSB_SetCurrentLimitsQueued'?
+  "psb10000_queue.h"(178,1)    note: 'PSB_SetCurrentLimitsQueued' declared here
+  990, 41    error: no member named 'outputVoltage' in 'PSB_Status'
+  991, 41    error: no member named 'outputCurrent' in 'PSB_Status'
+  1043, 42    error: too many arguments to function call, expected single argument 'ctx', have 2 arguments
+ exp_temp_ramp.c - 4 warnings
+  144, 1    warning: will never be executed 
+  1679, 1    warning: will never be executed 
+  1666, 1    warning: will never be executed 
+  1779, 1    warning: unused variable 'progress' 
+ logging.c
+ psb10000_test.c
+ status.c - 2 warnings
+  1081, 1    warning: default label in switch which covers all enumeration values 
+  1081, 1    warning: will never be executed 
+Build failed.
