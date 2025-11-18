@@ -1,0 +1,28 @@
+Build Status (BatteryExploder.prj - Debug)
+ BatteryExploder.c
+ exp_overcharge.c - 19 errors, 3 warnings
+  497, 9    warning: will never be executed 
+  668, 9    warning: will never be executed 
+  1462, 9    error: implicit declaration of function '_access' is invalid in C99. Make sure that you include the function prototype. 
+  1463, 13    error: implicit declaration of function '_mkdir' is invalid in C99. Make sure that you include the function prototype. 
+  1465, 20    error: use of undeclared identifier 'ERR_FILE_WRITE'
+  1482, 16    error: use of undeclared identifier 'ERR_FILE_WRITE'
+  1648, 58    error: no member named 'setpoint' in 'DTB_Status'; did you mean 'setPoint'?
+  "dtb4848_dll.h"(183,1)    note: 'setPoint' declared here
+  1674, 18    error: implicit declaration of function 'CDAQ_ReadAllThermocouples' is invalid in C99. Make sure that you include the function prototype. 
+  1692, 37    error: use of undeclared identifier 'ERR_FILE_WRITE'
+  1713, 42    error: use of undeclared identifier 'ERR_FILE_WRITE'
+  1736, 75    error: too few arguments to function call, expected 3, have 2
+  "alicat_queue.h"(221,1)    note: 'ALICAT_GetStatusQueued' declared here
+  1746, 25    error: no member named 'volumetricFlow' in 'ALICAT_Status'
+  1756, 36    error: use of undeclared identifier 'ERR_FILE_WRITE'
+  1790, 52    error: use of undeclared identifier 'ATTR_Y2NAME'
+  1795, 55    error: use of undeclared identifier 'ATTR_PLOT_HANDLE'
+  1800, 55    error: use of undeclared identifier 'ATTR_PLOT_HANDLE'
+  1807, 52    error: use of undeclared identifier 'ATTR_Y2NAME'
+  1812, 55    error: use of undeclared identifier 'ATTR_PLOT_HANDLE'
+  1817, 55    error: use of undeclared identifier 'ATTR_PLOT_HANDLE'
+  1828, 55    error: use of undeclared identifier 'ATTR_PLOT_HANDLE'
+  2018, 16    error: use of undeclared identifier 'ERR_FILE_WRITE'
+  2181, 9    warning: default label in switch which covers all enumeration values 
+Build failed.
