@@ -1,0 +1,30 @@
+Build Status (BatteryExploder.prj - Debug)
+ alicat_test.c
+ BatteryExploder.c
+ biologic_test.c
+ cmd_prompt.c - 2 warnings
+  453, 1    warning: unused variable 'time1Str' 
+  454, 1    warning: unused variable 'time2Str' 
+ common.c
+ controls.c
+ device_queue_test.c
+ dtb_ramp_soak_test.c
+ exp_overcharge.c - 4 errors, 2 warnings
+  498, 9    warning: will never be executed 
+  651, 5    error: use of undeclared identifier 'BioAbstractMode'
+  652, 9    error: use of undeclared identifier 'mode'
+  652, 17    error: use of undeclared identifier 'BIO_MODE_NONE'; did you mean 'BIO_CMD_NONE'?
+  "biologic_queue.h"(56,1)    note: 'BIO_CMD_NONE' declared here
+  659, 29    error: use of undeclared identifier 'mode'
+  2180, 9    warning: default label in switch which covers all enumeration values 
+ exp_temp_ramp.c - 4 warnings
+  144, 1    warning: will never be executed 
+  1679, 1    warning: will never be executed 
+  1666, 1    warning: will never be executed 
+  1779, 1    warning: unused variable 'progress' 
+ logging.c
+ psb10000_test.c
+ status.c - 2 warnings
+  1081, 1    warning: default label in switch which covers all enumeration values 
+  1081, 1    warning: will never be executed 
+Build failed.
