@@ -1140,7 +1140,7 @@ static int PerformInitialEIS(OverchargeExperimentContext *ctx)
                                       ctx->eisMeasurementCapacity * sizeof(OverchargeEISMeasurement));
         if (!ctx->eisMeasurements) {
             LogError("Failed to allocate memory for EIS measurements");
-            return ERR_MEMORY_ALLOCATION;
+            return ERR_OUT_OF_MEMORY;
         }
     }
 
@@ -1185,7 +1185,7 @@ static int PerformPeriodicEIS(OverchargeExperimentContext *ctx, int measurementI
                                       ctx->eisMeasurementCapacity * sizeof(OverchargeEISMeasurement));
         if (!ctx->eisMeasurements) {
             LogError("Failed to allocate memory for EIS measurements");
-            return ERR_MEMORY_ALLOCATION;
+            return ERR_OUT_OF_MEMORY;
         }
     }
 
@@ -1233,7 +1233,7 @@ static int PerformFinalEIS(OverchargeExperimentContext *ctx)
                                       ctx->eisMeasurementCapacity * sizeof(OverchargeEISMeasurement));
         if (!ctx->eisMeasurements) {
             LogError("Failed to allocate memory for EIS measurements");
-            return ERR_MEMORY_ALLOCATION;
+            return ERR_OUT_OF_MEMORY;
         }
     }
 
@@ -1290,7 +1290,17 @@ static int PerformEISMeasurement(OverchargeExperimentContext *ctx, OverchargeEIS
 
         // Perform OCV measurement
         LogMessage("Measuring open-circuit voltage...");
-        result = BIO_PerformOCVQueued(ctx->biologicID, &ocvData, DEVICE_PRIORITY_NORMAL);
+        result = BIO_Abstract_RunOCV(0,  // channel
+                                    OCV_DURATION_S,
+                                    OCV_SAMPLE_INTERVAL_S,
+                                    OCV_RECORD_EVERY_DE,
+                                    OCV_RECORD_EVERY_DT,
+                                    OCV_E_RANGE,
+                                    &ocvData,
+                                    OCV_TIMEOUT_MS,
+                                    NULL,  // progressCallback
+                                    NULL,  // userData
+                                    &(ctx->cancelRequested));
         if (result != SUCCESS) {
             LogError("OCV measurement failed: %s", GetErrorString(result));
             retryCount++;
@@ -1298,14 +1308,37 @@ static int PerformEISMeasurement(OverchargeExperimentContext *ctx, OverchargeEIS
         }
 
         // Extract OCV voltage
-        if (ocvData && ocvData->numDataPoints > 0) {
-            measurement->ocvVoltage = ocvData->dataPoints[ocvData->numDataPoints - 1].voltage;
-            LogMessage("OCV: %.4f V", measurement->ocvVoltage);
+        if (ocvData && ocvData->convertedData) {
+            BIO_ConvertedData *convData = ocvData->convertedData;
+            if (convData->numPoints > 0 && convData->numVariables >= 2 && convData->data[1] != NULL) {
+                int lastPoint = convData->numPoints - 1;
+                measurement->ocvVoltage = convData->data[1][lastPoint];
+                LogMessage("OCV: %.4f V", measurement->ocvVoltage);
+            }
         }
 
         // Perform GEIS measurement
         LogMessage("Performing GEIS measurement...");
-        result = BIO_PerformGEISQueued(ctx->biologicID, &geisData, DEVICE_PRIORITY_NORMAL);
+        result = BIO_Abstract_RunGEIS(0,  // channel
+                                     GEIS_VS_INITIAL,
+                                     GEIS_INITIAL_CURRENT,
+                                     GEIS_DURATION_S,
+                                     GEIS_RECORD_EVERY_DT,
+                                     GEIS_RECORD_EVERY_DE,
+                                     GEIS_INITIAL_FREQ,
+                                     GEIS_FINAL_FREQ,
+                                     GEIS_SWEEP_LINEAR,
+                                     GEIS_AMPLITUDE_I,
+                                     GEIS_FREQ_NUMBER,
+                                     GEIS_AVERAGE_N,
+                                     GEIS_CORRECTION,
+                                     GEIS_WAIT_FOR_STEADY,
+                                     GEIS_I_RANGE,
+                                     &geisData,
+                                     GEIS_TIMEOUT_MS,
+                                     NULL,  // progressCallback
+                                     NULL,  // userData
+                                     &(ctx->cancelRequested));
         if (result != SUCCESS) {
             LogError("GEIS measurement failed: %s", GetErrorString(result));
             if (ocvData) BIO_FreeTechniqueData(ocvData);
@@ -1338,7 +1371,7 @@ static int PerformEISMeasurement(OverchargeExperimentContext *ctx, OverchargeEIS
     }
 
     LogError("EIS measurement failed after %d retries", retryCount);
-    return ERR_EIS_MEASUREMENT_FAILED;
+    return ERR_OPERATION_FAILED;
 }
 
 static int ProcessGEISData(OverchargeExperimentContext *ctx,
@@ -1347,16 +1380,25 @@ static int ProcessGEISData(OverchargeExperimentContext *ctx,
 {
     int i;
     int numPoints;
+    BIO_ConvertedData *convData;
+    int processIndex = -1;
 
-    if (!geisData || geisData->numDataPoints == 0) {
-        LogError("No GEIS data points received");
-        return ERR_INVALID_DATA;
+    if (!geisData || !geisData->convertedData) {
+        LogError("No GEIS data to process");
+        return ERR_INVALID_PARAMETER;
     }
 
-    numPoints = geisData->numDataPoints;
-    measurement->numPoints = numPoints;
+    convData = geisData->convertedData;
+    numPoints = convData->numPoints;
 
-    // Allocate arrays
+    if (geisData->rawData) {
+        processIndex = geisData->rawData->processIndex;
+    }
+
+    LogMessage("Processing GEIS: %d points, %d variables (process %d)",
+              convData->numPoints, convData->numVariables, processIndex);
+
+    // Allocate impedance arrays
     measurement->frequencies = malloc(numPoints * sizeof(double));
     measurement->zReal = malloc(numPoints * sizeof(double));
     measurement->zImag = malloc(numPoints * sizeof(double));
@@ -1366,17 +1408,43 @@ static int ProcessGEISData(OverchargeExperimentContext *ctx,
         if (measurement->frequencies) free(measurement->frequencies);
         if (measurement->zReal) free(measurement->zReal);
         if (measurement->zImag) free(measurement->zImag);
-        return ERR_MEMORY_ALLOCATION;
+        measurement->frequencies = NULL;
+        measurement->zReal = NULL;
+        measurement->zImag = NULL;
+        return ERR_OUT_OF_MEMORY;
     }
 
-    // Extract impedance data
-    for (i = 0; i < numPoints; i++) {
-        measurement->frequencies[i] = geisData->dataPoints[i].frequency;
-        measurement->zReal[i] = geisData->dataPoints[i].zReal;
-        measurement->zImag[i] = geisData->dataPoints[i].zImag;
+    // Handle both Direct DLL and EC-Lab formats
+    if (processIndex == 1 && convData->numVariables >= 11) {
+        // Direct DLL format: freq at [0], Re(Z) at [4], -Im(Z) at [5]
+        LogMessage("Using Direct DLL format (process 1, %d variables)", convData->numVariables);
+        for (i = 0; i < numPoints; i++) {
+            measurement->frequencies[i] = convData->data[0][i];
+            measurement->zReal[i] = convData->data[4][i];
+            measurement->zImag[i] = convData->data[5][i];
+        }
+    } else if (convData->numVariables == 4) {
+        // EC-Lab format: time at [0], freq at [1], Re(Z) at [2], -Im(Z) at [3]
+        LogMessage("Using EC-Lab format (4 variables)");
+        for (i = 0; i < numPoints; i++) {
+            measurement->frequencies[i] = convData->data[1][i];
+            measurement->zReal[i] = convData->data[2][i];
+            measurement->zImag[i] = convData->data[3][i];
+        }
+    } else {
+        LogWarning("Unexpected GEIS format: process %d, %d variables",
+                  processIndex, convData->numVariables);
+        free(measurement->frequencies);
+        free(measurement->zReal);
+        free(measurement->zImag);
+        measurement->frequencies = NULL;
+        measurement->zReal = NULL;
+        measurement->zImag = NULL;
+        return ERR_OPERATION_FAILED;
     }
 
-    LogMessage("Processed %d impedance points (%.2f Hz to %.2f Hz)",
+    measurement->numPoints = numPoints;
+    LogMessage("Extracted %d impedance points (%.2f Hz to %.2f Hz)",
               numPoints, measurement->frequencies[0], measurement->frequencies[numPoints - 1]);
 
     return SUCCESS;

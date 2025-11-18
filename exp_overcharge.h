@@ -176,6 +176,7 @@ typedef struct {
     double currentCurrent;
     double currentTemperature;
     double currentPressure;
+    OverchargeTempData currentTempData;  // Current temperature data snapshot
 
     // EIS measurements
     OverchargeEISMeasurement *eisMeasurements;  // Dynamic array
