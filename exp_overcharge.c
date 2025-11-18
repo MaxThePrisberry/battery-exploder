@@ -11,6 +11,7 @@
 #include "logging.h"
 #include "status.h"
 #include "battery_utils.h"
+#include "biologic/biologic_abstract.h"
 #include <ansi_c.h>
 #include <analysis.h>
 #include <utility.h>
@@ -646,14 +647,20 @@ static int VerifyAllDevices(OverchargeExperimentContext *ctx) {
         return ERR_NOT_CONNECTED;
     }
 
-    // Get device ID from abstraction layer
-    ctx->biologicID = BIO_Abstract_GetDeviceID();
-    if (ctx->biologicID < 0) {
-        MessagePopup("BioLogic Not Connected",
-                     "The BioLogic potentiostat is not connected.\n"
-                     "Please ensure it is connected before running the overcharge experiment.");
+    // Verify BioLogic abstraction layer is initialized
+    BioAbstractMode mode = BIO_Abstract_GetMode();
+    if (mode == BIO_MODE_NONE) {
+        MessagePopup("BioLogic Not Initialized",
+                     "The BioLogic abstraction layer is not initialized.\n"
+                     "Please ensure BioLogic is connected before running the overcharge experiment.");
         return ERR_NOT_CONNECTED;
     }
+
+    const char *modeName = (mode == BIO_MODE_ECLAB_OLECOM) ? "EC-Lab OLE COM" : "Direct DLL";
+    LogMessage("BioLogic initialized in %s mode", modeName);
+
+    // Note: biologicID is only used in Direct DLL mode, not needed for EC-Lab
+    ctx->biologicID = 0;  // Not used with abstraction layer
 
     // Check DTB connection (REQUIRED for temperature monitoring)
     if (ENABLE_DTB) {
