@@ -1459,11 +1459,9 @@ static int SaveEISMeasurement(OverchargeExperimentContext *ctx, OverchargeEISMea
 
     // Create EIS directory if needed
     snprintf(eisDir, sizeof(eisDir), "%s%s%s", ctx->experimentDirectory, PATH_SEPARATOR, OVERCHARGE_EIS_DIR);
-    if (_access(eisDir, 0) != 0) {
-        if (_mkdir(eisDir) != 0) {
-            LogError("Failed to create EIS directory: %s", eisDir);
-            return ERR_FILE_WRITE;
-        }
+    if (MakeDir(eisDir) != 0) {
+        LogError("Failed to create EIS directory: %s", eisDir);
+        return ERR_BASE_FILE;
     }
 
     // Generate filename
@@ -1479,7 +1477,7 @@ static int SaveEISMeasurement(OverchargeExperimentContext *ctx, OverchargeEISMea
     file = fopen(filepath, "w");
     if (!file) {
         LogError("Failed to create EIS file: %s", filepath);
-        return ERR_FILE_WRITE;
+        return ERR_BASE_FILE;
     }
 
     // Header
@@ -1645,7 +1643,7 @@ static int ReadAllTemperatures(OverchargeExperimentContext *ctx)
             if (result == SUCCESS) {
                 tempData->dtbTemperatures[i] = dtbStatus[i].processValue;
                 if (i == 0) {
-                    tempData->dtbSetpoint = dtbStatus[i].setpoint;
+                    tempData->dtbSetpoint = dtbStatus[i].setPoint;
                 }
             } else {
                 LogWarning("Failed to read DTB %d temperature", i + 1);
@@ -1670,14 +1668,8 @@ static int ReadAllTemperatures(OverchargeExperimentContext *ctx)
 
     // Read cDAQ thermocouples if enabled
     if (ENABLE_CDAQ) {
-        double tcTemps[8];
-        result = CDAQ_ReadAllThermocouples(tcTemps);
-        if (result == SUCCESS) {
-            tempData->tc0Temperature = tcTemps[0];
-            tempData->tc1Temperature = tcTemps[1];
-        } else {
-            LogWarning("Failed to read cDAQ thermocouples");
-        }
+        CDAQ_ReadTC(2, 0, &tempData->tc0Temperature);
+        CDAQ_ReadTC(2, 1, &tempData->tc1Temperature);
     }
 
     return SUCCESS;
@@ -1689,7 +1681,7 @@ static int ReadAllTemperatures(OverchargeExperimentContext *ctx)
 
 static int LogChargeDataPoint(OverchargeExperimentContext *ctx, double timestamp)
 {
-    if (!ctx->chargeLogFile) return ERR_FILE_WRITE;
+    if (!ctx->chargeLogFile) return ERR_BASE_FILE;
 
     // Time_s,Voltage_V,Current_A,Power_W,Charge_mAh,Charge_Percent,Temp_DTB_C,Temp_TC0_C,Temp_TC1_C,Mode
     fprintf(ctx->chargeLogFile, "%.2f,%.4f,%.4f,%.4f,%.2f,%.2f,%.2f,%.2f,%.2f,%s\n",
@@ -1710,7 +1702,7 @@ static int LogChargeDataPoint(OverchargeExperimentContext *ctx, double timestamp
 
 static int LogTemperatureDataPoint(OverchargeExperimentContext *ctx, double timestamp)
 {
-    if (!ctx->temperatureLogFile) return ERR_FILE_WRITE;
+    if (!ctx->temperatureLogFile) return ERR_BASE_FILE;
 
     OverchargeTempData *td = &ctx->currentTempData;
 
@@ -1733,7 +1725,7 @@ static int LogGasFlowDataPoint(OverchargeExperimentContext *ctx)
     if (!ctx->gasFlowLogFile || !ENABLE_ALICAT) return SUCCESS;
 
     ALICAT_Status alicatStatus;
-    int result = ALICAT_GetStatusQueued(&alicatStatus, DEVICE_PRIORITY_LOW);
+    int result = ALICAT_GetStatusQueued(ALICAT_MODBUS_ADDRESS, &alicatStatus, DEVICE_PRIORITY_LOW);
     if (result != SUCCESS) {
         return result;
     }
@@ -1743,7 +1735,7 @@ static int LogGasFlowDataPoint(OverchargeExperimentContext *ctx)
     // Time_s,Flow_SLPM,Temp_C,Setpoint_SLPM
     fprintf(ctx->gasFlowLogFile, "%.2f,%.4f,%.2f,%.4f\n",
            timestamp,
-           alicatStatus.volumetricFlow,
+           alicatStatus.flowRate,
            alicatStatus.temperature,
            alicatStatus.setpoint);
     fflush(ctx->gasFlowLogFile);
@@ -1753,7 +1745,7 @@ static int LogGasFlowDataPoint(OverchargeExperimentContext *ctx)
 
 static int LogEvent(OverchargeExperimentContext *ctx, const char *eventType, const char *details, ...)
 {
-    if (!ctx->eventLogFile) return ERR_FILE_WRITE;
+    if (!ctx->eventLogFile) return ERR_BASE_FILE;
 
     double timestamp = Timer() - ctx->experimentStartTime;
 
@@ -2015,7 +2007,7 @@ static int WriteFinalResults(OverchargeExperimentContext *ctx)
     file = fopen(filepath, "w");
     if (!file) {
         LogError("Failed to create summary file: %s", filepath);
-        return ERR_FILE_WRITE;
+        return ERR_BASE_FILE;
     }
 
     // Write comprehensive summary
