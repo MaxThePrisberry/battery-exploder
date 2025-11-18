@@ -84,7 +84,7 @@
 #define  OVERCHARGE_NUM_EIS_INTERVAL_FAST 4       /* control type: numeric, callback function: (none) */
 #define  OVERCHARGE_NUM_EIS_INTERVAL_SLOW 5       /* control type: numeric, callback function: (none) */
 #define  OVERCHARGE_BTN_RUNAWAY_REACHED   6       /* control type: command, callback function: RunawayReachedCallback */
-#define  OVERCHARGE_BTN_START             7       /* control type: command, callback function: StartOverChargeExperimentCallback */
+#define  OVERCHARGE_BTN_START             7       /* control type: command, callback function: StartOverchargeExperimentCallback */
 #define  OVERCHARGE_NUM_SOC_THRESHOLD     8       /* control type: numeric, callback function: (none) */
 #define  OVERCHARGE_STR_ELAPSED_TIME      9       /* control type: numeric, callback function: (none) */
 #define  OVERCHARGE_NUM_VENT_THRESHOLD_MA 10      /* control type: numeric, callback function: UpdateVentilationThresholdCallback */
@@ -138,7 +138,7 @@ int  CVICALLBACK PanelCallback(int panel, int event, void *callbackData, int eve
 int  CVICALLBACK RemoteModeToggle(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK RunawayReachedCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK SignalRunawayReachedCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
-int  CVICALLBACK StartOverChargeExperimentCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
+int  CVICALLBACK StartOverchargeExperimentCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK StartTempRampExperimentCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK TestALICATCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK TestBiologicCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
