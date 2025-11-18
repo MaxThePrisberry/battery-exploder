@@ -647,15 +647,17 @@ static int VerifyAllDevices(OverchargeExperimentContext *ctx) {
         return ERR_NOT_CONNECTED;
     }
 
-    // Verify BioLogic abstraction layer is initialized
-    BioAbstractMode mode = BIO_Abstract_GetMode();
-    if (mode == BIO_MODE_NONE) {
+    // Check if BioLogic abstraction layer is initialized (works for both Direct DLL and EC-Lab modes)
+    if (!BIO_IsAbstractInitialized()) {
         MessagePopup("BioLogic Not Initialized",
-                     "The BioLogic abstraction layer is not initialized.\n"
-                     "Please ensure BioLogic is connected before running the overcharge experiment.");
+                     "The BioLogic potentiostat is not initialized.\n\n"
+                     "For Direct DLL mode: Connect device via USB.\n"
+                     "For EC-Lab mode: Start EC-Lab and connect device.");
         return ERR_NOT_CONNECTED;
     }
 
+    // Get current mode for logging
+    BIO_ControlMode mode = BIO_GetCurrentMode();
     const char *modeName = (mode == BIO_MODE_ECLAB_OLECOM) ? "EC-Lab OLE COM" : "Direct DLL";
     LogMessage("BioLogic initialized in %s mode", modeName);
 
