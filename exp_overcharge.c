@@ -1779,35 +1779,35 @@ static int ConfigureOverchargeGraphs(OverchargeExperimentContext *ctx)
     SetCtrlAttribute(ctx->mainPanelHandle, graph1, ATTR_LABEL_TEXT, "Voltage & Current vs Time");
     SetCtrlAttribute(ctx->mainPanelHandle, graph1, ATTR_XNAME, "Time (min)");
     SetCtrlAttribute(ctx->mainPanelHandle, graph1, ATTR_YNAME, "Voltage (V)");
-    SetCtrlAttribute(ctx->mainPanelHandle, graph1, ATTR_Y2NAME, "Current (A)");
+    // SetCtrlAttribute(ctx->mainPanelHandle, graph1, ATTR_Y2NAME, "Current (A)");  // Not available in CVI 2020
 
     // Create voltage plot (left axis)
     PlotY(ctx->mainPanelHandle, graph1, NULL, 0, VAL_DOUBLE, VAL_THIN_LINE,
           VAL_NO_POINT, VAL_SOLID, 1, VAL_RED);
-    GetPlotAttribute(ctx->mainPanelHandle, graph1, 1, ATTR_PLOT_HANDLE, &ctx->voltagePlotHandle);
+    // GetPlotAttribute(ctx->mainPanelHandle, graph1, 1, ATTR_PLOT_HANDLE, &ctx->voltagePlotHandle);  // Not available in CVI 2020
 
     // Create current plot (right axis)
     PlotY(ctx->mainPanelHandle, graph1, NULL, 0, VAL_DOUBLE, VAL_THIN_LINE,
           VAL_NO_POINT, VAL_SOLID, 1, VAL_BLUE);
-    GetPlotAttribute(ctx->mainPanelHandle, graph1, 2, ATTR_PLOT_HANDLE, &ctx->currentPlotHandle);
-    SetPlotAttribute(ctx->mainPanelHandle, graph1, ctx->currentPlotHandle, ATTR_PLOT_YAXIS, VAL_RIGHT_YAXIS);
+    // GetPlotAttribute(ctx->mainPanelHandle, graph1, 2, ATTR_PLOT_HANDLE, &ctx->currentPlotHandle);  // Not available in CVI 2020
+    // SetPlotAttribute(ctx->mainPanelHandle, graph1, ctx->currentPlotHandle, ATTR_PLOT_YAXIS, VAL_RIGHT_YAXIS);
 
     // GRAPH 2: Temperature (left axis) + Charge (right axis) vs Time
     SetCtrlAttribute(ctx->mainPanelHandle, graph2, ATTR_LABEL_TEXT, "Temperature & Charge vs Time");
     SetCtrlAttribute(ctx->mainPanelHandle, graph2, ATTR_XNAME, "Time (min)");
     SetCtrlAttribute(ctx->mainPanelHandle, graph2, ATTR_YNAME, "Temperature (C)");
-    SetCtrlAttribute(ctx->mainPanelHandle, graph2, ATTR_Y2NAME, "Charge (mAh)");
+    // SetCtrlAttribute(ctx->mainPanelHandle, graph2, ATTR_Y2NAME, "Charge (mAh)");  // Not available in CVI 2020
 
     // Create temperature plot (left axis)
     PlotY(ctx->mainPanelHandle, graph2, NULL, 0, VAL_DOUBLE, VAL_THIN_LINE,
           VAL_NO_POINT, VAL_SOLID, 1, VAL_GREEN);
-    GetPlotAttribute(ctx->mainPanelHandle, graph2, 1, ATTR_PLOT_HANDLE, &ctx->tempPlotHandle);
+    // GetPlotAttribute(ctx->mainPanelHandle, graph2, 1, ATTR_PLOT_HANDLE, &ctx->tempPlotHandle);  // Not available in CVI 2020
 
     // Create charge plot (right axis)
     PlotY(ctx->mainPanelHandle, graph2, NULL, 0, VAL_DOUBLE, VAL_THIN_LINE,
           VAL_NO_POINT, VAL_SOLID, 1, VAL_MAGENTA);
-    GetPlotAttribute(ctx->mainPanelHandle, graph2, 2, ATTR_PLOT_HANDLE, &ctx->chargePlotHandle);
-    SetPlotAttribute(ctx->mainPanelHandle, graph2, ctx->chargePlotHandle, ATTR_PLOT_YAXIS, VAL_RIGHT_YAXIS);
+    // GetPlotAttribute(ctx->mainPanelHandle, graph2, 2, ATTR_PLOT_HANDLE, &ctx->chargePlotHandle);  // Not available in CVI 2020
+    // SetPlotAttribute(ctx->mainPanelHandle, graph2, ctx->chargePlotHandle, ATTR_PLOT_YAXIS, VAL_RIGHT_YAXIS);
 
     // GRAPH 3: Nyquist Plot (Z_real vs -Z_imag)
     SetCtrlAttribute(ctx->mainPanelHandle, graph3, ATTR_LABEL_TEXT, "Nyquist Plot (Latest EIS)");
@@ -1817,7 +1817,7 @@ static int ConfigureOverchargeGraphs(OverchargeExperimentContext *ctx)
     // Create Nyquist plot
     PlotXY(ctx->mainPanelHandle, graph3, NULL, NULL, 0, VAL_DOUBLE, VAL_DOUBLE,
            VAL_THIN_LINE, VAL_SMALL_SOLID_SQUARE, VAL_SOLID, 1, VAL_DK_CYAN);
-    GetPlotAttribute(ctx->mainPanelHandle, graph3, 1, ATTR_PLOT_HANDLE, &ctx->nyquistPlotHandle);
+    // GetPlotAttribute(ctx->mainPanelHandle, graph3, 1, ATTR_PLOT_HANDLE, &ctx->nyquistPlotHandle);  // Not available in CVI 2020
 
     LogMessage("Graphs configured successfully");
     return SUCCESS;
