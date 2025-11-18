@@ -470,8 +470,17 @@ static int OverchargeExperimentThread(void *functionData) {
 
     // Initialize relay states (safety: both OFF)
     LogMessage("Initializing relay states...");
-    TNY_SetPinQueued(TNY_PSB_PIN, TNY_STATE_DISCONNECTED, DEVICE_PRIORITY_NORMAL);
-    TNY_SetPinQueued(TNY_BIOLOGIC_PIN, TNY_STATE_DISCONNECTED, DEVICE_PRIORITY_NORMAL);
+    if (ENABLE_TNY) {
+        result = TNY_SetPinQueued(TNY_PSB_PIN, TNY_STATE_DISCONNECTED, DEVICE_PRIORITY_NORMAL);
+        if (result != SUCCESS) {
+            LogError("Failed to initialize PSB relay: %s", GetErrorString(result));
+        }
+
+        result = TNY_SetPinQueued(TNY_BIOLOGIC_PIN, TNY_STATE_DISCONNECTED, DEVICE_PRIORITY_NORMAL);
+        if (result != SUCCESS) {
+            LogError("Failed to initialize BioLogic relay: %s", GetErrorString(result));
+        }
+    }
 
     // Check ventilation pre-start conditions (CRITICAL SAFETY CHECK)
     if (ENABLE_CDAQ) {
@@ -857,6 +866,8 @@ static int SaveExperimentSettings(OverchargeExperimentContext *ctx) {
 
 static int SwitchToPSB(OverchargeExperimentContext *ctx)
 {
+    int result;
+
     LogMessage("Switching to PSB (power supply mode)...");
 
     // Ensure Bio-Logic is stopped (if it's running)
@@ -866,9 +877,29 @@ static int SwitchToPSB(OverchargeExperimentContext *ctx)
     }
 
     // Switch relays: PSB connected, Bio-Logic disconnected
-    TNY_SetPinQueued(TNY_PSB_PIN, 1, DEVICE_PRIORITY_NORMAL);      // PSB relay ON
-    TNY_SetPinQueued(TNY_BIOLOGIC_PIN, 0, DEVICE_PRIORITY_NORMAL); // Bio-Logic relay OFF
-    Delay(1.0);  // Allow relays to settle
+    if (ENABLE_TNY) {
+        result = TNY_SetPinQueued(TNY_PSB_PIN, TNY_STATE_DISCONNECTED, DEVICE_PRIORITY_NORMAL);
+        if (result != SUCCESS) {
+            LogError("Failed to disconnect PSB relay: %s", GetErrorString(result));
+            return result;
+        }
+
+        Delay(TNY_SWITCH_DELAY_MS / 1000.0);
+
+        result = TNY_SetPinQueued(TNY_PSB_PIN, TNY_STATE_CONNECTED, DEVICE_PRIORITY_NORMAL);
+        if (result != SUCCESS) {
+            LogError("Failed to connect PSB relay: %s", GetErrorString(result));
+            return result;
+        }
+
+        result = TNY_SetPinQueued(TNY_BIOLOGIC_PIN, TNY_STATE_DISCONNECTED, DEVICE_PRIORITY_NORMAL);
+        if (result != SUCCESS) {
+            LogError("Failed to disconnect BioLogic relay: %s", GetErrorString(result));
+            return result;
+        }
+
+        Delay(TNY_SWITCH_DELAY_MS / 1000.0);
+    }
 
     LogMessage("Switched to PSB successfully");
     return SUCCESS;
@@ -876,6 +907,8 @@ static int SwitchToPSB(OverchargeExperimentContext *ctx)
 
 static int SwitchToBioLogic(OverchargeExperimentContext *ctx)
 {
+    int result;
+
     LogMessage("Switching to Bio-Logic (EIS mode)...");
 
     // Ensure PSB output is disabled
@@ -885,9 +918,23 @@ static int SwitchToBioLogic(OverchargeExperimentContext *ctx)
     }
 
     // Switch relays: Bio-Logic connected, PSB disconnected
-    TNY_SetPinQueued(TNY_PSB_PIN, 0, DEVICE_PRIORITY_NORMAL);      // PSB relay OFF
-    TNY_SetPinQueued(TNY_BIOLOGIC_PIN, 1, DEVICE_PRIORITY_NORMAL); // Bio-Logic relay ON
-    Delay(1.0);  // Allow relays to settle
+    if (ENABLE_TNY) {
+        result = TNY_SetPinQueued(TNY_PSB_PIN, TNY_STATE_DISCONNECTED, DEVICE_PRIORITY_NORMAL);
+        if (result != SUCCESS) {
+            LogError("Failed to disconnect PSB relay: %s", GetErrorString(result));
+            return result;
+        }
+
+        Delay(TNY_SWITCH_DELAY_MS / 1000.0);
+
+        result = TNY_SetPinQueued(TNY_BIOLOGIC_PIN, TNY_STATE_CONNECTED, DEVICE_PRIORITY_NORMAL);
+        if (result != SUCCESS) {
+            LogError("Failed to connect BioLogic relay: %s", GetErrorString(result));
+            return result;
+        }
+
+        Delay(TNY_SWITCH_DELAY_MS / 1000.0);
+    }
 
     LogMessage("Switched to Bio-Logic successfully");
     return SUCCESS;
@@ -909,8 +956,8 @@ static int SafeDisconnectAllDevices(OverchargeExperimentContext *ctx)
 
     // Open all relays
     if (ENABLE_TNY) {
-        TNY_SetPinQueued(TNY_PSB_PIN, 0, DEVICE_PRIORITY_HIGH);
-        TNY_SetPinQueued(TNY_BIOLOGIC_PIN, 0, DEVICE_PRIORITY_HIGH);
+        TNY_SetPinQueued(TNY_PSB_PIN, TNY_STATE_DISCONNECTED, DEVICE_PRIORITY_HIGH);
+        TNY_SetPinQueued(TNY_BIOLOGIC_PIN, TNY_STATE_DISCONNECTED, DEVICE_PRIORITY_HIGH);
     }
 
     Delay(0.5);
@@ -1795,14 +1842,13 @@ static int ConfigureOverchargeGraphs(OverchargeExperimentContext *ctx)
     SetCtrlAttribute(ctx->mainPanelHandle, graph1, ATTR_YNAME, "Voltage (V)");
     // SetCtrlAttribute(ctx->mainPanelHandle, graph1, ATTR_Y2NAME, "Current (A)");  // Not available in CVI 2020
 
-    // Create voltage plot (left axis)
-    PlotY(ctx->mainPanelHandle, graph1, NULL, 0, VAL_DOUBLE, VAL_THIN_LINE,
-          VAL_NO_POINT, VAL_SOLID, 1, VAL_RED);
+    // Plots will be created automatically when first data is added
+    // PlotY(ctx->mainPanelHandle, graph1, NULL, 0, VAL_DOUBLE, VAL_THIN_LINE,
+    //       VAL_NO_POINT, VAL_SOLID, 1, VAL_RED);
     // GetPlotAttribute(ctx->mainPanelHandle, graph1, 1, ATTR_PLOT_HANDLE, &ctx->voltagePlotHandle);  // Not available in CVI 2020
 
-    // Create current plot (right axis)
-    PlotY(ctx->mainPanelHandle, graph1, NULL, 0, VAL_DOUBLE, VAL_THIN_LINE,
-          VAL_NO_POINT, VAL_SOLID, 1, VAL_BLUE);
+    // PlotY(ctx->mainPanelHandle, graph1, NULL, 0, VAL_DOUBLE, VAL_THIN_LINE,
+    //       VAL_NO_POINT, VAL_SOLID, 1, VAL_BLUE);
     // GetPlotAttribute(ctx->mainPanelHandle, graph1, 2, ATTR_PLOT_HANDLE, &ctx->currentPlotHandle);  // Not available in CVI 2020
     // SetPlotAttribute(ctx->mainPanelHandle, graph1, ctx->currentPlotHandle, ATTR_PLOT_YAXIS, VAL_RIGHT_YAXIS);
 
@@ -1812,14 +1858,13 @@ static int ConfigureOverchargeGraphs(OverchargeExperimentContext *ctx)
     SetCtrlAttribute(ctx->mainPanelHandle, graph2, ATTR_YNAME, "Temperature (C)");
     // SetCtrlAttribute(ctx->mainPanelHandle, graph2, ATTR_Y2NAME, "Charge (mAh)");  // Not available in CVI 2020
 
-    // Create temperature plot (left axis)
-    PlotY(ctx->mainPanelHandle, graph2, NULL, 0, VAL_DOUBLE, VAL_THIN_LINE,
-          VAL_NO_POINT, VAL_SOLID, 1, VAL_GREEN);
+    // Plots will be created automatically when first data is added
+    // PlotY(ctx->mainPanelHandle, graph2, NULL, 0, VAL_DOUBLE, VAL_THIN_LINE,
+    //       VAL_NO_POINT, VAL_SOLID, 1, VAL_GREEN);
     // GetPlotAttribute(ctx->mainPanelHandle, graph2, 1, ATTR_PLOT_HANDLE, &ctx->tempPlotHandle);  // Not available in CVI 2020
 
-    // Create charge plot (right axis)
-    PlotY(ctx->mainPanelHandle, graph2, NULL, 0, VAL_DOUBLE, VAL_THIN_LINE,
-          VAL_NO_POINT, VAL_SOLID, 1, VAL_MAGENTA);
+    // PlotY(ctx->mainPanelHandle, graph2, NULL, 0, VAL_DOUBLE, VAL_THIN_LINE,
+    //       VAL_NO_POINT, VAL_SOLID, 1, VAL_MAGENTA);
     // GetPlotAttribute(ctx->mainPanelHandle, graph2, 2, ATTR_PLOT_HANDLE, &ctx->chargePlotHandle);  // Not available in CVI 2020
     // SetPlotAttribute(ctx->mainPanelHandle, graph2, ctx->chargePlotHandle, ATTR_PLOT_YAXIS, VAL_RIGHT_YAXIS);
 
@@ -1828,9 +1873,9 @@ static int ConfigureOverchargeGraphs(OverchargeExperimentContext *ctx)
     SetCtrlAttribute(ctx->mainPanelHandle, graph3, ATTR_XNAME, "Z Real (Ohm)");
     SetCtrlAttribute(ctx->mainPanelHandle, graph3, ATTR_YNAME, "-Z Imag (Ohm)");
 
-    // Create Nyquist plot
-    PlotXY(ctx->mainPanelHandle, graph3, NULL, NULL, 0, VAL_DOUBLE, VAL_DOUBLE,
-           VAL_THIN_LINE, VAL_SMALL_SOLID_SQUARE, VAL_SOLID, 1, VAL_DK_CYAN);
+    // Plot will be created automatically when first EIS data is added
+    // PlotXY(ctx->mainPanelHandle, graph3, NULL, NULL, 0, VAL_DOUBLE, VAL_DOUBLE,
+    //        VAL_THIN_LINE, VAL_SMALL_SOLID_SQUARE, VAL_SOLID, 1, VAL_DK_CYAN);
     // GetPlotAttribute(ctx->mainPanelHandle, graph3, 1, ATTR_PLOT_HANDLE, &ctx->nyquistPlotHandle);  // Not available in CVI 2020
 
     LogMessage("Graphs configured successfully");
