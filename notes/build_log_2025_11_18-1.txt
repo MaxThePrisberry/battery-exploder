@@ -1,0 +1,30 @@
+Build Status (BatteryExploder.prj - Debug)
+ exp_overcharge.c - 20 errors, 2 warnings
+  497, 9    warning: will never be executed 
+  668, 9    warning: will never be executed 
+  1143, 20    error: use of undeclared identifier 'ERR_MEMORY_ALLOCATION'
+  1157, 34    error: no member named 'currentTempData' in 'OverchargeExperimentContext'; did you mean 'currentTemperature'?
+  "exp_overcharge.h"(177,1)    note: 'currentTemperature' declared here
+  1157, 27    error: assigning to 'OverchargeTempData' from incompatible type 'double'
+  1188, 20    error: use of undeclared identifier 'ERR_MEMORY_ALLOCATION'
+  1202, 34    error: no member named 'currentTempData' in 'OverchargeExperimentContext'; did you mean 'currentTemperature'?
+  "exp_overcharge.h"(177,1)    note: 'currentTemperature' declared here
+  1202, 27    error: assigning to 'OverchargeTempData' from incompatible type 'double'
+  1236, 20    error: use of undeclared identifier 'ERR_MEMORY_ALLOCATION'
+  1250, 34    error: no member named 'currentTempData' in 'OverchargeExperimentContext'; did you mean 'currentTemperature'?
+  "exp_overcharge.h"(177,1)    note: 'currentTemperature' declared here
+  1250, 27    error: assigning to 'OverchargeTempData' from incompatible type 'double'
+  1293, 18    error: implicit declaration of function 'BIO_PerformOCVQueued' is invalid in C99. Make sure that you include the function prototype. 
+  1301, 33    error: no member named 'numDataPoints' in 'BIO_TechniqueData'
+  1302, 48    error: no member named 'dataPoints' in 'BIO_TechniqueData'
+  1302, 68    error: no member named 'numDataPoints' in 'BIO_TechniqueData'
+  1308, 18    error: implicit declaration of function 'BIO_PerformGEISQueued' is invalid in C99. Make sure that you include the function prototype. 
+      1308, 18    note: did you mean 'BIO_PerformOCVQueued'?
+      1293, 18    note: 'BIO_PerformOCVQueued' declared here
+  1341, 12    error: use of undeclared identifier 'ERR_EIS_MEASUREMENT_FAILED'
+  1351, 32    error: no member named 'numDataPoints' in 'BIO_TechniqueData'
+  1353, 16    error: use of undeclared identifier 'ERR_INVALID_DATA'
+  1356, 27    error: no member named 'numDataPoints' in 'BIO_TechniqueData'
+  1369, 16    error: use of undeclared identifier 'ERR_MEMORY_ALLOCATION'
+  1374, 49    error: no member named 'dataPoints' in 'BIO_TechniqueData'
+Build failed.
