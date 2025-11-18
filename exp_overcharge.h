@@ -155,6 +155,7 @@ typedef struct {
 
     // Timing
     double experimentStartTime;
+    double experimentEndTime;
     double chargeStartTime;
     double lastEISTime;
     double lastLogTime;

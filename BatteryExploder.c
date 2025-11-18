@@ -8,6 +8,7 @@
 #include "common.h"
 #include "BatteryExploder.h"
 #include "exp_temp_ramp.h"
+#include "exp_overcharge.h"
 #include "biologic_queue.h"
 #include "biologic/biologic_abstract.h"
 #include "psb10000_queue.h"

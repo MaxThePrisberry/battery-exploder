@@ -84,7 +84,7 @@ static int ConfigureOverchargeGraphs(OverchargeExperimentContext *ctx);
 static void UpdateGraphsRealtime(OverchargeExperimentContext *ctx, double timestamp);
 static void UpdateNyquistPlot(OverchargeExperimentContext *ctx, OverchargeEISMeasurement *measurement);
 static void AddRunawayMarker(OverchargeExperimentContext *ctx, double timeMinutes);
-static void ClearAllGraphs(OverchargeExperimentContext *ctx);
+static void ClearOverchargeGraphs(OverchargeExperimentContext *ctx);
 
 // Adaptive mode functions
 static void UpdateAdaptiveMode(OverchargeExperimentContext *ctx);
@@ -171,9 +171,9 @@ int CVICALLBACK StartOverchargeExperimentCallback(int panel, int control, int ev
         g_systemBusy = 0;
         CmtReleaseLock(g_busyLock);
 
-        MessagePopup("Invalid Charge Current",
-                     "Charge current must be between 0 and %.1f A.",
-                     PSB_SAFE_CURRENT_MAX);
+        char msg[256];
+        sprintf(msg, "Charge current must be between 0 and %.1f A.", PSB_SAFE_CURRENT_MAX);
+        MessagePopup("Invalid Charge Current", msg);
         return 0;
     }
 
@@ -209,9 +209,10 @@ int CVICALLBACK StartOverchargeExperimentCallback(int panel, int control, int ev
         g_systemBusy = 0;
         CmtReleaseLock(g_busyLock);
 
-        MessagePopup("Invalid EIS Interval",
-                     "Slow EIS interval must be between %.1f and %.1f minutes.",
-                     OVERCHARGE_MIN_EIS_INTERVAL, OVERCHARGE_MAX_EIS_INTERVAL);
+        char msg[256];
+        sprintf(msg, "Slow EIS interval must be between %.1f and %.1f minutes.",
+                OVERCHARGE_MIN_EIS_INTERVAL, OVERCHARGE_MAX_EIS_INTERVAL);
+        MessagePopup("Invalid EIS Interval", msg);
         return 0;
     }
 
@@ -221,9 +222,10 @@ int CVICALLBACK StartOverchargeExperimentCallback(int panel, int control, int ev
         g_systemBusy = 0;
         CmtReleaseLock(g_busyLock);
 
-        MessagePopup("Invalid EIS Interval",
-                     "Fast EIS interval must be between %.1f and %.1f minutes.",
-                     OVERCHARGE_MIN_EIS_INTERVAL, OVERCHARGE_MAX_EIS_INTERVAL);
+        char msg[256];
+        sprintf(msg, "Fast EIS interval must be between %.1f and %.1f minutes.",
+                OVERCHARGE_MIN_EIS_INTERVAL, OVERCHARGE_MAX_EIS_INTERVAL);
+        MessagePopup("Invalid EIS Interval", msg);
         return 0;
     }
 
@@ -843,15 +845,15 @@ static int SwitchToPSB(OverchargeExperimentContext *ctx)
 {
     LogMessage("Switching to PSB (power supply mode)...");
 
-    // Ensure Bio-Logic is disconnected
-    if (BIO_IsConnectedQueued(ctx->biologicID, DEVICE_PRIORITY_NORMAL)) {
-        BIO_SetOutputEnableQueued(ctx->biologicID, 0, DEVICE_PRIORITY_NORMAL);
+    // Ensure Bio-Logic is stopped (if it's running)
+    if (ENABLE_BIOLOGIC) {
+        BIO_StopChannelQueued(ctx->biologicID, 0, DEVICE_PRIORITY_NORMAL);
         Delay(0.5);
     }
 
     // Switch relays: PSB connected, Bio-Logic disconnected
-    TNY_SetPinQueued(TNY_PIN_RELAY_PSB, 1, DEVICE_PRIORITY_NORMAL);      // PSB relay ON
-    TNY_SetPinQueued(TNY_PIN_RELAY_BIOLOGIC, 0, DEVICE_PRIORITY_NORMAL); // Bio-Logic relay OFF
+    TNY_SetPinQueued(TNY_PSB_PIN, 1, DEVICE_PRIORITY_NORMAL);      // PSB relay ON
+    TNY_SetPinQueued(TNY_BIOLOGIC_PIN, 0, DEVICE_PRIORITY_NORMAL); // Bio-Logic relay OFF
     Delay(1.0);  // Allow relays to settle
 
     LogMessage("Switched to PSB successfully");
@@ -862,15 +864,15 @@ static int SwitchToBioLogic(OverchargeExperimentContext *ctx)
 {
     LogMessage("Switching to Bio-Logic (EIS mode)...");
 
-    // Ensure PSB is off
-    if (PSB_IsConnectedQueued(DEVICE_PRIORITY_NORMAL)) {
+    // Ensure PSB output is disabled
+    if (ENABLE_PSB) {
         PSB_SetOutputEnableQueued(0, DEVICE_PRIORITY_NORMAL);
         Delay(0.5);
     }
 
     // Switch relays: Bio-Logic connected, PSB disconnected
-    TNY_SetPinQueued(TNY_PIN_RELAY_PSB, 0, DEVICE_PRIORITY_NORMAL);      // PSB relay OFF
-    TNY_SetPinQueued(TNY_PIN_RELAY_BIOLOGIC, 1, DEVICE_PRIORITY_NORMAL); // Bio-Logic relay ON
+    TNY_SetPinQueued(TNY_PSB_PIN, 0, DEVICE_PRIORITY_NORMAL);      // PSB relay OFF
+    TNY_SetPinQueued(TNY_BIOLOGIC_PIN, 1, DEVICE_PRIORITY_NORMAL); // Bio-Logic relay ON
     Delay(1.0);  // Allow relays to settle
 
     LogMessage("Switched to Bio-Logic successfully");
@@ -882,19 +884,19 @@ static int SafeDisconnectAllDevices(OverchargeExperimentContext *ctx)
     LogMessage("Safely disconnecting all devices...");
 
     // Disable PSB output
-    if (ENABLE_PSB && PSB_IsConnectedQueued(DEVICE_PRIORITY_HIGH)) {
+    if (ENABLE_PSB) {
         PSB_SetOutputEnableQueued(0, DEVICE_PRIORITY_HIGH);
     }
 
-    // Disable Bio-Logic output
-    if (ENABLE_BIOLOGIC && BIO_IsConnectedQueued(ctx->biologicID, DEVICE_PRIORITY_HIGH)) {
-        BIO_SetOutputEnableQueued(ctx->biologicID, 0, DEVICE_PRIORITY_HIGH);
+    // Stop Bio-Logic channel
+    if (ENABLE_BIOLOGIC) {
+        BIO_StopChannelQueued(ctx->biologicID, 0, DEVICE_PRIORITY_HIGH);
     }
 
     // Open all relays
     if (ENABLE_TNY) {
-        TNY_SetPinQueued(TNY_PIN_RELAY_PSB, 0, DEVICE_PRIORITY_HIGH);
-        TNY_SetPinQueued(TNY_PIN_RELAY_BIOLOGIC, 0, DEVICE_PRIORITY_HIGH);
+        TNY_SetPinQueued(TNY_PSB_PIN, 0, DEVICE_PRIORITY_HIGH);
+        TNY_SetPinQueued(TNY_BIOLOGIC_PIN, 0, DEVICE_PRIORITY_HIGH);
     }
 
     Delay(0.5);
@@ -940,9 +942,9 @@ static int RunChargingLoop(OverchargeExperimentContext *ctx)
         return result;
     }
 
-    result = PSB_SetCurrentLimitQueued(ctx->params.chargeCurrent * 1.1, DEVICE_PRIORITY_NORMAL);
+    result = PSB_SetCurrentLimitsQueued(0.0, ctx->params.chargeCurrent * 1.1, DEVICE_PRIORITY_NORMAL);
     if (result != SUCCESS) {
-        LogError("Failed to set PSB current limit: %s", GetErrorString(result));
+        LogError("Failed to set PSB current limits: %s", GetErrorString(result));
         return result;
     }
 
@@ -987,8 +989,8 @@ static int RunChargingLoop(OverchargeExperimentContext *ctx)
         }
 
         // Update current readings
-        ctx->currentVoltage = psbStatus.outputVoltage;
-        ctx->currentCurrent = psbStatus.outputCurrent;
+        ctx->currentVoltage = psbStatus.voltage;
+        ctx->currentCurrent = psbStatus.current;
 
         // Read temperatures
         result = ReadAllTemperatures(ctx);
@@ -1040,7 +1042,7 @@ static int RunChargingLoop(OverchargeExperimentContext *ctx)
             LogChargeDataPoint(ctx, now - loopStartTime);
             LogTemperatureDataPoint(ctx, now - loopStartTime);
             if (ENABLE_ALICAT) {
-                LogGasFlowDataPoint(ctx, now - loopStartTime);
+                LogGasFlowDataPoint(ctx);
             }
             ctx->lastLogTime = now;
         }
@@ -1711,7 +1713,7 @@ static int ConfigureOverchargeGraphs(OverchargeExperimentContext *ctx)
     int graph3 = ctx->graph3Handle;
 
     // Clear all graphs
-    ClearAllGraphs(ctx);
+    ClearOverchargeGraphs(ctx);
 
     // GRAPH 1: Voltage (left axis) + Current (right axis) vs Time
     SetCtrlAttribute(ctx->mainPanelHandle, graph1, ATTR_LABEL_TEXT, "Voltage & Current vs Time");
@@ -1840,7 +1842,7 @@ static void AddRunawayMarker(OverchargeExperimentContext *ctx, double timeMinute
     LogMessage("Added runaway marker to graphs at %.1f minutes", timeMinutes);
 }
 
-static void ClearAllGraphs(OverchargeExperimentContext *ctx)
+static void ClearOverchargeGraphs(OverchargeExperimentContext *ctx)
 {
     DeleteGraphPlot(ctx->mainPanelHandle, ctx->graph1Handle, -1, VAL_IMMEDIATE_DRAW);
     DeleteGraphPlot(ctx->mainPanelHandle, ctx->graph2Handle, -1, VAL_IMMEDIATE_DRAW);
