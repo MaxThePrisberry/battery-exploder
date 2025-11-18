@@ -79,6 +79,26 @@
 #define  PANEL_LOAD_IMG_LOGO              2       /* control type: picture, callback function: (none) */
 
      /* tab page panel controls */
+#define  OVERCHARGE_NUM_LOG_INTERVAL_FAST 2       /* control type: numeric, callback function: (none) */
+#define  OVERCHARGE_NUM_LOG_INTERVAL_SLOW 3       /* control type: numeric, callback function: (none) */
+#define  OVERCHARGE_NUM_EIS_INTERVAL_FAST 4       /* control type: numeric, callback function: (none) */
+#define  OVERCHARGE_NUM_EIS_INTERVAL_SLOW 5       /* control type: numeric, callback function: (none) */
+#define  OVERCHARGE_BTN_RUNAWAY_REACHED   6       /* control type: command, callback function: RunawayReachedCallback */
+#define  OVERCHARGE_BTN_START             7       /* control type: command, callback function: StartOverChargeExperimentCallback */
+#define  OVERCHARGE_NUM_SOC_THRESHOLD     8       /* control type: numeric, callback function: (none) */
+#define  OVERCHARGE_STR_ELAPSED_TIME      9       /* control type: numeric, callback function: (none) */
+#define  OVERCHARGE_NUM_VENT_THRESHOLD_MA 10      /* control type: numeric, callback function: UpdateVentilationThresholdCallback */
+#define  OVERCHARGE_STR_CHARGE_DELIVERED  11      /* control type: numeric, callback function: (none) */
+#define  OVERCHARGE_CHK_PAUSE_DURING_EIS  12      /* control type: radioButton, callback function: (none) */
+#define  OVERCHARGE_NUM_CHARGE_DURATION   13      /* control type: numeric, callback function: (none) */
+#define  OVERCHARGE_STR_VENTILATION       14      /* control type: string, callback function: (none) */
+#define  OVERCHARGE_STR_MODE              15      /* control type: string, callback function: (none) */
+#define  OVERCHARGE_STR_STATUS            16      /* control type: string, callback function: (none) */
+#define  OVERCHARGE_NUM_CHARGE_CURRENT    17      /* control type: numeric, callback function: (none) */
+#define  OVERCHARGE_NUM_VENT_THRESHOLD_PC 18      /* control type: numeric, callback function: (none) */
+#define  OVERCHARGE_NUM_NOMINAL_CAPACITY  19      /* control type: numeric, callback function: (none) */
+
+     /* tab page panel controls */
 #define  RUNAWAY_FINAL_TEMP_RWY           2       /* control type: numeric, callback function: (none) */
 #define  RUNAWAY_INITIAL_TEMP_RWY         3       /* control type: numeric, callback function: (none) */
 #define  RUNAWAY_RAMP_RATE_RWY            4       /* control type: numeric, callback function: (none) */
@@ -116,7 +136,9 @@ int  CVICALLBACK DTB1RunStopCallback(int panel, int control, int event, void *ca
 int  CVICALLBACK DTB2RunStopCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK PanelCallback(int panel, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK RemoteModeToggle(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
+int  CVICALLBACK RunawayReachedCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK SignalRunawayReachedCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
+int  CVICALLBACK StartOverChargeExperimentCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK StartTempRampExperimentCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK TestALICATCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK TestBiologicCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
@@ -124,6 +146,7 @@ int  CVICALLBACK TestDeviceQueueCallback(int panel, int control, int event, void
 int  CVICALLBACK TestDTBRampSoakCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK TestPSBCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 int  CVICALLBACK TestTeensyCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
+int  CVICALLBACK UpdateVentilationThresholdCallback(int panel, int control, int event, void *callbackData, int eventData1, int eventData2);
 
 
 #ifdef __cplusplus

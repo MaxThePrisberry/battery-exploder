@@ -1,3 +1,5 @@
+#include <userint.h>
+
 /******************************************************************************
  * BatteryTester.c
  * 
@@ -480,6 +482,9 @@ int CVICALLBACK PanelCallback(int panel, int event, void *callbackData,
 
 			LogMessage("Cleaning up status monitoring...");
 			Status_Cleanup();
+			
+			LogMessage("Cleaning up overcharge experiment...");
+			OverchargeExperiment_Cleanup();
             
             // Clean up thread pool
             if (g_threadPool) {
@@ -519,3 +524,20 @@ int CVICALLBACK PanelCallback(int panel, int event, void *callbackData,
     }
     return 0;
 }
+
+int CVICALLBACK UpdateVentilationThresholdCallback(int panel, int control, int event,
+                                                    void *callbackData,
+                                                    int eventData1, int eventData2) {
+    if (event != EVENT_VAL_CHANGED) return 0;
+
+    double capacity, percent;
+    GetCtrlVal(panel, OVERCHARGE_NUM_NOMINAL_CAPACITY, &capacity);
+    GetCtrlVal(panel, OVERCHARGE_NUM_VENT_THRESHOLD_PC, &percent);
+
+    double threshold_mAh = capacity * (percent / 100.0);
+    SetCtrlVal(panel, OVERCHARGE_NUM_VENT_THRESHOLD_MA, threshold_mAh);
+
+    return 0;
+}
+
+
