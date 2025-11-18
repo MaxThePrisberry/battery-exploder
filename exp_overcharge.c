@@ -638,30 +638,15 @@ static int VerifyAllDevices(OverchargeExperimentContext *ctx) {
         return ERR_NOT_CONNECTED;
     }
 
-    // Check BioLogic connection (REQUIRED)
-    BioQueueManager *bioQueueMgr = BIO_GetGlobalQueueManager();
-    LogMessage("DEBUG: BioQueueManager pointer = %p", bioQueueMgr);
-    if (!bioQueueMgr) {
-        LogError("DEBUG: BioQueueManager is NULL - BioLogic queue manager not available");
-        MessagePopup("BioLogic Not Connected",
-                     "The BioLogic potentiostat is not connected.\n"
-                     "Please ensure it is connected before running the overcharge experiment.");
-        return ERR_NOT_CONNECTED;
-    }
-    LogMessage("DEBUG: BioQueueManager check passed");
-
     // Check if BioLogic abstraction layer is initialized (works for both Direct DLL and EC-Lab modes)
-    int isInitialized = BIO_IsAbstractInitialized();
-    LogMessage("DEBUG: BIO_IsAbstractInitialized() = %d", isInitialized);
-    if (!isInitialized) {
-        LogError("DEBUG: BioLogic abstraction layer not initialized");
-        MessagePopup("BioLogic Not Initialized",
+    // NOTE: Do NOT check BioQueueManager - it's NULL in EC-Lab mode (uses OLE COM, not queue system)
+    if (!BIO_IsAbstractInitialized()) {
+        MessagePopup("BioLogic Not Connected",
                      "The BioLogic potentiostat is not initialized.\n\n"
                      "For Direct DLL mode: Connect device via USB.\n"
                      "For EC-Lab mode: Start EC-Lab and connect device.");
         return ERR_NOT_CONNECTED;
     }
-    LogMessage("DEBUG: BioLogic abstraction layer initialization check passed");
 
     // Get current mode for logging
     BIO_ControlMode mode = BIO_GetCurrentMode();
