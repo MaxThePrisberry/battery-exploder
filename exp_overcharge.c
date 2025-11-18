@@ -709,12 +709,12 @@ static int CreateExperimentFileSystem(OverchargeExperimentContext *ctx) {
              t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
              t->tm_hour, t->tm_min, t->tm_sec);
 
-    if (MakeDir(OVERCHARGE_DATA_DIR) != 0 && errno != EEXIST) {
+    if (CreateDirectoryPath(OVERCHARGE_DATA_DIR) != SUCCESS) {
         LogError("Failed to create data directory: %s", OVERCHARGE_DATA_DIR);
         return ERR_BASE_FILE;
     }
 
-    if (MakeDir(ctx->experimentDirectory) != 0) {
+    if (CreateDirectoryPath(ctx->experimentDirectory) != SUCCESS) {
         LogError("Failed to create experiment directory: %s", ctx->experimentDirectory);
         return ERR_BASE_FILE;
     }
@@ -723,7 +723,7 @@ static int CreateExperimentFileSystem(OverchargeExperimentContext *ctx) {
     char eisDir[MAX_PATH_LENGTH];
     snprintf(eisDir, sizeof(eisDir), "%s%s%s",
              ctx->experimentDirectory, PATH_SEPARATOR, OVERCHARGE_EIS_DIR);
-    if (MakeDir(eisDir) != 0) {
+    if (CreateDirectoryPath(eisDir) != SUCCESS) {
         LogError("Failed to create EIS directory: %s", eisDir);
         return ERR_BASE_FILE;
     }
@@ -1460,7 +1460,7 @@ static int SaveEISMeasurement(OverchargeExperimentContext *ctx, OverchargeEISMea
 
     // Create EIS directory if needed
     snprintf(eisDir, sizeof(eisDir), "%s%s%s", ctx->experimentDirectory, PATH_SEPARATOR, OVERCHARGE_EIS_DIR);
-    if (MakeDir(eisDir) != 0) {
+    if (CreateDirectoryPath(eisDir) != SUCCESS) {
         LogError("Failed to create EIS directory: %s", eisDir);
         return ERR_BASE_FILE;
     }
