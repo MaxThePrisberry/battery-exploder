@@ -16,6 +16,7 @@
 #include <analysis.h>
 #include <utility.h>
 #include <time.h>
+#include <windows.h>  // For COM initialization (CoInitializeEx, CoUninitialize)
 
 /******************************************************************************
  * Module Variables
@@ -373,6 +374,18 @@ static int OverchargeExperimentThread(void *functionData) {
     char message[LARGE_BUFFER_SIZE];
     int result = SUCCESS;
 
+    // Initialize COM for this thread (MTA mode to match main thread)
+    // Each thread that uses COM interfaces must call CoInitializeEx, even in MTA mode.
+    // This is critical for EC-Lab OLE COM operations to work from this thread.
+    HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
+    if (FAILED(hr) && hr != RPC_E_CHANGED_MODE) {
+        LogError("Experiment thread: CoInitializeEx failed (0x%08X)", hr);
+        LogError("EC-Lab operations may fail from this thread!");
+        // Continue anyway - non-EC-Lab devices will still work
+    } else {
+        LogMessage("Experiment thread: COM initialized successfully (MTA mode)");
+    }
+
     LogMessage("=== Starting Overcharge Thermal Runaway Experiment ===");
 
     // Record experiment start time
@@ -610,8 +623,8 @@ cleanup:
     // Clear thread ID
     g_experimentThreadId = 0;
 
-    // Reset external log file
-    SetExternalLogFile(NULL);
+    // Uninitialize COM for this thread
+    CoUninitialize();
 
     return 0;
 }
@@ -822,8 +835,8 @@ static int SaveExperimentSettings(OverchargeExperimentContext *ctx) {
     fprintf(file, "Pause_Charging_During_EIS=%d\n\n", ctx->params.pauseChargeDuringEIS);
 
     fprintf(file, "[Logging]\n");
-    fprintf(file, "Log_Interval_Slow_sec=%d\n", ctx->params.logIntervalSlow);
-    fprintf(file, "Log_Interval_Fast_sec=%d\n\n", ctx->params.logIntervalFast);
+    fprintf(file, "Log_Interval_Slow_sec=%.1f\n", ctx->params.logIntervalSlow);
+    fprintf(file, "Log_Interval_Fast_sec=%.1f\n\n", ctx->params.logIntervalFast);
 
     fprintf(file, "[Device_Configuration]\n");
     fprintf(file, "PSB_Enabled=%d\n", ENABLE_PSB);
@@ -2042,8 +2055,8 @@ static int WriteFinalResults(OverchargeExperimentContext *ctx)
     fprintf(file, "SOC Threshold: %.1f%%\n", ctx->params.socThresholdPercent);
     fprintf(file, "Slow EIS Interval: %.1f min\n", ctx->params.eisIntervalSlow_minutes);
     fprintf(file, "Fast EIS Interval: %.1f min\n", ctx->params.eisIntervalFast_minutes);
-    fprintf(file, "Slow Log Interval: %d sec\n", ctx->params.logIntervalSlow);
-    fprintf(file, "Fast Log Interval: %d sec\n", ctx->params.logIntervalFast);
+    fprintf(file, "Slow Log Interval: %.1f sec\n", ctx->params.logIntervalSlow);
+    fprintf(file, "Fast Log Interval: %.1f sec\n", ctx->params.logIntervalFast);
     fprintf(file, "Mode Transition Time: %s\n\n",
            ctx->modeTransitionTime > 0 ?
            "Reached fast mode" : "Stayed in slow mode");
@@ -2104,6 +2117,9 @@ static void CleanupExperiment(OverchargeExperimentContext *ctx)
 
     // Safely disconnect all devices
     SafeDisconnectAllDevices(ctx);
+
+    // Clear external log file BEFORE closing it to prevent logging to closed file
+    ClearExternalLogFile();
 
     // Close all log files
     if (ctx->chargeLogFile) {
