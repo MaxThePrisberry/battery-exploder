@@ -154,7 +154,7 @@ int CVICALLBACK StartOverchargeExperimentCallback(int panel, int control, int ev
     GetCtrlVal(panel, OVERCHARGE_NUM_NOMINAL_CAPACITY, &nominalCapacity);
     GetCtrlVal(panel, OVERCHARGE_NUM_CHARGE_CURRENT, &g_experimentContext.params.chargeCurrent);
     GetCtrlVal(panel, OVERCHARGE_NUM_CHARGE_DURATION, &g_experimentContext.params.chargeDurationMinutes);
-    GetCtrlVal(panel, OVERCHARGE_NUM_VENT_THRESHOLD_PCT, &ventThresholdPercent);
+    GetCtrlVal(panel, OVERCHARGE_NUM_VENT_THRESHOLD_PC, &ventThresholdPercent);
     GetCtrlVal(panel, OVERCHARGE_NUM_SOC_THRESHOLD, &g_experimentContext.params.socThresholdPercent);
     GetCtrlVal(panel, OVERCHARGE_NUM_EIS_INTERVAL_SLOW, &g_experimentContext.params.eisIntervalSlow_minutes);
     GetCtrlVal(panel, OVERCHARGE_NUM_EIS_INTERVAL_FAST, &g_experimentContext.params.eisIntervalFast_minutes);
