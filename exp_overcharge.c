@@ -868,13 +868,15 @@ static int SwitchToPSB(OverchargeExperimentContext *ctx)
 {
     int result;
 
-    LogMessage("Switching to PSB (power supply mode)...");
+    LogMessage("=== DIAGNOSTIC: SwitchToPSB() called ===");
 
     // Safety: Disable BioLogic and PSB outputs first
     if (ENABLE_BIOLOGIC) {
+        LogMessage("DIAGNOSTIC: Stopping BioLogic channel...");
         BIO_StopChannelQueued(ctx->biologicID, 0, DEVICE_PRIORITY_NORMAL);
     }
     if (ENABLE_PSB) {
+        LogMessage("DIAGNOSTIC: Disabling PSB output...");
         PSB_SetOutputEnableQueued(0, DEVICE_PRIORITY_NORMAL);
     }
     Delay(0.5);
@@ -882,25 +884,32 @@ static int SwitchToPSB(OverchargeExperimentContext *ctx)
     // Switch relays: Disconnect BioLogic, then Connect PSB
     if (ENABLE_TNY) {
         // Disconnect BioLogic relay first
+        LogMessage("DIAGNOSTIC: Disconnecting BioLogic relay (pin %d)...", TNY_BIOLOGIC_PIN);
         result = TNY_SetPinQueued(TNY_BIOLOGIC_PIN, TNY_STATE_DISCONNECTED, DEVICE_PRIORITY_NORMAL);
         if (result != SUCCESS) {
-            LogError("Failed to disconnect BioLogic relay: %s", GetErrorString(result));
+            LogError("DIAGNOSTIC: Failed to disconnect BioLogic relay: %s", GetErrorString(result));
             return result;
         }
+        LogMessage("DIAGNOSTIC: BioLogic relay disconnected successfully");
 
         Delay(TNY_SWITCH_DELAY_MS / 1000.0);
 
         // Connect PSB relay
+        LogMessage("DIAGNOSTIC: Connecting PSB relay (pin %d) to STATE_CONNECTED (%d)...",
+                   TNY_PSB_PIN, TNY_STATE_CONNECTED);
         result = TNY_SetPinQueued(TNY_PSB_PIN, TNY_STATE_CONNECTED, DEVICE_PRIORITY_NORMAL);
         if (result != SUCCESS) {
-            LogError("Failed to connect PSB relay: %s", GetErrorString(result));
+            LogError("DIAGNOSTIC: Failed to connect PSB relay: %s", GetErrorString(result));
             return result;
         }
+        LogMessage("DIAGNOSTIC: PSB relay connected successfully");
 
         Delay(TNY_SWITCH_DELAY_MS / 1000.0);
+    } else {
+        LogWarning("DIAGNOSTIC: ENABLE_TNY is 0 - relays not being controlled!");
     }
 
-    LogMessage("Successfully switched to PSB");
+    LogMessage("=== DIAGNOSTIC: SwitchToPSB() completed successfully ===");
     return SUCCESS;
 }
 
@@ -990,35 +999,64 @@ static int RunChargingLoop(OverchargeExperimentContext *ctx)
     }
 
     // Configure PSB for constant-current charging
-    LogMessage("Configuring PSB for constant-current mode at %.2f A", ctx->params.chargeCurrent);
+    LogMessage("=== DIAGNOSTIC: Configuring PSB for constant-current mode ===");
+    LogMessage("DIAGNOSTIC: Target current: %.2f A", ctx->params.chargeCurrent);
+    LogMessage("DIAGNOSTIC: Max voltage: %.2f V", PSB_NOMINAL_VOLTAGE);
 
+    LogMessage("DIAGNOSTIC: Setting PSB current to %.2f A...", ctx->params.chargeCurrent);
     result = PSB_SetCurrentQueued(ctx->params.chargeCurrent, DEVICE_PRIORITY_NORMAL);
     if (result != SUCCESS) {
-        LogError("Failed to set PSB current: %s", GetErrorString(result));
+        LogError("DIAGNOSTIC: Failed to set PSB current: %s (error code: %d)", GetErrorString(result), result);
         return result;
     }
+    LogMessage("DIAGNOSTIC: PSB current set successfully");
 
+    LogMessage("DIAGNOSTIC: Setting PSB voltage to %.2f V...", PSB_NOMINAL_VOLTAGE);
     result = PSB_SetVoltageQueued(PSB_NOMINAL_VOLTAGE, DEVICE_PRIORITY_NORMAL);
     if (result != SUCCESS) {
-        LogError("Failed to set PSB voltage: %s", GetErrorString(result));
+        LogError("DIAGNOSTIC: Failed to set PSB voltage: %s (error code: %d)", GetErrorString(result), result);
         return result;
     }
+    LogMessage("DIAGNOSTIC: PSB voltage set successfully");
 
+    LogMessage("DIAGNOSTIC: Setting PSB current limits (0.0 to %.2f A)...", ctx->params.chargeCurrent * 1.1);
     result = PSB_SetCurrentLimitsQueued(0.0, ctx->params.chargeCurrent * 1.1, DEVICE_PRIORITY_NORMAL);
     if (result != SUCCESS) {
-        LogError("Failed to set PSB current limits: %s", GetErrorString(result));
+        LogError("DIAGNOSTIC: Failed to set PSB current limits: %s (error code: %d)", GetErrorString(result), result);
         return result;
     }
+    LogMessage("DIAGNOSTIC: PSB current limits set successfully");
 
     // Enable PSB output
-    LogMessage("Enabling PSB output...");
+    LogMessage("=== DIAGNOSTIC: Enabling PSB output ===");
     result = PSB_SetOutputEnableQueued(1, DEVICE_PRIORITY_NORMAL);
     if (result != SUCCESS) {
-        LogError("Failed to enable PSB output: %s", GetErrorString(result));
+        LogError("DIAGNOSTIC: Failed to enable PSB output: %s (error code: %d)", GetErrorString(result), result);
         return result;
     }
+    LogMessage("DIAGNOSTIC: PSB output enabled successfully");
 
     Delay(1.0);  // Allow PSB to stabilize
+
+    // Verify PSB is actually outputting
+    LogMessage("=== DIAGNOSTIC: Verifying PSB status after enable ===");
+    result = PSB_GetStatusQueued(&psbStatus, DEVICE_PRIORITY_NORMAL);
+    if (result == SUCCESS) {
+        LogMessage("DIAGNOSTIC: PSB Status after enable:");
+        LogMessage("  Voltage: %.3f V", psbStatus.voltage);
+        LogMessage("  Current: %.3f A", psbStatus.current);
+        LogMessage("  Power: %.3f W", psbStatus.power);
+        LogMessage("  Output Enable: %d", psbStatus.outputEnable);
+
+        if (fabs(psbStatus.current) < 0.01) {
+            LogWarning("DIAGNOSTIC: WARNING - PSB current is near zero! Battery may not be connected!");
+        }
+        if (!psbStatus.outputEnable) {
+            LogError("DIAGNOSTIC: ERROR - PSB output enable is 0! Output is not actually enabled!");
+        }
+    } else {
+        LogError("DIAGNOSTIC: Failed to read initial PSB status: %s", GetErrorString(result));
+    }
 
     // Initialize timing
     loopStartTime = Timer();
@@ -1033,8 +1071,10 @@ static int RunChargingLoop(OverchargeExperimentContext *ctx)
     LogMessage("Charging loop started. EIS interval: %.1f minutes", eisInterval);
 
     // Main charging loop
+    int loopCount = 0;
     while (1) {
         now = Timer();
+        loopCount++;
 
         // Check for cancellation
         if (CheckCancellation(ctx)) {
@@ -1048,6 +1088,13 @@ static int RunChargingLoop(OverchargeExperimentContext *ctx)
             LogError("Failed to read PSB status: %s", GetErrorString(result));
             ctx->state = OVERCHARGE_STATE_ERROR;
             break;
+        }
+
+        // DIAGNOSTIC: Log detailed PSB status every 10 loops for first minute
+        if (loopCount <= 600 && loopCount % 10 == 0) {
+            LogMessage("DIAGNOSTIC [Loop %d]: V=%.3f V, I=%.3f A, P=%.3f W, Out=%d",
+                      loopCount, psbStatus.voltage, psbStatus.current,
+                      psbStatus.power, psbStatus.outputEnable);
         }
 
         // Update current readings
