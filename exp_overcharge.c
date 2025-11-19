@@ -1042,12 +1042,28 @@ static int RunChargingLoop(OverchargeExperimentContext *ctx)
     LogMessage("=== DIAGNOSTIC: Verifying PSB status after enable ===");
     result = PSB_GetStatusQueued(&psbStatus, DEVICE_PRIORITY_NORMAL);
     if (result == SUCCESS) {
+        const char *regModeStr[] = {"CV (Constant Voltage)", "CR (Constant Resistance)",
+                                    "CC (Constant Current)", "CP (Constant Power)"};
         LogMessage("DIAGNOSTIC: PSB Status after enable:");
         LogMessage("  Voltage: %.3f V", psbStatus.voltage);
         LogMessage("  Current: %.3f A", psbStatus.current);
         LogMessage("  Power: %.3f W", psbStatus.power);
         LogMessage("  Output Enabled: %d", psbStatus.outputEnabled);
+        LogMessage("  Regulation Mode: %d - %s", psbStatus.regulationMode,
+                  (psbStatus.regulationMode >= 0 && psbStatus.regulationMode <= 3) ?
+                  regModeStr[psbStatus.regulationMode] : "UNKNOWN");
+        LogMessage("  Sink/Source Mode: %s", psbStatus.sinkMode ? "SINK (Electronic Load)" : "SOURCE (Power Supply)");
+        LogMessage("  Remote Mode: %d", psbStatus.remoteMode);
 
+        if (psbStatus.sinkMode != 0) {
+            LogError("DIAGNOSTIC: ERROR - PSB is in SINK mode! Should be in SOURCE mode for charging!");
+        }
+        if (psbStatus.regulationMode != 2) {
+            LogWarning("DIAGNOSTIC: WARNING - PSB is NOT in CC (Constant Current) mode! Mode = %d (%s)",
+                      psbStatus.regulationMode,
+                      (psbStatus.regulationMode >= 0 && psbStatus.regulationMode <= 3) ?
+                      regModeStr[psbStatus.regulationMode] : "UNKNOWN");
+        }
         if (fabs(psbStatus.current) < 0.01) {
             LogWarning("DIAGNOSTIC: WARNING - PSB current is near zero! Battery may not be connected!");
         }
