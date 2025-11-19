@@ -870,28 +870,18 @@ static int SwitchToPSB(OverchargeExperimentContext *ctx)
 
     LogMessage("Switching to PSB (power supply mode)...");
 
-    // Ensure Bio-Logic is stopped (if it's running)
+    // Safety: Disable BioLogic and PSB outputs first
     if (ENABLE_BIOLOGIC) {
         BIO_StopChannelQueued(ctx->biologicID, 0, DEVICE_PRIORITY_NORMAL);
-        Delay(0.5);
     }
+    if (ENABLE_PSB) {
+        PSB_SetOutputEnableQueued(0, DEVICE_PRIORITY_NORMAL);
+    }
+    Delay(0.5);
 
-    // Switch relays: PSB connected, Bio-Logic disconnected
+    // Switch relays: Disconnect BioLogic, then Connect PSB
     if (ENABLE_TNY) {
-        result = TNY_SetPinQueued(TNY_PSB_PIN, TNY_STATE_DISCONNECTED, DEVICE_PRIORITY_NORMAL);
-        if (result != SUCCESS) {
-            LogError("Failed to disconnect PSB relay: %s", GetErrorString(result));
-            return result;
-        }
-
-        Delay(TNY_SWITCH_DELAY_MS / 1000.0);
-
-        result = TNY_SetPinQueued(TNY_PSB_PIN, TNY_STATE_CONNECTED, DEVICE_PRIORITY_NORMAL);
-        if (result != SUCCESS) {
-            LogError("Failed to connect PSB relay: %s", GetErrorString(result));
-            return result;
-        }
-
+        // Disconnect BioLogic relay first
         result = TNY_SetPinQueued(TNY_BIOLOGIC_PIN, TNY_STATE_DISCONNECTED, DEVICE_PRIORITY_NORMAL);
         if (result != SUCCESS) {
             LogError("Failed to disconnect BioLogic relay: %s", GetErrorString(result));
@@ -899,9 +889,18 @@ static int SwitchToPSB(OverchargeExperimentContext *ctx)
         }
 
         Delay(TNY_SWITCH_DELAY_MS / 1000.0);
+
+        // Connect PSB relay
+        result = TNY_SetPinQueued(TNY_PSB_PIN, TNY_STATE_CONNECTED, DEVICE_PRIORITY_NORMAL);
+        if (result != SUCCESS) {
+            LogError("Failed to connect PSB relay: %s", GetErrorString(result));
+            return result;
+        }
+
+        Delay(TNY_SWITCH_DELAY_MS / 1000.0);
     }
 
-    LogMessage("Switched to PSB successfully");
+    LogMessage("Successfully switched to PSB");
     return SUCCESS;
 }
 
@@ -911,14 +910,15 @@ static int SwitchToBioLogic(OverchargeExperimentContext *ctx)
 
     LogMessage("Switching to Bio-Logic (EIS mode)...");
 
-    // Ensure PSB output is disabled
+    // Safety: Disable PSB output first
     if (ENABLE_PSB) {
         PSB_SetOutputEnableQueued(0, DEVICE_PRIORITY_NORMAL);
-        Delay(0.5);
     }
+    Delay(0.5);
 
-    // Switch relays: Bio-Logic connected, PSB disconnected
+    // Switch relays: Disconnect PSB, then Connect BioLogic
     if (ENABLE_TNY) {
+        // Disconnect PSB relay first
         result = TNY_SetPinQueued(TNY_PSB_PIN, TNY_STATE_DISCONNECTED, DEVICE_PRIORITY_NORMAL);
         if (result != SUCCESS) {
             LogError("Failed to disconnect PSB relay: %s", GetErrorString(result));
@@ -927,6 +927,7 @@ static int SwitchToBioLogic(OverchargeExperimentContext *ctx)
 
         Delay(TNY_SWITCH_DELAY_MS / 1000.0);
 
+        // Connect BioLogic relay
         result = TNY_SetPinQueued(TNY_BIOLOGIC_PIN, TNY_STATE_CONNECTED, DEVICE_PRIORITY_NORMAL);
         if (result != SUCCESS) {
             LogError("Failed to connect BioLogic relay: %s", GetErrorString(result));
@@ -936,7 +937,7 @@ static int SwitchToBioLogic(OverchargeExperimentContext *ctx)
         Delay(TNY_SWITCH_DELAY_MS / 1000.0);
     }
 
-    LogMessage("Switched to Bio-Logic successfully");
+    LogMessage("Successfully switched to BioLogic");
     return SUCCESS;
 }
 
