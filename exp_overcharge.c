@@ -1046,13 +1046,13 @@ static int RunChargingLoop(OverchargeExperimentContext *ctx)
         LogMessage("  Voltage: %.3f V", psbStatus.voltage);
         LogMessage("  Current: %.3f A", psbStatus.current);
         LogMessage("  Power: %.3f W", psbStatus.power);
-        LogMessage("  Output Enable: %d", psbStatus.outputEnable);
+        LogMessage("  Output Enabled: %d", psbStatus.outputEnabled);
 
         if (fabs(psbStatus.current) < 0.01) {
             LogWarning("DIAGNOSTIC: WARNING - PSB current is near zero! Battery may not be connected!");
         }
-        if (!psbStatus.outputEnable) {
-            LogError("DIAGNOSTIC: ERROR - PSB output enable is 0! Output is not actually enabled!");
+        if (!psbStatus.outputEnabled) {
+            LogError("DIAGNOSTIC: ERROR - PSB output enabled is 0! Output is not actually enabled!");
         }
     } else {
         LogError("DIAGNOSTIC: Failed to read initial PSB status: %s", GetErrorString(result));
@@ -1094,7 +1094,7 @@ static int RunChargingLoop(OverchargeExperimentContext *ctx)
         if (loopCount <= 600 && loopCount % 10 == 0) {
             LogMessage("DIAGNOSTIC [Loop %d]: V=%.3f V, I=%.3f A, P=%.3f W, Out=%d",
                       loopCount, psbStatus.voltage, psbStatus.current,
-                      psbStatus.power, psbStatus.outputEnable);
+                      psbStatus.power, psbStatus.outputEnabled);
         }
 
         // Update current readings
