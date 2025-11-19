@@ -1027,6 +1027,15 @@ static int RunChargingLoop(OverchargeExperimentContext *ctx)
     }
     LogMessage("DIAGNOSTIC: PSB current limits set successfully");
 
+    // Set power limit high to ensure CC mode (not CP mode)
+    LogMessage("DIAGNOSTIC: Setting PSB power limit to %.2f W (to enable CC mode)...", PSB_SAFE_POWER_MAX);
+    result = PSB_SetPowerQueued(PSB_SAFE_POWER_MAX, DEVICE_PRIORITY_NORMAL);
+    if (result != SUCCESS) {
+        LogError("DIAGNOSTIC: Failed to set PSB power: %s (error code: %d)", GetErrorString(result), result);
+        return result;
+    }
+    LogMessage("DIAGNOSTIC: PSB power set successfully - PSB should now operate in CC mode");
+
     // Enable PSB output
     LogMessage("=== DIAGNOSTIC: Enabling PSB output ===");
     result = PSB_SetOutputEnableQueued(1, DEVICE_PRIORITY_NORMAL);
