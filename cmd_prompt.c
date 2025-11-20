@@ -12,6 +12,7 @@
 #include "controls.h"
 #include "teensy_queue.h"
 #include "dtb4848_queue.h"
+#include "alicat_queue.h"
 #include "cdaq_utils.h"
 #include "biologic_abstract.h"
 #include "biologic_dll.h"
@@ -26,6 +27,7 @@ static void DeferredPromptTextboxUpdate(void *data);
 static int DeviceSelect(CommandContext *ctx);
 static int TeensyCommandManager(CommandContext *ctx);
 static int DTBCommandManager(CommandContext *ctx);
+static int AlicatCommandManager(CommandContext *ctx);
 static int ControlsCommandManager(CommandContext *ctx);
 static int DAQCommandManager(CommandContext *ctx);
 static int BioLogicCommandManager(CommandContext *ctx);
@@ -183,6 +185,10 @@ static int DeviceSelect(CommandContext *ctx) {
 
 		case ('D' << 16 | 'T' << 8 | 'B'):
 			DTBCommandManager(ctx);
+			break;
+
+		case ('A' << 16 | 'L' << 8 | 'I'):
+			AlicatCommandManager(ctx);
 			break;
 
 		case ('C' << 16 | 'T' << 8 | 'L'):
@@ -552,6 +558,317 @@ static int DTBCommandManager(CommandContext *ctx) {
 		LogPromptTextbox(CMD_ERROR, "Invalid DTB command.");
 	}
 	
+	return 0;
+}
+
+static int AlicatCommandManager(CommandContext *ctx) {
+	char message[1024];
+	int error;
+
+	// All ALICAT commands require at least a 2-character hex address
+	if (ctx->commandLength < 2) {
+		LogPromptTextbox(CMD_ERROR, "ALICAT command too short. Specify Modbus address hex.");
+		return -1;
+	}
+
+	// Parse Modbus address from first 2 hex characters
+	int high = HexCharToInt(ctx->command[0]);
+	int low = HexCharToInt(ctx->command[1]);
+
+	if (high < 0 || low < 0) {
+		LogPromptTextbox(CMD_ERROR, "Invalid hex Modbus address given.");
+		return -1;
+	}
+	int modbusAddress = (high << 4) | low;
+
+	// Remove first two characters (Modbus address)
+	char *trimmed = malloc(ctx->commandLength - 1);
+	trimmed = my_strdup(&ctx->command[2]);
+	free(ctx->command);
+	ctx->command = trimmed;
+	ctx->commandLength -= 2;
+
+	// ALISTAT - Get full status
+	if (strcmp(ctx->command, "STAT") == 0) {
+		ALICAT_Status status;
+		error = ALICAT_GetStatusQueued(modbusAddress, &status, DEVICE_PRIORITY_HIGH);
+
+		if (error != SUCCESS) {
+			snprintf(message, sizeof(message), "Failed to get status: %d : %s",
+			        error, GetErrorString(error));
+			LogPromptTextbox(CMD_ERROR, message);
+			return -1;
+		}
+
+		snprintf(message, sizeof(message), "Flow: %.3f, Setpoint: %.3f, Temp: %.1f C",
+		        status.flowRate, status.setpoint, status.temperature);
+		LogPromptTextbox(CMD_OUTPUT, message);
+
+		snprintf(message, sizeof(message), "Valve: %.1f%%, Gas: %s, Total: %.3f",
+		        status.valveDrive, ALICAT_GetGasName(status.selectedGas), status.totalVolume);
+		LogPromptTextbox(CMD_OUTPUT, message);
+
+		if (status.massOverrange || status.tempOverrange || status.valveHold) {
+			snprintf(message, sizeof(message), "Flags: %s%s%s",
+			        status.massOverrange ? "MASS_OVERRANGE " : "",
+			        status.tempOverrange ? "TEMP_OVERRANGE " : "",
+			        status.valveHold ? "VALVE_HOLD " : "");
+			LogPromptTextbox(CMD_OUTPUT, message);
+		}
+
+		return 0;
+	}
+
+	// ALIFLOW - Get flow rate only
+	if (strcmp(ctx->command, "FLOW") == 0) {
+		double flowRate;
+		error = ALICAT_GetFlowRateQueued(modbusAddress, &flowRate, DEVICE_PRIORITY_HIGH);
+
+		if (error != SUCCESS) {
+			snprintf(message, sizeof(message), "Failed to read flow rate: %d : %s",
+			        error, GetErrorString(error));
+			LogPromptTextbox(CMD_ERROR, message);
+			return -1;
+		}
+
+		snprintf(message, sizeof(message), "Flow Rate: %.3f", flowRate);
+		LogPromptTextbox(CMD_OUTPUT, message);
+		return 0;
+	}
+
+	// ALISET <flowrate> - Set flow setpoint
+	if (strncmp(ctx->command, "SET", 3) == 0) {
+		if (ctx->commandLength < 4) {
+			LogPromptTextbox(CMD_ERROR, "ALISET requires flow rate value");
+			return -1;
+		}
+
+		double flowRate = atof(&ctx->command[3]);
+		error = ALICAT_SetSetpointQueued(modbusAddress, flowRate, DEVICE_PRIORITY_HIGH);
+
+		if (error != SUCCESS) {
+			snprintf(message, sizeof(message), "Failed to set setpoint: %d : %s",
+			        error, GetErrorString(error));
+			LogPromptTextbox(CMD_ERROR, message);
+			return -1;
+		}
+
+		snprintf(message, sizeof(message), "Setpoint set to %.3f", flowRate);
+		LogPromptTextbox(CMD_OUTPUT, message);
+		return 0;
+	}
+
+	// ALIGAS <gastype> - Set gas type (number or name)
+	if (strncmp(ctx->command, "GAS", 3) == 0) {
+		if (ctx->commandLength < 4) {
+			LogPromptTextbox(CMD_ERROR, "ALIGAS requires gas type (0=Air, 1=Argon, 2=CO2, 3=N2, 4=O2, 5=N2O, 6=H2, 7=He, 8=CH4)");
+			return -1;
+		}
+
+		int gasType = atoi(&ctx->command[3]);
+
+		if (gasType < 0 || gasType > 8) {
+			LogPromptTextbox(CMD_ERROR, "Invalid gas type. Valid range: 0-8");
+			return -1;
+		}
+
+		error = ALICAT_SetGasQueued(modbusAddress, gasType, DEVICE_PRIORITY_HIGH);
+
+		if (error != SUCCESS) {
+			snprintf(message, sizeof(message), "Failed to set gas type: %d : %s",
+			        error, GetErrorString(error));
+			LogPromptTextbox(CMD_ERROR, message);
+			return -1;
+		}
+
+		snprintf(message, sizeof(message), "Gas type set to %d (%s)", gasType, ALICAT_GetGasName(gasType));
+		LogPromptTextbox(CMD_OUTPUT, message);
+		return 0;
+	}
+
+	// ALITARE - Tare flow controller
+	if (strcmp(ctx->command, "TARE") == 0) {
+		error = ALICAT_TareQueued(modbusAddress, DEVICE_PRIORITY_HIGH);
+
+		if (error != SUCCESS) {
+			snprintf(message, sizeof(message), "Tare command failed: %d : %s",
+			        error, GetErrorString(error));
+			LogPromptTextbox(CMD_ERROR, message);
+			return -1;
+		}
+
+		LogPromptTextbox(CMD_OUTPUT, "Tare command success");
+		return 0;
+	}
+
+	// ALIPID - Get/Set PID parameters
+	if (strncmp(ctx->command, "PID", 3) == 0) {
+		if (strcmp(ctx->command, "PID") == 0) {
+			// Get PID parameters
+			ALICAT_PIDParams pidParams;
+			error = ALICAT_GetPIDParamsQueued(modbusAddress, &pidParams, DEVICE_PRIORITY_HIGH);
+
+			if (error != SUCCESS) {
+				snprintf(message, sizeof(message), "Failed to read PID parameters: %d : %s",
+				        error, GetErrorString(error));
+				LogPromptTextbox(CMD_ERROR, message);
+				return -1;
+			}
+
+			snprintf(message, sizeof(message), "PID Parameters: P=%u, I=%u",
+			        pidParams.pGain, pidParams.iGain);
+			LogPromptTextbox(CMD_OUTPUT, message);
+			return 0;
+
+		} else if (ctx->commandLength >= 4 && ctx->command[3] == 'P') {
+			// Set P gain: ALIDPIDP<value>
+			unsigned short value = (unsigned short)atoi(&ctx->command[4]);
+
+			// Read current parameters
+			ALICAT_PIDParams pidParams;
+			error = ALICAT_GetPIDParamsQueued(modbusAddress, &pidParams, DEVICE_PRIORITY_HIGH);
+			if (error != SUCCESS) {
+				LogPromptTextbox(CMD_ERROR, "Failed to read current PID parameters");
+				return -1;
+			}
+
+			// Update P gain
+			pidParams.pGain = value;
+			error = ALICAT_SetPIDParamsQueued(modbusAddress, &pidParams, DEVICE_PRIORITY_HIGH);
+
+			if (error != SUCCESS) {
+				snprintf(message, sizeof(message), "Failed to set PID parameters: %d : %s",
+				        error, GetErrorString(error));
+				LogPromptTextbox(CMD_ERROR, message);
+				return -1;
+			}
+
+			snprintf(message, sizeof(message), "P gain set to %u", value);
+			LogPromptTextbox(CMD_OUTPUT, message);
+			return 0;
+
+		} else if (ctx->commandLength >= 4 && ctx->command[3] == 'I') {
+			// Set I gain: ALIDPIDI<value>
+			unsigned short value = (unsigned short)atoi(&ctx->command[4]);
+
+			// Read current parameters
+			ALICAT_PIDParams pidParams;
+			error = ALICAT_GetPIDParamsQueued(modbusAddress, &pidParams, DEVICE_PRIORITY_HIGH);
+			if (error != SUCCESS) {
+				LogPromptTextbox(CMD_ERROR, "Failed to read current PID parameters");
+				return -1;
+			}
+
+			// Update I gain
+			pidParams.iGain = value;
+			error = ALICAT_SetPIDParamsQueued(modbusAddress, &pidParams, DEVICE_PRIORITY_HIGH);
+
+			if (error != SUCCESS) {
+				snprintf(message, sizeof(message), "Failed to set PID parameters: %d : %s",
+				        error, GetErrorString(error));
+				LogPromptTextbox(CMD_ERROR, message);
+				return -1;
+			}
+
+			snprintf(message, sizeof(message), "I gain set to %u", value);
+			LogPromptTextbox(CMD_OUTPUT, message);
+			return 0;
+
+		} else {
+			LogPromptTextbox(CMD_ERROR, "Invalid PID command. Use: ALIPID, ALIDPIDP<val>, or ALIDPIDI<val>");
+			return -1;
+		}
+	}
+
+	// ALIAVG <ms> - Set flow averaging time
+	if (strncmp(ctx->command, "AVG", 3) == 0) {
+		if (ctx->commandLength < 4) {
+			LogPromptTextbox(CMD_ERROR, "ALIAVG requires averaging time in milliseconds (0-2500)");
+			return -1;
+		}
+
+		int averagingMs = atoi(&ctx->command[3]);
+
+		if (averagingMs < 0 || averagingMs > 2500) {
+			LogPromptTextbox(CMD_ERROR, "Averaging time must be 0-2500 ms");
+			return -1;
+		}
+
+		error = ALICAT_SetFlowAveragingQueued(modbusAddress, averagingMs, DEVICE_PRIORITY_HIGH);
+
+		if (error != SUCCESS) {
+			snprintf(message, sizeof(message), "Failed to set flow averaging: %d : %s",
+			        error, GetErrorString(error));
+			LogPromptTextbox(CMD_ERROR, message);
+			return -1;
+		}
+
+		snprintf(message, sizeof(message), "Flow averaging set to %d ms", averagingMs);
+		LogPromptTextbox(CMD_OUTPUT, message);
+		return 0;
+	}
+
+	// ALITEMP <tempC> - Set reference temperature
+	if (strncmp(ctx->command, "TEMP", 4) == 0) {
+		if (ctx->commandLength < 5) {
+			LogPromptTextbox(CMD_ERROR, "ALITEMP requires temperature in deg C");
+			return -1;
+		}
+
+		double tempC = atof(&ctx->command[4]);
+		error = ALICAT_SetRefTemperatureQueued(modbusAddress, tempC, DEVICE_PRIORITY_HIGH);
+
+		if (error != SUCCESS) {
+			snprintf(message, sizeof(message), "Failed to set reference temperature: %d : %s",
+			        error, GetErrorString(error));
+			LogPromptTextbox(CMD_ERROR, message);
+			return -1;
+		}
+
+		snprintf(message, sizeof(message), "Reference temperature set to %.1f C", tempC);
+		LogPromptTextbox(CMD_OUTPUT, message);
+		return 0;
+	}
+
+	// ALIRESET - Reset totalizer
+	if (strcmp(ctx->command, "RESET") == 0) {
+		error = ALICAT_ResetTotalizerQueued(modbusAddress, DEVICE_PRIORITY_HIGH);
+
+		if (error != SUCCESS) {
+			snprintf(message, sizeof(message), "Failed to reset totalizer: %d : %s",
+			        error, GetErrorString(error));
+			LogPromptTextbox(CMD_ERROR, message);
+			return -1;
+		}
+
+		LogPromptTextbox(CMD_OUTPUT, "Totalizer reset success");
+		return 0;
+	}
+
+	// ALIHELP - Show help
+	if (strcmp(ctx->command, "HELP") == 0) {
+		LogPromptTextbox(CMD_OUTPUT, "ALICAT Flow Controller Commands (address in hex):");
+		LogPromptTextbox(CMD_OUTPUT, "  ALI<addr>STAT          - Get full status");
+		LogPromptTextbox(CMD_OUTPUT, "  ALI<addr>FLOW          - Get flow rate only");
+		LogPromptTextbox(CMD_OUTPUT, "  ALI<addr>SET<value>    - Set flow setpoint");
+		LogPromptTextbox(CMD_OUTPUT, "  ALI<addr>GAS<0-8>      - Set gas type (0=Air, 1=Ar, 2=CO2, 3=N2, 4=O2, 5=N2O, 6=H2, 7=He, 8=CH4)");
+		LogPromptTextbox(CMD_OUTPUT, "  ALI<addr>TARE          - Tare flow controller");
+		LogPromptTextbox(CMD_OUTPUT, "  ALI<addr>PID           - Get PID parameters");
+		LogPromptTextbox(CMD_OUTPUT, "  ALI<addr>PIDP<value>   - Set P gain (0-65535)");
+		LogPromptTextbox(CMD_OUTPUT, "  ALI<addr>PIDI<value>   - Set I gain (0-65535)");
+		LogPromptTextbox(CMD_OUTPUT, "  ALI<addr>AVG<ms>       - Set flow averaging (0-2500 ms)");
+		LogPromptTextbox(CMD_OUTPUT, "  ALI<addr>TEMP<degC>    - Set reference temperature");
+		LogPromptTextbox(CMD_OUTPUT, "  ALI<addr>RESET         - Reset totalizer");
+		LogPromptTextbox(CMD_OUTPUT, "  ALI<addr>HELP          - Show this help");
+		LogPromptTextbox(CMD_OUTPUT, "");
+		LogPromptTextbox(CMD_OUTPUT, "Example: ALI01STAT (get status from address 1)");
+		LogPromptTextbox(CMD_OUTPUT, "Example: ALI01SET10.5 (set flow to 10.5 on address 1)");
+		return 0;
+	}
+
+	// Invalid command
+	snprintf(message, sizeof(message), "Invalid ALICAT command: %s (Use: ALI<addr>HELP)", ctx->command);
+	LogPromptTextbox(CMD_ERROR, message);
 	return 0;
 }
 
