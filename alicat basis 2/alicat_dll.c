@@ -373,10 +373,10 @@ int ALICAT_SetSetpoint(ALICAT_Handle *handle, double flowRate) {
     // Convert to scaled integer (value * 1000)
     int scaledValue = (int)(flowRate * FLOW_SCALE_FACTOR);
 
-    // Split into two 16-bit registers (little-endian: low word first)
+    // Split into two 16-bit registers (original format)
     unsigned short values[2];
-    values[0] = (unsigned short)(scaledValue & 0xFFFF);           // Low word first
-    values[1] = (unsigned short)((scaledValue >> 16) & 0xFFFF);   // High word second
+    values[0] = (unsigned short)((scaledValue >> 16) & 0xFFFF);   // High word first
+    values[1] = (unsigned short)(scaledValue & 0xFFFF);           // Low word second
 
     return ALICAT_WriteRegisters(handle, REG_SETPOINT, values, 2);
 }
