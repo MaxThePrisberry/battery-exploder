@@ -260,7 +260,7 @@ void Controls_UpdateFromDeviceStates(void) {
                         device->lastKnownSetpoint = status.setPoint;
                         
                         if (stateChanged || (setpointChanged && device->lastKnownSetpoint == 0.0)) {
-                            LogMessage("DTB%d state: %s, setpoint: %.1f°C", 
+                            LogMessage("DTB%d state: %s, setpoint: %.1fï¿½C", 
                                      i + 1, status.outputEnabled ? "Running" : "Stopped",
                                      status.setPoint);
                         }
@@ -469,7 +469,7 @@ static void HandleDTBRunStopAction(int deviceIndex, int panel, int control) {
         device->runStateChangePending = 1;
         device->pendingRunState = 1;
         
-        LogMessage("Setting DTB%d setpoint to %.1f°C...", deviceIndex + 1, setpoint);
+        LogMessage("Setting DTB%d setpoint to %.1fï¿½C...", deviceIndex + 1, setpoint);
         
         // Store the setpoint we're sending
         device->lastKnownSetpoint = setpoint;
@@ -580,6 +580,13 @@ int CVICALLBACK ALICAT2RunStopCallback(int panel, int control, int event,
         HandleALICATRunStopAction(1, panel, control); // Device 1
     }
     return 0;
+}
+
+// Wrapper function for primary ALICAT (matches declaration in controls.h)
+int CVICALLBACK ALICATRunStopCallback(int panel, int control, int event,
+                                      void *callbackData, int eventData1, int eventData2) {
+    // Forward to device 0 (primary ALICAT)
+    return ALICAT1RunStopCallback(panel, control, event, callbackData, eventData1, eventData2);
 }
 
 /******************************************************************************
