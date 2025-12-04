@@ -370,14 +370,22 @@ int ALICAT_SetSetpoint(ALICAT_Handle *handle, double flowRate) {
 
     LogMessageEx(LOG_DEVICE_ALICAT, "Setting setpoint: %.3f", flowRate);
 
-    // Convert to scaled integer (value * 1000)
+    // Convert to scaled integer (value * 1000 per manual specification)
+    // Manual page 19: "Setpoint (flow units) = value / 1000"
+    // Example: 500 SCCM requires writing 500,000
     int scaledValue = (int)(flowRate * FLOW_SCALE_FACTOR);
 
-    // Split into two 16-bit registers (original format)
-    unsigned short values[2];
-    values[0] = (unsigned short)((scaledValue >> 16) & 0xFFFF);   // High word first
-    values[1] = (unsigned short)(scaledValue & 0xFFFF);           // Low word second
+    LogMessageEx(LOG_DEVICE_ALICAT, "Scaled setpoint value: %d (0x%08X)", scaledValue, scaledValue);
 
+    // Split into two 16-bit registers for 32-bit write (big-endian)
+    // Register 2053 = high word, Register 2054 = low word
+    unsigned short values[2];
+    values[0] = (unsigned short)((scaledValue >> 16) & 0xFFFF);   // High word
+    values[1] = (unsigned short)(scaledValue & 0xFFFF);           // Low word
+
+    LogMessageEx(LOG_DEVICE_ALICAT, "Writing registers: [0]=0x%04X [1]=0x%04X", values[0], values[1]);
+
+    // Write to both registers 2053-2054
     return ALICAT_WriteRegisters(handle, REG_SETPOINT, values, 2);
 }
 
