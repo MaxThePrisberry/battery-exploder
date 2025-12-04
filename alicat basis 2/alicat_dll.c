@@ -367,17 +367,17 @@ int ALICAT_ConfigureDefault(ALICAT_Handle *handle) {
 
 int ALICAT_SetSetpoint(ALICAT_Handle *handle, double flowRate) {
     if (!handle || !handle->isConnected) return ALICAT_ERROR_NOT_CONNECTED;
-    
+
     LogMessageEx(LOG_DEVICE_ALICAT, "Setting setpoint: %.3f", flowRate);
-    
+
     // Convert to scaled integer (value * 1000)
     int scaledValue = (int)(flowRate * FLOW_SCALE_FACTOR);
-    
-    // Split into two 16-bit registers
+
+    // Split into two 16-bit registers (little-endian: low word first)
     unsigned short values[2];
-    values[0] = (unsigned short)((scaledValue >> 16) & 0xFFFF);
-    values[1] = (unsigned short)(scaledValue & 0xFFFF);
-    
+    values[0] = (unsigned short)(scaledValue & 0xFFFF);           // Low word first
+    values[1] = (unsigned short)((scaledValue >> 16) & 0xFFFF);   // High word second
+
     return ALICAT_WriteRegisters(handle, REG_SETPOINT, values, 2);
 }
 

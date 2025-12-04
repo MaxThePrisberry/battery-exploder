@@ -653,53 +653,52 @@ static void HandleALICATRunStopAction(int deviceIndex, int panel, int control) {
     }
     callbackData->deviceIndex = deviceIndex;
     
-    // Determine action based on current state
-    if (device->lastKnownRunState) {
-        // Currently running - stop it by setting setpoint to 0
+    // Read desired setpoint from UI
+    double setpoint;
+    GetCtrlVal(panel, device->setpointControlID, &setpoint);
+
+    // Determine action based on setpoint value
+    if (setpoint <= 0.01) {
+        // Setpoint is zero or negative - stop flow
         device->runStateChangePending = 1;
         device->pendingRunState = 0;
-        
+
         LogMessage("Stopping ALICAT%d flow control...", deviceIndex + 1);
-        
+
         // Queue setpoint = 0 command to stop
-        CommandID cmdId = ALICAT_SetSetpointAsync(device->slaveAddress, 0.0, 
-                                                   ALICATRunStopQueueCallback, 
+        CommandID cmdId = ALICAT_SetSetpointAsync(device->slaveAddress, 0.0,
+                                                   ALICATRunStopQueueCallback,
                                                    callbackData, DEVICE_PRIORITY_NORMAL);
-        
+
         if (cmdId == 0) {
             LogError("Failed to queue ALICAT%d stop command", deviceIndex + 1);
             device->runStateChangePending = 0;
             free(callbackData);
         }
-        
+
     } else {
-        // Currently stopped - start it by setting desired setpoint
-        double setpoint;
-        GetCtrlVal(panel, device->setpointControlID, &setpoint);
-        
-        // Validate setpoint
-        if (setpoint <= 0.0) {
-            LogWarning("ALICAT%d: Cannot start with zero or negative setpoint", deviceIndex + 1);
-            free(callbackData);
-            return;
-        }
-        
+        // Setpoint is positive - start or adjust flow to new setpoint
         device->runStateChangePending = 1;
         device->pendingRunState = 1;
-        
-        LogMessage("Starting ALICAT%d flow control with setpoint %.3f...", 
-                   deviceIndex + 1, setpoint);
-        
+
+        if (device->lastKnownRunState) {
+            LogMessage("Adjusting ALICAT%d flow setpoint to %.3f...",
+                       deviceIndex + 1, setpoint);
+        } else {
+            LogMessage("Starting ALICAT%d flow control with setpoint %.3f...",
+                       deviceIndex + 1, setpoint);
+        }
+
         // Store the setpoint we're sending
         device->lastKnownSetpoint = setpoint;
-        
-        // Queue setpoint command to start
+
+        // Queue setpoint command (works for both start and adjust)
         CommandID cmdId = ALICAT_SetSetpointAsync(device->slaveAddress, setpoint,
                                                    ALICATRunStopQueueCallback,
                                                    callbackData, DEVICE_PRIORITY_NORMAL);
-        
+
         if (cmdId == 0) {
-            LogError("Failed to queue ALICAT%d start command", deviceIndex + 1);
+            LogError("Failed to queue ALICAT%d setpoint command", deviceIndex + 1);
             device->runStateChangePending = 0;
             free(callbackData);
         }
@@ -841,19 +840,20 @@ static void UpdateALICATButtonState(int deviceIndex, int isRunning) {
 
     ALICATDeviceControl *device = &g_controls.alicatDevices[deviceIndex];
 
-    // Update button text
+    // Update button text - now it's always "Apply Setpoint" for dynamic adjustment
     ControlUpdateData* textData = malloc(sizeof(ControlUpdateData));
     if (textData) {
         textData->control = device->runButtonControlID;
-        strcpy(textData->strValue, isRunning ? "Stop Mass Flow" : "Start Mass Flow");
+        strcpy(textData->strValue, "Apply Setpoint");
         PostDeferredCall(DeferredButtonTextUpdate, textData);
     }
 
-    // Update setpoint control dimming
+    // Setpoint control is always enabled for dynamic adjustment
+    // (Users can change it anytime and click Apply)
     ControlUpdateData* dimData = malloc(sizeof(ControlUpdateData));
     if (dimData) {
         dimData->control = device->setpointControlID;
-        dimData->intValue = isRunning ? 1 : 0; // 1 = dim, 0 = enable
+        dimData->intValue = 0; // Always enabled
         PostDeferredCall(DeferredControlUpdate, dimData);
     }
 }
