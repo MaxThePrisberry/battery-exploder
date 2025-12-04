@@ -370,9 +370,9 @@ int ALICAT_SetSetpoint(ALICAT_Handle *handle, double flowRate) {
 
     LogMessageEx(LOG_DEVICE_ALICAT, "Setting setpoint: %.3f", flowRate);
 
-    // Testing scale factor of 10 instead of 1000
-    // Observed: factor 100 reduction suggests scale might be 10, not 1000
-    int scaledValue = (int)(flowRate * 10.0);
+    // Testing scale factor of 100000 (100x larger than manual spec of 1000)
+    // Observed: values were 100x too small with factor 1000
+    int scaledValue = (int)(flowRate * 100000.0);
 
     LogMessageEx(LOG_DEVICE_ALICAT, "Scaled setpoint value: %d (0x%08X)", scaledValue, scaledValue);
 
