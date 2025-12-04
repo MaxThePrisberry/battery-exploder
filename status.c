@@ -360,8 +360,11 @@ static int CVICALLBACK Status_TimerThread(void *functionData) {
         // Process device updates if in running state
         if (Status_ShouldProcessUpdates()) {
             Status_ProcessDeviceUpdates();
+
+            // Update control states from device status (DTB, ALICAT, etc.)
+            Controls_UpdateFromDeviceStates();
         }
-        
+
         // Update thermocouple readings using cDAQ module
 		if (ENABLE_CDAQ && Status_ShouldProcessUpdates()) {
 		    // Read TC0 and TC1 from slot 2 for UI display
