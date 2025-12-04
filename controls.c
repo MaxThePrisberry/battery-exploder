@@ -276,22 +276,33 @@ void Controls_UpdateFromDeviceStates(void) {
         if (alicatQueueMgr) {
             for (int i = 0; i < g_controls.numALICATDevices; i++) {
                 ALICATDeviceControl *device = &g_controls.alicatDevices[i];
-                
+
                 if (!device->runStateChangePending) {
                     ALICAT_Status status;
                     if (ALICAT_GetStatusQueued(device->slaveAddress, &status, DEVICE_PRIORITY_NORMAL) == ALICAT_SUCCESS) {
-						
+
                         int setpointChanged = (fabs(status.setpoint - device->lastKnownSetpoint) >= 0.1);
-                        
+
                         if (setpointChanged) {
                             SetCtrlVal(g_controls.panelHandle, device->setpointControlID, status.setpoint);
                         }
-                        
+
                         // Always update internal tracking
                         device->lastKnownSetpoint = status.setpoint;
-                        
+
+                        // Update flow rate dial gauge
+                        SetCtrlVal(g_controls.panelHandle, PANEL_MFLOW_DIAL, status.flowRate);
+
+                        // Update status text display with comprehensive information
+                        char statusText[256];
+                        snprintf(statusText, sizeof(statusText),
+                                "Flow: %.3f | Setpoint: %.3f | Gas: %s | Temp: %.1f°C",
+                                status.flowRate, status.setpoint,
+                                ALICAT_GetGasName(status.selectedGas), status.temperature);
+                        SetCtrlVal(g_controls.panelHandle, PANEL_MFLOW_STATUS, statusText);
+
                         if (setpointChanged && device->lastKnownSetpoint == 0.0) {
-                            LogMessage("ALICAT setpoint: %.1 Mass flow Unit", status.setpoint);
+                            LogMessage("ALICAT setpoint: %.1f", status.setpoint);
                         }
                     }
                 }
