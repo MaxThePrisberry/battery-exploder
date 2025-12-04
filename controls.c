@@ -34,8 +34,9 @@ typedef struct {
 // ALICAT control
 typedef struct {
     int slaveAddress;
+    int runButtonControlID;
     int setpointControlID;
-    
+
     // State tracking
     volatile int runStateChangePending;
     volatile int pendingRunState;
@@ -92,6 +93,7 @@ static void ALICATRunStopQueueCallback(CommandID cmdId, ALICAT_CommandType type,
                                    void *result, void *userData);
 
 static void UpdateDTBButtonState(int deviceIndex, int isRunning);
+static void UpdateALICATButtonState(int deviceIndex, int isRunning);
 
 static void UpdateRemoteToggleState(int remoteMode);
 
@@ -168,10 +170,11 @@ int Controls_Initialize(int panelHandle) {
 	
 	// Initialize Alicat devices array (only 1 for now)
     g_controls.numALICATDevices = ALICAT_NUM_DEVICES;
-    
+
     if (ALICAT_NUM_DEVICES > 0) {
-        // Setup DTB device 0 (DTB1)
+        // Setup ALICAT device 0 (primary mass flow controller)
         g_controls.alicatDevices[0].slaveAddress = ALICAT_MODBUS_ADDRESS;
+        g_controls.alicatDevices[0].runButtonControlID = PANEL_BTN_ALICAT_RUN_STOP;
         g_controls.alicatDevices[0].setpointControlID = PANEL_NUM_ALICAT_SETPOINT;
         g_controls.alicatDevices[0].runStateChangePending = 0;
         g_controls.alicatDevices[0].pendingRunState = 0;
@@ -281,7 +284,16 @@ void Controls_UpdateFromDeviceStates(void) {
                     ALICAT_Status status;
                     if (ALICAT_GetStatusQueued(device->slaveAddress, &status, DEVICE_PRIORITY_NORMAL) == ALICAT_SUCCESS) {
 
-                        int setpointChanged = (fabs(status.setpoint - device->lastKnownSetpoint) >= 0.1);
+                        // Determine running state (running if setpoint > 0)
+                        int isRunning = (status.setpoint > 0.01);
+                        int stateChanged = (isRunning != device->lastKnownRunState);
+                        int setpointChanged = (fabs(status.setpoint - device->lastKnownSetpoint) >= 0.01);
+
+                        // Update button state if running state changed
+                        if (stateChanged) {
+                            device->lastKnownRunState = isRunning;
+                            UpdateALICATButtonState(i, isRunning);
+                        }
 
                         if (setpointChanged) {
                             SetCtrlVal(g_controls.panelHandle, device->setpointControlID, status.setpoint);
@@ -301,8 +313,9 @@ void Controls_UpdateFromDeviceStates(void) {
                                 ALICAT_GetGasName(status.selectedGas), status.temperature);
                         SetCtrlVal(g_controls.panelHandle, PANEL_MFLOW_STATUS, statusText);
 
-                        if (setpointChanged && device->lastKnownSetpoint == 0.0) {
-                            LogMessage("ALICAT setpoint: %.1f", status.setpoint);
+                        if (stateChanged) {
+                            LogMessage("ALICAT%d state: %s, setpoint: %.3f",
+                                     i + 1, isRunning ? "Running" : "Stopped", status.setpoint);
                         }
                     }
                 }
@@ -710,17 +723,22 @@ static void ALICATRunStopQueueCallback(CommandID cmdId, int commandType,
     if (cmdResult && cmdResult->errorCode == ALICAT_SUCCESS) {
         // Success - update state
         device->lastKnownRunState = device->pendingRunState;
-        
+
+        // Update button label to reflect new state
+        UpdateALICATButtonState(deviceIndex, device->pendingRunState);
+
         LogMessage("ALICAT%d flow control %s", deviceIndex + 1,
                   device->pendingRunState ? "started" : "stopped");
     } else {
         // Failed - revert to last known state
         const char *errorStr = cmdResult ? ALICAT_GetErrorString(cmdResult->errorCode) : "Unknown error";
-        LogError("Failed to %s ALICAT%d: %s", 
+        LogError("Failed to %s ALICAT%d: %s",
                 device->pendingRunState ? "start" : "stop", deviceIndex + 1, errorStr);
-        
+
+        // Restore button to last known state
+        UpdateALICATButtonState(deviceIndex, device->lastKnownRunState);
     }
-    
+
     // Clear pending flags
     device->runStateChangePending = 0;
     
@@ -795,9 +813,9 @@ static void UpdateDTBButtonState(int deviceIndex, int isRunning) {
         LogError("UpdateDTBButtonState: Invalid device index: %d", deviceIndex);
         return;
     }
-    
+
     DTBDeviceControl *device = &g_controls.dtbDevices[deviceIndex];
-    
+
     // Update button text
     ControlUpdateData* textData = malloc(sizeof(ControlUpdateData));
     if (textData) {
@@ -805,7 +823,32 @@ static void UpdateDTBButtonState(int deviceIndex, int isRunning) {
         strcpy(textData->strValue, isRunning ? "Stop" : "Run");
         PostDeferredCall(DeferredButtonTextUpdate, textData);
     }
-    
+
+    // Update setpoint control dimming
+    ControlUpdateData* dimData = malloc(sizeof(ControlUpdateData));
+    if (dimData) {
+        dimData->control = device->setpointControlID;
+        dimData->intValue = isRunning ? 1 : 0; // 1 = dim, 0 = enable
+        PostDeferredCall(DeferredControlUpdate, dimData);
+    }
+}
+
+static void UpdateALICATButtonState(int deviceIndex, int isRunning) {
+    if (!IsValidALICATDeviceIndex(deviceIndex)) {
+        LogError("UpdateALICATButtonState: Invalid device index: %d", deviceIndex);
+        return;
+    }
+
+    ALICATDeviceControl *device = &g_controls.alicatDevices[deviceIndex];
+
+    // Update button text
+    ControlUpdateData* textData = malloc(sizeof(ControlUpdateData));
+    if (textData) {
+        textData->control = device->runButtonControlID;
+        strcpy(textData->strValue, isRunning ? "Stop Mass Flow" : "Start Mass Flow");
+        PostDeferredCall(DeferredButtonTextUpdate, textData);
+    }
+
     // Update setpoint control dimming
     ControlUpdateData* dimData = malloc(sizeof(ControlUpdateData));
     if (dimData) {
@@ -835,11 +878,19 @@ static void CVICALLBACK DeferredControlUpdate(void* data) {
         int deviceIndex = FindDTBDeviceByControl(updateData->control);
         if (deviceIndex >= 0) {
             // This is a DTB setpoint control - intValue is dimming state
-            SetCtrlAttribute(g_controls.panelHandle, updateData->control, 
+            SetCtrlAttribute(g_controls.panelHandle, updateData->control,
                            ATTR_DIMMED, updateData->intValue);
         } else {
-            // For other controls, set the value
-            SetCtrlVal(g_controls.panelHandle, updateData->control, updateData->intValue);
+            // Check if this is an ALICAT setpoint control
+            deviceIndex = FindALICATDeviceByControl(updateData->control);
+            if (deviceIndex >= 0) {
+                // This is an ALICAT setpoint control - intValue is dimming state
+                SetCtrlAttribute(g_controls.panelHandle, updateData->control,
+                               ATTR_DIMMED, updateData->intValue);
+            } else {
+                // For other controls, set the value
+                SetCtrlVal(g_controls.panelHandle, updateData->control, updateData->intValue);
+            }
         }
         free(updateData);
     }
@@ -865,6 +916,15 @@ static bool IsValidDTBDeviceIndex(int deviceIndex) {
 static int FindDTBDeviceByControl(int controlID) {
     for (int i = 0; i < g_controls.numDTBDevices; i++) {
         if (g_controls.dtbDevices[i].setpointControlID == controlID) {
+            return i;
+        }
+    }
+    return -1; // Not found
+}
+
+static int FindALICATDeviceByControl(int controlID) {
+    for (int i = 0; i < g_controls.numALICATDevices; i++) {
+        if (g_controls.alicatDevices[i].setpointControlID == controlID) {
             return i;
         }
     }
