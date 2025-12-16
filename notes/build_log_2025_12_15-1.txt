@@ -1,0 +1,11 @@
+Build Status (BatteryExploder.prj - Debug)
+ common.c
+ ni9472_dll.c
+ ni9472_queue.c - 4 errors
+      8, 1   In file included from c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\ni9472\ni9472_queue.c:8:
+  "ni9472_queue.h"(97,1)    error: typedef redefinition with different types ('struct NI9472_ChannelState' vs 'enum NI9472_ChannelState')
+  "ni9472_dll.h"(62,1)    note: previous definition is here
+  534, 1    error: member reference base type 'const NI9472_ChannelState' is not a structure or union
+  535, 1    error: member reference base type 'const NI9472_ChannelState' is not a structure or union
+  540, 1    error: member reference base type 'const NI9472_ChannelState' is not a structure or union
+Build failed.
