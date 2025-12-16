@@ -19,6 +19,7 @@ typedef enum {
 	LOG_DEVICE_ALICAT,         // [ALI] prefix
 	LOG_DEVICE_TNY,         // [TNY] prefix
 	LOG_DEVICE_CDAQ,        // [DAQ] prefix
+	LOG_DEVICE_NI9472,      // [9472] prefix
 } LogDevice;
 
 //==============================================================================

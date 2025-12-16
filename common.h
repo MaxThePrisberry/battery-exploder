@@ -37,6 +37,7 @@
 #define ENABLE_DTB         1    // Enable DTB4848 monitoring
 #define ENABLE_TNY         1    // Enable Teensy monitoring
 #define ENABLE_CDAQ        1    // Enable cDAQ 9178
+#define ENABLE_NI9472      1    // Enable NI 9472 digital output module
 
 #define PSB_COM_PORT            3       // PSB 10000 COM port
 #define PSB_TARGET_SERIAL       "2872380001"  // Target PSB serial number
@@ -62,6 +63,9 @@
 #define TNY_SWITCH_DELAY_MS  100        // Delay after relay switching
 #define TNY_STATE_CONNECTED  1          // HIGH = connected
 #define TNY_STATE_DISCONNECTED 0        // LOW = disconnected
+
+// NI 9472 Digital Output Module configuration
+#define NI9472_SLOT             4       // cDAQ slot number (default slot 4, change as needed)
 
 //==============================================================================
 // BioLogic Configuration
@@ -116,6 +120,7 @@
 #define ERR_BASE_DTB            -8000
 #define ERR_BASE_TNY            -9000
 #define ERR_BASE_ALICAT			-9500
+#define ERR_BASE_NI9472         -10000
 
 // System errors (-1000 to -1999)
 #define ERR_INVALID_PARAMETER   (ERR_BASE_SYSTEM - 1)

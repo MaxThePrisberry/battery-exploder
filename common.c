@@ -87,7 +87,12 @@ const char* GetErrorString(int errorCode) {
     if (errorCode <= ERR_BASE_TNY && errorCode > (ERR_BASE_TNY - 1000)) {
         return TNY_GetErrorString(errorCode);
     }
-    
+
+    // Check if it's a NI9472 error (-10000 range)
+    if (errorCode <= ERR_BASE_NI9472 && errorCode > (ERR_BASE_NI9472 - 1000)) {
+        return NI9472_GetErrorString(errorCode);
+    }
+
     // Check if it's a Test error (-4000 range)
     if (errorCode <= ERR_BASE_TEST && errorCode > (ERR_BASE_TEST - 1000)) {
         return "Test execution error";
