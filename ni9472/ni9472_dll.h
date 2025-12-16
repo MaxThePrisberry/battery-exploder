@@ -55,12 +55,6 @@ typedef struct {
     uInt8 channelStates[NI9472_NUM_CHANNELS];  // Current state cache
 } NI9472_Handle;
 
-// Channel state enumeration
-typedef enum {
-    NI9472_CHANNEL_LOW = 0,
-    NI9472_CHANNEL_HIGH = 1
-} NI9472_ChannelState;
-
 /******************************************************************************
  * Function Prototypes
  ******************************************************************************/
