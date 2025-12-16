@@ -1,0 +1,78 @@
+Build Status (BatteryExploder.prj - Debug)
+ alicat_queue.c
+ alicat_test.c
+ battery_utils.c
+ alicat_dll.c - 3 warnings
+  172, 63    warning: implicit conversion loses integer precision: 'int' to 'unsigned short' 
+  209, 56    warning: implicit conversion loses integer precision: 'int' to 'unsigned short' 
+  213, 58    warning: implicit conversion loses integer precision: 'int' to 'unsigned short' 
+ BatteryExploder.c
+ biologic_abstract.c - 11 warnings
+  92, 1    warning: default label in switch which covers all enumeration values 
+  93, 1    warning: will never be executed 
+  197, 1    warning: default label in switch which covers all enumeration values 
+  264, 1    warning: default label in switch which covers all enumeration values 
+  333, 1    warning: default label in switch which covers all enumeration values 
+  352, 1    warning: default label in switch which covers all enumeration values 
+  353, 1    warning: will never be executed 
+  377, 1    warning: default label in switch which covers all enumeration values 
+  393, 1    warning: default label in switch which covers all enumeration values 
+  402, 1    warning: default label in switch which covers all enumeration values 
+  402, 1    warning: will never be executed 
+ biologic_dll.c
+ biologic_eclab.c
+ biologic_queue.c
+ biologic_test.c
+ cdaq_utils.c
+ cmd_prompt.c - 2 warnings
+  459, 1    warning: unused variable 'time1Str' 
+  460, 1    warning: unused variable 'time2Str' 
+ common.c - 1 error, 1 warning
+  93, 1    error: implicit declaration of function 'NI9472_GetErrorString' is invalid in C99. Make sure that you include the function prototype. 
+      93, 1    note: did you mean 'BIO_GetErrorString'?
+  "biologic_dll.h"(150,1)    note: 'BIO_GetErrorString' declared here
+  93, 1    warning: incompatible integer to pointer conversion returning 'int' from a function with result type 'const char *' 
+ controls.c
+ device_queue.c - 4 warnings
+  469, 1    warning: default label in switch which covers all enumeration values 
+  469, 1    warning: will never be executed 
+  1118, 1    warning: default label in switch which covers all enumeration values 
+  1118, 1    warning: will never be executed 
+ device_queue_test.c
+ dtb4848_dll.c - 6 warnings
+  1380, 1    warning: implicit conversion loses integer precision: 'int' to 'unsigned short' 
+  1392, 1    warning: implicit conversion loses integer precision: 'int' to 'unsigned short' 
+  1416, 1    warning: implicit conversion loses integer precision: 'int' to 'unsigned short' 
+  1428, 1    warning: implicit conversion loses integer precision: 'int' to 'unsigned short' 
+  1453, 1    warning: implicit conversion loses integer precision: 'int' to 'unsigned short' 
+  1465, 1    warning: implicit conversion loses integer precision: 'int' to 'unsigned short' 
+ dtb4848_queue.c
+ dtb_ramp_soak_test.c
+ eclab_olecom.c
+ exp_overcharge.c - 5 warnings
+  520, 9    warning: will never be executed 
+  691, 9    warning: will never be executed 
+  909, 9    warning: will never be executed 
+  2308, 9    warning: default label in switch which covers all enumeration values 
+  2308, 52    warning: will never be executed 
+ exp_temp_ramp.c - 4 warnings
+  144, 1    warning: will never be executed 
+  1679, 1    warning: will never be executed 
+  1666, 1    warning: will never be executed 
+  1779, 1    warning: unused variable 'progress' 
+ logging.c
+ pressure_safety.c - 5 warnings
+  143, 1    warning: unused variable 'status' 
+  292, 1    warning: default label in switch which covers all enumeration values 
+  292, 1    warning: will never be executed 
+  300, 1    warning: default label in switch which covers all enumeration values 
+  300, 1    warning: will never be executed 
+ psb10000_dll.c
+ psb10000_queue.c
+ psb10000_test.c
+ status.c - 2 warnings
+  1084, 9    warning: default label in switch which covers all enumeration values 
+  1084, 25    warning: will never be executed 
+ teensy_dll.c
+ teensy_queue.c
+Build failed.
