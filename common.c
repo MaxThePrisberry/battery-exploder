@@ -9,6 +9,7 @@
 #include "psb10000_dll.h"  // For PSB_GetErrorString
 #include "teensy_dll.h"    // For TNY_GetErrorString
 #include "dtb4848_dll.h"   // For DTB_GetErrorString
+#include "ni9472/ni9472_dll.h"  // For NI9472_GetErrorString
 #include "BatteryExploder.h" // For UI control IDs
 #include "logging.h"       // For LogWarning
 #include <errno.h>         // For errno
