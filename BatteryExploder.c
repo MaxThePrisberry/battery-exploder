@@ -17,6 +17,7 @@
 #include "dtb4848_queue.h"
 #include "alicat_queue.h"
 #include "teensy_queue.h"
+#include "ni9472_queue.h"
 #include "cdaq_utils.h"
 #include "pressure_safety.h"
 #include "logging.h"
@@ -38,6 +39,7 @@ BioQueueManager *g_bioQueueMgr = NULL;
 DTBQueueManager *g_dtbQueueMgr = NULL;
 ALICAT_QueueManager *g_alicatQueueMgr = NULL;
 TNYQueueManager *g_tnyQueueMgr = NULL;
+NI9472_QueueManager *g_ni9472QueueMgr = NULL;
 
 /******************************************************************************
  * Main Function
@@ -338,7 +340,31 @@ int main (int argc, char *argv[]) {
 	        LogError("Failed to initialize Teensy queue manager on COM%d", TNY_COM_PORT);
 	    }
 	}
-	
+
+	// Initialize NI 9472 Digital Output Module
+	if (ENABLE_NI9472) {
+	    LogMessage("Initializing NI 9472 Digital Output Module on slot %d...", NI9472_SLOT);
+	    g_ni9472QueueMgr = NI9472_QueueInit(NI9472_SLOT);
+
+	    if (g_ni9472QueueMgr) {
+	        NI9472_SetGlobalQueueManager(g_ni9472QueueMgr);
+
+	        // Check if connected
+	        NI9472_QueueStats stats;
+	        NI9472_QueueGetStats(g_ni9472QueueMgr, &stats);
+	        if (stats.isConnected) {
+	            LogMessage("NI 9472 queue manager initialized and connected on slot %d", NI9472_SLOT);
+
+	            // Optional: Initialize all channels to LOW (safe state)
+	            NI9472_SetAllChannelsQueued(0x00, DEVICE_PRIORITY_NORMAL);
+	        } else {
+	            LogWarning("NI 9472 queue manager initialized but not connected on slot %d", NI9472_SLOT);
+	        }
+	    } else {
+	        LogError("Failed to initialize NI 9472 queue manager on slot %d", NI9472_SLOT);
+	    }
+	}
+
 	// Load main panel
 	DiscardPanel(loadingPanelHandle);
     if ((g_mainPanelHandle = LoadPanel(0, "BatteryExploder.uir", PANEL)) < 0)
@@ -470,6 +496,15 @@ int CVICALLBACK PanelCallback(int panel, int event, void *callbackData,
 			    g_tnyQueueMgr = NULL;  // Clear global pointer FIRST
 			    TNY_SetGlobalQueueManager(NULL);  // Clear global reference
 			    TNY_QueueShutdown(tempMgr);  // Then shutdown
+			}
+
+			// Shutdown NI 9472 queue manager
+			if (g_ni9472QueueMgr) {
+			    LogMessage("Shutting down NI 9472 queue manager...");
+			    NI9472_QueueManager *tempMgr = g_ni9472QueueMgr;
+			    g_ni9472QueueMgr = NULL;  // Clear global pointer FIRST
+			    NI9472_SetGlobalQueueManager(NULL);  // Clear global reference
+			    NI9472_QueueShutdown(tempMgr);  // Then shutdown
 			}
 
 			// All queue shutdown functions already wait for their threads
