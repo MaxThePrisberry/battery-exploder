@@ -16,6 +16,7 @@
 #include "cdaq_utils.h"
 #include "biologic_abstract.h"
 #include "biologic_dll.h"
+#include "ni9472_queue.h"
 
 /******************************************************************************
  * Static Functions
@@ -31,6 +32,7 @@ static int AlicatCommandManager(CommandContext *ctx);
 static int ControlsCommandManager(CommandContext *ctx);
 static int DAQCommandManager(CommandContext *ctx);
 static int BioLogicCommandManager(CommandContext *ctx);
+static int NI9CommandManager(CommandContext *ctx);
 
 /******************************************************************************
  * UI panel CVICALLBACKS
@@ -201,6 +203,10 @@ static int DeviceSelect(CommandContext *ctx) {
 
 		case ('B' << 16 | 'I' << 8 | 'O'):
 			BioLogicCommandManager(ctx);
+			break;
+
+		case ('N' << 16 | 'I' << 8 | '9'):
+			NI9CommandManager(ctx);
 			break;
 
 		default:
@@ -1197,6 +1203,205 @@ static int BioLogicCommandManager(CommandContext *ctx) {
 
 	// Invalid command
 	snprintf(message, sizeof(message), "Invalid BIO command: %s (Use: BIO HELP)", ctx->command);
+	LogPromptTextbox(CMD_ERROR, message);
+	return 0;
+}
+
+static int NI9CommandManager(CommandContext *ctx) {
+	char message[1024];
+	int error;
+
+	// Trim leading whitespace from command
+	char *trimmed = TrimWhitespace(ctx->command);
+	char *command = my_strdup(trimmed);
+	free(ctx->command);
+	ctx->command = command;
+
+	// NI9 CH<n>ON - Turn on channel n (0-7)
+	if (strncmp(ctx->command, "CH", 2) == 0 && ctx->commandLength >= 5) {
+		// Parse channel number
+		if (ctx->command[2] < '0' || ctx->command[2] > '7') {
+			LogPromptTextbox(CMD_ERROR, "Invalid channel. Must be 0-7.");
+			return -1;
+		}
+		int channel = ctx->command[2] - '0';
+
+		// Check for ON or OFF
+		if (strcmp(&ctx->command[3], "ON") == 0) {
+			error = NI9472_SetChannelQueued(channel, NI9472_STATE_HIGH, DEVICE_PRIORITY_HIGH);
+
+			if (error != SUCCESS) {
+				snprintf(message, sizeof(message), "Failed to set channel %d: %d : %s",
+				        channel, error, GetErrorString(error));
+				LogPromptTextbox(CMD_ERROR, message);
+				return -1;
+			}
+
+			snprintf(message, sizeof(message), "Channel %d set to HIGH", channel);
+			LogPromptTextbox(CMD_OUTPUT, message);
+			return 0;
+
+		} else if (strcmp(&ctx->command[3], "OFF") == 0) {
+			error = NI9472_SetChannelQueued(channel, NI9472_STATE_LOW, DEVICE_PRIORITY_HIGH);
+
+			if (error != SUCCESS) {
+				snprintf(message, sizeof(message), "Failed to set channel %d: %d : %s",
+				        channel, error, GetErrorString(error));
+				LogPromptTextbox(CMD_ERROR, message);
+				return -1;
+			}
+
+			snprintf(message, sizeof(message), "Channel %d set to LOW", channel);
+			LogPromptTextbox(CMD_OUTPUT, message);
+			return 0;
+		}
+	}
+
+	// NI9 CH<n>? - Query channel n state
+	if (strncmp(ctx->command, "CH", 2) == 0 && ctx->commandLength >= 4) {
+		// Parse channel number
+		if (ctx->command[2] < '0' || ctx->command[2] > '7') {
+			LogPromptTextbox(CMD_ERROR, "Invalid channel. Must be 0-7.");
+			return -1;
+		}
+		int channel = ctx->command[2] - '0';
+
+		// Check for ?
+		if (ctx->command[3] == '?') {
+			int state;
+			error = NI9472_GetChannelStateQueued(channel, &state, DEVICE_PRIORITY_HIGH);
+
+			if (error != SUCCESS) {
+				snprintf(message, sizeof(message), "Failed to get channel %d state: %d : %s",
+				        channel, error, GetErrorString(error));
+				LogPromptTextbox(CMD_ERROR, message);
+				return -1;
+			}
+
+			snprintf(message, sizeof(message), "Channel %d: %s", channel, state ? "HIGH" : "LOW");
+			LogPromptTextbox(CMD_OUTPUT, message);
+			return 0;
+		}
+	}
+
+	// NI9 ALL ON - Turn all channels on
+	if (strcmp(ctx->command, "ALL ON") == 0) {
+		error = NI9472_SetAllChannelsQueued(0xFF, DEVICE_PRIORITY_HIGH);
+
+		if (error != SUCCESS) {
+			snprintf(message, sizeof(message), "Failed to set all channels: %d : %s",
+			        error, GetErrorString(error));
+			LogPromptTextbox(CMD_ERROR, message);
+			return -1;
+		}
+
+		LogPromptTextbox(CMD_OUTPUT, "All channels set to 0xFF (all HIGH)");
+		return 0;
+	}
+
+	// NI9 ALL OFF - Turn all channels off
+	if (strcmp(ctx->command, "ALL OFF") == 0) {
+		error = NI9472_SetAllChannelsQueued(0x00, DEVICE_PRIORITY_HIGH);
+
+		if (error != SUCCESS) {
+			snprintf(message, sizeof(message), "Failed to set all channels: %d : %s",
+			        error, GetErrorString(error));
+			LogPromptTextbox(CMD_ERROR, message);
+			return -1;
+		}
+
+		LogPromptTextbox(CMD_OUTPUT, "All channels set to 0x00 (all LOW)");
+		return 0;
+	}
+
+	// NI9 ALL? - Query all channel states
+	if (strcmp(ctx->command, "ALL?") == 0) {
+		uInt8 pattern;
+		error = NI9472_GetAllChannelsQueued(&pattern, DEVICE_PRIORITY_HIGH);
+
+		if (error != SUCCESS) {
+			snprintf(message, sizeof(message), "Failed to get all channels: %d : %s",
+			        error, GetErrorString(error));
+			LogPromptTextbox(CMD_ERROR, message);
+			return -1;
+		}
+
+		// Display as binary and hex
+		char binary[9];
+		for (int i = 0; i < 8; i++) {
+			binary[7-i] = (pattern & (1 << i)) ? '1' : '0';
+		}
+		binary[8] = '\0';
+
+		snprintf(message, sizeof(message), "Channels: 0b%s (0x%02X)", binary, pattern);
+		LogPromptTextbox(CMD_OUTPUT, message);
+		return 0;
+	}
+
+	// NI9 PAT<hex> - Set all channels using hex pattern
+	if (strncmp(ctx->command, "PAT", 3) == 0 && ctx->commandLength >= 5) {
+		// Parse hex value (2 characters)
+		int high = HexCharToInt(ctx->command[3]);
+		int low = HexCharToInt(ctx->command[4]);
+
+		if (high < 0 || low < 0) {
+			LogPromptTextbox(CMD_ERROR, "Invalid hex pattern. Use 00-FF.");
+			return -1;
+		}
+
+		uInt8 pattern = (high << 4) | low;
+
+		error = NI9472_SetAllChannelsQueued(pattern, DEVICE_PRIORITY_HIGH);
+
+		if (error != SUCCESS) {
+			snprintf(message, sizeof(message), "Failed to set pattern: %d : %s",
+			        error, GetErrorString(error));
+			LogPromptTextbox(CMD_ERROR, message);
+			return -1;
+		}
+
+		snprintf(message, sizeof(message), "Channels set to 0x%02X", pattern);
+		LogPromptTextbox(CMD_OUTPUT, message);
+		return 0;
+	}
+
+	// NI9 TEST - Test connection
+	if (strcmp(ctx->command, "TEST") == 0) {
+		error = NI9472_TestConnectionQueued(DEVICE_PRIORITY_HIGH);
+
+		if (error == SUCCESS) {
+			LogPromptTextbox(CMD_OUTPUT, "Connection test: OK");
+		} else {
+			snprintf(message, sizeof(message), "Connection test failed: %d : %s",
+			        error, GetErrorString(error));
+			LogPromptTextbox(CMD_ERROR, message);
+		}
+		return 0;
+	}
+
+	// NI9 HELP - Show help
+	if (strcmp(ctx->command, "HELP") == 0) {
+		LogPromptTextbox(CMD_OUTPUT, "NI9472 Digital Output Commands:");
+		LogPromptTextbox(CMD_OUTPUT, "  NI9 CH<n>ON            - Turn on channel n (0-7)");
+		LogPromptTextbox(CMD_OUTPUT, "  NI9 CH<n>OFF           - Turn off channel n (0-7)");
+		LogPromptTextbox(CMD_OUTPUT, "  NI9 CH<n>?             - Query channel n state");
+		LogPromptTextbox(CMD_OUTPUT, "  NI9 ALL ON             - Turn all channels on (0xFF)");
+		LogPromptTextbox(CMD_OUTPUT, "  NI9 ALL OFF            - Turn all channels off (0x00)");
+		LogPromptTextbox(CMD_OUTPUT, "  NI9 ALL?               - Query all channel states");
+		LogPromptTextbox(CMD_OUTPUT, "  NI9 PAT<hex>           - Set pattern (00-FF)");
+		LogPromptTextbox(CMD_OUTPUT, "  NI9 TEST               - Test connection");
+		LogPromptTextbox(CMD_OUTPUT, "  NI9 HELP               - Show this help");
+		LogPromptTextbox(CMD_OUTPUT, "");
+		LogPromptTextbox(CMD_OUTPUT, "Examples:");
+		LogPromptTextbox(CMD_OUTPUT, "  NI9 CH0ON    - Turn channel 0 on");
+		LogPromptTextbox(CMD_OUTPUT, "  NI9 CH7OFF   - Turn channel 7 off");
+		LogPromptTextbox(CMD_OUTPUT, "  NI9 PAT5A    - Set pattern 0x5A (0b01011010)");
+		LogPromptTextbox(CMD_OUTPUT, "  NI9 ALL?     - Show all channel states");
+		return 0;
+	}
+
+	// Invalid command
+	snprintf(message, sizeof(message), "Invalid NI9 command: %s (Use: NI9 HELP)", ctx->command);
 	LogPromptTextbox(CMD_ERROR, message);
 	return 0;
 }
