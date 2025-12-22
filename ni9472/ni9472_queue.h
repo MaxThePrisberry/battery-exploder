@@ -20,6 +20,9 @@
 #define NI9472_DELAY_AFTER_WRITE      10    // After writing channels
 #define NI9472_DELAY_RECOVERY         5     // General recovery between commands
 
+#define NI9472_CHANNEL_LOW              0
+#define NI9472_CHANNEL_HIGH             1
+
 /******************************************************************************
  * Type Definitions
  ******************************************************************************/
