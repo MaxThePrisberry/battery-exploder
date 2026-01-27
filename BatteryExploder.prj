@@ -453,9 +453,9 @@ File Type = "Include"
 Res Id = 33
 Path Is Rel = True
 Path Rel To = "Project"
-Path Rel Path = "status.h"
-Path Line0001 = "/c/Users/CV166/Documents/LabWindowsCVI/BatteryApplication/battery-exploder/statu"
-Path Line0002 = "s.h"
+Path Rel Path = "safety_monitor.h"
+Path Line0001 = "/c/Users/CV166/Documents/LabWindowsCVI/BatteryApplication/battery-exploder/safet"
+Path Line0002 = "y_monitor.h"
 Exclude = False
 Project Flags = 0
 Folder = "Include Files"
@@ -466,9 +466,9 @@ File Type = "Include"
 Res Id = 34
 Path Is Rel = True
 Path Rel To = "Project"
-Path Rel Path = "teensy/teensy_dll.h"
-Path Line0001 = "/c/Users/CV166/Documents/LabWindowsCVI/BatteryApplication/battery-exploder/teens"
-Path Line0002 = "y/teensy_dll.h"
+Path Rel Path = "tests/safety_monitor_test.h"
+Path Line0001 = "/c/Users/CV166/Documents/LabWindowsCVI/BatteryApplication/battery-exploder/tests"
+Path Line0002 = "/safety_monitor_test.h"
 Exclude = False
 Project Flags = 0
 Folder = "Include Files"
@@ -479,6 +479,32 @@ File Type = "Include"
 Res Id = 35
 Path Is Rel = True
 Path Rel To = "Project"
+Path Rel Path = "status.h"
+Path Line0001 = "/c/Users/CV166/Documents/LabWindowsCVI/BatteryApplication/battery-exploder/statu"
+Path Line0002 = "s.h"
+Exclude = False
+Project Flags = 0
+Folder = "Include Files"
+Folder Id = 1
+
+[File 0036]
+File Type = "Include"
+Res Id = 36
+Path Is Rel = True
+Path Rel To = "Project"
+Path Rel Path = "teensy/teensy_dll.h"
+Path Line0001 = "/c/Users/CV166/Documents/LabWindowsCVI/BatteryApplication/battery-exploder/teens"
+Path Line0002 = "y/teensy_dll.h"
+Exclude = False
+Project Flags = 0
+Folder = "Include Files"
+Folder Id = 1
+
+[File 0037]
+File Type = "Include"
+Res Id = 37
+Path Is Rel = True
+Path Rel To = "Project"
 Path Rel Path = "teensy/teensy_queue.h"
 Path Line0001 = "/c/Users/CV166/Documents/LabWindowsCVI/BatteryApplication/battery-exploder/teens"
 Path Line0002 = "y/teensy_queue.h"
@@ -487,9 +513,9 @@ Project Flags = 0
 Folder = "Include Files"
 Folder Id = 1
 
-[File 0036]
+[File 0038]
 File Type = "CSource"
-Res Id = 36
+Res Id = 38
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "alicat basis 2/alicat_dll.c"
@@ -501,9 +527,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0037]
+[File 0039]
 File Type = "CSource"
-Res Id = 37
+Res Id = 39
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "alicat basis 2/alicat_queue.c"
@@ -515,9 +541,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0038]
+[File 0040]
 File Type = "CSource"
-Res Id = 38
+Res Id = 40
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "tests/alicat_test.c"
@@ -529,9 +555,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0039]
+[File 0041]
 File Type = "CSource"
-Res Id = 39
+Res Id = 41
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "battery_utils.c"
@@ -543,9 +569,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0040]
+[File 0042]
 File Type = "CSource"
-Res Id = 40
+Res Id = 42
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "BatteryExploder.c"
@@ -557,9 +583,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0041]
+[File 0043]
 File Type = "CSource"
-Res Id = 41
+Res Id = 43
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "biologic/biologic_abstract.c"
@@ -571,9 +597,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0042]
+[File 0044]
 File Type = "CSource"
-Res Id = 42
+Res Id = 44
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "biologic/biologic_dll.c"
@@ -585,9 +611,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0043]
+[File 0045]
 File Type = "CSource"
-Res Id = 43
+Res Id = 45
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "biologic/biologic_eclab.c"
@@ -599,9 +625,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0044]
+[File 0046]
 File Type = "CSource"
-Res Id = 44
+Res Id = 46
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "biologic/biologic_queue.c"
@@ -613,9 +639,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0045]
+[File 0047]
 File Type = "CSource"
-Res Id = 45
+Res Id = 47
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "tests/biologic_test.c"
@@ -627,9 +653,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0046]
+[File 0048]
 File Type = "CSource"
-Res Id = 46
+Res Id = 48
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "cdaq_utils.c"
@@ -641,9 +667,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0047]
+[File 0049]
 File Type = "CSource"
-Res Id = 47
+Res Id = 49
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "cmd_prompt.c"
@@ -655,9 +681,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0048]
+[File 0050]
 File Type = "CSource"
-Res Id = 48
+Res Id = 50
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "common.c"
@@ -669,9 +695,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0049]
+[File 0051]
 File Type = "CSource"
-Res Id = 49
+Res Id = 51
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "controls.c"
@@ -683,9 +709,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0050]
+[File 0052]
 File Type = "CSource"
-Res Id = 50
+Res Id = 52
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "device_queue.c"
@@ -697,9 +723,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0051]
+[File 0053]
 File Type = "CSource"
-Res Id = 51
+Res Id = 53
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "tests/device_queue_test.c"
@@ -711,9 +737,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0052]
+[File 0054]
 File Type = "CSource"
-Res Id = 52
+Res Id = 54
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "dtb4848/dtb4848_dll.c"
@@ -725,9 +751,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0053]
+[File 0055]
 File Type = "CSource"
-Res Id = 53
+Res Id = 55
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "dtb4848/dtb4848_queue.c"
@@ -739,9 +765,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0054]
+[File 0056]
 File Type = "CSource"
-Res Id = 54
+Res Id = 56
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "tests/dtb_ramp_soak_test.c"
@@ -753,9 +779,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0055]
+[File 0057]
 File Type = "CSource"
-Res Id = 55
+Res Id = 57
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "biologic/eclab_olecom.c"
@@ -767,9 +793,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0056]
+[File 0058]
 File Type = "CSource"
-Res Id = 56
+Res Id = 58
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "exp_overcharge.c"
@@ -781,9 +807,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0057]
+[File 0059]
 File Type = "CSource"
-Res Id = 57
+Res Id = 59
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "exp_temp_ramp.c"
@@ -795,9 +821,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0058]
+[File 0060]
 File Type = "CSource"
-Res Id = 58
+Res Id = 60
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "logging.c"
@@ -809,9 +835,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0059]
+[File 0061]
 File Type = "CSource"
-Res Id = 59
+Res Id = 61
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "ni9472/ni9472_dll.c"
@@ -823,9 +849,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0060]
+[File 0062]
 File Type = "CSource"
-Res Id = 60
+Res Id = 62
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "ni9472/ni9472_queue.c"
@@ -837,9 +863,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0061]
+[File 0063]
 File Type = "CSource"
-Res Id = 61
+Res Id = 63
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "pressure_safety.c"
@@ -851,9 +877,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0062]
+[File 0064]
 File Type = "CSource"
-Res Id = 62
+Res Id = 64
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "psb10000/psb10000_dll.c"
@@ -865,9 +891,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0063]
+[File 0065]
 File Type = "CSource"
-Res Id = 63
+Res Id = 65
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "psb10000/psb10000_queue.c"
@@ -879,9 +905,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0064]
+[File 0066]
 File Type = "CSource"
-Res Id = 64
+Res Id = 66
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "tests/psb10000_test.c"
@@ -893,9 +919,37 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0065]
+[File 0067]
 File Type = "CSource"
-Res Id = 65
+Res Id = 67
+Path Is Rel = True
+Path Rel To = "Project"
+Path Rel Path = "safety_monitor.c"
+Path Line0001 = "/c/Users/CV166/Documents/LabWindowsCVI/BatteryApplication/battery-exploder/safet"
+Path Line0002 = "y_monitor.c"
+Exclude = False
+Compile Into Object File = False
+Project Flags = 0
+Folder = "Source Files"
+Folder Id = 2
+
+[File 0068]
+File Type = "CSource"
+Res Id = 68
+Path Is Rel = True
+Path Rel To = "Project"
+Path Rel Path = "tests/safety_monitor_test.c"
+Path Line0001 = "/c/Users/CV166/Documents/LabWindowsCVI/BatteryApplication/battery-exploder/tests"
+Path Line0002 = "/safety_monitor_test.c"
+Exclude = False
+Compile Into Object File = False
+Project Flags = 0
+Folder = "Source Files"
+Folder Id = 2
+
+[File 0069]
+File Type = "CSource"
+Res Id = 69
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "status.c"
@@ -907,9 +961,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0066]
+[File 0070]
 File Type = "CSource"
-Res Id = 66
+Res Id = 70
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "teensy/teensy_dll.c"
@@ -921,9 +975,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0067]
+[File 0071]
 File Type = "CSource"
-Res Id = 67
+Res Id = 71
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path = "teensy/teensy_queue.c"
@@ -935,9 +989,9 @@ Project Flags = 0
 Folder = "Source Files"
 Folder Id = 2
 
-[File 0068]
+[File 0072]
 File Type = "Library"
-Res Id = 68
+Res Id = 72
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path Line0001 = "../../../../../../Program Files (x86)/National Instruments/Shared/ExternalCompil"
@@ -949,9 +1003,9 @@ Project Flags = 0
 Folder = "Library Files"
 Folder Id = 3
 
-[File 0069]
+[File 0073]
 File Type = "Library"
-Res Id = 69
+Res Id = 73
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path Line0001 = "../../../../../../Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0/um/x86/Ol"
@@ -962,9 +1016,9 @@ Project Flags = 0
 Folder = "Library Files"
 Folder Id = 3
 
-[File 0070]
+[File 0074]
 File Type = "Library"
-Res Id = 70
+Res Id = 74
 Path Is Rel = True
 Path Rel To = "Project"
 Path Rel Path Line0001 = "../../../../../../Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0/um/x86/Ol"
@@ -1101,7 +1155,7 @@ File Version = "1.0"
 File Version Ex = "%f1.%f2"
 Internal Name = "BatteryExploder"
 Internal Name Ex = "%basename"
-Legal Copyright = "Copyright  Sandia National Labs 2025"
+Legal Copyright = "Copyright  Sandia National Labs 2026"
 Legal Copyright Ex = "Copyright  %company %Y"
 Legal Trademarks = ""
 Legal Trademarks Ex = ""
@@ -1261,7 +1315,7 @@ File Version = "1.0"
 File Version Ex = "%f1.%f2"
 Internal Name = "BatteryExploder"
 Internal Name Ex = "%basename"
-Legal Copyright = "Copyright  Sandia National Labs 2025"
+Legal Copyright = "Copyright  Sandia National Labs 2026"
 Legal Copyright Ex = "Copyright  %company %Y"
 Legal Trademarks = ""
 Legal Trademarks Ex = ""
