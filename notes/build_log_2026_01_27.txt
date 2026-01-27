@@ -1,0 +1,17 @@
+Build Status (BatteryExploder.prj - Debug)
+ safety_monitor.c - 3 errors, 6 warnings
+  635, 1    error: implicit declaration of function 'DTB_GetPVQueued' is invalid in C99. Make sure that you include the function prototype. 
+      635, 1    note: did you mean 'DTB_GetStepQueued'?
+  "dtb4848_queue.h"(357,1)    note: 'DTB_GetStepQueued' declared here
+  607, 1    warning: will never be executed 
+  850, 1    error: use of undeclared identifier 'PRESSURE_ALARM_SOUND_BEEPS'
+  851, 1    error: use of undeclared identifier 'PRESSURE_ALARM_BEEP_FREQ_HZ'
+  868, 1    warning: default label in switch which covers all enumeration values 
+  878, 1    warning: default label in switch which covers all enumeration values 
+  887, 1    warning: default label in switch which covers all enumeration values 
+  896, 1    warning: default label in switch which covers all enumeration values 
+  906, 1    warning: default label in switch which covers all enumeration values 
+ safety_monitor_test.c - 2 errors
+  186, 1    error: no member named 'testStartTime' in 'SafetyTestCase'
+  190, 1    error: no member named 'testStartTime' in 'SafetyTestCase'
+Build failed.
