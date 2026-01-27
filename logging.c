@@ -57,7 +57,8 @@ static const char* g_deviceNames[] = {
 	"ALI",  // LOG_DEVICE_ALICAT
 	"TNY",  // LOG_DEVICE_TNY
 	"DAQ",  // LOG_DEVICE_CDAQ
-	"9472"  // LOG_DEVICE_NI9472
+	"9472", // LOG_DEVICE_NI9472
+	"SAFE"  // LOG_DEVICE_SAFETY
 };
 
 typedef enum {

@@ -20,6 +20,7 @@
 #include "ni9472_queue.h"
 #include "cdaq_utils.h"
 #include "pressure_safety.h"
+#include "safety_monitor.h"
 #include "logging.h"
 #include "status.h"
 #include "controls.h"
@@ -365,6 +366,25 @@ int main (int argc, char *argv[]) {
 	    }
 	}
 
+	// Initialize Safety Monitor
+	if (ENABLE_SAFETY_MONITOR) {
+	    LogMessage("Initializing Safety Monitor...");
+	    int safetyResult = SafetyMonitor_Initialize();
+	    if (safetyResult == SUCCESS) {
+	        LogMessage("Safety Monitor initialized successfully");
+
+	        // Start the safety monitor thread
+	        safetyResult = SafetyMonitor_Start();
+	        if (safetyResult == SUCCESS) {
+	            LogMessage("Safety Monitor started (monitoring at 2 Hz)");
+	        } else {
+	            LogError("Failed to start Safety Monitor: %s", GetErrorString(safetyResult));
+	        }
+	    } else {
+	        LogError("Failed to initialize Safety Monitor: %s", GetErrorString(safetyResult));
+	    }
+	}
+
 	// Load main panel
 	DiscardPanel(loadingPanelHandle);
     if ((g_mainPanelHandle = LoadPanel(0, "BatteryExploder.uir", PANEL)) < 0)
@@ -443,6 +463,12 @@ int CVICALLBACK PanelCallback(int panel, int event, void *callbackData,
             ProcessSystemEvents();
             Delay(0.2);
 			
+			// Clean up Safety Monitor
+			if (ENABLE_SAFETY_MONITOR) {
+			    LogMessage("Cleaning up Safety Monitor...");
+			    SafetyMonitor_Cleanup();
+			}
+
 			// Clean up pressure safety monitoring
 			if (ENABLE_CDAQ) {
 			    LogMessage("Cleaning up pressure safety monitoring...");
