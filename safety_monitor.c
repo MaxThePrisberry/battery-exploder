@@ -153,7 +153,7 @@ int SafetyMonitor_Start(void)
 
 int SafetyMonitor_Stop(void)
 {
-    if (!g_initialized) {
+    if (!g_initialized || g_safetyLock == 0) {
         return SUCCESS;
     }
 
@@ -170,15 +170,18 @@ int SafetyMonitor_Stop(void)
     CmtReleaseLock(g_safetyLock);
 
     // Wait for thread to complete
-    if (g_monitorThreadId != 0) {
+    if (g_monitorThreadId != 0 && g_threadPool != 0) {
         CmtWaitForThreadPoolFunctionCompletion(g_threadPool, g_monitorThreadId,
                                                OPT_TP_PROCESS_EVENTS_WHILE_WAITING);
         g_monitorThreadId = 0;
     }
 
-    CmtGetLock(g_safetyLock);
-    g_state.status = SAFETY_MONITOR_STOPPED;
-    CmtReleaseLock(g_safetyLock);
+    // Update state if lock still valid
+    if (g_safetyLock != 0) {
+        CmtGetLock(g_safetyLock);
+        g_state.status = SAFETY_MONITOR_STOPPED;
+        CmtReleaseLock(g_safetyLock);
+    }
 
     LogMessageEx(LOG_DEVICE_SAFETY, "Safety monitor stopped");
     return SUCCESS;
