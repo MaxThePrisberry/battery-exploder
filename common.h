@@ -65,7 +65,7 @@
 #define TNY_STATE_DISCONNECTED 0        // LOW = disconnected
 
 // NI 9472 Digital Output Module configuration
-#define NI9472_SLOT             4       // cDAQ slot number (default slot 4, change as needed)
+#define NI9472_SLOT             8       // cDAQ slot number (default slot 4, change as needed)
 
 //==============================================================================
 // Safety Monitor Configuration
