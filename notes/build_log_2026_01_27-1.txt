@@ -1,0 +1,43 @@
+Build Status (BatteryExploder.prj - Debug)
+ safety_monitor.c - 11 warnings
+  616, 1    warning: will never be executed 
+  878, 1    warning: default label in switch which covers all enumeration values 
+  878, 1    warning: will never be executed 
+  888, 1    warning: default label in switch which covers all enumeration values 
+  888, 1    warning: will never be executed 
+  897, 1    warning: default label in switch which covers all enumeration values 
+  897, 1    warning: will never be executed 
+  906, 1    warning: default label in switch which covers all enumeration values 
+  906, 1    warning: will never be executed 
+  916, 1    warning: default label in switch which covers all enumeration values 
+  916, 1    warning: will never be executed 
+ Link BatteryExploder.exe
+  error: Undefined symbol '_DAQmxCfgSampClkTiming@32' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\cdaq_utils.obj".  
+  error: Undefined symbol '_DAQmxClearTask@4' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\cdaq_utils.obj".  
+  error: Undefined symbol '_DAQmxCreateAIThrmcplChan@52' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\cdaq_utils.obj".  
+  error: Undefined symbol '_DAQmxCreateAIVoltageChan@40' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\cdaq_utils.obj".  
+  error: Undefined symbol '_DAQmxCreateDOChan@16' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\ni9472_dll.obj".  
+  error: Undefined symbol '_DAQmxCreateTask@8' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\cdaq_utils.obj".  
+  error: Undefined symbol '_DAQmxGetExtendedErrorInfo@8' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\ni9472_dll.obj".  
+  error: Undefined symbol '_DAQmxReadAnalogF64@36' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\cdaq_utils.obj".  
+  error: Undefined symbol '_DAQmxStartTask@4' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\cdaq_utils.obj".  
+  error: Undefined symbol '_DAQmxStopTask@4' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\cdaq_utils.obj".  
+  error: Undefined symbol '_DAQmxWriteDigitalLines@36' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\ni9472_dll.obj".  
+  error: Undefined symbol '_SafeArrayAccessData@8' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\eclab_olecom.obj".  
+  error: Undefined symbol '_SafeArrayGetLBound@12' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\eclab_olecom.obj".  
+  error: Undefined symbol '_SafeArrayGetUBound@12' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\eclab_olecom.obj".  
+  error: Undefined symbol '_SafeArrayUnaccessData@4' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\eclab_olecom.obj".  
+  error: Undefined symbol '_SysAllocString@4' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\eclab_olecom.obj".  
+  error: Undefined symbol '_SysFreeString@4' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\eclab_olecom.obj".  
+  error: Undefined symbol '_TNY_GetGlobalQueueManager' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\controls.obj".  
+  error: Undefined symbol '_TNY_InitializePins' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\BatteryExploder.obj".  
+  error: Undefined symbol '_TNY_QueueGetStats' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\BatteryExploder.obj".  
+  error: Undefined symbol '_TNY_QueueInit' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\BatteryExploder.obj".  
+  error: Undefined symbol '_TNY_QueueShutdown' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\BatteryExploder.obj".  
+  error: Undefined symbol '_TNY_SendRawCommandQueued' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\cmd_prompt.obj".  
+  error: Undefined symbol '_TNY_SetGlobalQueueManager' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\BatteryExploder.obj".  
+  error: Undefined symbol '_TNY_SetMultiplePinsQueued' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\BatteryExploder.obj".  
+  error: Undefined symbol '_TNY_SetPinQueued' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\controls.obj".  
+  error: Undefined symbol '_VariantClear@4' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\eclab_olecom.obj".  
+  error: Undefined symbol '_VariantInit@4' referenced in "c:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\cvibuild.BatteryExploder\Debug\eclab_olecom.obj".  
+Build failed.
