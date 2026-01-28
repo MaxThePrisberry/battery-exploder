@@ -855,9 +855,10 @@ static int ExecuteSafetyActions(const SafetyOutputs *outputs)
 
 static void SoundAlarm(void)
 {
-    // Use system beep for alarm (non-blocking)
+    // Use system beeps for alarm
     for (int i = 0; i < SAFETY_ALARM_SOUND_BEEPS; i++) {
-        Beep(SAFETY_ALARM_BEEP_FREQ_HZ, SAFETY_ALARM_BEEP_DURATION_MS);
+        MessageBeep(MB_ICONEXCLAMATION);
+        Delay(0.3);  // Brief delay between beeps
     }
 }
 
