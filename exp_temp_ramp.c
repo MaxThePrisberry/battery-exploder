@@ -12,6 +12,7 @@
 #include "status.h"
 #include "battery_utils.h"
 #include "pressure_safety.h"
+#include "ni9472/ni9472_queue.h"
 #include <ansi_c.h>
 #include <analysis.h>
 #include <utility.h>
@@ -259,6 +260,12 @@ int TempRampExperiment_EmergencyStop(void) {
         g_experimentContext.cancelRequested = 1;
         g_experimentContext.state = TEMP_RAMP_STATE_ERROR;
 
+        // Immediately close solenoid valves
+        if (ENABLE_NI9472) {
+            NI9472_SetChannelQueued(SAFETY_VALVE1_CHANNEL, NI9472_CHANNEL_LOW, DEVICE_PRIORITY_HIGH);
+            NI9472_SetChannelQueued(SAFETY_VALVE2_CHANNEL, NI9472_CHANNEL_LOW, DEVICE_PRIORITY_HIGH);
+        }
+
         SafeDisconnectAllDevices(&g_experimentContext);
 
         if (g_experimentThreadId != 0) {
@@ -434,6 +441,20 @@ static int TempRampExperimentThread(void *functionData) {
     LogMessage("Initializing relay states...");
     TNY_SetPinQueued(TNY_PSB_PIN, TNY_STATE_DISCONNECTED, DEVICE_PRIORITY_NORMAL);
     TNY_SetPinQueued(TNY_BIOLOGIC_PIN, TNY_STATE_DISCONNECTED, DEVICE_PRIORITY_NORMAL);
+
+    // Open solenoid valves for gas flow
+    if (ENABLE_NI9472) {
+        LogMessage("Opening solenoid valves...");
+        result = NI9472_SetChannelQueued(SAFETY_VALVE1_CHANNEL, NI9472_CHANNEL_HIGH, DEVICE_PRIORITY_NORMAL);
+        if (result != SUCCESS) {
+            LogError("Failed to open valve 1: %s", GetErrorString(result));
+        }
+        result = NI9472_SetChannelQueued(SAFETY_VALVE2_CHANNEL, NI9472_CHANNEL_HIGH, DEVICE_PRIORITY_NORMAL);
+        if (result != SUCCESS) {
+            LogError("Failed to open valve 2: %s", GetErrorString(result));
+        }
+        LogMessage("Solenoid valves opened");
+    }
 
     // Check ventilation pre-start conditions (CRITICAL SAFETY CHECK)
     if (ENABLE_CDAQ) {
@@ -2479,6 +2500,14 @@ static int WriteComprehensiveResults(TempRampExperimentContext *ctx) {
 
 static void CleanupExperiment(TempRampExperimentContext *ctx) {
     LogMessage("Cleaning up experiment...");
+
+    // Close solenoid valves
+    if (ENABLE_NI9472) {
+        LogMessage("Closing solenoid valves...");
+        NI9472_SetChannelQueued(SAFETY_VALVE1_CHANNEL, NI9472_CHANNEL_LOW, DEVICE_PRIORITY_HIGH);
+        NI9472_SetChannelQueued(SAFETY_VALVE2_CHANNEL, NI9472_CHANNEL_LOW, DEVICE_PRIORITY_HIGH);
+        LogMessage("Solenoid valves closed");
+    }
 
     // Stop pressure safety monitoring
     if (ENABLE_CDAQ) {

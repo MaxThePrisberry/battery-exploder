@@ -12,6 +12,7 @@
 #include "status.h"
 #include "battery_utils.h"
 #include "biologic/biologic_abstract.h"
+#include "ni9472/ni9472_queue.h"
 #include <ansi_c.h>
 #include <analysis.h>
 #include <utility.h>
@@ -347,6 +348,12 @@ int OverchargeExperiment_EmergencyStop(void) {
         g_experimentContext.cancelRequested = 1;
         g_experimentContext.state = OVERCHARGE_STATE_ERROR;
 
+        // Immediately close solenoid valves
+        if (ENABLE_NI9472) {
+            NI9472_SetChannelQueued(SAFETY_VALVE1_CHANNEL, NI9472_CHANNEL_LOW, DEVICE_PRIORITY_HIGH);
+            NI9472_SetChannelQueued(SAFETY_VALVE2_CHANNEL, NI9472_CHANNEL_LOW, DEVICE_PRIORITY_HIGH);
+        }
+
         // Immediately disconnect all devices
         SafeDisconnectAllDevices(&g_experimentContext);
 
@@ -480,6 +487,20 @@ static int OverchargeExperimentThread(void *functionData) {
         if (result != SUCCESS) {
             LogError("Failed to initialize BioLogic relay: %s", GetErrorString(result));
         }
+    }
+
+    // Open solenoid valves for gas flow
+    if (ENABLE_NI9472) {
+        LogMessage("Opening solenoid valves...");
+        result = NI9472_SetChannelQueued(SAFETY_VALVE1_CHANNEL, NI9472_CHANNEL_HIGH, DEVICE_PRIORITY_NORMAL);
+        if (result != SUCCESS) {
+            LogError("Failed to open valve 1: %s", GetErrorString(result));
+        }
+        result = NI9472_SetChannelQueued(SAFETY_VALVE2_CHANNEL, NI9472_CHANNEL_HIGH, DEVICE_PRIORITY_NORMAL);
+        if (result != SUCCESS) {
+            LogError("Failed to open valve 2: %s", GetErrorString(result));
+        }
+        LogMessage("Solenoid valves opened");
     }
 
     // Check ventilation pre-start conditions (CRITICAL SAFETY CHECK)
@@ -2232,6 +2253,14 @@ static void CleanupExperiment(OverchargeExperimentContext *ctx)
     int i;
 
     LogMessage("Cleaning up overcharge experiment...");
+
+    // Close solenoid valves
+    if (ENABLE_NI9472) {
+        LogMessage("Closing solenoid valves...");
+        NI9472_SetChannelQueued(SAFETY_VALVE1_CHANNEL, NI9472_CHANNEL_LOW, DEVICE_PRIORITY_HIGH);
+        NI9472_SetChannelQueued(SAFETY_VALVE2_CHANNEL, NI9472_CHANNEL_LOW, DEVICE_PRIORITY_HIGH);
+        LogMessage("Solenoid valves closed");
+    }
 
     // Safely disconnect all devices
     SafeDisconnectAllDevices(ctx);
