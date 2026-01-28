@@ -1029,58 +1029,6 @@ Project Flags = 0
 Folder = "Library Files"
 Folder Id = 3
 
-[File 0071]
-File Type = "Include"
-Res Id = 71
-Path Is Rel = True
-Path Rel To = "Project"
-Path Rel Path = "safety_monitor.h"
-Path = "/c/Users/CV166/Documents/LabWindowsCVI/BatteryApplication/battery-exploder/safety_monitor.h"
-Exclude = False
-Project Flags = 0
-Folder = "Include Files"
-Folder Id = 1
-
-[File 0072]
-File Type = "Include"
-Res Id = 72
-Path Is Rel = True
-Path Rel To = "Project"
-Path Rel Path = "tests/safety_monitor_test.h"
-Path Line0001 = "/c/Users/CV166/Documents/LabWindowsCVI/BatteryApplication/battery-exploder/tests"
-Path Line0002 = "/safety_monitor_test.h"
-Exclude = False
-Project Flags = 0
-Folder = "Include Files"
-Folder Id = 1
-
-[File 0073]
-File Type = "CSource"
-Res Id = 73
-Path Is Rel = True
-Path Rel To = "Project"
-Path Rel Path = "safety_monitor.c"
-Path = "/c/Users/CV166/Documents/LabWindowsCVI/BatteryApplication/battery-exploder/safety_monitor.c"
-Exclude = False
-Compile Into Object File = False
-Project Flags = 0
-Folder = "Source Files"
-Folder Id = 2
-
-[File 0074]
-File Type = "CSource"
-Res Id = 74
-Path Is Rel = True
-Path Rel To = "Project"
-Path Rel Path = "tests/safety_monitor_test.c"
-Path Line0001 = "/c/Users/CV166/Documents/LabWindowsCVI/BatteryApplication/battery-exploder/tests"
-Path Line0002 = "/safety_monitor_test.c"
-Exclude = False
-Compile Into Object File = False
-Project Flags = 0
-Folder = "Source Files"
-Folder Id = 2
-
 [Custom Build Configs]
 Num Custom Build Configs = 0
 
