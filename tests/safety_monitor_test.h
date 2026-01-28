@@ -71,6 +71,7 @@ typedef struct {
     int result;  // 0 = not run, 1 = pass, -1 = fail
     char errorMessage[256];
     double executionTime;
+    double testStartTime;
 } SafetyTestCase;
 
 /******************************************************************************

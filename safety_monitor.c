@@ -25,6 +25,15 @@
 #include <utility.h>
 
 /******************************************************************************
+ * Local Constants
+ ******************************************************************************/
+
+// Alarm configuration
+#define SAFETY_ALARM_SOUND_BEEPS      5       // Number of beeps for alarm
+#define SAFETY_ALARM_BEEP_FREQ_HZ     2000    // Beep frequency in Hz
+#define SAFETY_ALARM_BEEP_DURATION_MS 500     // Duration of each beep in ms
+
+/******************************************************************************
  * Module State
  ******************************************************************************/
 
@@ -632,7 +641,7 @@ static int ReadSafetyInputs(SafetySensorInputs *inputs)
         int slaveAddresses[] = {DTB1_SLAVE_ADDRESS, DTB2_SLAVE_ADDRESS};
         for (int i = 0; i < DTB_NUM_DEVICES; i++) {
             double temp = 0.0;
-            int result = DTB_GetPVQueued(slaveAddresses[i], &temp, DEVICE_PRIORITY_LOW);
+            int result = DTB_GetProcessValueQueued(slaveAddresses[i], &temp, DEVICE_PRIORITY_LOW);
             if (result == SUCCESS) {
                 if (temp > maxTemp) {
                     maxTemp = temp;
@@ -847,8 +856,8 @@ static int ExecuteSafetyActions(const SafetyOutputs *outputs)
 static void SoundAlarm(void)
 {
     // Use system beep for alarm (non-blocking)
-    for (int i = 0; i < PRESSURE_ALARM_SOUND_BEEPS; i++) {
-        Beep(PRESSURE_ALARM_BEEP_FREQ_HZ, PRESSURE_ALARM_BEEP_DURATION_MS);
+    for (int i = 0; i < SAFETY_ALARM_SOUND_BEEPS; i++) {
+        Beep(SAFETY_ALARM_BEEP_FREQ_HZ, SAFETY_ALARM_BEEP_DURATION_MS);
     }
 }
 
