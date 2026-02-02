@@ -387,15 +387,12 @@ static int CVICALLBACK Status_TimerThread(void *functionData) {
 		        }
 		    }
 
-		    // Read voltage from NI 9202 channel 0 (slot 1) for UI display
-		    // NOTE: Requires PANEL_NUM_CH0_VOLTAGE control to be added to UI
-		    // Only attempt to read if current slot was successfully initialized
+		    // Read voltage from NI 9202 channel 0 (SCU pressure sensor) for UI display
 		    #ifdef PANEL_NUM_CH0_VOLTAGE
 		    static int currentSlotAvailable = -1;  // -1 = unknown, 0 = unavailable, 1 = available
 
 		    // Check initialization status once
 		    if (currentSlotAvailable == -1) {
-		        // Try a test read to see if slot is initialized
 		        double testVoltage;
 		        currentSlotAvailable = (CDAQ_ReadVoltage(0, &testVoltage) == SUCCESS) ? 1 : 0;
 		        if (!currentSlotAvailable) {
@@ -409,6 +406,21 @@ static int CVICALLBACK Status_TimerThread(void *functionData) {
 		            UIUpdateData* voltageData = malloc(sizeof(UIUpdateData));
 		            if (voltageData) {
 		                voltageData->control = PANEL_NUM_CH0_VOLTAGE;
+		                voltageData->dblValue = voltage;
+		                PostDeferredCall(DeferredNumericUpdate, voltageData);
+		            }
+		        }
+		    }
+		    #endif
+
+		    // Read voltage from NI 9202 channel 1 (PCU pressure sensor) for UI display
+		    #ifdef PANEL_NUM_CH1_VOLTAGE
+		    if (currentSlotAvailable == 1) {
+		        double voltage;
+		        if (CDAQ_ReadVoltage(1, &voltage) == SUCCESS) {
+		            UIUpdateData* voltageData = malloc(sizeof(UIUpdateData));
+		            if (voltageData) {
+		                voltageData->control = PANEL_NUM_CH1_VOLTAGE;
 		                voltageData->dblValue = voltage;
 		                PostDeferredCall(DeferredNumericUpdate, voltageData);
 		            }

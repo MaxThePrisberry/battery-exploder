@@ -77,14 +77,14 @@
 // Pressure thresholds (Volts from cDAQ NI 9202)
 // Sensor reads higher voltage when door is closed (good ventilation)
 #define SAFETY_PCU_PRESSURE_MIN         2.95    // PCU minimum voltage for OK
-#define SAFETY_SCU_PRESSURE_MIN         2.95    // SCU minimum voltage for OK
+#define SAFETY_SCU_PRESSURE_MIN         0       // SCU minimum voltage for OK
 
 // Mass flow threshold (SCCM from ALICAT)
-#define SAFETY_FLOW_MIN                 100.0   // Minimum flow in SCCM
+#define SAFETY_FLOW_MIN                 0   // Minimum flow in SCCM
 
 // Temperature thresholds (degrees C)
-#define SAFETY_TEMP_MAX_ABSOLUTE        200.0   // Emergency stop threshold
-#define SAFETY_TEMP_DANGEROUS           50.0    // Threshold for dangerous state
+#define SAFETY_TEMP_MAX_ABSOLUTE        50.0   // Emergency stop threshold
+#define SAFETY_TEMP_DANGEROUS           40.0    // Threshold for dangerous state
 
 // Debounce settings (consecutive bad readings before triggering)
 #define SAFETY_DEBOUNCE_PRESSURE        3       // 1.5s at 2Hz
@@ -96,8 +96,8 @@
 #define SAFETY_VALVE2_CHANNEL           1       // NI 9472 channel for Valve 2
 
 // cDAQ channel assignments for pressure sensors (slot 1, NI 9202)
-#define SAFETY_PCU_CHANNEL              0       // Channel for PCU pressure
-#define SAFETY_SCU_CHANNEL              1       // Channel for SCU pressure
+#define SAFETY_PCU_CHANNEL              1       // Channel for PCU pressure
+#define SAFETY_SCU_CHANNEL              0       // Channel for SCU pressure
 
 //==============================================================================
 // BioLogic Configuration

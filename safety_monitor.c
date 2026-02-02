@@ -134,8 +134,10 @@ int SafetyMonitor_Start(void)
 
     g_stopRequested = 0;
 
-    // Start monitor thread
-    int result = CmtScheduleThreadPoolFunction(g_threadPool, MonitorThreadFunc,
+    // Start monitor thread using DEFAULT_THREAD_POOL_HANDLE
+    // (same pattern as pressure_safety.c)
+    int result = CmtScheduleThreadPoolFunction(DEFAULT_THREAD_POOL_HANDLE,
+                                               MonitorThreadFunc,
                                                NULL, &g_monitorThreadId);
     if (result != 0) {
         CmtReleaseLock(g_safetyLock);
@@ -153,30 +155,30 @@ int SafetyMonitor_Start(void)
 
 int SafetyMonitor_Stop(void)
 {
-    if (!g_initialized || g_safetyLock == 0) {
+    if (!g_initialized) {
         return SUCCESS;
     }
 
-    CmtGetLock(g_safetyLock);
-
+    // Check if already stopped (without holding lock for long)
     if (g_state.status != SAFETY_MONITOR_RUNNING) {
-        CmtReleaseLock(g_safetyLock);
         return SUCCESS;
     }
 
     LogMessageEx(LOG_DEVICE_SAFETY, "Stopping safety monitor...");
 
+    // Signal thread to stop
     g_stopRequested = 1;
-    CmtReleaseLock(g_safetyLock);
 
-    // Wait for thread to complete
-    if (g_monitorThreadId != 0 && g_threadPool != 0) {
-        CmtWaitForThreadPoolFunctionCompletion(g_threadPool, g_monitorThreadId,
+    // Wait for thread to complete using DEFAULT_THREAD_POOL_HANDLE
+    // (same pattern as pressure_safety.c)
+    if (g_monitorThreadId != 0) {
+        CmtWaitForThreadPoolFunctionCompletion(DEFAULT_THREAD_POOL_HANDLE,
+                                               g_monitorThreadId,
                                                OPT_TP_PROCESS_EVENTS_WHILE_WAITING);
         g_monitorThreadId = 0;
     }
 
-    // Update state if lock still valid
+    // Update state after thread has completed
     if (g_safetyLock != 0) {
         CmtGetLock(g_safetyLock);
         g_state.status = SAFETY_MONITOR_STOPPED;
@@ -198,10 +200,13 @@ void SafetyMonitor_Cleanup(void)
     // Stop monitor thread if running
     SafetyMonitor_Stop();
 
-    // Close valves to safe state
-    if (ENABLE_NI9472 && NI9472_GetGlobalQueueManager() != NULL) {
-        NI9472_SetChannelQueued(SAFETY_VALVE1_CHANNEL, NI9472_CHANNEL_LOW, DEVICE_PRIORITY_HIGH);
-        NI9472_SetChannelQueued(SAFETY_VALVE2_CHANNEL, NI9472_CHANNEL_LOW, DEVICE_PRIORITY_HIGH);
+    // Close valves to safe state (only if NI9472 is properly configured and running)
+    if (ENABLE_NI9472) {
+        NI9472_QueueManager *mgr = NI9472_GetGlobalQueueManager();
+        if (mgr != NULL && NI9472_QueueIsRunning(mgr)) {
+            NI9472_SetChannelQueued(SAFETY_VALVE1_CHANNEL, NI9472_CHANNEL_LOW, DEVICE_PRIORITY_HIGH);
+            NI9472_SetChannelQueued(SAFETY_VALVE2_CHANNEL, NI9472_CHANNEL_LOW, DEVICE_PRIORITY_HIGH);
+        }
     }
 
     // Discard lock
@@ -390,7 +395,7 @@ int SafetyMonitor_SetValves(SafetyValveState valve1, SafetyValveState valve2)
     }
 
     NI9472_QueueManager *mgr = NI9472_GetGlobalQueueManager();
-    if (mgr == NULL) {
+    if (mgr == NULL || !NI9472_QueueIsRunning(mgr)) {
         return ERR_NOT_CONNECTED;
     }
 
@@ -831,21 +836,24 @@ static int ExecuteSafetyActions(const SafetyOutputs *outputs)
 {
     int result = SUCCESS;
 
-    // Control valves via NI 9472
-    if (ENABLE_NI9472 && NI9472_GetGlobalQueueManager() != NULL) {
-        int v1State = (outputs->valve1 == SAFETY_VALVE_OPEN) ? NI9472_CHANNEL_HIGH : NI9472_CHANNEL_LOW;
-        int v2State = (outputs->valve2 == SAFETY_VALVE_OPEN) ? NI9472_CHANNEL_HIGH : NI9472_CHANNEL_LOW;
+    // Control valves via NI 9472 (only if properly configured and running)
+    if (ENABLE_NI9472) {
+        NI9472_QueueManager *mgr = NI9472_GetGlobalQueueManager();
+        if (mgr != NULL && NI9472_QueueIsRunning(mgr)) {
+            int v1State = (outputs->valve1 == SAFETY_VALVE_OPEN) ? NI9472_CHANNEL_HIGH : NI9472_CHANNEL_LOW;
+            int v2State = (outputs->valve2 == SAFETY_VALVE_OPEN) ? NI9472_CHANNEL_HIGH : NI9472_CHANNEL_LOW;
 
-        int r1 = NI9472_SetChannelQueued(SAFETY_VALVE1_CHANNEL, v1State, DEVICE_PRIORITY_HIGH);
-        int r2 = NI9472_SetChannelQueued(SAFETY_VALVE2_CHANNEL, v2State, DEVICE_PRIORITY_HIGH);
+            int r1 = NI9472_SetChannelQueued(SAFETY_VALVE1_CHANNEL, v1State, DEVICE_PRIORITY_HIGH);
+            int r2 = NI9472_SetChannelQueued(SAFETY_VALVE2_CHANNEL, v2State, DEVICE_PRIORITY_HIGH);
 
-        if (r1 != SUCCESS || r2 != SUCCESS) {
-            LogErrorEx(LOG_DEVICE_SAFETY, "Failed to set valve states");
-            result = ERR_OPERATION_FAILED;
-        } else {
-            LogDebugEx(LOG_DEVICE_SAFETY, "Valves set: V1=%s V2=%s",
-                       SafetyMonitor_ValveStateToString(outputs->valve1),
-                       SafetyMonitor_ValveStateToString(outputs->valve2));
+            if (r1 != SUCCESS || r2 != SUCCESS) {
+                LogErrorEx(LOG_DEVICE_SAFETY, "Failed to set valve states");
+                result = ERR_OPERATION_FAILED;
+            } else {
+                LogDebugEx(LOG_DEVICE_SAFETY, "Valves set: V1=%s V2=%s",
+                           SafetyMonitor_ValveStateToString(outputs->valve1),
+                           SafetyMonitor_ValveStateToString(outputs->valve2));
+            }
         }
     }
 
