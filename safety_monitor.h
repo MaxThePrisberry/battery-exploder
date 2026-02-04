@@ -1,20 +1,15 @@
 /******************************************************************************
  * safety_monitor.h
  *
- * Centralized Safety Monitor Module
- * Monitors sensor inputs and evaluates safety conditions in a single function.
- * Controls valves and experiment shutdown based on boolean safety logic.
+ * Simplified Safety Monitor Module
+ * Monitors SCU pressure via cDAQ channel 0 and controls solenoid valves.
  *
- * Boolean Logic (from safety matrix):
- *   Inputs:
- *     PCU = PCU Pressure OK (1=closed door, 0=open)
- *     SCU = SCU Pressure OK (1=closed door, 0=open)
- *     Flow = Mass Flow OK (1=flowing, 0=not flowing)
- *     State = Experiment State (1=dangerous, 0=safe)
- *
- *   Outputs:
- *     STOP = !PCU || !Flow || (State && !SCU)
- *     VALVE_OPEN = (State && (PCU || SCU)) || (!State && PCU && Flow)
+ * Safety Logic:
+ *   - Start experiment: open solenoid valves (nitrogen flows)
+ *   - Stop experiment: close solenoid valves (nitrogen stops)
+ *   - Single safety condition: SCU pressure (cDAQ channel 0) must be >= 3.42 V
+ *   - If SCU drops below 3.42 V for SAFETY_DEBOUNCE_COUNT consecutive reads
+ *     at 2 Hz, stop everything.
  ******************************************************************************/
 #ifndef SAFETY_MONITOR_H
 #define SAFETY_MONITOR_H
@@ -33,117 +28,17 @@
  * Type Definitions
  ******************************************************************************/
 
-// Safety violation types
-typedef enum {
-    SAFETY_VIOLATION_NONE = 0,
-    SAFETY_VIOLATION_PCU_PRESSURE,      // PCU pressure below threshold
-    SAFETY_VIOLATION_SCU_PRESSURE,      // SCU pressure below threshold (in dangerous state)
-    SAFETY_VIOLATION_FLOW,              // Mass flow below minimum
-    SAFETY_VIOLATION_TEMPERATURE,       // Temperature above absolute maximum
-    SAFETY_VIOLATION_MULTIPLE           // Multiple conditions violated
-} SafetyViolationType;
-
-// Safety action types
-typedef enum {
-    SAFETY_ACTION_CONTINUE = 0,         // No action needed
-    SAFETY_ACTION_STOP,                 // Stop experiment normally
-    SAFETY_ACTION_EMERGENCY_STOP        // Emergency stop (over-temperature)
-} SafetyAction;
-
-// Valve state
-typedef enum {
-    SAFETY_VALVE_CLOSED = 0,
-    SAFETY_VALVE_OPEN = 1
-} SafetyValveState;
-
-// Experiment state for safety logic
-typedef enum {
-    SAFETY_STATE_SAFE = 0,              // Normal/safe state (T < dangerous threshold)
-    SAFETY_STATE_DANGEROUS = 1          // Dangerous state (T >= dangerous threshold)
-} SafetyExperimentState;
-
-// Sensor inputs (raw readings)
-typedef struct {
-    double pcuPressure;                 // Volts from cDAQ slot 1 channel 0
-    double scuPressure;                 // Volts from cDAQ slot 1 channel 1
-    double massFlow;                    // SCCM from ALICAT
-    double temperature;                 // Max temperature from DTB/cDAQ (deg C)
-    int readSuccess;                    // 1 if all readings succeeded, 0 otherwise
-} SafetySensorInputs;
-
-// Boolean conditions (after threshold comparison and debouncing)
-typedef struct {
-    int pcuOK;                          // 1 = pressure above threshold
-    int scuOK;                          // 1 = pressure above threshold
-    int flowOK;                         // 1 = flow above minimum
-    int tempOK;                         // 1 = temp below maximum
-} SafetyConditions;
-
-// Output actions from safety evaluation
-typedef struct {
-    SafetyAction experimentAction;      // CONTINUE, STOP, or EMERGENCY_STOP
-    SafetyValveState valve1;            // OPEN or CLOSED (NI 9472 channel 0)
-    SafetyValveState valve2;            // OPEN or CLOSED (NI 9472 channel 1)
-    SafetyViolationType violation;      // Type of violation detected
-    char violationMsg[256];             // Human-readable message
-} SafetyOutputs;
-
-// Monitor state
+// Monitor status
 typedef enum {
     SAFETY_MONITOR_STOPPED = 0,
-    SAFETY_MONITOR_RUNNING,
-    SAFETY_MONITOR_ERROR
+    SAFETY_MONITOR_RUNNING
 } SafetyMonitorStatus;
-
-// Debounce counters
-typedef struct {
-    int pcuBadCount;                    // Consecutive bad PCU readings
-    int scuBadCount;                    // Consecutive bad SCU readings
-    int flowBadCount;                   // Consecutive bad flow readings
-    int tempBadCount;                   // Consecutive bad temp readings
-} SafetyDebounceCounters;
-
-// Full monitor state (for status queries)
-typedef struct {
-    SafetyMonitorStatus status;
-    SafetySensorInputs lastInputs;
-    SafetyConditions conditions;
-    SafetyOutputs outputs;
-    SafetyExperimentState experimentState;
-    SafetyDebounceCounters debounce;
-    int alarmActive;
-    int alarmAcknowledged;
-    double lastCheckTime;
-    int totalChecks;
-    int totalViolations;
-} SafetyMonitorState;
-
-/******************************************************************************
- * Experiment Registration
- ******************************************************************************/
 
 // Callback invoked when safety condition triggers experiment stop
 // Parameters:
-//   violation - Type of safety violation that triggered the stop
 //   msg       - Human-readable description
 //   userData  - User data passed during registration
-typedef void (*SafetyStopCallback)(SafetyViolationType violation,
-                                   const char *msg, void *userData);
-
-// Callback to query current experiment state (safe vs dangerous)
-// Parameters:
-//   userData  - User data passed during registration
-// Returns:
-//   SAFETY_STATE_SAFE or SAFETY_STATE_DANGEROUS
-typedef SafetyExperimentState (*SafetyStateCallback)(void *userData);
-
-// Handle for experiment registration
-typedef struct {
-    const char *experimentName;         // Name for logging
-    SafetyStopCallback onStop;          // Called when safety triggers stop
-    SafetyStateCallback getState;       // Called to query experiment state
-    void *userData;                     // User data passed to callbacks
-} SafetyExperimentHandle;
+typedef void (*SafetyStopCallback)(const char *msg, void *userData);
 
 /******************************************************************************
  * Public API - Lifecycle
@@ -157,15 +52,14 @@ typedef struct {
 int SafetyMonitor_Initialize(void);
 
 /**
- * Start the safety monitor thread
- * Begins continuous monitoring at SAFETY_MONITOR_RATE_HZ
+ * Start the safety monitor background thread
+ * Begins continuous SCU pressure monitoring at SAFETY_MONITOR_RATE_HZ
  * @return SUCCESS or error code
  */
 int SafetyMonitor_Start(void);
 
 /**
- * Stop the safety monitor thread
- * Stops monitoring but keeps module initialized
+ * Stop the safety monitor background thread
  * @return SUCCESS or error code
  */
 int SafetyMonitor_Stop(void);
@@ -181,12 +75,13 @@ void SafetyMonitor_Cleanup(void);
  ******************************************************************************/
 
 /**
- * Register an experiment with the safety monitor
+ * Register an experiment stop callback with the safety monitor
  * Only one experiment can be registered at a time
- * @param handle - Experiment callbacks and info
+ * @param onStop    - Callback invoked when SCU pressure violation is detected
+ * @param userData  - User data passed to the callback
  * @return SUCCESS or error code
  */
-int SafetyMonitor_RegisterExperiment(const SafetyExperimentHandle *handle);
+int SafetyMonitor_RegisterExperiment(SafetyStopCallback onStop, void *userData);
 
 /**
  * Unregister the current experiment
@@ -195,110 +90,30 @@ int SafetyMonitor_RegisterExperiment(const SafetyExperimentHandle *handle);
  */
 int SafetyMonitor_UnregisterExperiment(void);
 
-/**
- * Check if an experiment is currently registered
- * @return 1 if registered, 0 if not
- */
-int SafetyMonitor_HasExperiment(void);
-
 /******************************************************************************
- * Public API - Status and Control
+ * Public API - Start Condition & Valve Control
  ******************************************************************************/
 
 /**
- * Get current safety monitor state
- * @param state - Pointer to receive current state
+ * Check if SCU pressure meets the start condition (>= SAFETY_SCU_PRESSURE_MIN)
+ * Reads the current SCU voltage and returns whether it's safe to start.
+ * @param scuVoltage - Optional pointer to receive the current SCU voltage reading
+ * @return 1 if SCU voltage >= threshold, 0 if not (or read failed)
+ */
+int SafetyMonitor_CheckStartCondition(double *scuVoltage);
+
+/**
+ * Open both solenoid valves (NI 9472 channels 0 & 1 HIGH)
+ * Call at experiment start to begin nitrogen flow.
  * @return SUCCESS or error code
  */
-int SafetyMonitor_GetState(SafetyMonitorState *state);
+int SafetyMonitor_OpenValves(void);
 
 /**
- * Force an immediate safety check
- * Bypasses the normal timing interval
+ * Close both solenoid valves (NI 9472 channels 0 & 1 LOW)
+ * Call at experiment stop/cleanup to stop nitrogen flow.
  * @return SUCCESS or error code
  */
-int SafetyMonitor_ForceCheck(void);
-
-/**
- * Acknowledge an active safety alarm
- * Silences the alarm but does not clear the condition
- * @return SUCCESS or error code
- */
-int SafetyMonitor_AcknowledgeAlarm(void);
-
-/**
- * Trigger an emergency stop
- * Stops experiment and closes all valves
- * @return SUCCESS or error code
- */
-int SafetyMonitor_EmergencyStop(void);
-
-/**
- * Set valves to a specific state (for testing/override)
- * @param valve1 - State for valve 1
- * @param valve2 - State for valve 2
- * @return SUCCESS or error code
- */
-int SafetyMonitor_SetValves(SafetyValveState valve1, SafetyValveState valve2);
-
-/**
- * Check if it's safe to start an experiment
- * Verifies all safety conditions are met
- * @param state - Optional pointer to receive current state
- * @return 1 if safe to start, 0 if not
- */
-int SafetyMonitor_CheckStartConditions(SafetyMonitorState *state);
-
-/******************************************************************************
- * Public API - Direct Condition Access (for testing)
- ******************************************************************************/
-
-/**
- * Read current sensor inputs (for testing/diagnostics)
- * @param inputs - Pointer to receive sensor readings
- * @return SUCCESS or error code
- */
-int SafetyMonitor_ReadSensors(SafetySensorInputs *inputs);
-
-/**
- * Evaluate safety conditions from inputs (for testing)
- * This exposes the central safety logic function
- * @param inputs - Sensor inputs
- * @param expState - Current experiment state
- * @param outputs - Pointer to receive outputs
- * @return SUCCESS or error code
- */
-int SafetyMonitor_EvaluateConditions(const SafetySensorInputs *inputs,
-                                     SafetyExperimentState expState,
-                                     SafetyOutputs *outputs);
-
-/******************************************************************************
- * Utility Functions
- ******************************************************************************/
-
-/**
- * Get string representation of violation type
- */
-const char* SafetyMonitor_ViolationToString(SafetyViolationType violation);
-
-/**
- * Get string representation of safety action
- */
-const char* SafetyMonitor_ActionToString(SafetyAction action);
-
-/**
- * Get string representation of valve state
- */
-const char* SafetyMonitor_ValveStateToString(SafetyValveState state);
-
-/**
- * Get string representation of experiment state
- */
-const char* SafetyMonitor_ExpStateToString(SafetyExperimentState state);
-
-/**
- * Get string representation of monitor status
- */
-const char* SafetyMonitor_StatusToString(SafetyMonitorStatus status);
+int SafetyMonitor_CloseValves(void);
 
 #endif // SAFETY_MONITOR_H

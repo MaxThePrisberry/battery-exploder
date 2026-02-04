@@ -1,8 +1,8 @@
 /******************************************************************************
  * safety_monitor_test.h
  *
- * Test suite for the Centralized Safety Monitor Module
- * Tests boolean logic with all 16 input combinations from the safety matrix
+ * Test suite for the Simplified Safety Monitor Module
+ * Tests SCU threshold check, debounce, valve control, start condition
  ******************************************************************************/
 
 #ifndef SAFETY_MONITOR_TEST_H
@@ -20,14 +20,6 @@
 #define SAFETY_TEST_DELAY_MEDIUM  0.5    // 500ms
 #define SAFETY_TEST_TIMEOUT_MS    5000   // 5 second timeout
 
-// Voltage/flow values for testing
-#define TEST_PRESSURE_OK          3.5    // Above threshold
-#define TEST_PRESSURE_LOW         2.5    // Below threshold
-#define TEST_FLOW_OK              500.0  // Above threshold (SCCM)
-#define TEST_FLOW_LOW             50.0   // Below threshold (SCCM)
-#define TEST_TEMP_OK              30.0   // Below max (deg C)
-#define TEST_TEMP_HIGH            250.0  // Above max (deg C)
-
 /******************************************************************************
  * Test Context Structure
  ******************************************************************************/
@@ -40,7 +32,6 @@ typedef struct {
     // UI integration
     int panelHandle;
     int buttonControl;
-    int statusStringControl;
     void (*progressCallback)(const char *message);
 
     // Test tracking
@@ -53,10 +44,8 @@ typedef struct {
     char currentTestName[256];
     double testStartTime;
 
-    // Hardware presence flags (for integration tests)
+    // Hardware presence flags
     int hasNI9472;
-    int hasALICAT;
-    int hasDTB;
     int hasCDAQ;
 
 } SafetyMonitorTestContext;
@@ -92,55 +81,34 @@ void SafetyMonitorTest_Cleanup(SafetyMonitorTestContext *ctx);
 int SafetyMonitorTest_IsRunning(void);
 
 /******************************************************************************
- * Unit Tests - Boolean Logic
- * Tests all 16 input combinations from the safety matrix
+ * Unit Tests
  ******************************************************************************/
 
-// Test the central EvaluateSafetyConditions function
-int Test_SafetyLogic_AllInputCombinations(SafetyMonitorTestContext *ctx,
-                                          char *errorMsg, int errorMsgSize);
-
-// Individual logic rule tests
-int Test_SafetyLogic_PCU_Required(SafetyMonitorTestContext *ctx,
-                                  char *errorMsg, int errorMsgSize);
-int Test_SafetyLogic_Flow_Required(SafetyMonitorTestContext *ctx,
-                                   char *errorMsg, int errorMsgSize);
-int Test_SafetyLogic_SCU_DangerousState(SafetyMonitorTestContext *ctx,
-                                        char *errorMsg, int errorMsgSize);
-int Test_SafetyLogic_ValveLogic(SafetyMonitorTestContext *ctx,
-                                char *errorMsg, int errorMsgSize);
-int Test_SafetyLogic_TemperatureOverride(SafetyMonitorTestContext *ctx,
-                                         char *errorMsg, int errorMsgSize);
-
-/******************************************************************************
- * Unit Tests - Module Functions
- ******************************************************************************/
-
+// Test lifecycle (initialize, start, stop)
 int Test_SafetyMonitor_Initialize(SafetyMonitorTestContext *ctx,
                                   char *errorMsg, int errorMsgSize);
 int Test_SafetyMonitor_StartStop(SafetyMonitorTestContext *ctx,
                                  char *errorMsg, int errorMsgSize);
+
+// Test experiment registration
 int Test_SafetyMonitor_ExperimentRegistration(SafetyMonitorTestContext *ctx,
                                               char *errorMsg, int errorMsgSize);
-int Test_SafetyMonitor_StateQuery(SafetyMonitorTestContext *ctx,
-                                  char *errorMsg, int errorMsgSize);
-int Test_SafetyMonitor_ForceCheck(SafetyMonitorTestContext *ctx,
-                                  char *errorMsg, int errorMsgSize);
-int Test_SafetyMonitor_AlarmAcknowledge(SafetyMonitorTestContext *ctx,
-                                        char *errorMsg, int errorMsgSize);
-int Test_SafetyMonitor_EmergencyStop(SafetyMonitorTestContext *ctx,
-                                     char *errorMsg, int errorMsgSize);
+
+// Test start condition check
+int Test_SafetyMonitor_StartCondition(SafetyMonitorTestContext *ctx,
+                                      char *errorMsg, int errorMsgSize);
 
 /******************************************************************************
  * Integration Tests (require hardware)
  ******************************************************************************/
 
-int Test_SafetyMonitor_SensorReading(SafetyMonitorTestContext *ctx,
-                                     char *errorMsg, int errorMsgSize);
+// Test valve open/close via NI 9472
 int Test_SafetyMonitor_ValveControl(SafetyMonitorTestContext *ctx,
                                     char *errorMsg, int errorMsgSize);
-int Test_SafetyMonitor_ExperimentCallback(SafetyMonitorTestContext *ctx,
-                                          char *errorMsg, int errorMsgSize);
+
+// Test SCU voltage reading via cDAQ
+int Test_SafetyMonitor_SCUReading(SafetyMonitorTestContext *ctx,
+                                  char *errorMsg, int errorMsgSize);
 
 /******************************************************************************
  * Utility Functions

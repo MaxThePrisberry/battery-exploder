@@ -74,29 +74,18 @@
 // Enable safety monitor
 #define ENABLE_SAFETY_MONITOR   1       // Enable centralized safety monitoring
 
-// Pressure thresholds (Volts from cDAQ NI 9202)
-// Sensor reads higher voltage when door is closed (good ventilation)
-#define SAFETY_PCU_PRESSURE_MIN         2.95    // PCU minimum voltage for OK
-#define SAFETY_SCU_PRESSURE_MIN         0       // SCU minimum voltage for OK
+// SCU pressure threshold (Volts from cDAQ NI 9202 channel 0)
+// If SCU voltage drops below this, stop everything
+#define SAFETY_SCU_PRESSURE_MIN         3.42    // SCU minimum voltage for OK
 
-// Mass flow threshold (SCCM from ALICAT)
-#define SAFETY_FLOW_MIN                 0   // Minimum flow in SCCM
+// Debounce setting (consecutive bad readings at 2 Hz before triggering)
+#define SAFETY_DEBOUNCE_COUNT           3       // 1.5s at 2Hz
 
-// Temperature thresholds (degrees C)
-#define SAFETY_TEMP_MAX_ABSOLUTE        50.0   // Emergency stop threshold
-#define SAFETY_TEMP_DANGEROUS           40.0    // Threshold for dangerous state
-
-// Debounce settings (consecutive bad readings before triggering)
-#define SAFETY_DEBOUNCE_PRESSURE        3       // 1.5s at 2Hz
-#define SAFETY_DEBOUNCE_FLOW            2       // 1.0s at 2Hz
-#define SAFETY_DEBOUNCE_TEMP            2       // 1.0s at 2Hz
-
-// NI 9472 valve channel assignments
+// NI 9472 valve channel assignments (solenoid valves for nitrogen flow)
 #define SAFETY_VALVE1_CHANNEL           0       // NI 9472 channel for Valve 1
 #define SAFETY_VALVE2_CHANNEL           1       // NI 9472 channel for Valve 2
 
-// cDAQ channel assignments for pressure sensors (slot 1, NI 9202)
-#define SAFETY_PCU_CHANNEL              1       // Channel for PCU pressure
+// cDAQ channel assignment for SCU pressure sensor (slot 1, NI 9202)
 #define SAFETY_SCU_CHANNEL              0       // Channel for SCU pressure
 
 //==============================================================================

@@ -95,9 +95,8 @@ static double GetCurrentEISInterval(OverchargeExperimentContext *ctx);
 static double GetCurrentLogInterval(OverchargeExperimentContext *ctx);
 static const char* GetModeString(int inFastMode);
 
-// Pressure safety callbacks
-static void OnVentilationLost(ExperimentPhase phase, double temperature, double pressure);
-static void OnVentilationRestored(double pressure);
+// Safety monitor callback
+static void OnSafetyStop(const char *msg, void *userData);
 
 // Results and cleanup
 static int WriteFinalResults(OverchargeExperimentContext *ctx);
@@ -153,11 +152,10 @@ int CVICALLBACK StartOverchargeExperimentCallback(int panel, int control, int ev
     g_experimentContext.graph3Handle = PANEL_GRAPH_BIOLOGIC;
 
     // Read experiment parameters from UI
-    double nominalCapacity, ventThresholdPercent;
+    double nominalCapacity;
     GetCtrlVal(panel, OVERCHARGE_NUM_NOMINAL_CAPACITY, &nominalCapacity);
     GetCtrlVal(panel, OVERCHARGE_NUM_CHARGE_CURRENT, &g_experimentContext.params.chargeCurrent);
     GetCtrlVal(panel, OVERCHARGE_NUM_CHARGE_DURATION, &g_experimentContext.params.chargeDurationMinutes);
-    GetCtrlVal(panel, OVERCHARGE_NUM_VENT_THRESHOLD_PC, &ventThresholdPercent);
     GetCtrlVal(panel, OVERCHARGE_NUM_SOC_THRESHOLD, &g_experimentContext.params.socThresholdPercent);
     GetCtrlVal(panel, OVERCHARGE_NUM_EIS_INTERVAL_SLOW, &g_experimentContext.params.eisIntervalSlow_minutes);
     GetCtrlVal(panel, OVERCHARGE_NUM_EIS_INTERVAL_FAST, &g_experimentContext.params.eisIntervalFast_minutes);
@@ -188,20 +186,6 @@ int CVICALLBACK StartOverchargeExperimentCallback(int panel, int control, int ev
         MessagePopup("Invalid Nominal Capacity",
                      "Please enter a valid nominal battery capacity (mAh).\n"
                      "This is required for SOC calculation and safety thresholds.");
-        return 0;
-    }
-
-    // Calculate ventilation threshold
-    g_experimentContext.params.ventilationThreshold_mAh =
-        nominalCapacity * (ventThresholdPercent / 100.0);
-
-    if (g_experimentContext.params.ventilationThreshold_mAh <= 0) {
-        CmtGetLock(g_busyLock);
-        g_systemBusy = 0;
-        CmtReleaseLock(g_busyLock);
-
-        MessagePopup("Invalid Ventilation Threshold",
-                     "Ventilation threshold percentage must be greater than 0.");
         return 0;
     }
 
@@ -349,10 +333,7 @@ int OverchargeExperiment_EmergencyStop(void) {
         g_experimentContext.state = OVERCHARGE_STATE_ERROR;
 
         // Immediately close solenoid valves
-        if (ENABLE_NI9472) {
-            NI9472_SetChannelQueued(SAFETY_VALVE1_CHANNEL, NI9472_CHANNEL_LOW, DEVICE_PRIORITY_HIGH);
-            NI9472_SetChannelQueued(SAFETY_VALVE2_CHANNEL, NI9472_CHANNEL_LOW, DEVICE_PRIORITY_HIGH);
-        }
+        SafetyMonitor_CloseValves();
 
         // Immediately disconnect all devices
         SafeDisconnectAllDevices(&g_experimentContext);
@@ -416,30 +397,27 @@ static int OverchargeExperimentThread(void *functionData) {
         "OVERCHARGE THERMAL RUNAWAY EXPERIMENT\n"
         "========================================\n\n"
         "PARAMETERS:\n"
-        "� Battery Capacity: %.0f mAh\n"
-        "� Charge Current: %.2f A\n"
-        "� Charge Duration: %s\n"
-        "� Ventilation Safe Threshold: %.1f%% (%.1f mAh)\n"
-        "� SOC Fast Mode Threshold: %.1f%%\n\n"
+        "  Battery Capacity: %.0f mAh\n"
+        "  Charge Current: %.2f A\n"
+        "  Charge Duration: %s\n"
+        "  SOC Fast Mode Threshold: %.1f%%\n\n"
         "EIS CONFIGURATION:\n"
-        "� Slow EIS Interval: %.1f min (SOC < %.1f%%)\n"
-        "� Fast EIS Interval: %.1f min (SOC >= %.1f%%)\n"
-        "� Pause During EIS: %s\n\n"
+        "  Slow EIS Interval: %.1f min (SOC < %.1f%%)\n"
+        "  Fast EIS Interval: %.1f min (SOC >= %.1f%%)\n"
+        "  Pause During EIS: %s\n\n"
         "DATA LOGGING:\n"
-        "� Slow Log Interval: %.0f sec (SOC < %.1f%%)\n"
-        "� Fast Log Interval: %.0f sec (SOC >= %.1f%%)\n\n"
+        "  Slow Log Interval: %.0f sec (SOC < %.1f%%)\n"
+        "  Fast Log Interval: %.0f sec (SOC >= %.1f%%)\n\n"
         "SAFETY:\n"
-        "� Ventilation monitoring: ENABLED\n"
-        "� Pre-start check: REQUIRED\n"
-        "� Manual runaway trigger: ENABLED\n\n"
+        "  SCU pressure monitoring: ENABLED\n"
+        "  Pre-start check: REQUIRED\n"
+        "  Manual runaway trigger: ENABLED\n\n"
         "WARNING: This experiment intentionally overcharges the battery\n"
         "to induce thermal runaway. Ensure all safety protocols are followed.\n\n"
         "Continue with experiment?",
         ctx->params.nominalCapacity_mAh,
         ctx->params.chargeCurrent,
         durationStr,
-        (ctx->params.ventilationThreshold_mAh / ctx->params.nominalCapacity_mAh) * 100.0,
-        ctx->params.ventilationThreshold_mAh,
         ctx->params.socThresholdPercent,
         ctx->params.eisIntervalSlow_minutes,
         ctx->params.socThresholdPercent,
@@ -489,59 +467,34 @@ static int OverchargeExperimentThread(void *functionData) {
         }
     }
 
-    // Open solenoid valves for gas flow
-    if (ENABLE_NI9472) {
-        LogMessage("Opening solenoid valves...");
-        result = NI9472_SetChannelQueued(SAFETY_VALVE1_CHANNEL, NI9472_CHANNEL_HIGH, DEVICE_PRIORITY_NORMAL);
-        if (result != SUCCESS) {
-            LogError("Failed to open valve 1: %s", GetErrorString(result));
-        }
-        result = NI9472_SetChannelQueued(SAFETY_VALVE2_CHANNEL, NI9472_CHANNEL_HIGH, DEVICE_PRIORITY_NORMAL);
-        if (result != SUCCESS) {
-            LogError("Failed to open valve 2: %s", GetErrorString(result));
-        }
-        LogMessage("Solenoid valves opened");
-    }
-
-    // Check ventilation pre-start conditions (CRITICAL SAFETY CHECK)
+    // Check SCU pressure pre-start condition (CRITICAL SAFETY CHECK)
     if (ENABLE_CDAQ) {
-        LogMessage("Checking fume hood ventilation conditions...");
-        double pressureVoltage;
-        if (!PressureSafety_CheckStartConditions(&pressureVoltage)) {
-            LogError("Cannot start experiment: Ventilation not adequate (%.2f V)", pressureVoltage);
+        LogMessage("Checking SCU pressure conditions...");
+        double scuVoltage;
+        if (!SafetyMonitor_CheckStartCondition(&scuVoltage)) {
+            LogError("Cannot start experiment: SCU pressure not adequate (%.2f V)", scuVoltage);
             char ventMsg[512];
             snprintf(ventMsg, sizeof(ventMsg),
-                    "Fume hood ventilation is not adequate.\n\n"
-                    "Please ensure the extraction system is running\n"
-                    "and pressure sensor is reading correctly.\n\n"
-                    "Current pressure reading: %.2f V\n"
+                    "SCU pressure is not adequate.\n\n"
+                    "Please ensure the fume hood is running\n"
+                    "and the SCU pressure sensor is reading correctly.\n\n"
+                    "Current SCU reading: %.2f V\n"
                     "Required minimum: %.2f V",
-                    pressureVoltage, PRESSURE_THRESHOLD_OK_MIN);
+                    scuVoltage, SAFETY_SCU_PRESSURE_MIN);
             MessagePopup("Experiment Start Failed", ventMsg);
             ctx->state = OVERCHARGE_STATE_ERROR;
             goto cleanup;
         }
-        LogMessage("Ventilation check PASSED (%.2f V) - safe to start", pressureVoltage);
+        LogMessage("SCU pressure check PASSED (%.2f V) - safe to start", scuVoltage);
+    }
 
-        // Start pressure safety monitoring
-        LogMessage("Starting pressure safety monitoring...");
-        result = PressureSafety_StartMonitoring(25.0,  // Initial temp estimate
-                                               OnVentilationLost,
-                                               OnVentilationRestored);
-        if (result != SUCCESS) {
-            LogError("Failed to start pressure safety monitoring: %s", GetErrorString(result));
-            MessagePopup("Warning",
-                        "Failed to start pressure safety monitoring.\n"
-                        "Experiment will continue without pressure monitoring.\n\n"
-                        "DO NOT proceed unless you are certain ventilation is adequate!");
-        } else {
-            LogMessage("Pressure safety monitoring started successfully");
-        }
-    } else {
-        LogWarning("cDAQ disabled - no ventilation monitoring");
-        MessagePopup("Warning",
-                    "Ventilation monitoring is DISABLED.\n\n"
-                    "Ensure manual ventilation checks are performed!");
+    // Open solenoid valves for nitrogen flow
+    SafetyMonitor_OpenValves();
+
+    // Register experiment with safety monitor
+    result = SafetyMonitor_RegisterExperiment(OnSafetyStop, ctx);
+    if (result != SUCCESS) {
+        LogWarning("Failed to register with safety monitor: %s", GetErrorString(result));
     }
 
     // Log experiment start event
@@ -578,8 +531,8 @@ static int OverchargeExperimentThread(void *functionData) {
         goto cleanup;
     }
 
-    // FINAL EIS MEASUREMENT (if safe)
-    if (!ctx->ventilationLost) {
+    // FINAL EIS MEASUREMENT (if not cancelled)
+    if (!ctx->cancelRequested) {
         LogMessage("=== Performing Final EIS Measurement ===");
         result = PerformFinalEIS(ctx);
         if (result != SUCCESS) {
@@ -610,11 +563,6 @@ static int OverchargeExperimentThread(void *functionData) {
     }
 
 cleanup:
-    // Stop pressure monitoring
-    if (ENABLE_CDAQ) {
-        PressureSafety_StopMonitoring();
-    }
-
     // Always perform cleanup
     CleanupExperiment(ctx);
 
@@ -625,9 +573,7 @@ cleanup:
             finalStatus = "Overcharge experiment completed";
             break;
         case OVERCHARGE_STATE_CANCELLED:
-            finalStatus = ctx->ventilationLost ?
-                         "Overcharge experiment stopped - ventilation lost" :
-                         "Overcharge experiment cancelled by user";
+            finalStatus = "Overcharge experiment cancelled";
             break;
         case OVERCHARGE_STATE_ERROR:
             finalStatus = "Overcharge experiment failed";
@@ -852,9 +798,7 @@ static int SaveExperimentSettings(OverchargeExperimentContext *ctx) {
     fprintf(file, "Duration_Unlimited=%d\n\n", ctx->params.chargeDurationMinutes == 0 ? 1 : 0);
 
     fprintf(file, "[Safety]\n");
-    fprintf(file, "Ventilation_Threshold_Percent=%.1f\n",
-            (ctx->params.ventilationThreshold_mAh / ctx->params.nominalCapacity_mAh) * 100.0);
-    fprintf(file, "Ventilation_Threshold_mAh=%.1f\n\n", ctx->params.ventilationThreshold_mAh);
+    fprintf(file, "SCU_Pressure_Min_V=%.2f\n\n", SAFETY_SCU_PRESSURE_MIN);
 
     fprintf(file, "[Adaptive_Mode]\n");
     fprintf(file, "SOC_Threshold_Percent=%.1f\n\n", ctx->params.socThresholdPercent);
@@ -1158,27 +1102,6 @@ static int RunChargingLoop(OverchargeExperimentContext *ctx)
 
         // Update adaptive mode (check SOC threshold)
         UpdateAdaptiveMode(ctx);
-
-        // Check ventilation status (SAFE vs CRITICAL logic)
-        if (ctx->ventilationLost) {
-            double chargeThreshold = ctx->params.ventilationThreshold_mAh;
-            int isCriticalPhase = (ctx->accumulatedCharge_mAh >= chargeThreshold);
-
-            if (isCriticalPhase) {
-                LogError("CRITICAL PHASE: Ventilation has been lost after %.1f mAh threshold!",
-                        chargeThreshold);
-                LogError("Alarm has been sounded - PERSONNEL SHOULD RE-ESTABLISH VENTILATION OR EVACUATE");
-                LogEvent(ctx, "Ventilation_Lost_Critical",
-                        "Ventilation lost in critical phase - stopping with alarm");
-            } else {
-                LogError("SAFE PHASE: Ventilation lost before critical threshold - stopping safely");
-                LogEvent(ctx, "Ventilation_Lost_Safe",
-                        "Ventilation lost in safe phase - stopping");
-            }
-
-            ctx->state = OVERCHARGE_STATE_CANCELLED;
-            break;
-        }
 
         // Check duration limit (if specified)
         if (ctx->params.chargeDurationMinutes > 0) {
@@ -2063,40 +1986,17 @@ static void ClearOverchargeGraphs(OverchargeExperimentContext *ctx)
 }
 
 /******************************************************************************
- * Pressure Safety Callbacks
+ * Safety Monitor Callback
  ******************************************************************************/
 
-static void OnVentilationLost(ExperimentPhase phase, double temperature, double pressure)
+static void OnSafetyStop(const char *msg, void *userData)
 {
-    double chargeThreshold = g_experimentContext.params.ventilationThreshold_mAh;
-    int isCriticalPhase = (g_experimentContext.accumulatedCharge_mAh >= chargeThreshold);
+    LogError("***** SAFETY STOP *****");
+    LogError("%s", msg);
+    LogError("Stopping experiment due to SCU pressure violation");
 
-    if (isCriticalPhase) {
-        LogError("CRITICAL PHASE: Ventilation has been lost after %.1f mAh threshold!", chargeThreshold);
-        LogError("Current charge: %.1f mAh (%.1f%% SOC)",
-                g_experimentContext.accumulatedCharge_mAh,
-                g_experimentContext.currentSOC_percent);
-        LogError("Temperature: %.1f C, Pressure: %.2f V", temperature, pressure);
-        LogError("Alarm has been sounded - PERSONNEL SHOULD RE-ESTABLISH VENTILATION OR EVACUATE");
-        LogError("Stopping experiment due to ventilation loss");
-    } else {
-        LogError("SAFE PHASE: Ventilation lost before critical threshold");
-        LogError("Current charge: %.1f mAh < %.1f mAh threshold",
-                g_experimentContext.accumulatedCharge_mAh, chargeThreshold);
-        LogError("Temperature: %.1f C, Pressure: %.2f V", temperature, pressure);
-        LogError("Stopping experiment due to ventilation loss");
-    }
-
-    // Set flag to stop experiment
-    g_experimentContext.ventilationLost = 1;
     g_experimentContext.cancelRequested = 1;
     g_experimentContext.state = OVERCHARGE_STATE_CANCELLED;
-}
-
-static void OnVentilationRestored(double pressure)
-{
-    LogMessage("Ventilation restored (pressure: %.2f V)", pressure);
-    LogMessage("However, experiment has already been stopped and will not resume");
 }
 
 /******************************************************************************
@@ -2185,10 +2085,7 @@ static int WriteFinalResults(OverchargeExperimentContext *ctx)
            ctx->accumulatedCharge_mAh, ctx->currentSOC_percent);
 
     fprintf(file, "SAFETY CONFIGURATION\n");
-    fprintf(file, "Ventilation Safe Threshold: %.1f%% (%.0f mAh)\n",
-           (ctx->params.ventilationThreshold_mAh / ctx->params.nominalCapacity_mAh) * 100.0,
-           ctx->params.ventilationThreshold_mAh);
-    fprintf(file, "Ventilation Lost: %s\n\n", ctx->ventilationLost ? "YES" : "NO");
+    fprintf(file, "SCU Pressure Min: %.2f V\n\n", SAFETY_SCU_PRESSURE_MIN);
 
     fprintf(file, "ADAPTIVE MODE CONFIGURATION\n");
     fprintf(file, "SOC Threshold: %.1f%%\n", ctx->params.socThresholdPercent);
@@ -2254,13 +2151,9 @@ static void CleanupExperiment(OverchargeExperimentContext *ctx)
 
     LogMessage("Cleaning up overcharge experiment...");
 
-    // Close solenoid valves
-    if (ENABLE_NI9472) {
-        LogMessage("Closing solenoid valves...");
-        NI9472_SetChannelQueued(SAFETY_VALVE1_CHANNEL, NI9472_CHANNEL_LOW, DEVICE_PRIORITY_HIGH);
-        NI9472_SetChannelQueued(SAFETY_VALVE2_CHANNEL, NI9472_CHANNEL_LOW, DEVICE_PRIORITY_HIGH);
-        LogMessage("Solenoid valves closed");
-    }
+    // Close solenoid valves and unregister from safety monitor
+    SafetyMonitor_CloseValves();
+    SafetyMonitor_UnregisterExperiment();
 
     // Safely disconnect all devices
     SafeDisconnectAllDevices(ctx);

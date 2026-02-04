@@ -11,7 +11,7 @@
 #include "logging.h"
 #include "status.h"
 #include "battery_utils.h"
-#include "pressure_safety.h"
+#include "safety_monitor.h"
 #include "ni9472/ni9472_queue.h"
 #include <ansi_c.h>
 #include <analysis.h>
@@ -83,9 +83,8 @@ static int WriteComprehensiveResults(TempRampExperimentContext *ctx);
 static void CleanupExperiment(TempRampExperimentContext *ctx);
 static int CheckCancellation(TempRampExperimentContext *ctx);
 
-// Pressure safety callbacks
-static void OnVentilationLost(ExperimentPhase phase, double temperature, double pressure);
-static void OnVentilationRestored(double pressure);
+// Safety monitor callback
+static void OnSafetyStop(const char *msg, void *userData);
 
 /******************************************************************************
  * Public Functions Implementation
@@ -261,10 +260,7 @@ int TempRampExperiment_EmergencyStop(void) {
         g_experimentContext.state = TEMP_RAMP_STATE_ERROR;
 
         // Immediately close solenoid valves
-        if (ENABLE_NI9472) {
-            NI9472_SetChannelQueued(SAFETY_VALVE1_CHANNEL, NI9472_CHANNEL_LOW, DEVICE_PRIORITY_HIGH);
-            NI9472_SetChannelQueued(SAFETY_VALVE2_CHANNEL, NI9472_CHANNEL_LOW, DEVICE_PRIORITY_HIGH);
-        }
+        SafetyMonitor_CloseValves();
 
         SafeDisconnectAllDevices(&g_experimentContext);
 
@@ -442,55 +438,34 @@ static int TempRampExperimentThread(void *functionData) {
     TNY_SetPinQueued(TNY_PSB_PIN, TNY_STATE_DISCONNECTED, DEVICE_PRIORITY_NORMAL);
     TNY_SetPinQueued(TNY_BIOLOGIC_PIN, TNY_STATE_DISCONNECTED, DEVICE_PRIORITY_NORMAL);
 
-    // Open solenoid valves for gas flow
-    if (ENABLE_NI9472) {
-        LogMessage("Opening solenoid valves...");
-        result = NI9472_SetChannelQueued(SAFETY_VALVE1_CHANNEL, NI9472_CHANNEL_HIGH, DEVICE_PRIORITY_NORMAL);
-        if (result != SUCCESS) {
-            LogError("Failed to open valve 1: %s", GetErrorString(result));
-        }
-        result = NI9472_SetChannelQueued(SAFETY_VALVE2_CHANNEL, NI9472_CHANNEL_HIGH, DEVICE_PRIORITY_NORMAL);
-        if (result != SUCCESS) {
-            LogError("Failed to open valve 2: %s", GetErrorString(result));
-        }
-        LogMessage("Solenoid valves opened");
-    }
-
-    // Check ventilation pre-start conditions (CRITICAL SAFETY CHECK)
+    // Check SCU pressure pre-start condition (CRITICAL SAFETY CHECK)
     if (ENABLE_CDAQ) {
-        LogMessage("Checking fume hood ventilation conditions...");
-        double pressureVoltage;
-        if (!PressureSafety_CheckStartConditions(&pressureVoltage)) {
-            LogError("Cannot start experiment: Ventilation not adequate (%.2f V)", pressureVoltage);
+        LogMessage("Checking SCU pressure conditions...");
+        double scuVoltage;
+        if (!SafetyMonitor_CheckStartCondition(&scuVoltage)) {
+            LogError("Cannot start experiment: SCU pressure not adequate (%.2f V)", scuVoltage);
             char ventMsg[512];
             snprintf(ventMsg, sizeof(ventMsg),
-                    "Fume hood ventilation is not adequate.\n\n"
-                    "Please ensure the extraction system is running\n"
-                    "and pressure sensor is reading correctly.\n\n"
-                    "Current pressure reading: %.2f V\n"
+                    "SCU pressure is not adequate.\n\n"
+                    "Please ensure the fume hood is running\n"
+                    "and the SCU pressure sensor is reading correctly.\n\n"
+                    "Current SCU reading: %.2f V\n"
                     "Required minimum: %.2f V",
-                    pressureVoltage, PRESSURE_THRESHOLD_OK_MIN);
+                    scuVoltage, SAFETY_SCU_PRESSURE_MIN);
             MessagePopup("Experiment Start Failed", ventMsg);
             ctx->state = TEMP_RAMP_STATE_ERROR;
             goto cleanup;
         }
-        LogMessage("Ventilation check PASSED (%.2f V) - safe to start", pressureVoltage);
+        LogMessage("SCU pressure check PASSED (%.2f V) - safe to start", scuVoltage);
+    }
 
-        // Start pressure safety monitoring
-        LogMessage("Starting pressure safety monitoring...");
-        result = PressureSafety_StartMonitoring(ctx->params.initialTemp,
-                                               OnVentilationLost,
-                                               OnVentilationRestored);
-        if (result != SUCCESS) {
-            LogError("Failed to start pressure safety monitoring: %s", GetErrorString(result));
-            MessagePopup("Warning",
-                        "Failed to start pressure safety monitoring.\n"
-                        "Experiment will continue without pressure monitoring.\n\n"
-                        "Press OK to continue or Cancel to abort.");
-            // Note: We don't abort here, just warn the user
-        } else {
-            LogMessage("Pressure safety monitoring active");
-        }
+    // Open solenoid valves for nitrogen flow
+    SafetyMonitor_OpenValves();
+
+    // Register experiment with safety monitor
+    result = SafetyMonitor_RegisterExperiment(OnSafetyStop, ctx);
+    if (result != SUCCESS) {
+        LogWarning("Failed to register with safety monitor: %s", GetErrorString(result));
     }
 
     // Allocate EIS measurement array
@@ -1690,12 +1665,6 @@ static int ReadAllTemperatures(TempRampExperimentContext *ctx, TempRampTempData 
     if (ENABLE_CDAQ) {
         CDAQ_ReadTC(2, 0, &tempData->tc0Temperature);
         CDAQ_ReadTC(2, 1, &tempData->tc1Temperature);
-
-        // Update pressure safety monitoring with current battery temperature
-        // Use DTB average temperature as the reference for phase determination
-        if (tempData->dtbDeviceCount > 0) {
-            PressureSafety_UpdateTemperature(tempData->dtbAverageTemperature);
-        }
     } else {
         tempData->tc0Temperature = 0.0;
         tempData->tc1Temperature = 0.0;
@@ -2501,19 +2470,9 @@ static int WriteComprehensiveResults(TempRampExperimentContext *ctx) {
 static void CleanupExperiment(TempRampExperimentContext *ctx) {
     LogMessage("Cleaning up experiment...");
 
-    // Close solenoid valves
-    if (ENABLE_NI9472) {
-        LogMessage("Closing solenoid valves...");
-        NI9472_SetChannelQueued(SAFETY_VALVE1_CHANNEL, NI9472_CHANNEL_LOW, DEVICE_PRIORITY_HIGH);
-        NI9472_SetChannelQueued(SAFETY_VALVE2_CHANNEL, NI9472_CHANNEL_LOW, DEVICE_PRIORITY_HIGH);
-        LogMessage("Solenoid valves closed");
-    }
-
-    // Stop pressure safety monitoring
-    if (ENABLE_CDAQ) {
-        LogMessage("Stopping pressure safety monitoring...");
-        PressureSafety_StopMonitoring();
-    }
+    // Close solenoid valves and unregister from safety monitor
+    SafetyMonitor_CloseValves();
+    SafetyMonitor_UnregisterExperiment();
 
     SafeDisconnectAllDevices(ctx);
     
@@ -2566,35 +2525,15 @@ static int CheckCancellation(TempRampExperimentContext *ctx) {
 }
 
 /******************************************************************************
- * Pressure Safety Callbacks
+ * Safety Monitor Callback
  ******************************************************************************/
 
-static void OnVentilationLost(ExperimentPhase phase, double temperature, double pressure) {
-    LogError("***** VENTILATION LOST *****");
-    LogError("Phase: %s", PressureSafety_PhaseToString(phase));
-    LogError("Temperature: %.1f deg C", temperature);
-    LogError("Pressure: %.2f V", pressure);
+static void OnSafetyStop(const char *msg, void *userData)
+{
+    LogError("***** SAFETY STOP *****");
+    LogError("%s", msg);
+    LogError("Stopping experiment due to SCU pressure violation");
 
-    if (phase == PHASE_SAFE) {
-        // Safe phase - stop experiment immediately
-        LogError("SAFE PHASE: Stopping experiment due to ventilation loss");
-        LogError("It is safe to stop the experiment at this temperature");
-
-
-    } else {
-        // Critical phase - 
-        LogError("CRITICAL PHASE: ventilation has been lost while the battery is unsafe!");
-        LogError("Alarm has been sounded - PERSONNEL SHOULD RE-ESTABLISH VENTILATION IMMEDIATELY OR EVACUATE");
-		LogError("Stopping experiment due to ventilation loss");
-		
-    }
-	
-	// Set cancel flag to stop experiment
     g_experimentContext.cancelRequested = 1;
     g_experimentContext.state = TEMP_RAMP_STATE_CANCELLED;
-}
-
-static void OnVentilationRestored(double pressure) {
-    LogMessage("*** Ventilation restored ***");
-    LogMessage("Pressure: %.2f V", pressure);
 }

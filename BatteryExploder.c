@@ -19,7 +19,6 @@
 #include "teensy_queue.h"
 #include "ni9472_queue.h"
 #include "cdaq_utils.h"
-#include "pressure_safety.h"
 #include "safety_monitor.h"
 #include "logging.h"
 #include "status.h"
@@ -85,14 +84,6 @@ int main (int argc, char *argv[]) {
 	        LogError("Failed to initialize cDAQ current slot: %s", GetErrorString(result));
 	    }
 
-	    // Initialize pressure safety monitoring (uses cDAQ NI 9202 slot 1, channel 0)
-	    LogMessage("Initializing pressure safety monitoring...");
-	    result = PressureSafety_Initialize();
-	    if (result == SUCCESS) {
-	        LogMessage("Pressure safety monitoring initialized successfully");
-	    } else {
-	        LogError("Failed to initialize pressure safety monitoring: %s", GetErrorString(result));
-	    }
 	}
 	
     // Initialize PSB queue manager with specific port
@@ -467,12 +458,6 @@ int CVICALLBACK PanelCallback(int panel, int event, void *callbackData,
 			if (ENABLE_SAFETY_MONITOR) {
 			    LogMessage("Cleaning up Safety Monitor...");
 			    SafetyMonitor_Cleanup();
-			}
-
-			// Clean up pressure safety monitoring
-			if (ENABLE_CDAQ) {
-			    LogMessage("Cleaning up pressure safety monitoring...");
-			    PressureSafety_Cleanup();
 			}
 
 			// Clean up cDAQ module
