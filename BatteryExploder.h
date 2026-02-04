@@ -67,14 +67,15 @@
 #define  PANEL_TOGGLE_TEENSY              52      /* control type: binary, callback function: TestTeensyCallback */
 #define  PANEL_STR_CMD_PROMPT_INPUT       53      /* control type: string, callback function: CmdPromptInputCallback */
 #define  PANEL_NUM_TC0                    54      /* control type: numeric, callback function: (none) */
-#define  PANEL_NUM_CH0_VOLTAGE            55      /* control type: numeric, callback function: (none) */
-#define  PANEL_NUM_TC1                    56      /* control type: numeric, callback function: (none) */
-#define  PANEL_DEC_TMPCTRL                57      /* control type: deco, callback function: (none) */
-#define  PANEL_DEC_BIO_GRAPH              58      /* control type: deco, callback function: (none) */
-#define  PANEL_DEC_CMDPROMPT              59      /* control type: deco, callback function: (none) */
-#define  PANEL_MASS_FLOW                  60      /* control type: deco, callback function: (none) */
-#define  PANEL_DEC_TCS                    61      /* control type: deco, callback function: (none) */
-#define  PANEL_MFLOW_DIAL                 62      /* control type: scale, callback function: (none) */
+#define  PANEL_NUM_CH1_VOLTAGE            55      /* control type: numeric, callback function: (none) */
+#define  PANEL_NUM_CH0_VOLTAGE            56      /* control type: numeric, callback function: (none) */
+#define  PANEL_NUM_TC1                    57      /* control type: numeric, callback function: (none) */
+#define  PANEL_DEC_TMPCTRL                58      /* control type: deco, callback function: (none) */
+#define  PANEL_DEC_BIO_GRAPH              59      /* control type: deco, callback function: (none) */
+#define  PANEL_DEC_CMDPROMPT              60      /* control type: deco, callback function: (none) */
+#define  PANEL_MASS_FLOW                  61      /* control type: deco, callback function: (none) */
+#define  PANEL_DEC_TCS                    62      /* control type: deco, callback function: (none) */
+#define  PANEL_MFLOW_DIAL                 63      /* control type: scale, callback function: (none) */
 
 #define  PANEL_LOAD                       2
 #define  PANEL_LOAD_IMG_LOGO              2       /* control type: picture, callback function: (none) */
