@@ -1,0 +1,281 @@
+17:36:46.495 - INFO - Logging initialized successfully
+17:36:46.495 - INFO - Log file location: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\python_testing\results\test_20251105_173646.log
+17:36:46.495 - INFO - ======================================================================
+17:36:46.495 - INFO - EC-Lab OLE COM Connection Stability Test Suite
+17:36:46.495 - INFO - ======================================================================
+17:36:46.495 - INFO - Working directory: C:\Users\CV166
+17:36:46.496 - INFO - Log file: C:\Users\CV166\Documents\LabWindowsCVI\BatteryApplication\battery-exploder\python_testing\results\test_20251105_173646.log
+17:36:46.497 - INFO - 
+17:36:46.497 - INFO - ======================================================================
+17:36:46.497 - INFO - TEST 1: Baseline Auto-Disconnect Timing
+17:36:46.497 - INFO - ======================================================================
+17:36:46.497 - INFO - ======================================================================
+17:36:46.497 - INFO - Initializing COM connection to EC-Lab via comtypes
+17:36:46.497 - INFO - ======================================================================
+17:36:46.497 - INFO - Step 1: Creating COM instance
+17:36:46.498 - INFO -   CLSID: {77FE5C93-42EE-4127-944B-5BA14FD33447}
+17:36:46.498 - INFO -   IID:   {642C68D2-85BD-494B-93EB-583CCBB11794}
+17:36:46.498 - INFO -   Using custom IEClabExe interface (NOT IDispatch)
+17:36:46.498 - DEBUG - {77FE5C93-42EE-4127-944B-5BA14FD33447} -> {77FE5C93-42EE-4127-944B-5BA14FD33447}
+17:36:46.498 - DEBUG - CoCreateInstance({77FE5C93-42EE-4127-944B-5BA14FD33447}, clsctx=None, interface=<class '__main__.IEClabExe'>)
+17:36:46.505 - INFO - SUCCESS: COM instance created with custom interface
+17:36:46.505 - INFO - NOTE: Direct vtable access like C code - no IDispatch
+17:36:46.505 - INFO - ======================================================================
+17:36:46.505 - INFO - Calling ConnectDevice(0)...
+17:36:46.506 - INFO - ConnectDevice returned: 1
+17:36:46.506 - INFO - Connected successfully. Waiting for auto-disconnect...
+17:36:46.506 - INFO - Polling TestConnection every 0.5 seconds...
+17:36:47.007 - ERROR - Exception during TestConnection: exception: access violation writing 0x0000000000000010
+17:36:47.007 - WARNING - CONNECTION LOST after 0.50 seconds
+17:36:47.008 - INFO - Calling DisconnectDevice(0)...
+17:36:47.303 - INFO - DisconnectDevice returned: 1
+17:36:47.304 - DEBUG - Release <POINTER(IEClabExe) ptr=0x1d341a48d08 at 1d3446dff50>
+17:36:47.304 - INFO - 
+Baseline disconnect time: 0.50 seconds
+
+17:36:49.305 - INFO - ======================================================================
+17:36:49.305 - INFO - TEST 2: Keep-Alive (interval=5s)
+17:36:49.305 - INFO - ======================================================================
+17:36:49.305 - INFO - ======================================================================
+17:36:49.306 - INFO - Initializing COM connection to EC-Lab via comtypes
+17:36:49.306 - INFO - ======================================================================
+17:36:49.306 - INFO - Step 1: Creating COM instance
+17:36:49.306 - INFO -   CLSID: {77FE5C93-42EE-4127-944B-5BA14FD33447}
+17:36:49.306 - INFO -   IID:   {642C68D2-85BD-494B-93EB-583CCBB11794}
+17:36:49.306 - INFO -   Using custom IEClabExe interface (NOT IDispatch)
+17:36:49.306 - DEBUG - {77FE5C93-42EE-4127-944B-5BA14FD33447} -> {77FE5C93-42EE-4127-944B-5BA14FD33447}
+17:36:49.306 - DEBUG - CoCreateInstance({77FE5C93-42EE-4127-944B-5BA14FD33447}, clsctx=None, interface=<class '__main__.IEClabExe'>)
+17:36:49.309 - INFO - SUCCESS: COM instance created with custom interface
+17:36:49.309 - INFO - NOTE: Direct vtable access like C code - no IDispatch
+17:36:49.309 - INFO - ======================================================================
+17:36:49.309 - INFO - Calling ConnectDevice(0)...
+17:36:50.321 - INFO - ConnectDevice returned: 1
+17:36:50.321 - INFO - Testing keep-alive with 5s interval for 60 seconds...
+17:36:55.321 - ERROR - Exception during TestConnection: exception: access violation writing 0x0000000000000010
+17:36:55.322 - WARNING - CONNECTION LOST after 5.00s (made 1 calls)
+17:36:55.323 - INFO - Calling DisconnectDevice(0)...
+17:36:55.581 - INFO - DisconnectDevice returned: 1
+17:36:55.581 - DEBUG - Release <POINTER(IEClabExe) ptr=0x1d341a486e8 at 1d3446dff50>
+17:36:57.582 - INFO - ======================================================================
+17:36:57.582 - INFO - TEST 2: Keep-Alive (interval=3s)
+17:36:57.582 - INFO - ======================================================================
+17:36:57.583 - INFO - ======================================================================
+17:36:57.583 - INFO - Initializing COM connection to EC-Lab via comtypes
+17:36:57.583 - INFO - ======================================================================
+17:36:57.583 - INFO - Step 1: Creating COM instance
+17:36:57.583 - INFO -   CLSID: {77FE5C93-42EE-4127-944B-5BA14FD33447}
+17:36:57.583 - INFO -   IID:   {642C68D2-85BD-494B-93EB-583CCBB11794}
+17:36:57.583 - INFO -   Using custom IEClabExe interface (NOT IDispatch)
+17:36:57.583 - DEBUG - {77FE5C93-42EE-4127-944B-5BA14FD33447} -> {77FE5C93-42EE-4127-944B-5BA14FD33447}
+17:36:57.584 - DEBUG - CoCreateInstance({77FE5C93-42EE-4127-944B-5BA14FD33447}, clsctx=None, interface=<class '__main__.IEClabExe'>)
+17:36:57.586 - INFO - SUCCESS: COM instance created with custom interface
+17:36:57.586 - INFO - NOTE: Direct vtable access like C code - no IDispatch
+17:36:57.586 - INFO - ======================================================================
+17:36:57.587 - INFO - Calling ConnectDevice(0)...
+17:36:58.570 - INFO - ConnectDevice returned: 1
+17:36:58.570 - INFO - Testing keep-alive with 3s interval for 60 seconds...
+17:37:01.571 - ERROR - Exception during TestConnection: exception: access violation writing 0x0000000000000010
+17:37:01.571 - WARNING - CONNECTION LOST after 3.00s (made 1 calls)
+17:37:01.571 - INFO - Calling DisconnectDevice(0)...
+17:37:01.827 - INFO - DisconnectDevice returned: 1
+17:37:01.827 - DEBUG - Release <POINTER(IEClabExe) ptr=0x1d341a48c98 at 1d3446dff50>
+17:37:03.828 - INFO - ======================================================================
+17:37:03.828 - INFO - TEST 2: Keep-Alive (interval=2s)
+17:37:03.829 - INFO - ======================================================================
+17:37:03.829 - INFO - ======================================================================
+17:37:03.829 - INFO - Initializing COM connection to EC-Lab via comtypes
+17:37:03.829 - INFO - ======================================================================
+17:37:03.829 - INFO - Step 1: Creating COM instance
+17:37:03.829 - INFO -   CLSID: {77FE5C93-42EE-4127-944B-5BA14FD33447}
+17:37:03.829 - INFO -   IID:   {642C68D2-85BD-494B-93EB-583CCBB11794}
+17:37:03.830 - INFO -   Using custom IEClabExe interface (NOT IDispatch)
+17:37:03.830 - DEBUG - {77FE5C93-42EE-4127-944B-5BA14FD33447} -> {77FE5C93-42EE-4127-944B-5BA14FD33447}
+17:37:03.830 - DEBUG - CoCreateInstance({77FE5C93-42EE-4127-944B-5BA14FD33447}, clsctx=None, interface=<class '__main__.IEClabExe'>)
+17:37:03.833 - INFO - SUCCESS: COM instance created with custom interface
+17:37:03.833 - INFO - NOTE: Direct vtable access like C code - no IDispatch
+17:37:03.833 - INFO - ======================================================================
+17:37:03.833 - INFO - Calling ConnectDevice(0)...
+17:37:04.824 - INFO - ConnectDevice returned: 1
+17:37:04.824 - INFO - Testing keep-alive with 2s interval for 60 seconds...
+17:37:06.825 - ERROR - Exception during TestConnection: exception: access violation writing 0x0000000000000010
+17:37:06.825 - WARNING - CONNECTION LOST after 2.00s (made 1 calls)
+17:37:06.825 - INFO - Calling DisconnectDevice(0)...
+17:37:07.093 - INFO - DisconnectDevice returned: 1
+17:37:07.093 - DEBUG - Release <POINTER(IEClabExe) ptr=0x1d341a48c98 at 1d3446dff50>
+17:37:09.094 - INFO - ======================================================================
+17:37:09.094 - INFO - TEST 2: Keep-Alive (interval=1s)
+17:37:09.094 - INFO - ======================================================================
+17:37:09.094 - INFO - ======================================================================
+17:37:09.094 - INFO - Initializing COM connection to EC-Lab via comtypes
+17:37:09.094 - INFO - ======================================================================
+17:37:09.095 - INFO - Step 1: Creating COM instance
+17:37:09.095 - INFO -   CLSID: {77FE5C93-42EE-4127-944B-5BA14FD33447}
+17:37:09.095 - INFO -   IID:   {642C68D2-85BD-494B-93EB-583CCBB11794}
+17:37:09.095 - INFO -   Using custom IEClabExe interface (NOT IDispatch)
+17:37:09.095 - DEBUG - {77FE5C93-42EE-4127-944B-5BA14FD33447} -> {77FE5C93-42EE-4127-944B-5BA14FD33447}
+17:37:09.096 - DEBUG - CoCreateInstance({77FE5C93-42EE-4127-944B-5BA14FD33447}, clsctx=None, interface=<class '__main__.IEClabExe'>)
+17:37:09.098 - INFO - SUCCESS: COM instance created with custom interface
+17:37:09.099 - INFO - NOTE: Direct vtable access like C code - no IDispatch
+17:37:09.099 - INFO - ======================================================================
+17:37:09.099 - INFO - Calling ConnectDevice(0)...
+17:37:10.055 - INFO - ConnectDevice returned: 1
+17:37:10.056 - INFO - Testing keep-alive with 1s interval for 60 seconds...
+17:37:11.056 - ERROR - Exception during TestConnection: exception: access violation writing 0x0000000000000010
+17:37:11.057 - WARNING - CONNECTION LOST after 1.00s (made 1 calls)
+17:37:11.057 - INFO - Calling DisconnectDevice(0)...
+17:37:11.328 - INFO - DisconnectDevice returned: 1
+17:37:11.329 - DEBUG - Release <POINTER(IEClabExe) ptr=0x1d341a486e8 at 1d3446dff50>
+17:37:13.329 - WARNING - Skipping Test 3 - .mps file not found: templates/simple_ocv.mps
+17:37:13.330 - INFO - ======================================================================
+17:37:13.330 - INFO - TEST 4a: Simple Reconnection After Auto-Disconnect
+17:37:13.331 - INFO - ======================================================================
+17:37:13.331 - INFO - ======================================================================
+17:37:13.331 - INFO - Initializing COM connection to EC-Lab via comtypes
+17:37:13.331 - INFO - ======================================================================
+17:37:13.332 - INFO - Step 1: Creating COM instance
+17:37:13.332 - INFO -   CLSID: {77FE5C93-42EE-4127-944B-5BA14FD33447}
+17:37:13.332 - INFO -   IID:   {642C68D2-85BD-494B-93EB-583CCBB11794}
+17:37:13.332 - INFO -   Using custom IEClabExe interface (NOT IDispatch)
+17:37:13.332 - DEBUG - {77FE5C93-42EE-4127-944B-5BA14FD33447} -> {77FE5C93-42EE-4127-944B-5BA14FD33447}
+17:37:13.333 - DEBUG - CoCreateInstance({77FE5C93-42EE-4127-944B-5BA14FD33447}, clsctx=None, interface=<class '__main__.IEClabExe'>)
+17:37:13.335 - INFO - SUCCESS: COM instance created with custom interface
+17:37:13.335 - INFO - NOTE: Direct vtable access like C code - no IDispatch
+17:37:13.335 - INFO - ======================================================================
+17:37:13.336 - INFO - Calling ConnectDevice(0)...
+17:37:14.316 - INFO - ConnectDevice returned: 1
+17:37:14.316 - INFO - Waiting 5.500195026397705s for auto-disconnect...
+17:37:19.817 - ERROR - Exception during TestConnection: exception: access violation writing 0x0000000000000010
+17:37:19.817 - INFO - Device disconnected as expected
+17:37:19.817 - INFO - Attempting simple reconnection...
+17:37:19.817 - INFO - Calling ConnectDevice(0)...
+17:37:19.818 - INFO - ConnectDevice returned: 1
+17:37:19.818 - INFO - SUCCESS: Simple reconnection worked!
+17:37:19.818 - ERROR - Exception during TestConnection: exception: access violation writing 0x0000000000000010
+17:37:19.818 - WARNING - Verification: TestConnection shows NOT connected
+17:37:19.818 - INFO - Calling DisconnectDevice(0)...
+17:37:20.064 - INFO - DisconnectDevice returned: 1
+17:37:20.064 - DEBUG - Release <POINTER(IEClabExe) ptr=0x1d341a48c98 at 1d3446dff50>
+17:37:22.065 - INFO - ======================================================================
+17:37:22.065 - INFO - TEST 4b: Explicit Disconnect Before Reconnect
+17:37:22.066 - INFO - ======================================================================
+17:37:22.066 - INFO - ======================================================================
+17:37:22.066 - INFO - Initializing COM connection to EC-Lab via comtypes
+17:37:22.066 - INFO - ======================================================================
+17:37:22.066 - INFO - Step 1: Creating COM instance
+17:37:22.066 - INFO -   CLSID: {77FE5C93-42EE-4127-944B-5BA14FD33447}
+17:37:22.067 - INFO -   IID:   {642C68D2-85BD-494B-93EB-583CCBB11794}
+17:37:22.067 - INFO -   Using custom IEClabExe interface (NOT IDispatch)
+17:37:22.067 - DEBUG - {77FE5C93-42EE-4127-944B-5BA14FD33447} -> {77FE5C93-42EE-4127-944B-5BA14FD33447}
+17:37:22.067 - DEBUG - CoCreateInstance({77FE5C93-42EE-4127-944B-5BA14FD33447}, clsctx=None, interface=<class '__main__.IEClabExe'>)
+17:37:22.070 - INFO - SUCCESS: COM instance created with custom interface
+17:37:22.070 - INFO - NOTE: Direct vtable access like C code - no IDispatch
+17:37:22.070 - INFO - ======================================================================
+17:37:22.071 - INFO - Calling ConnectDevice(0)...
+17:37:23.303 - INFO - ConnectDevice returned: 1
+17:37:23.303 - INFO - Waiting 5.500195026397705s for auto-disconnect...
+17:37:28.803 - INFO - Calling DisconnectDevice explicitly...
+17:37:28.804 - INFO - Calling DisconnectDevice(0)...
+17:37:29.066 - INFO - DisconnectDevice returned: 1
+17:37:30.067 - INFO - Attempting reconnection...
+17:37:30.068 - INFO - Calling ConnectDevice(0)...
+17:37:31.329 - INFO - ConnectDevice returned: 1
+17:37:31.329 - INFO - SUCCESS: Reconnection with explicit disconnect worked!
+17:37:31.329 - ERROR - Exception during TestConnection: exception: access violation writing 0x0000000000000010
+17:37:31.330 - WARNING - Verification: TestConnection shows NOT connected
+17:37:31.330 - INFO - Calling DisconnectDevice(0)...
+17:37:31.615 - INFO - DisconnectDevice returned: 1
+17:37:31.616 - DEBUG - Release <POINTER(IEClabExe) ptr=0x1d341a48c98 at 1d3446dff50>
+17:37:33.618 - INFO - ======================================================================
+17:37:33.618 - INFO - TEST 4c: COM Interface Recreation Before Reconnect
+17:37:33.619 - INFO - ======================================================================
+17:37:33.619 - INFO - ======================================================================
+17:37:33.619 - INFO - Initializing COM connection to EC-Lab via comtypes
+17:37:33.619 - INFO - ======================================================================
+17:37:33.619 - INFO - Step 1: Creating COM instance
+17:37:33.620 - INFO -   CLSID: {77FE5C93-42EE-4127-944B-5BA14FD33447}
+17:37:33.620 - INFO -   IID:   {642C68D2-85BD-494B-93EB-583CCBB11794}
+17:37:33.620 - INFO -   Using custom IEClabExe interface (NOT IDispatch)
+17:37:33.620 - DEBUG - {77FE5C93-42EE-4127-944B-5BA14FD33447} -> {77FE5C93-42EE-4127-944B-5BA14FD33447}
+17:37:33.620 - DEBUG - CoCreateInstance({77FE5C93-42EE-4127-944B-5BA14FD33447}, clsctx=None, interface=<class '__main__.IEClabExe'>)
+17:37:33.624 - INFO - SUCCESS: COM instance created with custom interface
+17:37:33.625 - INFO - NOTE: Direct vtable access like C code - no IDispatch
+17:37:33.625 - INFO - ======================================================================
+17:37:33.625 - INFO - Calling ConnectDevice(0)...
+17:37:34.899 - INFO - ConnectDevice returned: 1
+17:37:34.899 - INFO - Waiting 5.500195026397705s for auto-disconnect...
+17:37:40.400 - INFO - Releasing COM interface...
+17:37:40.400 - DEBUG - Release <POINTER(IEClabExe) ptr=0x1d341a48c98 at 1d3446dff50>
+17:37:41.401 - INFO - Recreating COM interface...
+17:37:41.402 - INFO - ======================================================================
+17:37:41.402 - INFO - Initializing COM connection to EC-Lab via comtypes
+17:37:41.403 - INFO - ======================================================================
+17:37:41.403 - INFO - Step 1: Creating COM instance
+17:37:41.403 - INFO -   CLSID: {77FE5C93-42EE-4127-944B-5BA14FD33447}
+17:37:41.404 - INFO -   IID:   {642C68D2-85BD-494B-93EB-583CCBB11794}
+17:37:41.404 - INFO -   Using custom IEClabExe interface (NOT IDispatch)
+17:37:41.404 - DEBUG - {77FE5C93-42EE-4127-944B-5BA14FD33447} -> {77FE5C93-42EE-4127-944B-5BA14FD33447}
+17:37:41.405 - DEBUG - CoCreateInstance({77FE5C93-42EE-4127-944B-5BA14FD33447}, clsctx=None, interface=<class '__main__.IEClabExe'>)
+17:37:41.409 - INFO - SUCCESS: COM instance created with custom interface
+17:37:41.409 - INFO - NOTE: Direct vtable access like C code - no IDispatch
+17:37:41.409 - INFO - ======================================================================
+17:37:41.409 - INFO - Attempting reconnection with new interface...
+17:37:41.409 - INFO - Calling ConnectDevice(0)...
+17:37:41.411 - INFO - ConnectDevice returned: 1
+17:37:41.411 - INFO - SUCCESS: Reconnection with interface recreation worked!
+17:37:41.411 - ERROR - Exception during TestConnection: exception: access violation writing 0x0000000000000010
+17:37:41.411 - WARNING - Verification: TestConnection shows NOT connected
+17:37:41.411 - INFO - Calling DisconnectDevice(0)...
+17:37:41.666 - INFO - DisconnectDevice returned: 1
+17:37:41.666 - DEBUG - Release <POINTER(IEClabExe) ptr=0x1d341a486e8 at 1d3446dff50>
+17:37:43.667 - INFO - ======================================================================
+17:37:43.668 - INFO - TEST 6: Mixed Workload Simulation (Battery Exploder Init)
+17:37:43.668 - INFO - ======================================================================
+17:37:43.668 - INFO - ======================================================================
+17:37:43.669 - INFO - Initializing COM connection to EC-Lab via comtypes
+17:37:43.669 - INFO - ======================================================================
+17:37:43.669 - INFO - Step 1: Creating COM instance
+17:37:43.669 - INFO -   CLSID: {77FE5C93-42EE-4127-944B-5BA14FD33447}
+17:37:43.670 - INFO -   IID:   {642C68D2-85BD-494B-93EB-583CCBB11794}
+17:37:43.670 - INFO -   Using custom IEClabExe interface (NOT IDispatch)
+17:37:43.670 - DEBUG - {77FE5C93-42EE-4127-944B-5BA14FD33447} -> {77FE5C93-42EE-4127-944B-5BA14FD33447}
+17:37:43.670 - DEBUG - CoCreateInstance({77FE5C93-42EE-4127-944B-5BA14FD33447}, clsctx=None, interface=<class '__main__.IEClabExe'>)
+17:37:43.673 - INFO - SUCCESS: COM instance created with custom interface
+17:37:43.674 - INFO - NOTE: Direct vtable access like C code - no IDispatch
+17:37:43.674 - INFO - ======================================================================
+17:37:43.674 - INFO - === Phase 1: Initial Connection ===
+17:37:43.674 - INFO - Calling ConnectDevice(0)...
+17:37:44.838 - INFO - ConnectDevice returned: 1
+17:37:44.838 - INFO - === Phase 2: Diagnostic (5 TestConnection calls) ===
+17:37:44.838 - ERROR - Exception during TestConnection: exception: access violation writing 0x0000000000000010
+17:37:44.838 - ERROR - Diagnostic call 1 failed!
+17:37:44.838 - INFO - Calling DisconnectDevice(0)...
+17:37:45.142 - INFO - DisconnectDevice returned: 1
+17:37:45.142 - DEBUG - Release <POINTER(IEClabExe) ptr=0x1d341a48c98 at 1d3446dff50>
+17:37:45.143 - INFO - 
+======================================================================
+17:37:45.144 - INFO - TEST SUMMARY
+17:37:45.144 - INFO - ======================================================================
+17:37:45.144 - INFO - Baseline Disconnect Time: 0.50s
+17:37:45.144 - INFO - 
+Keep-Alive Results:
+17:37:45.144 - INFO -   5s interval: FAIL
+17:37:45.144 - INFO -   3s interval: FAIL
+17:37:45.144 - INFO -   2s interval: FAIL
+17:37:45.144 - INFO -   1s interval: FAIL
+17:37:45.145 - INFO - 
+LoadSettings Test:
+17:37:45.145 - INFO -   Immediate LoadSettings: SKIPPED
+17:37:45.145 - INFO - 
+Reconnection Strategy Results:
+17:37:45.145 - INFO -   Simple reconnect: FAIL
+17:37:45.145 - INFO -   Disconnect first: FAIL
+17:37:45.145 - INFO -   Interface recreation: FAIL
+17:37:45.145 - INFO - 
+Mixed Workload Test:
+17:37:45.145 - INFO -   Battery Exploder simulation: FAIL
+17:37:45.145 - INFO - 
+======================================================================
+17:37:45.145 - INFO - Testing complete. Review log for detailed results.
+17:37:45.146 - INFO - ======================================================================
+17:37:45.146 - DEBUG - Calling CoUninitialize()
+17:37:45.147 - DEBUG - CoUninitialize() done.

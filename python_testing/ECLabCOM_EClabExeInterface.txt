@@ -1,0 +1,178 @@
+[
+  odl,
+  uuid(642C68D2-85BD-494B-93EB-583CCBB11794),
+  helpstring("Interface for EClabExe Object"),
+  oleautomation
+]
+interface IEClabExe : IUnknown {
+    int _stdcall ConnectDevice([in] int DeviceNumber);
+    int _stdcall DisconnectDevice([in] int DeviceNumber);
+    int _stdcall MeasureDcValue(
+                    [in] BSTR FileName, 
+                    [in] int DataIndex, 
+                    [out] VARIANT* Data);
+    int _stdcall MeasureEisValue(
+                    [in] BSTR FileName, 
+                    [in] int DataIndex, 
+                    [out] VARIANT* Data);
+    int _stdcall MeasureNumberOfPoints([in] BSTR FileName);
+    int _stdcall GetDeviceChannelList(
+                    [in] int Device, 
+                    [out] VARIANT* ChannelArray);
+    int _stdcall LoadSettings(
+                    [in] int Device, 
+                    [in] int Channel, 
+                    [in] BSTR FileName);
+    int _stdcall RunChannel(
+                    [in] int Device, 
+                    [in] int Channel, 
+                    [in] BSTR FileName);
+    int _stdcall StopChannel(
+                    [in] int Device, 
+                    [in] int Channel);
+    int _stdcall GetDataFileName(
+                    [in] int Device, 
+                    [in] int Channel, 
+                    [in] int Technique, 
+                    [out] VARIANT* FileName);
+    int _stdcall MeasureStatus(
+                    [in] int Device, 
+                    [in] int Channel, 
+                    [out] VARIANT* CurrentValues);
+    int _stdcall TestConnection([in] int DeviceNumber);
+    int _stdcall ConnectDeviceByIP(
+                    [in] BSTR IPaddress, 
+                    [out] int* DeviceNumber);
+    HRESULT _stdcall ConnectDevice_TS(
+                    [in] int DeviceNumber, 
+                    [out] int* FunctionResult);
+    HRESULT _stdcall DisconnectDevice_TS(
+                    [in] int DeviceNumber, 
+                    [out] int* FunctionResult);
+    HRESULT _stdcall MeasureDCValue_TS(
+                    [in] BSTR FileName, 
+                    [in] int DataIndex, 
+                    [out] VARIANT* Data, 
+                    [out] int* FunctionResult);
+    HRESULT _stdcall MeasureEisValue_TS(
+                    [in] BSTR FileName, 
+                    [in] int DataIndex, 
+                    [out] VARIANT* Data, 
+                    [out] int* FunctionResult);
+    HRESULT _stdcall MeasureNumberOfPoints_TS(
+                    [in] BSTR FileName, 
+                    [out] int* FunctionResult);
+    HRESULT _stdcall GetDeviceChannelList_TS(
+                    [in] int Device, 
+                    [out] VARIANT* ChannelArray, 
+                    [out] int* FunctionResult);
+    HRESULT _stdcall LoadSettings_TS(
+                    [in] int Device, 
+                    [in] int Channel, 
+                    [in] BSTR FileName, 
+                    [out] int* FunctionResult);
+    HRESULT _stdcall RunChannel_TS(
+                    [in] int Device, 
+                    [in] int Channel, 
+                    [in] BSTR FileName, 
+                    [out] int* FunctionResult);
+    HRESULT _stdcall StopChannel_TS(
+                    [in] int Device, 
+                    [in] int Channel, 
+                    [out] int* FunctionResult);
+    HRESULT _stdcall GetDataFileName_TS(
+                    [in] int Device, 
+                    [in] int Channel, 
+                    [in] int Technique, 
+                    [out] VARIANT* FileName, 
+                    [out] int* FunctionResult);
+    HRESULT _stdcall MeasureStatus_TS(
+                    [in] int Device, 
+                    [in] int Channel, 
+                    [out] VARIANT* CurrentValues, 
+                    [out] int* FunctionResult);
+    HRESULT _stdcall TestConnection_TS(
+                    [in] int DeviceNumber, 
+                    [out] int* FunctionResult);
+    HRESULT _stdcall ConnectDeviceByIP_TS(
+                    [in] BSTR IPaddress, 
+                    [out] int* DeviceNumber, 
+                    [out] int* FunctionResult);
+    HRESULT _stdcall GetDeviceSN(
+                    [in] int DeviceNumber, 
+                    [out] int* DeviceSN, 
+                    [out] VARIANT* ModuleSNArray, 
+                    [out] int* FunctionResult);
+    HRESULT _stdcall SelectDevice(
+                    [in] int Device, 
+                    [out] int* FunctionResult);
+    HRESULT _stdcall SelectChannel(
+                    [in] int Device, 
+                    [in] int Channel, 
+                    [out] int* FunctionResult);
+    HRESULT _stdcall MeasureValueByCode(
+                    [in] BSTR FileName, 
+                    [in] int VarCode, 
+                    [in] int DataIndex, 
+                    [out] double* Data, 
+                    [out] int* FunctionResult);
+    HRESULT _stdcall MeasureValueByID(
+                    [in] BSTR FileName, 
+                    [in] BSTR VarID, 
+                    [in] int DataIndex, 
+                    [out] double* Data, 
+                    [out] int* FunctionResult);
+    HRESULT _stdcall GroupChannels(
+                    [in] int NbChannels, 
+                    [in] VARIANT ChannelsArray, 
+                    [out] int* FunctionResult);
+    HRESULT _stdcall GetDeviceType(
+                    [in] int DeviceNumber, 
+                    [out] VARIANT* DeviceType, 
+                    [out] int* FunctionResult);
+    HRESULT _stdcall GetExperimentInfos(
+                    [in] int DeviceNumber, 
+                    [in] int ChannelNumber, 
+                    [out] VARIANT* ExpStartTime, 
+                    [out] VARIANT* ExpEndTime, 
+                    [out] VARIANT* ExpPath, 
+                    [out] VARIANT* ExpDataFiles, 
+                    [out] int* FunctionResult);
+    HRESULT _stdcall CopyMpsToMps(
+                    [in] BSTR InFileName, 
+                    [in, out] BSTR* OutFileName, 
+                    [out] int* FunctionResult);
+    HRESULT _stdcall CopyMprToMps(
+                    [in] BSTR InFileName, 
+                    [in, out] BSTR* OutFileName, 
+                    [out] int* FunctionResult);
+    HRESULT _stdcall CopyMptToMps(
+                    [in] BSTR InFileName, 
+                    [in, out] BSTR* OutFileName, 
+                    [out] int* FunctionResult);
+    HRESULT _stdcall EnableMessagesWindows(
+                    [in] int EnabledWinMess, 
+                    [out] int* FunctionResult);
+    [helpstring("Get the software's version")]
+    HRESULT _stdcall GetSoftwareVersion(
+                    [out] BSTR* SoftwareVersion, 
+                    [out] int* FunctionResult);
+    HRESULT _stdcall GetChannelInfos(
+                    [in] int Device, 
+                    [in] int Channel, 
+                    [out] VARIANT* ChannelInfos, 
+                    [out] int* FunctionResult);
+};
+
+
+[
+  uuid(77FE5C93-42EE-4127-944B-5BA14FD33447),
+  helpstring("EClabExe"),
+  appobject
+]
+coclass EClabExe {
+    [default] interface IEClabExe;
+};
+
+
+
